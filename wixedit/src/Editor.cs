@@ -95,6 +95,8 @@ namespace WixEdit
 
             propertyListView.ContextMenu = contextMenu;
            
+            Opacity100.Checked = true;
+           
 		}
 
 		/// <summary>
@@ -173,25 +175,25 @@ namespace WixEdit
             // 
             this.Opacity100.Index = 0;
             this.Opacity100.Text = "Set Opacity 100%";
-            this.Opacity100.Click += new System.EventHandler(this.Opacity100_Click);
+            this.Opacity100.Click += new System.EventHandler(this.Opacity_Click);
             // 
             // Opacity75
             // 
             this.Opacity75.Index = 1;
             this.Opacity75.Text = "Set Opacity 75%";
-            this.Opacity75.Click += new System.EventHandler(this.Opacity75_Click);
+            this.Opacity75.Click += new System.EventHandler(this.Opacity_Click);
             // 
             // Opacity50
             // 
             this.Opacity50.Index = 2;
             this.Opacity50.Text = "Set Opacity 50%";
-            this.Opacity50.Click += new System.EventHandler(this.Opacity50_Click);
+            this.Opacity50.Click += new System.EventHandler(this.Opacity_Click);
             // 
             // Opacity25
             // 
             this.Opacity25.Index = 3;
             this.Opacity25.Text = "Set Opacity 25%";
-            this.Opacity25.Click += new System.EventHandler(this.Opacity25_Click);
+            this.Opacity25.Click += new System.EventHandler(this.Opacity_Click);
             // 
             // dialogTreeView
             // 
@@ -379,6 +381,8 @@ namespace WixEdit
             currentDialog.Left = prevLeft;
             currentDialog.Top = prevTop;
 
+            currentDialog.Opacity = GetOpacity();
+
 
             currentDialog.Show();
             if (prevDialog != null) {
@@ -507,29 +511,38 @@ namespace WixEdit
             }
         }
 
-        private void Opacity100_Click(object sender, System.EventArgs e) {
+        private void Opacity_Click(object sender, System.EventArgs e) {
+            UncheckOpacityMenu();
+
+            MenuItem item = sender as MenuItem;
+            if (item != null) {
+                item.Checked = true;
+        }
+
             if (currentDialog != null) {
-                currentDialog.Opacity = 1;
+                currentDialog.Opacity = GetOpacity();
             }
         }
 
-        private void Opacity75_Click(object sender, System.EventArgs e) {
-            if (currentDialog != null) {
-                currentDialog.Opacity = 0.75;
-            }
+        private void UncheckOpacityMenu() {
+            Opacity100.Checked = false;
+            Opacity75.Checked = false;
+            Opacity50.Checked = false;
+            Opacity25.Checked = false;
         }
 
-        private void Opacity50_Click(object sender, System.EventArgs e) {
-            if (currentDialog != null) {
-                currentDialog.Opacity = 0.5;
-            }
+        private double GetOpacity() {
+            if (Opacity100.Checked) {
+                return 1.00;
+            } else if (Opacity75.Checked) {
+                return 0.75;
+            } else if (Opacity50.Checked) {
+                return 0.50;
+            } else if (Opacity25.Checked) {
+                return 0.25;
         }
 
-        private void Opacity25_Click(object sender, System.EventArgs e) {
-            if (currentDialog != null) {
-                currentDialog.Opacity = 0.25;
-            }
+            return 1.00;
         }
-
     }
 }
