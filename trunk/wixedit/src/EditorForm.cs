@@ -66,16 +66,20 @@ namespace WixEdit
             this.openWxsFileDialog = new System.Windows.Forms.OpenFileDialog();
 
             this.mainMenu = new System.Windows.Forms.MainMenu();
-            this.fileMenu = new System.Windows.Forms.MenuItem();
-            this.fileLoad = new System.Windows.Forms.MenuItem();
-            this.fileClose = new System.Windows.Forms.MenuItem();          
+            this.fileMenu = new IconMenuItem();
+            this.fileLoad = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.open.ico")));
+            this.fileClose = new IconMenuItem();
 
             this.fileLoad.Text = "Load";
             this.fileLoad.Click += new System.EventHandler(this.fileLoad_Click);
+            this.fileLoad.Shortcut = Shortcut.CtrlO;
+            this.fileLoad.ShowShortcut = true;
 
             this.fileClose.Text = "Close";
             this.fileClose.Click += new System.EventHandler(this.fileClose_Click);
             this.fileClose.Enabled = false;
+            this.fileClose.Shortcut = Shortcut.CtrlW;
+            this.fileClose.ShowShortcut = true;
 
             this.fileMenu.Text = "File";
             this.fileMenu.MenuItems.Add(0, this.fileLoad);
