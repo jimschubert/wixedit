@@ -376,14 +376,14 @@ namespace WixEdit {
                 throw new Exception(String.Format("src Attribute of binary with id \"{0}\" is invalid.", binaryId));
             }
 
-            if (Path.IsPathRooted(src) == true) {
+            if (Path.IsPathRooted(src)) {
                 if (File.Exists(src) == false) {
                     throw new FileNotFoundException(String.Format("File of binary with id \"{0}\" is not found.", binaryId), src);
                 }
 
                 return File.Open(src, FileMode.Open);
             } else {
-                if (File.Exists(src) == true) {
+                if (File.Exists(src)) {
                     return File.Open(src, FileMode.Open);
                 } else {
                     FileInfo[] files = _baseDirectory.GetFiles(src);
