@@ -21,17 +21,21 @@
    IN THE SOFTWARE.
 -->
 <project name="WixEdit" default="all">
+    <property name="project.version" value="0.1.1"/>
+
     <property name="project.build" value="${nant.project.basedir}\build"/>
-    <property name="project.src" value="${nant.project.basedir}\src"/>
-    <property name="project.res" value="${nant.project.basedir}\res" />
+    <property name="project.source" value="${nant.project.basedir}\src"/>
+    <property name="project.resource" value="${nant.project.basedir}\res" />
+    <property name="project.sample" value="${nant.project.basedir}\sample"/>
+    <property name="project.release" value="${nant.project.basedir}\release"/>
 
     <property name="project.output" value="${project.build}\${nant.project.name}.exe"/>
 
-    <fileset id="project.sources" basedir="${nant.project.basedir}">
+    <fileset id="project.files.sources" basedir="${nant.project.basedir}">
         <includes name="**/*.cs" />
     </fileset>
 
-    <resourcefileset id="project.resources" prefix="${nant.project.name}" basedir="${project.res}">
+    <resourcefileset id="project.files.resources" prefix="${nant.project.name}" basedir="${project.resource}">
         <includes name="**/*.*" />
     </resourcefileset>
 
@@ -39,16 +43,50 @@
 
     <target name="clean">
         <delete failonerror="false" dir="${project.build}"/>
+        <delete failonerror="false" dir="${project.release}"/>
+        <delete failonerror="false" file="${project.source}/AssemblyVersionInfo.cs"/>
     </target>
 
     <target name="build">
 		<mkdir dir="${project.build}" />
 		<csc    target="winexe" 
                 output="${project.output}"
-                win32icon="${project.src}/App.ico">
-			<sources refid="project.sources" />
-			<resources refid="project.resources" />
+                win32icon="${project.source}/App.ico">
+			<sources refid="project.files.sources" />
+			<resources refid="project.files.resources" />
         </csc>
-        <copy file="${project.src}\${nant.project.name}.exe.manifest" todir="${project.build}" />  
+        <copy file="${project.source}\${nant.project.name}.exe.manifest" todir="${project.build}" />  
+    </target>
+
+    <target name="release" depends="generate-version,all">
+		<mkdir dir="${project.release}" />
+        <zip zipfile="${project.release}\wixedit-${project.version}-bin.zip">
+            <fileset basedir="${nant.project.basedir}">
+                <includes name="build/**/*" />
+                <includes name="sample/**/*" />
+                <excludes name="**/CVS/" />
+            </fileset>
+        </zip>
+        <zip zipfile="${project.release}\wixedit-${project.version}-src.zip">
+            <fileset basedir="${nant.project.basedir}">
+                <includes name="src/**/*" />
+                <includes name="res/**/*" />
+                <includes name="sample/**/*" />
+                <includes name="*.build" />
+                <excludes name="**/CVS/" />
+            </fileset>
+        </zip>
+    </target>
+
+    <target name="generate-version">
+        <asminfo output="${project.source}/AssemblyVersionInfo.cs" language="CSharp">
+            <imports>
+                <import name="System.Reflection" />
+            </imports>
+            <attributes>
+                <attribute type="AssemblyVersionAttribute" value="${project.version}.*" />
+                <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
+            </attributes>
+        </asminfo>
     </target>
 </project>
