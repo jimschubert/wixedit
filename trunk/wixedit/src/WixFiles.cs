@@ -99,5 +99,9 @@ namespace WixEdit {
         }
 
         #endregion
+
+        public void Save() {
+            this._wxsDocument.Save(_wxsFile.FullName);
+        }
     }
 }

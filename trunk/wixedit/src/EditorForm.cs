@@ -22,7 +22,6 @@
 using System;
 using System.Drawing;
 using System.Collections;
-using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
 using System.Xml;
@@ -35,9 +34,8 @@ namespace WixEdit
 	/// <summary>
 	/// Summary description for Form1.
 	/// </summary>
-	public class EditorForm : System.Windows.Forms.Form
-	{
-        private System.Windows.Forms.OpenFileDialog openWxsFileDialog;
+	public class EditorForm : Form 	{
+        private OpenFileDialog openWxsFileDialog;
 
         private TabControl tabControl;
         private TabPage editDialogPage;
@@ -45,12 +43,15 @@ namespace WixEdit
         private EditDialogPanel editDialogPanel;
         private EditPropertiesPanel editPropertiesPanel;
 
-        private System.Windows.Forms.MainMenu mainMenu;
-        private System.Windows.Forms.MenuItem fileMenu;
-        private System.Windows.Forms.MenuItem fileLoad;
-        private System.Windows.Forms.MenuItem fileClose;
+        private MainMenu mainMenu;
+        private MenuItem fileMenu;
+        private MenuItem fileLoad;
+        private MenuItem fileSave;
+        private MenuItem fileClose;
+        private MenuItem fileSeparator;
+        private MenuItem fileExit;
 
-		private System.ComponentModel.Container components = null;
+        private bool fileIsDirty;
 
         private WixFiles wixFiles;
 
@@ -63,17 +64,28 @@ namespace WixEdit
             this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
             this.ClientSize = new System.Drawing.Size(553, 358); // Height of 358 aligns the bottom of the dialog selection list 
 
-            this.openWxsFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.openWxsFileDialog = new OpenFileDialog();
 
-            this.mainMenu = new System.Windows.Forms.MainMenu();
+            this.mainMenu = new MainMenu();
             this.fileMenu = new IconMenuItem();
-            this.fileLoad = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.open.ico")));
+            this.fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.open.bmp")));
+            this.fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.save.bmp")));
             this.fileClose = new IconMenuItem();
+            this.fileSeparator = new IconMenuItem("-");
+            this.fileExit = new IconMenuItem();
 
-            this.fileLoad.Text = "Load";
+            this.fileLoad.Text = "Open";
             this.fileLoad.Click += new System.EventHandler(this.fileLoad_Click);
             this.fileLoad.Shortcut = Shortcut.CtrlO;
             this.fileLoad.ShowShortcut = true;
+
+            this.fileSave.Text = "Save";
+            this.fileSave.Click += new System.EventHandler(this.fileSave_Click);
+            this.fileSave.Enabled = false;
+            this.fileSave.Shortcut = Shortcut.CtrlS;
+            this.fileSave.ShowShortcut = true;
+
+            this.fileIsDirty = false;
 
             this.fileClose.Text = "Close";
             this.fileClose.Click += new System.EventHandler(this.fileClose_Click);
@@ -81,9 +93,17 @@ namespace WixEdit
             this.fileClose.Shortcut = Shortcut.CtrlW;
             this.fileClose.ShowShortcut = true;
 
+            this.fileExit.Text = "Exit";
+            this.fileExit.Click += new System.EventHandler(this.fileExit_Click);
+            this.fileExit.Shortcut = Shortcut.AltF4;
+            this.fileExit.ShowShortcut = true;
+
             this.fileMenu.Text = "File";
             this.fileMenu.MenuItems.Add(0, this.fileLoad);
-            this.fileMenu.MenuItems.Add(1, this.fileClose);
+            this.fileMenu.MenuItems.Add(1, this.fileSave);
+            this.fileMenu.MenuItems.Add(2, this.fileClose);
+            this.fileMenu.MenuItems.Add(3, this.fileSeparator);
+            this.fileMenu.MenuItems.Add(4, this.fileExit);
             
             this.mainMenu.MenuItems.Add(0, this.fileMenu);
 
@@ -100,8 +120,19 @@ namespace WixEdit
             }
         }
 
+        private void fileSave_Click(object sender, System.EventArgs e) {
+            ToggleDirty(false);
+            this.fileSave.Enabled = true;
+
+            this.wixFiles.Save();
+        }
+
         private void fileClose_Click(object sender, System.EventArgs e) {
             CloseWxsFile();
+        }
+
+        private void fileExit_Click(object sender, System.EventArgs e) {
+            Application.Exit();
         }
 
         private void LoadWxsFile(string file) {
@@ -112,7 +143,7 @@ namespace WixEdit
             this.Controls.Add(this.tabControl);
 
             //this.tabControl.Alignment = TabAlignment.Left;
-            this.tabControl.Appearance = TabAppearance.FlatButtons;
+            //this.tabControl.Appearance = TabAppearance.FlatButtons;
             
             // Add dialog tab
             this.editDialogPage = new TabPage("Dialogs");
@@ -138,6 +169,20 @@ namespace WixEdit
             // Update menu
             this.fileClose.Enabled = true;
             this.Text = "WiX Edit - " + this.wixFiles.WxsFile.Name;
+
+            ToggleDirty(false);
+            this.fileSave.Enabled = true;
+        }
+
+        private void ToggleDirty(bool dirty) {
+            this.fileIsDirty = true;
+            this.fileSave.Enabled = true;
+            return;
+
+            if (dirty != this.fileIsDirty) {
+                this.fileIsDirty = dirty;
+                this.fileSave.Enabled = dirty;
+            }
         }
 
         private void CloseWxsFile() {
@@ -168,6 +213,9 @@ namespace WixEdit
 
             this.fileClose.Enabled = false;
             this.Text = "WiX Edit";
+
+            ToggleDirty(false);
+            this.fileSave.Enabled = false;
         }
 
 		/// <summary>
@@ -175,12 +223,7 @@ namespace WixEdit
 		/// </summary>
 		protected override void Dispose( bool disposing )
 		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
-					components.Dispose();
-				}
+			if( disposing ) {
 			}
 			base.Dispose( disposing );
 		}

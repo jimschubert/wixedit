@@ -99,7 +99,7 @@ namespace WixEdit {
 
             _parentHwnd = (int)parent.Handle;
 
-            newDialog.Font = new Font("Tahoma", 8.00F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+            newDialog.Font = new Font("Tahoma", 8.00F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
             newDialog.ShowInTaskbar = false;
             newDialog.TopLevel = true;
             // newDialog.TopMost = true;
@@ -137,6 +137,45 @@ namespace WixEdit {
             XmlNodeList texts = dialog.SelectNodes("wix:Control[@Type='Text']", _wixFiles.WxsNsmgr);
             AddTexts(newDialog, texts);
 
+            XmlNodeList rtfTexts = dialog.SelectNodes("wix:Control[@Type='ScrollableText']", _wixFiles.WxsNsmgr);
+            AddRftTextBoxes(newDialog, rtfTexts);
+
+            XmlNodeList groupBoxes = dialog.SelectNodes("wix:Control[@Type='GroupBox']", _wixFiles.WxsNsmgr);
+            AddGroupBoxes(newDialog, groupBoxes);
+
+            XmlNodeList icons = dialog.SelectNodes("wix:Control[@Type='Icon']", _wixFiles.WxsNsmgr);
+            AddIcons(newDialog, icons);
+
+            XmlNodeList listBoxes = dialog.SelectNodes("wix:Control[@Type='ListBox']", _wixFiles.WxsNsmgr);
+            AddListBoxes(newDialog, listBoxes);
+
+            XmlNodeList progressBars = dialog.SelectNodes("wix:Control[@Type='ProgressBar']", _wixFiles.WxsNsmgr);
+            AddProgressBars(newDialog, progressBars);
+
+            XmlNodeList radioButtonGroups = dialog.SelectNodes("wix:Control[@Type='RadioButtonGroup']", _wixFiles.WxsNsmgr);
+            AddRadioButtonGroups(newDialog, radioButtonGroups);
+/*
+            XmlNodeList maskedEdits = dialog.SelectNodes("wix:Control[@Type='MaskedEdit']", _wixFiles.WxsNsmgr);
+            AddMaskedEdits(newDialog, maskedEdits);
+
+            XmlNodeList volumeCostLists = dialog.SelectNodes("wix:Control[@Type='VolumeCostList']", _wixFiles.WxsNsmgr);
+            AddVolumeCostLists(newDialog, volumeCostLists);
+
+            XmlNodeList tooltips = dialog.SelectNodes("wix:Control[@Type='Tooltips']", _wixFiles.WxsNsmgr);
+            AddTooltips(newDialog, tooltips);
+*/
+            XmlNodeList directoryCombos = dialog.SelectNodes("wix:Control[@Type='DirectoryCombo']", _wixFiles.WxsNsmgr);
+            AddDirectoryCombos(newDialog, directoryCombos);
+/*
+            XmlNodeList directoryLists = dialog.SelectNodes("wix:Control[@Type='DirectoryList']", _wixFiles.WxsNsmgr);
+            AddDirectoryLists(newDialog, directoryLists);
+
+            XmlNodeList selectionTrees = dialog.SelectNodes("wix:Control[@Type='SelectionTree']", _wixFiles.WxsNsmgr);
+            AddSelectionTrees(newDialog, selectionTrees);
+
+*/
+
+
             XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", _wixFiles.WxsNsmgr);
             AddBackgroundBitmaps(newDialog, bitmaps);
 
@@ -165,6 +204,13 @@ namespace WixEdit {
         /// <returns></returns>
         [DllImport("user32")]
         public static extern int GetDialogBaseUnits(int hwnd);
+
+
+// http://msdn.microsoft.com/library/en-us/msi/setup/installer_units.asp
+// Platform SDK: Windows Installer
+// Installer Units
+
+// A Windows Installer user interface unit is equal to one-twelfth (1/12) the height of the 10-point MS Sans Serif font size.
 
         private int dialogUnitToPixelsWidth(int dlus) {
             long  DLUs = GetDialogBaseUnits(_parentHwnd);
@@ -227,9 +273,6 @@ namespace WixEdit {
             foreach (XmlNode button in buttons) {
                 Button newButton = new Button();
                 SetControlSizes(newButton, button);
-
-//              <Control Id="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" 
-//               Icon="yes" FixedSize="yes" IconSize="16" Text="Up">
 
                 if (button.Attributes["Icon"] != null &&
                     button.Attributes["Icon"].Value.ToLower() == "yes") {
@@ -296,6 +339,104 @@ namespace WixEdit {
                 newDialog.Controls.Add(label);
             }
         }
+
+        private void AddRftTextBoxes(Form newDialog, XmlNodeList rtfTexts) {
+            foreach (XmlNode text in rtfTexts) {
+                RichTextBox rtfCtrl = new RichTextBox();
+                SetControlSizes(rtfCtrl, text);
+                rtfCtrl.Rtf = GetTextFromXmlElement(text);
+
+                newDialog.Controls.Add(rtfCtrl);
+            }
+        }
+
+        private void AddGroupBoxes(Form newDialog, XmlNodeList groupBoxes) {
+            foreach (XmlNode group in groupBoxes) {
+                GroupBox groupCtrl = new GroupBox();
+                SetControlSizes(groupCtrl, group);
+                SetText(groupCtrl, group);
+
+                newDialog.Controls.Add(groupCtrl);
+            }
+        }
+
+        private void AddIcons(Form newDialog, XmlNodeList icons) {
+            foreach (XmlNode icon in icons) {
+                PictureBox picCtrl = new PictureBox();
+                SetControlSizes(picCtrl, icon);
+
+                picCtrl.SizeMode = PictureBoxSizeMode.StretchImage;
+
+                string binaryId = GetTextFromXmlElement(icon);
+                try {
+                    Stream imageStream = GetBinaryStream(binaryId);
+                    picCtrl.Image = new Bitmap(imageStream);
+                } catch {
+                }
+
+                newDialog.Controls.Add(picCtrl);
+            }
+        }
+
+        private void AddListBoxes(Form newDialog, XmlNodeList listBoxes) {
+            foreach (XmlNode list in listBoxes) {
+                ListBox listCtrl = new ListBox();
+                SetControlSizes(listCtrl, list);
+
+                listCtrl.Items.Add(GetFromXmlElement(list, "Property"));
+
+                newDialog.Controls.Add(listCtrl);
+            }
+        }
+
+        private void AddProgressBars(Form newDialog, XmlNodeList progressBars) {
+            foreach (XmlNode progressbar in progressBars) {
+                ProgressBar progressCtrl = new ProgressBar();
+                SetControlSizes(progressCtrl, progressbar);
+
+                progressCtrl.Maximum = 100;
+                progressCtrl.Value = 33;
+
+                newDialog.Controls.Add(progressCtrl);
+            }
+        }
+
+        private void AddRadioButtonGroups(Form newDialog, XmlNodeList radioButtonGroups) {
+            foreach (XmlNode radioButtonGroup in radioButtonGroups) {
+                string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
+                string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
+
+                XmlNode radioGroup = _wixFiles.WxsDocument.SelectSingleNode("//wix:RadioGroup[@Property='IAgree']", _wixFiles.WxsNsmgr);
+
+                Panel panel = new Panel();
+                SetControlSizes(panel, radioButtonGroup);
+
+                foreach (XmlNode radioElement in radioGroup.ChildNodes) {
+                    RadioButton radioCtrl = new RadioButton();
+                    SetText(radioCtrl, radioElement);
+                    SetTag(radioCtrl, radioElement);
+
+                    SetControlSizes(radioCtrl, radioElement);
+                    
+                    panel.Controls.Add(radioCtrl);
+
+                    if (((string)radioCtrl.Tag).ToLower() == defaultValue.ToLower()) {
+                        radioCtrl.Checked = true;
+                    }
+                }
+
+                newDialog.Controls.Add(panel);
+            }
+        }
+
+        private void AddDirectoryCombos(Form newDialog, XmlNodeList directoryCombos) {
+            foreach (XmlNode directoryCombo in directoryCombos) {
+                ComboBox comboCtrl = new ComboBox();
+                SetControlSizes(comboCtrl, directoryCombo);
+
+                newDialog.Controls.Add(comboCtrl);
+            }
+        }
         
         private void AddBackgroundBitmaps(Form newDialog, XmlNodeList bitmaps) {
             foreach (XmlNode bitmap in bitmaps) {
@@ -358,13 +499,24 @@ namespace WixEdit {
             textControl.Text = textValue;
         }
 
+        private void SetTag(Control textControl, XmlNode textElement) {
+            string textValue = textElement.InnerText;         
+
+            textControl.Tag = textValue;
+        }
+
+
         private string GetTextFromXmlElement(XmlNode textElement) {
+            return GetFromXmlElement(textElement, "Text");
+        }
+
+        private string GetFromXmlElement(XmlNode textElement, string propertyToGet) {
             string textValue = String.Empty;
 
-            if (textElement.Attributes["Text"] != null) {
-                textValue = ExpandWixProperties(textElement.Attributes["Text"].Value);
+            if (textElement.Attributes[propertyToGet] != null) {
+                textValue = ExpandWixProperties(textElement.Attributes[propertyToGet].Value);
             } else {
-                XmlNode text = textElement.SelectSingleNode("wix:Text", _wixFiles.WxsNsmgr);
+                XmlNode text = textElement.SelectSingleNode("wix:"+propertyToGet, _wixFiles.WxsNsmgr);
                 if (text != null) {
                     textValue = ExpandWixProperties(text.InnerText);
                 }

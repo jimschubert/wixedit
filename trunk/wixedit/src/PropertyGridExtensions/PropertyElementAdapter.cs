@@ -30,8 +30,18 @@ namespace WixEdit.PropertyGridExtensions {
     /// </summary>
     public class PropertyElementAdapter : PropertyAdapterBase {
         protected XmlNodeList propertyNodes;
+
         public PropertyElementAdapter(XmlNodeList propertyNodes, WixFiles wixFiles) : base(wixFiles) {
             this.propertyNodes = propertyNodes;
+        }
+
+        public XmlNodeList PropertyNodes {
+            get {
+                return this.propertyNodes;
+            }
+            set {
+                this.propertyNodes = value;
+            }
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
