@@ -49,11 +49,11 @@ namespace WixEdit {
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.MenuItem viewMenu;
-        private System.Windows.Forms.MenuItem Opacity100;
-        private System.Windows.Forms.MenuItem Opacity75;
-        private System.Windows.Forms.MenuItem Opacity50;
-        private System.Windows.Forms.MenuItem Opacity25;
+        private IconMenuItem viewMenu;
+        private IconMenuItem Opacity100;
+        private IconMenuItem Opacity75;
+        private IconMenuItem Opacity50;
+        private IconMenuItem Opacity25;
 
         #endregion
 
@@ -86,11 +86,11 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            this.viewMenu = new System.Windows.Forms.MenuItem();
-            this.Opacity100 = new System.Windows.Forms.MenuItem();
-            this.Opacity75 = new System.Windows.Forms.MenuItem();
-            this.Opacity50 = new System.Windows.Forms.MenuItem();
-            this.Opacity25 = new System.Windows.Forms.MenuItem();
+            this.viewMenu = new IconMenuItem();
+            this.Opacity100 = new IconMenuItem();
+            this.Opacity75 = new IconMenuItem();
+            this.Opacity50 = new IconMenuItem();
+            this.Opacity25 = new IconMenuItem();
             this.dialogTreeView = new System.Windows.Forms.TreeView();
             this.propertyGrid = new PropertyGrid();
             this.propertyGridContextMenu = new ContextMenu();
@@ -224,18 +224,26 @@ namespace WixEdit {
                 return;
             }
 
+            MenuItem menuItemSeparator = new IconMenuItem("-");
+
             // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new MenuItem("&New");
-            MenuItem menuItem2 = new MenuItem("&Delete");
+            MenuItem menuItem1 = new IconMenuItem("&New");
+            MenuItem menuItem2 = new IconMenuItem("&Delete");
+            MenuItem menuItem3 = new IconMenuItem("Description");
+            
+            menuItem3.Checked = propertyGrid.HelpVisible;
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
             menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+            menuItem3.Click += new EventHandler(OnToggleDescriptionPropertyGrid);
         
             // Clear all previously added MenuItems.
             propertyGridContextMenu.MenuItems.Clear();
 
             propertyGridContextMenu.MenuItems.Add(menuItem1);
             propertyGridContextMenu.MenuItems.Add(menuItem2);
+            propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
+            propertyGridContextMenu.MenuItems.Add(menuItem3);
 /*         
             if(contextMenu1.SourceControl == textBox1)
             {
@@ -273,6 +281,10 @@ namespace WixEdit {
             propertyGrid.SelectedObject = attAdapter;
             propertyGrid.Update();
 */
+        }
+
+        public void OnToggleDescriptionPropertyGrid(object sender, EventArgs e) {
+            propertyGrid.HelpVisible = !propertyGrid.HelpVisible;
         }
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
