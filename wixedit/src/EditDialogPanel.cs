@@ -21,8 +21,10 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Collections;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Data;
 using System.Xml;
@@ -30,110 +32,67 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 
-namespace WixEdit
-{
-	/// <summary>
-	/// Summary description for Form1.
-	/// </summary>
-	public class EditorForm : System.Windows.Forms.Form
-	{
+using WixEdit.PropertyGridExtensions;
 
-        private System.Windows.Forms.OpenFileDialog openWxsFileDialog;
-        private XmlDocument wxsDocument;
-        private XmlNamespaceManager wxsNsmgr;
-        private XmlDocument wxsXsd;
-        private FileInfo wxsFile;
+namespace WixEdit {
+    /// <summary>
+    /// Summary description for EditDialogPanel.
+    /// </summary>
+    public class EditDialogPanel : Panel {
+        #region Controls
+        
         private Form currentDialog;
-        private System.Windows.Forms.MainMenu mainMenu1;
-        private System.Windows.Forms.MenuItem menuItem1;
-        private System.Windows.Forms.MenuItem menuItem2;
         private System.Windows.Forms.TreeView dialogTreeView;
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ListView propertyListView;
+        private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.ListBox wxsDialogs;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Splitter splitter3;
-        private System.Windows.Forms.MenuItem menuItem3;
+        private System.Windows.Forms.MenuItem viewMenu;
         private System.Windows.Forms.MenuItem Opacity100;
         private System.Windows.Forms.MenuItem Opacity75;
         private System.Windows.Forms.MenuItem Opacity50;
         private System.Windows.Forms.MenuItem Opacity25;
 
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+        #endregion
 
-		public EditorForm()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
+        private WixFiles wixFiles;
 
-            wxsDocument = new XmlDocument();
-            wxsXsd = new XmlDocument();
+        public EditDialogPanel(WixFiles wixFiles) {
+            this.wixFiles = wixFiles;
 
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string resourceName = "WixEdit.wix.xsd";
-            if (assembly.GetManifestResourceInfo(resourceName) == null) {
-                throw new Exception("Could not find resource: " + resourceName);
-            }
-
-            Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null) {
-                throw new Exception("Could not load resource: " +  resourceName);
-            }
-
-            wxsXsd.Load(resourceStream);
-
-            ContextMenu contextMenu = new ContextMenu();
-            contextMenu.MenuItems.Add(0, new MenuItem("New Attribute", new EventHandler(NewAttribute)));
-
-            propertyListView.ContextMenu = contextMenu;
+            InitializeComponent();
            
             Opacity100.Checked = true;
-           
-		}
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+            this.wxsDialogs.Items.Clear();
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-            this.openWxsFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.mainMenu1 = new System.Windows.Forms.MainMenu();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
-            this.menuItem2 = new System.Windows.Forms.MenuItem();
-            this.menuItem3 = new System.Windows.Forms.MenuItem();
+            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
+            foreach (XmlNode dialog in dialogs) {
+                XmlAttribute attr = dialog.Attributes["Id"];
+                if (attr != null) {
+                    this.wxsDialogs.Items.Add(attr.Value);
+                }
+            }
+
+        }
+
+        public MenuItem Menu {
+            get {
+                return viewMenu;
+            }
+        }
+
+        #region Initialize Controls
+        private void InitializeComponent() {
+            this.viewMenu = new System.Windows.Forms.MenuItem();
             this.Opacity100 = new System.Windows.Forms.MenuItem();
             this.Opacity75 = new System.Windows.Forms.MenuItem();
             this.Opacity50 = new System.Windows.Forms.MenuItem();
             this.Opacity25 = new System.Windows.Forms.MenuItem();
             this.dialogTreeView = new System.Windows.Forms.TreeView();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.propertyListView = new System.Windows.Forms.ListView();
+            this.propertyGrid = new PropertyGrid();
             this.wxsDialogs = new System.Windows.Forms.ListBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
@@ -141,35 +100,13 @@ namespace WixEdit
             this.splitter3 = new System.Windows.Forms.Splitter();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // mainMenu1
-            // 
-            this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                                                                                      this.menuItem1,
-                                                                                      this.menuItem3});
-            // 
-            // menuItem1
-            // 
-            this.menuItem1.Index = 0;
-            this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                                                                                      this.menuItem2});
-            this.menuItem1.Text = "File";
-            // 
-            // menuItem2
-            // 
-            this.menuItem2.Index = 0;
-            this.menuItem2.Text = "Load";
-            this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
-            // 
-            // menuItem3
-            // 
-            this.menuItem3.Index = 1;
-            this.menuItem3.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            
+            this.viewMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
                                                                                       this.Opacity100,
                                                                                       this.Opacity75,
                                                                                       this.Opacity50,
                                                                                       this.Opacity25});
-            this.menuItem3.Text = "Tools";
+            this.viewMenu.Text = "Tools";
             // 
             // Opacity100
             // 
@@ -202,33 +139,20 @@ namespace WixEdit
             this.dialogTreeView.Location = new System.Drawing.Point(0, 0);
             this.dialogTreeView.Name = "dialogTreeView";
             this.dialogTreeView.SelectedImageIndex = -1;
-            this.dialogTreeView.Size = new System.Drawing.Size(140, 266);
+            this.dialogTreeView.Size = new System.Drawing.Size(170, 266);
             this.dialogTreeView.TabIndex = 6;
             this.dialogTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.OnAfterSelect);
             // 
-            // listBox1
-            // 
-            this.listBox1.Location = new System.Drawing.Point(0, 0);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(120, 95);
-            this.listBox1.TabIndex = 0;
-            // 
-            // listView1
-            // 
-            this.listView1.Location = new System.Drawing.Point(56, 64);
-            this.listView1.Name = "listView1";
-            this.listView1.TabIndex = 0;
-            // 
-            // propertyListView
-            // 
-            this.propertyListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyListView.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-            this.propertyListView.Location = new System.Drawing.Point(140, 0);
-            this.propertyListView.Name = "propertyListView";
-            this.propertyListView.Size = new System.Drawing.Size(269, 266);
-            this.propertyListView.TabIndex = 1;
-            this.propertyListView.DoubleClick += new System.EventHandler(this.OnPropertyDoubleClick);
-            this.propertyListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.propertyListView_MouseUp);
+            // propertyGrid
+            //
+            this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyGrid.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+            this.propertyGrid.Location = new System.Drawing.Point(140, 0);
+            this.propertyGrid.Name = "propertyGrid";
+            this.propertyGrid.Size = new System.Drawing.Size(250, 266);
+            this.propertyGrid.TabIndex = 1;
+            this.propertyGrid.PropertySort = PropertySort.Alphabetical;
+            this.propertyGrid.ToolbarVisible = false;
             // 
             // wxsDialogs
             // 
@@ -260,7 +184,7 @@ namespace WixEdit
             // panel1
             // 
             this.panel1.Controls.Add(this.splitter3);
-            this.panel1.Controls.Add(this.propertyListView);
+            this.panel1.Controls.Add(this.propertyGrid);
             this.panel1.Controls.Add(this.dialogTreeView);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(142, 0);
@@ -278,87 +202,29 @@ namespace WixEdit
             // 
             // EditorForm
             // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 14);
+            //this.AutoScaleBaseSize = new System.Drawing.Size(5, 14);
             this.ClientSize = new System.Drawing.Size(553, 266);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.splitter2);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.wxsDialogs);
             this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-            this.Menu = this.mainMenu1;
+            
             this.Name = "EditorForm";
             this.Text = "Wix Dialog Editor";
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
-
-        }
-		#endregion
-
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		//[STAThread]
-		static void Main() 
-		{
-			Application.Run(new EditorForm());
-		}
-
-        private void button1_Click(object sender, System.EventArgs e) {
-
-
         }
 
-        private void LoadWxsDocument(Stream wxsStream) {
-            this.wxsDocument.Load(wxsStream);
-            this.wxsDialogs.Items.Clear();
-
-            //XmlNodeList dialogs = this.wxsDocument.SelectNodes("/wix/product/ui/dialog");
-            
-            wxsNsmgr = new XmlNamespaceManager(this.wxsDocument.NameTable);
-            wxsNsmgr.AddNamespace("wix", this.wxsDocument.DocumentElement.NamespaceURI);
-
-            XmlNodeList dialogs = this.wxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:UI/wix:Dialog", wxsNsmgr);
-            foreach (XmlNode dialog in dialogs) {
-                XmlAttribute attr = dialog.Attributes["Id"];
-                if (attr != null) {
-                    this.wxsDialogs.Items.Add(attr.Value);
-                }
-            }
-        }
+        #endregion
 
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             string currentDialogId = wxsDialogs.SelectedItem.ToString();
-            XmlNode dialog = this.wxsDocument.SelectSingleNode(String.Format("/wix:Wix/wix:Product/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wxsNsmgr);
+            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/wix:Product/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
             
             ShowWixDialog(dialog);
             ShowWixDialogTree(dialog);
             ShowWixProperties(dialog);
-//
-//            
-//            
-//
-//
-//            TreeNode rootNode = new TreeNode("Dialog");
-//            dialogTreeView.Nodes.Add(rootNode);
-//
-//            xmlEditBox.Text = dialog.OuterXml;
-            
-        }
-
-        private void menuItem2_Click(object sender, System.EventArgs e) {
-            this.openWxsFileDialog.Filter = "wxs files (*.wxs)|*.wxs|All files (*.*)|*.*" ;
-            this.openWxsFileDialog.RestoreDirectory = true ;
-
-            if(this.openWxsFileDialog.ShowDialog() == DialogResult.OK) {
-                wxsFile = new FileInfo(this.openWxsFileDialog.FileName);
-
-                Stream myStream;
-                if((myStream = wxsFile.OpenRead())!= null) {
-                    LoadWxsDocument(myStream);
-
-                    myStream.Close();
-                }
-            }        
         }
 
         private void ShowWixDialog(XmlNode dialog) {
@@ -371,11 +237,11 @@ namespace WixEdit
                 prevLeft = currentDialog.Left;
                 prevDialog = currentDialog;
             } else {
-                prevTop = this.Top;
-                prevLeft = this.Right;
+                prevTop = this.TopLevelControl.Top;
+                prevLeft = this.TopLevelControl.Right;
             }
 
-            DialogGenerator generator = new DialogGenerator(wxsDocument, wxsNsmgr, wxsFile.Directory);
+            DialogGenerator generator = new DialogGenerator(wixFiles);
             currentDialog = generator.GenerateDialog(dialog, this);
 
             currentDialog.Left = prevLeft;
@@ -424,38 +290,12 @@ namespace WixEdit
         }
 
         private void ShowWixProperties(XmlNode xmlNode) {
-            propertyListView.Clear();
-            ColumnHeader keyCol = new ColumnHeader();
-            keyCol.Width = 120;
-            keyCol.Text = "";
+            XmlAttributeAdapter attAdapter = new XmlAttributeAdapter(xmlNode, wixFiles);
 
-            ColumnHeader valCol = new ColumnHeader();
-            valCol.Width = 200;
-            valCol.Text = "";
+            propertyGrid.SelectedObject = attAdapter;
+            propertyGrid.Update();
 
-            propertyListView.Columns.Add(keyCol);
-            propertyListView.Columns.Add(valCol);
-
-            propertyListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            propertyListView.FullRowSelect = true;
-            propertyListView.GridLines = true;
-            propertyListView.Name = "lsvData";
-            propertyListView.TabIndex = 1;
-            propertyListView.View = System.Windows.Forms.View.Details;
-
-            if (xmlNode.Attributes != null) {
-                foreach (XmlAttribute at in xmlNode.Attributes) {
-                    ListViewItem item = new ListViewItem(at.Name);
-                    item.SubItems.Add(at.Value);
-
-                    propertyListView.Items.Add(item);
-                }
-            } else {
-                ListViewItem item = new ListViewItem("cdata");
-                item.SubItems.Add(xmlNode.Value);
-
-                propertyListView.Items.Add(item);
-            }
+            return;
         }
 
         private void OnAfterSelect(object sender, System.Windows.Forms.TreeViewEventArgs e) {
@@ -469,55 +309,13 @@ namespace WixEdit
             // Edit here?
         }
 
-        private void propertyListView_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e) {
-        }
-
-        private ListBox newAttribBox;
-        private void NewAttribute(object sender, System.EventArgs e) {
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(wxsXsd.NameTable);
-            nsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
-
-            XmlNode xmlNode = dialogTreeView.SelectedNode.Tag as XmlNode;
-
-            XmlNode xsdDef = wxsXsd.SelectSingleNode(String.Format("/xs:schema/xs:element[@name='{0}']", xmlNode.Name), nsmgr);
-
-            XmlNodeList xsdDefNodes = xsdDef.SelectNodes("xs:complexType/xs:attribute", nsmgr);
-
-            // Each Attribute not in ListView
-            newAttribBox = new ListBox();
-            newAttribBox.BorderStyle = BorderStyle.FixedSingle;
-
-            this.Controls.Add(newAttribBox);
-            newAttribBox.Left = propertyListView.Left + propertyListView.Parent.Left;
-            newAttribBox.Top = propertyListView.Items[propertyListView.Items.Count-1].Bounds.Bottom;
-            newAttribBox.Width = 200;
-            newAttribBox.Height = 100;
-            newAttribBox.BringToFront();
-
-            foreach (XmlNode at in xsdDefNodes) {
-                newAttribBox.Items.Add(at.Attributes["name"].Value);
-            }
-
-            newAttribBox.LostFocus += new EventHandler(newAttribBoxLostFocus);
-            newAttribBox.Show();
-            newAttribBox.Focus();
-        }
-
-        private void newAttribBoxLostFocus(object sender, EventArgs e) {
-            if (newAttribBox != null) {
-                newAttribBox.Hide();
-                newAttribBox.Dispose();
-                newAttribBox = null;
-            }
-        }
-
         private void Opacity_Click(object sender, System.EventArgs e) {
             UncheckOpacityMenu();
 
             MenuItem item = sender as MenuItem;
             if (item != null) {
                 item.Checked = true;
-        }
+            }
 
             if (currentDialog != null) {
                 currentDialog.Opacity = GetOpacity();
@@ -540,9 +338,22 @@ namespace WixEdit
                 return 0.50;
             } else if (Opacity25.Checked) {
                 return 0.25;
-        }
+            }
 
             return 1.00;
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose( bool disposing ) {
+            if( disposing ) {
+                if (currentDialog != null) {
+                    currentDialog.Hide();
+                    currentDialog.Dispose();
+                }
+            }
+            base.Dispose( disposing );
         }
     }
 }

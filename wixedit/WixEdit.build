@@ -45,7 +45,7 @@
 		<mkdir dir="${project.build}" />
 		<csc    target="winexe" 
                 output="${project.output}"
-                win32icon="${project.src}/App.ico">>
+                win32icon="${project.src}/App.ico">
 			<sources refid="project.sources" />
 			<resources refid="project.resources" />
         </csc>
