@@ -40,7 +40,7 @@ namespace WixEdit.PropertyGridExtensions {
             get { return description; }
         }
 
-        public XmlNode Attribute {
+        public XmlAttribute Attribute {
             get { return attribute; }
         }
 

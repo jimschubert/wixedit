@@ -44,11 +44,11 @@ namespace WixEdit {
         private Form currentDialog;
         private System.Windows.Forms.TreeView dialogTreeView;
         private System.Windows.Forms.PropertyGrid propertyGrid;
+        private System.Windows.Forms.ContextMenu propertyGridContextMenu;
         private System.Windows.Forms.ListBox wxsDialogs;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Splitter splitter3;
         private System.Windows.Forms.MenuItem viewMenu;
         private System.Windows.Forms.MenuItem Opacity100;
         private System.Windows.Forms.MenuItem Opacity75;
@@ -93,11 +93,11 @@ namespace WixEdit {
             this.Opacity25 = new System.Windows.Forms.MenuItem();
             this.dialogTreeView = new System.Windows.Forms.TreeView();
             this.propertyGrid = new PropertyGrid();
+            this.propertyGridContextMenu = new ContextMenu();
             this.wxsDialogs = new System.Windows.Forms.ListBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.splitter3 = new System.Windows.Forms.Splitter();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             
@@ -143,6 +143,10 @@ namespace WixEdit {
             this.dialogTreeView.TabIndex = 6;
             this.dialogTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.OnAfterSelect);
             // 
+            // propertyGridContextMenu
+            //
+            this.propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            // 
             // propertyGrid
             //
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -153,6 +157,9 @@ namespace WixEdit {
             this.propertyGrid.TabIndex = 1;
             this.propertyGrid.PropertySort = PropertySort.Alphabetical;
             this.propertyGrid.ToolbarVisible = false;
+            this.propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(OnPropertyValueChanged);
+            this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
+
             // 
             // wxsDialogs
             // 
@@ -172,18 +179,9 @@ namespace WixEdit {
             this.splitter1.TabIndex = 7;
             this.splitter1.TabStop = false;
             // 
-            // splitter2
-            // 
-            this.splitter2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter2.Location = new System.Drawing.Point(551, 0);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(2, 266);
-            this.splitter2.TabIndex = 8;
-            this.splitter2.TabStop = false;
-            // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.splitter3);
+            this.panel1.Controls.Add(this.splitter2);
             this.panel1.Controls.Add(this.propertyGrid);
             this.panel1.Controls.Add(this.dialogTreeView);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -192,20 +190,19 @@ namespace WixEdit {
             this.panel1.Size = new System.Drawing.Size(409, 266);
             this.panel1.TabIndex = 9;
             // 
-            // splitter3
+            // splitter2
             // 
-            this.splitter3.Location = new System.Drawing.Point(140, 0);
-            this.splitter3.Name = "splitter3";
-            this.splitter3.Size = new System.Drawing.Size(2, 266);
-            this.splitter3.TabIndex = 7;
-            this.splitter3.TabStop = false;
+            this.splitter2.Location = new System.Drawing.Point(140, 0);
+            this.splitter2.Name = "splitter2";
+            this.splitter2.Size = new System.Drawing.Size(2, 266);
+            this.splitter2.TabIndex = 7;
+            this.splitter2.TabStop = false;
             // 
             // EditorForm
             // 
             //this.AutoScaleBaseSize = new System.Drawing.Size(5, 14);
             this.ClientSize = new System.Drawing.Size(553, 266);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.splitter2);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.wxsDialogs);
             this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
@@ -217,6 +214,83 @@ namespace WixEdit {
         }
 
         #endregion
+
+        public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
+            // TODO: Good place to keep track of command, for undo functionality
+        }
+
+        public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
+            if (propertyGrid.SelectedObject == null) {
+                return;
+            }
+
+            // Define the MenuItem objects to display for the TextBox.
+            MenuItem menuItem1 = new MenuItem("&New");
+            MenuItem menuItem2 = new MenuItem("&Delete");
+
+            menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
+            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+        
+            // Clear all previously added MenuItems.
+            propertyGridContextMenu.MenuItems.Clear();
+
+            propertyGridContextMenu.MenuItems.Add(menuItem1);
+            propertyGridContextMenu.MenuItems.Add(menuItem2);
+/*         
+            if(contextMenu1.SourceControl == textBox1)
+            {
+               // Add MenuItems to display for the TextBox.
+               contextMenu1.MenuItems.Add(menuItem1);
+               contextMenu1.MenuItems.Add(menuItem2);
+            }
+            else if(contextMenu1.SourceControl == pictureBox1)
+            {
+               // Add the MenuItem to display for the PictureBox.
+               contextMenu1.MenuItems.Add(menuItem3);
+            }
+*/
+        }
+
+        public void OnNewPropertyGridItem(object sender, EventArgs e) {
+            // TODO: Create simple and generic dialog which shows all available attribute names.
+            // and returns the selected attribute name
+/*
+            // Show dialog to choose from available items.
+            string newAttributeName = fromDialog...
+
+            // Get the XmlAttribute from the PropertyDescriptor
+            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
+
+            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            propertyGrid.SelectedObject = null;
+
+            // Add the attribute
+            attAdapter.XmlNode.Attributes.Add(att);
+
+            // Update the propertyGrid.
+            propertyGrid.SelectedObject = attAdapter;
+            propertyGrid.Update();
+*/
+        }
+
+        public void OnDeletePropertyGridItem(object sender, EventArgs e) {
+            // Get the XmlAttribute from the PropertyDescriptor
+            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            XmlAttribute att = desc.Attribute;
+
+            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            propertyGrid.SelectedObject = null;
+
+            // Remove the attribute
+            attAdapter.XmlNode.Attributes.Remove(att);
+
+            // Update the propertyGrid.
+            propertyGrid.SelectedObject = attAdapter;
+            propertyGrid.Update();
+        }
 
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             string currentDialogId = wxsDialogs.SelectedItem.ToString();
