@@ -59,6 +59,7 @@ namespace WixEdit
 		}
 
         private void InitializeComponent() {
+            this.Text = "WiX Edit";
             this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
             this.ClientSize = new System.Drawing.Size(553, 358); // Height of 358 aligns the bottom of the dialog selection list 
 
@@ -132,6 +133,7 @@ namespace WixEdit
 
             // Update menu
             this.fileClose.Enabled = true;
+            this.Text = "WiX Edit - " + this.wixFiles.WxsFile.Name;
         }
 
         private void CloseWxsFile() {
@@ -161,6 +163,7 @@ namespace WixEdit
             }
 
             this.fileClose.Enabled = false;
+            this.Text = "WiX Edit";
         }
 
 		/// <summary>

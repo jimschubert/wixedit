@@ -34,6 +34,12 @@ namespace WixEdit.PropertyGridExtensions {
             this.xmlNode = xmlNode;
         }
 
+        public XmlNode XmlNode {
+            get { 
+                return this.xmlNode;
+            }
+        }
+
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
 
