@@ -34,23 +34,19 @@ using System.Reflection;
 
 namespace WixEdit {
     public class DialogGenerator {
-        private XmlDocument _wxsDocument;
-        private XmlNamespaceManager _wxsNsMgr;
         private Hashtable _definedFonts;
-        private DirectoryInfo _baseDirectory;
+        private WixFiles _wixFiles;
         private Image _bgImage;
 
-        public DialogGenerator(XmlDocument wxsDocument, XmlNamespaceManager wxsNsMgr, DirectoryInfo baseDirectory) {
-            _wxsDocument = wxsDocument;
-            _wxsNsMgr = wxsNsMgr;
+        public DialogGenerator(WixFiles wixFiles) {
             _definedFonts = new Hashtable();
-            _baseDirectory = baseDirectory;
+            _wixFiles = wixFiles;
 
             ReadFonts();
         }
 
         private void ReadFonts() {
-            XmlNodeList fontElements = _wxsDocument.SelectNodes("//wix:UI/wix:TextStyle", _wxsNsMgr);
+            XmlNodeList fontElements = _wixFiles.WxsDocument.SelectNodes("//wix:UI/wix:TextStyle", _wixFiles.WxsNsmgr);
             foreach (XmlNode fontElement in fontElements) {
 
                 FontStyle style = FontStyle.Regular;
@@ -98,15 +94,18 @@ namespace WixEdit {
         }
 
         int _parentHwnd;
-        public Form GenerateDialog(XmlNode dialog, Form parent) {
+        public Form GenerateDialog(XmlNode dialog, Control parent) {
             Form newDialog = new Form();
+
             _parentHwnd = (int)parent.Handle;
-//25
+
             newDialog.Font = new Font("Tahoma", 8.00F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
             newDialog.ShowInTaskbar = false;
             newDialog.TopLevel = true;
             // newDialog.TopMost = true;
             // newDialog.Opacity = 0.75;
+
+            newDialog.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.msi.ico"));
             
             newDialog.StartPosition = FormStartPosition.Manual;
 
@@ -123,22 +122,22 @@ namespace WixEdit {
             // - Is this the correct way to handle the transparancy?
             // - How does MSI handle transparant labels when having 2 bitmaps as background?
 
-            XmlNodeList buttons = dialog.SelectNodes("wix:Control[@Type='PushButton']", _wxsNsMgr);
+            XmlNodeList buttons = dialog.SelectNodes("wix:Control[@Type='PushButton']", _wixFiles.WxsNsmgr);
             AddButtons(newDialog, buttons);
 
-            XmlNodeList edits = dialog.SelectNodes("wix:Control[@Type='Edit']", _wxsNsMgr);
+            XmlNodeList edits = dialog.SelectNodes("wix:Control[@Type='Edit']", _wixFiles.WxsNsmgr);
             AddEditBoxes(newDialog, edits);
 
-            XmlNodeList pathEdits = dialog.SelectNodes("wix:Control[@Type='PathEdit']", _wxsNsMgr);
+            XmlNodeList pathEdits = dialog.SelectNodes("wix:Control[@Type='PathEdit']", _wixFiles.WxsNsmgr);
             AddPathEditBoxes(newDialog, pathEdits);
 
-            XmlNodeList lines = dialog.SelectNodes("wix:Control[@Type='Line']", _wxsNsMgr);
+            XmlNodeList lines = dialog.SelectNodes("wix:Control[@Type='Line']", _wixFiles.WxsNsmgr);
             AddLines(newDialog, lines);
 
-            XmlNodeList texts = dialog.SelectNodes("wix:Control[@Type='Text']", _wxsNsMgr);
+            XmlNodeList texts = dialog.SelectNodes("wix:Control[@Type='Text']", _wixFiles.WxsNsmgr);
             AddTexts(newDialog, texts);
 
-            XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", _wxsNsMgr);
+            XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", _wixFiles.WxsNsmgr);
             AddBackgroundBitmaps(newDialog, bitmaps);
 
             if (dialog.Attributes["Title"] != null) {
@@ -190,7 +189,7 @@ namespace WixEdit {
 
                 string propName = value.Substring(posStart+1, posEnd-posStart-1);
                 
-                XmlNode propertyNode = _wxsDocument.SelectSingleNode(String.Format("//wix:Property[@Id='{0}']", propName), _wxsNsMgr);
+                XmlNode propertyNode = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Property[@Id='{0}']", propName), _wixFiles.WxsNsmgr);
                 if (propertyNode != null) {
                     value = value.Replace(String.Format("[{0}]", propName), propertyNode.InnerText);
                 } else {
@@ -215,7 +214,7 @@ namespace WixEdit {
         private string GetProductName() {
             string returnValue = String.Empty;
 
-            XmlNode productyNode = _wxsDocument.SelectSingleNode("/wix:Wix/wix:Product", _wxsNsMgr);
+            XmlNode productyNode = _wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Product", _wixFiles.WxsNsmgr);
             XmlAttribute nameAttribute = productyNode.Attributes["Name"];
             if (nameAttribute != null) {
                 returnValue = nameAttribute.Value;
@@ -235,8 +234,12 @@ namespace WixEdit {
                 if (button.Attributes["Icon"] != null &&
                     button.Attributes["Icon"].Value.ToLower() == "yes") {
                     string binaryId = GetTextFromXmlElement(button);
-                    Stream imageStream = GetBinaryStream(binaryId);
-                    newButton.Image = new Bitmap(imageStream);
+                    try {
+                        Stream imageStream = GetBinaryStream(binaryId);
+                        newButton.Image = new Bitmap(imageStream);
+                    } catch {
+                        SetText(newButton, button);
+                    }
                 } else {
                     newButton.FlatStyle = FlatStyle.System;
                     SetText(newButton, button);
@@ -361,7 +364,7 @@ namespace WixEdit {
             if (textElement.Attributes["Text"] != null) {
                 textValue = ExpandWixProperties(textElement.Attributes["Text"].Value);
             } else {
-                XmlNode text = textElement.SelectSingleNode("wix:Text", _wxsNsMgr);
+                XmlNode text = textElement.SelectSingleNode("wix:Text", _wixFiles.WxsNsmgr);
                 if (text != null) {
                     textValue = ExpandWixProperties(text.InnerText);
                 }
@@ -371,7 +374,7 @@ namespace WixEdit {
         }
 
         private Stream GetBinaryStream(string binaryId) {
-            XmlNode binaryNode = _wxsDocument.SelectSingleNode(String.Format("//wix:Binary[@Id='{0}']", binaryId), _wxsNsMgr);
+            XmlNode binaryNode = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Binary[@Id='{0}']", binaryId), _wixFiles.WxsNsmgr);
             if (binaryNode == null) {
                 throw new Exception(String.Format("Binary with id \"{0}\" not found", binaryId));
             }
@@ -396,7 +399,7 @@ namespace WixEdit {
                 if (File.Exists(src)) {
                     return File.Open(src, FileMode.Open);
                 } else {
-                    FileInfo[] files = _baseDirectory.GetFiles(src);
+                    FileInfo[] files = _wixFiles.WxsDirectory.GetFiles(src);
                     if (files.Length != 1) {
                         throw new FileNotFoundException(String.Format("File of binary with id \"{0}\" is not found.", binaryId), src);
                     }
