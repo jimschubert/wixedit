@@ -30,8 +30,11 @@ namespace WixEdit.PropertyGridExtensions {
     /// </summary>
     public class XmlAttributeAdapter : PropertyAdapterBase {
         protected XmlNode xmlNode;
+        protected XmlNode xmlNodeDefinition;
+
         public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
             this.xmlNode = xmlNode;
+            this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
         }
 
         public XmlNode XmlNode {
@@ -40,13 +43,19 @@ namespace WixEdit.PropertyGridExtensions {
             }
         }
 
+        public XmlNode XmlNodeDefinition {
+            get { 
+                return this.xmlNodeDefinition;
+            }
+        }
+
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
 
             foreach(XmlAttribute xmlAttribute in xmlNode.Attributes) {
                 // Select attribute definition.
-                string selectAttribute = String.Format("//xs:element[@name='{0}']/xs:complexType/xs:attribute[@name='{1}']", xmlNode.Name, xmlAttribute.Name);
-                XmlNode xmlAttributeDefinition = wixFiles.XsdDocument.SelectSingleNode(selectAttribute, wixFiles.XsdNsmgr);
+                string selectAttribute = String.Format("xs:attribute[@name='{1}']", xmlNode.Name, xmlAttribute.Name);
+                XmlNode xmlAttributeDefinition = this.xmlNodeDefinition.SelectSingleNode(selectAttribute, wixFiles.XsdNsmgr);
 
                 ArrayList attrs = new ArrayList();
 

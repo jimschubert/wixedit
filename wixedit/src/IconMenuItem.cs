@@ -1,3 +1,20 @@
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+
+
 using System;
 using System.ComponentModel;
 using System.Collections;
@@ -10,7 +27,8 @@ using System.Drawing.Text;
 
 namespace WixEdit {
     public class IconMenuItem : MenuItem {
-        private Icon icon;
+        private Bitmap bitmap;
+
         private Font font;
         private int menuSeperaterWidth;
 
@@ -27,13 +45,29 @@ namespace WixEdit {
         }
 
         public IconMenuItem(Icon icon) {
-            this.icon = icon;
+            this.bitmap = icon.ToBitmap();
             
             Init();
         }
+
         public IconMenuItem(string text, Icon icon) {
-            this.icon = icon;
+            this.bitmap = icon.ToBitmap();
             this.Text = text;
+
+            Init();
+        }
+
+        public IconMenuItem(Bitmap bitmap) {
+            this.bitmap = bitmap;
+            this.bitmap.MakeTransparent();
+            
+            Init();
+        }
+
+        public IconMenuItem(string text, Bitmap bitmap) {
+            this.bitmap = bitmap;
+            this.Text = text;
+            this.bitmap.MakeTransparent();
 
             Init();
         }
@@ -47,6 +81,19 @@ namespace WixEdit {
         private bool HasFancyMenus() {
             return (Environment.OSVersion.Version.Major >= 5 && 
                 Environment.OSVersion.Version.Minor >= 1 );
+        }
+
+        public Bitmap Bitmap {
+            get {
+                return this.bitmap;
+            }
+            set {
+                this.bitmap = value;
+            }
+        }
+
+        public bool HasIcon() {
+            return (this.bitmap != null);
         }
 
         private void Init() {
@@ -70,16 +117,16 @@ namespace WixEdit {
 
             OwnerDraw = true;
         }
-
+/*
         public Icon Icon {
             get {
-                return icon;
+                return new Icon(bitmap);
             }
             set {
-                icon = value;
+                bitmap = value.ToBitmap();
             }
         }
-
+*/
         protected override void OnMeasureItem(MeasureItemEventArgs e) {
             StringFormat format = new StringFormat();
             format.HotkeyPrefix = HotkeyPrefix.Show;
@@ -112,14 +159,14 @@ namespace WixEdit {
 
                 if (IsSelected(e.State) && this.Enabled) {
                     DrawSelection(e.Graphics, backRect);
-                    if (icon != null) {
+                    if (HasIcon()) {
                         DrawSelectedIcon(e.Graphics, e.Bounds);
                     }
                 } else {
                     DrawClear(e.Graphics, backRect);
                     DrawSideBar(e.Graphics, e.Bounds);
                     
-                    if (icon != null) {
+                    if (HasIcon()) {
                         if (this.Enabled) {
                             DrawNormalIcon(e.Graphics, e.Bounds);
                         } else {
@@ -131,7 +178,7 @@ namespace WixEdit {
                 DrawText(e.Graphics, e.Bounds);
 
                 if (this.Checked) {
-                    if (icon == null) {
+                    if (HasIcon() == false) {
                         DrawCheck(e.Graphics, e.Bounds);
                     } else {
                         DrawCheckedIcon(e.Graphics, e.Bounds);
@@ -146,14 +193,18 @@ namespace WixEdit {
 
         private void DrawSelectedIcon(Graphics graphics, Rectangle dest) {
             ImageAttributes a = new ImageAttributes();
-            Rectangle iconDest = new Rectangle(dest.Left + 4, dest.Top + 5, 16, 16); 
 
-            graphics.DrawImage(MakeMonochrome(icon.ToBitmap(), Color.Gray), iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
-            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 3);
+            Rectangle iconDest = new Rectangle(dest.Left + 4, dest.Top + 5, 16, 16); 
+            graphics.DrawImage(MakeMonochrome(this.Bitmap, Color.Gray), iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+
+            iconDest = new Rectangle(dest.Left + 2, dest.Top + 3, 16, 16); 
+            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+
+//            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 3);
         }
 
         private void DrawDisabledIcon(Graphics graphics, Rectangle dest) {
-            ControlPaint.DrawImageDisabled(graphics, icon.ToBitmap(), dest.Left + 3, dest.Top + 4, menuBackColor);
+            ControlPaint.DrawImageDisabled(graphics, this.Bitmap, dest.Left + 3, dest.Top + 4, menuBackColor);
         }
 
         private void DrawNormalIcon(Graphics graphics, Rectangle dest) {
@@ -165,7 +216,7 @@ namespace WixEdit {
             
             a.SetColorMatrix(cm);
             
-            graphics.DrawImage(icon.ToBitmap(), iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
         }
 
         private void DrawSideBar(Graphics graphics, Rectangle dest) {
@@ -214,11 +265,19 @@ namespace WixEdit {
             if (HasFancyMenus()) {
                 graphics.FillRectangle(new SolidBrush(menuSeperaterColor), sideBarWidth + 5, dest.Top + dest.Height/2, dest.Width, 1);
                 graphics.FillRectangle(new SolidBrush(sideBarColor), 0, dest.Top, sideBarWidth, dest.Height);
+            } else {
+                int mid = (dest.Top+dest.Bottom)/2;
+                graphics.DrawLine(SystemPens.ControlDark, 0, mid, dest.Left + 1 + (dest.Width - 1), mid);
+                graphics.DrawLine(SystemPens.ControlLightLight, 0, mid+1, dest.Left + 1 + (dest.Width - 1), mid+1);
             }
         }
 
         private void DrawCheckedIcon(Graphics graphics, Rectangle dest) {
-            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 2);
+            ImageAttributes a = new ImageAttributes();
+
+            Rectangle iconDest = new Rectangle(dest.Left + 2, dest.Top + 2, 16, 16); 
+            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+//            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 2);
     
             Pen pen;
             if (this.Enabled) {

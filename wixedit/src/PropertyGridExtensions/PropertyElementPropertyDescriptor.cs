@@ -34,6 +34,12 @@ namespace WixEdit.PropertyGridExtensions {
             this.propertyElement = propertyElement;
         }
 
+        public XmlNode PropertyElement {
+            get {
+                return propertyElement;
+            }
+        }
+
         public override object GetValue(object component) {
             return propertyElement.InnerText;
         }
