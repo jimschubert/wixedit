@@ -141,6 +141,16 @@ namespace WixEdit {
             XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", _wxsNsMgr);
             AddBackgroundBitmaps(newDialog, bitmaps);
 
+            if (dialog.Attributes["Title"] != null) {
+                newDialog.Text = ExpandWixProperties(dialog.Attributes["Title"].Value);
+            }
+
+            if (dialog.Attributes["NoMinimize"] == null) {
+                newDialog.MinimizeBox = true;
+            } else {
+                newDialog.MinimizeBox = (dialog.Attributes["NoMinimize"].Value.ToLower() != "yes");
+            }
+
             return newDialog;
         }
 

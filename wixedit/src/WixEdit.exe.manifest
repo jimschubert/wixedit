@@ -7,7 +7,7 @@
         processorArchitecture="X86" 
         name="Theme Test"
         type="win32" /> 
-    <description>Testing Windows XP Visual Styles.</description> 
+    <description>Windows XP Visual Styles.</description> 
     <dependency> 
         <dependentAssembly> 
             <assemblyIdentity 
