@@ -37,17 +37,17 @@ using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditPropertiesPanel.
+    /// Summary description for EditResourcesPanel.
     /// </summary>
-    public class EditPropertiesPanel : Panel {
+    public class EditResourcesPanel : Panel {
         #region Controls
-        private PropertyGrid propertyGrid;
-        private ContextMenu propertyGridContextMenu;
+        private PropertyGrid binaryGrid;
+        private ContextMenu binaryGridContextMenu;
         #endregion
 
         private WixFiles wixFiles;
 
-        public EditPropertiesPanel(WixFiles wixFiles) {
+        public EditResourcesPanel(WixFiles wixFiles) {
             this.wixFiles = wixFiles;
 
             InitializeComponent();
@@ -55,39 +55,39 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
-            this.propertyGrid = new PropertyGrid();
-            this.propertyGridContextMenu = new ContextMenu();
-
-            // 
-            // propertyGrid
-            //
-            this.propertyGrid.Dock = DockStyle.Fill;
-            this.propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.propertyGrid.Location = new Point(140, 0);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new Size(269, 266);
-            this.propertyGrid.TabIndex = 1;
-            this.propertyGrid.PropertySort = PropertySort.Alphabetical;
-            this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.HelpVisible = false;
-            this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
+            this.binaryGrid = new PropertyGrid();
+            this.binaryGridContextMenu = new ContextMenu();
 
             // 
-            // propertyGridContextMenu
+            // binaryGrid
             //
-            this.propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            this.binaryGrid.Dock = DockStyle.Fill;
+            this.binaryGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            this.binaryGrid.Location = new Point(140, 0);
+            this.binaryGrid.Name = "binaryGrid";
+            this.binaryGrid.Size = new Size(269, 266);
+            this.binaryGrid.TabIndex = 1;
+            this.binaryGrid.PropertySort = PropertySort.Alphabetical;
+            this.binaryGrid.ToolbarVisible = false;
+            this.binaryGrid.HelpVisible = false;
+            this.binaryGrid.ContextMenu = this.binaryGridContextMenu;
 
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            this.propertyGrid.SelectedObject = propAdapter;
+            // 
+            // binaryGridContextMenu
+            //
+            this.binaryGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
-            this.Controls.Add(this.propertyGrid);
+            BinaryElementAdapter propAdapter = new BinaryElementAdapter(binaries, wixFiles);
+            this.binaryGrid.SelectedObject = propAdapter;
+
+            this.Controls.Add(this.binaryGrid);
         }
         #endregion
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
-            if (propertyGrid.SelectedObject == null) {
+            if (binaryGrid.SelectedObject == null) {
                 return;
             }
 
@@ -101,10 +101,10 @@ namespace WixEdit {
             menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
         
             // Clear all previously added MenuItems.
-            propertyGridContextMenu.MenuItems.Clear();
+            binaryGridContextMenu.MenuItems.Clear();
 
-            propertyGridContextMenu.MenuItems.Add(menuItem1);
-            propertyGridContextMenu.MenuItems.Add(menuItem2);
+            binaryGridContextMenu.MenuItems.Add(menuItem1);
+            binaryGridContextMenu.MenuItems.Add(menuItem2);
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
@@ -119,19 +119,19 @@ namespace WixEdit {
                 XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
                 
 
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
                 product.AppendChild(newProp);
-                properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+                PropertyElementAdapter propAdapter = new PropertyElementAdapter(binaries, wixFiles);
 
-                this.propertyGrid.SelectedObject = propAdapter;
-                propertyGrid.Update();
+                this.binaryGrid.SelectedObject = propAdapter;
+                binaryGrid.Update();
 
-                foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                foreach (GridItem it in binaryGrid.SelectedGridItem.Parent.GridItems) {
                     if (it.Label == frm.SelectedString) {
-                        propertyGrid.SelectedGridItem = it;
+                        binaryGrid.SelectedGridItem = it;
                         break;
                     }
                 }
@@ -140,21 +140,21 @@ namespace WixEdit {
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
+            PropertyElementPropertyDescriptor desc = binaryGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
             XmlNode element = desc.PropertyElement;
 
-            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
-            propertyGrid.SelectedObject = null;
+            // Temporarily store the XmlAttributeAdapter, while resetting the binaryGrid.
+            PropertyElementAdapter propAdapter = binaryGrid.SelectedObject as PropertyElementAdapter;
+            binaryGrid.SelectedObject = null;
 
             // Remove the attribute
 //            propAdapter.PropertyNodes.Remove(element);
             element.ParentNode.RemoveChild(element);
 
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            this.propertyGrid.SelectedObject = propAdapter;
-            propertyGrid.Update();
+            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            propAdapter = new PropertyElementAdapter(binaries, wixFiles);
+            this.binaryGrid.SelectedObject = propAdapter;
+            binaryGrid.Update();
         }
     }
 }

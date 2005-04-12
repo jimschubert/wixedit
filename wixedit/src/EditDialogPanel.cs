@@ -45,7 +45,7 @@ namespace WixEdit {
         private TreeView dialogTreeView;
         private PropertyGrid propertyGrid;
         private ContextMenu propertyGridContextMenu;
-//        private ListBox wxsDialogs;
+        private ContextMenu dialogTreeViewContextMenu;
         private ListView wxsDialogs;
         private Splitter splitter1;
         private Splitter splitter2;
@@ -58,6 +58,11 @@ namespace WixEdit {
         private IconMenuItem Separator;
         private IconMenuItem AlwaysOnTop;
 
+        private IconMenuItem newControlElementMenu;
+        private IconMenuItem newPublishElementMenu;
+        private IconMenuItem newConditionElementMenu;
+        private IconMenuItem newSubscribeElementMenu;
+        private IconMenuItem deleteCurrentElementMenu;
         #endregion
 
         private WixFiles wixFiles;
@@ -71,7 +76,7 @@ namespace WixEdit {
 
             this.wxsDialogs.Items.Clear();
 
-            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
+            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
             foreach (XmlNode dialog in dialogs) {
                 XmlAttribute attr = dialog.Attributes["Id"];
                 if (attr != null) {
@@ -170,6 +175,33 @@ namespace WixEdit {
             this.dialogTreeView.Size = new Size(170, 266);
             this.dialogTreeView.TabIndex = 6;
             this.dialogTreeView.AfterSelect += new TreeViewEventHandler(this.OnAfterSelect);
+            this.dialogTreeViewContextMenu = new ContextMenu();
+            this.dialogTreeViewContextMenu.Popup += new EventHandler(PopupDialogTreeViewContextMenu);
+            this.dialogTreeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
+
+            this.dialogTreeView.ImageList = GetDialogTreeViewImageList();
+
+            this.newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newPublishElementMenu = new IconMenuItem("New Publish", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newConditionElementMenu = new IconMenuItem("New Condition", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newSubscribeElementMenu = new IconMenuItem("New Subsribe", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
+/*
+
+    ImageList myImageList = new ImageList();
+    myImageList.Images.Add(Image.FromFile("Default.gif"));
+    myImageList.Images.Add(Image.FromFile("SelectedDefault.gif"));
+    myImageList.Images.Add(Image.FromFile("Root.gif"));
+    myImageList.Images.Add(Image.FromFile("UnselectedCustomer.gif"));
+    myImageList.Images.Add(Image.FromFile("SelectedCustomer.gif"));
+    myImageList.Images.Add(Image.FromFile("UnselectedOrder.gif"));
+    myImageList.Images.Add(Image.FromFile("SelectedOrder.gif"));
+
+*/
+
+
+
+
             // 
             // propertyGridContextMenu
             //
@@ -202,8 +234,6 @@ namespace WixEdit {
             this.wxsDialogs.HideSelection = false;
             this.wxsDialogs.FullRowSelect = true;
             this.wxsDialogs.GridLines = false;
-
-
             this.wxsDialogs.SelectedIndexChanged += new System.EventHandler(this.OnSelectedDialogChanged);
             // 
             // splitter1
@@ -250,11 +280,45 @@ namespace WixEdit {
 
         #endregion
 
+        private ImageList GetDialogTreeViewImageList() {
+            ImageList images = new ImageList(); 
+
+            Bitmap bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.empty.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.dialog.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.control.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.text.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.condition.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.subscribe.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.publish.bmp"));
+            bmp.MakeTransparent();
+            images.Images.Add(bmp);
+
+            return images;
+        }
+
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
             // TODO: Good place to keep track of command, for undo functionality
 
             string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/wix:Product/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
             
             ShowWixDialog(dialog);
         }
@@ -300,6 +364,20 @@ namespace WixEdit {
                 }
             }
 
+            XmlNode xmlSimpleContentExtension = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
+            if (xmlSimpleContentExtension != null) {
+                bool hasInnerText = false;
+                foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                    if (it.Label == "InnerText") {
+                        hasInnerText = true;
+                        break;
+                    }
+                }
+                if (hasInnerText == false) {
+                    attributes.Add("InnerText");
+                }
+            }
+
             SelectStringForm frm = new SelectStringForm();
             frm.PossibleStrings = attributes.ToArray(typeof(String)) as String[];
             if (DialogResult.OK != frm.ShowDialog()) {
@@ -309,15 +387,19 @@ namespace WixEdit {
             // Show dialog to choose from available items.
             string newAttributeName = frm.SelectedString;
 
-            // Get the XmlAttribute from the PropertyDescriptor
-            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
-
-            // resetting the propertyGrid.
-            propertyGrid.SelectedObject = null;
-
-            // Add the attribute
-            attAdapter.XmlNode.Attributes.Append(att);
+            if (newAttributeName == "InnerText") {
+                attAdapter.ShowInnerTextIfEmpty = true;
+            } else {
+                // Get the XmlAttribute from the PropertyDescriptor
+                XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
+    
+                // resetting the propertyGrid.
+                propertyGrid.SelectedObject = null;
+    
+                // Add the attribute
+                attAdapter.XmlNode.Attributes.Append(att);
+            }
 
             // Update the propertyGrid.
             propertyGrid.SelectedObject = attAdapter;
@@ -355,7 +437,7 @@ namespace WixEdit {
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-                XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/wix:Product/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+                XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
                 
                 ShowWixDialog(dialog);
                 ShowWixDialogTree(dialog);
@@ -400,29 +482,68 @@ namespace WixEdit {
 
             TreeNode rootNode = new TreeNode("Dialog");
             rootNode.Tag = dialog;
+            rootNode.ImageIndex = 1;
+            rootNode.SelectedImageIndex = 1;
+
             dialogTreeView.Nodes.Add(rootNode);
 
             foreach (XmlNode control in dialog.ChildNodes) {
-                AddSubTreeItems(rootNode, control);
+                AddControlTreeItems(rootNode, control);
             }
 
             dialogTreeView.ExpandAll();
             dialogTreeView.SelectedNode = rootNode;
         }
 
-        private void AddSubTreeItems(TreeNode parent, XmlNode xmlNodeToAdd) {
+        private void AddControlTreeItems(TreeNode parent, XmlNode xmlNodeToAdd) {
+            string treeNodeName = xmlNodeToAdd.Name;
+            if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Id"] != null) {
+                treeNodeName = xmlNodeToAdd.Attributes["Id"].Value;
+            }
+
+            TreeNode control = new TreeNode(treeNodeName);
+            control.Tag = xmlNodeToAdd;
+            control.ImageIndex = 2;
+            control.SelectedImageIndex = 2;
+            parent.Nodes.Add(control);
+
+            foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes) {
+                AddControlSubTreeItems(control, xmlChildNode);
+            }
+        }
+
+        private void AddControlSubTreeItems(TreeNode parent, XmlNode xmlNodeToAdd) {
             string treeNodeName = xmlNodeToAdd.Name;
             if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Id"] != null) {
                 treeNodeName = xmlNodeToAdd.Attributes["Id"].Value;
             }
 
             TreeNode child = new TreeNode(treeNodeName);
+            switch (treeNodeName) {
+                case "Text":
+                    child.ImageIndex = 3;
+                    child.SelectedImageIndex = 3;
+                    break;
+                case "Condition":
+                    child.ImageIndex = 4;
+                    child.SelectedImageIndex = 4;
+                    break;
+                case "Subscribe":
+                    child.ImageIndex = 5;
+                    child.SelectedImageIndex = 5;
+                    break;
+                case "Publish":
+                    child.ImageIndex = 6;
+                    child.SelectedImageIndex = 6;
+                    break;
+                default:
+                    child.ImageIndex = 0;
+                    child.SelectedImageIndex = 0;
+                    break;
+            }
+
             child.Tag = xmlNodeToAdd;
             parent.Nodes.Add(child);
-
-            foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes) {
-                AddSubTreeItems(child, xmlChildNode);
-            }
         }
 
         private void ShowWixProperties(XmlNode xmlNode) {
@@ -434,11 +555,48 @@ namespace WixEdit {
             return;
         }
 
+
         private void OnAfterSelect(object sender, TreeViewEventArgs e) {
             XmlNode node = e.Node.Tag as XmlNode;
             if (node != null) {
                 ShowWixProperties(node);
             }
+        }
+
+        private void TreeViewMouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
+            if (e.Button == MouseButtons.Right) {
+                TreeNode node = dialogTreeView.GetNodeAt(e.X, e.Y);
+                if (node == null) {
+                    return;
+                }
+                dialogTreeView.SelectedNode = node;
+                Point spot = this.PointToClient(dialogTreeView.PointToScreen(new Point(e.X,e.Y)));
+                dialogTreeViewContextMenu.Show(this, spot);
+            }
+        }
+
+        protected void PopupDialogTreeViewContextMenu(System.Object sender, System.EventArgs e) {
+            XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
+            if (node == null) {
+                return;
+            }
+
+            dialogTreeViewContextMenu.MenuItems.Clear();
+
+            switch (node.Name) {
+                case "Dialog":
+                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlElementMenu);
+                    break;
+                case "Control":
+                    dialogTreeViewContextMenu.MenuItems.Add(this.newPublishElementMenu);
+                    dialogTreeViewContextMenu.MenuItems.Add(this.newConditionElementMenu);
+                    dialogTreeViewContextMenu.MenuItems.Add(this.newSubscribeElementMenu);
+                    break;
+                default:
+                    break;
+            }
+
+            dialogTreeViewContextMenu.MenuItems.Add(this.deleteCurrentElementMenu);
         }
 
         private void OnPropertyDoubleClick(object sender, System.EventArgs e) {

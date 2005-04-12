@@ -123,14 +123,15 @@ namespace WixEdit {
             }
         }
 
-        private void OnOk(object sender, EventArgs e) {   
+        private void OnOk(object sender, EventArgs e) {
             this.selectedString = this.StringList.SelectedItem.ToString();
             this.DialogResult = DialogResult.OK;
         }
 
-        private void OnDoubleClickList(object sender, EventArgs e) {   
-            this.selectedString = this.StringList.SelectedItem.ToString();
-            this.DialogResult = DialogResult.OK;
+        private void OnDoubleClickList(object sender, EventArgs e) {
+            // Cannot determine if an item is double clicked or not.
+            // this.selectedString = this.StringList.SelectedItem.ToString();
+            // this.DialogResult = DialogResult.OK;
         }
     }
 }

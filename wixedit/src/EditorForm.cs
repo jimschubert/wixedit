@@ -40,8 +40,10 @@ namespace WixEdit
         private TabControl tabControl;
         private TabPage editDialogPage;
         private TabPage editPropertiesPage;
+        private TabPage editResourcesPage;
         private EditDialogPanel editDialogPanel;
         private EditPropertiesPanel editPropertiesPanel;
+        private EditResourcesPanel editResourcesPanel;
 
         private MainMenu mainMenu;
         private MenuItem fileMenu;
@@ -165,6 +167,14 @@ namespace WixEdit
 
             this.editPropertiesPage.Controls.Add(editPropertiesPanel);
 
+            // Add Resources tab
+            this.editResourcesPage = new TabPage("Resources");
+            this.tabControl.TabPages.Add(this.editResourcesPage);
+
+            this.editResourcesPanel = new EditResourcesPanel(wixFiles);
+            this.editResourcesPanel.Dock = DockStyle.Fill;
+
+            this.editResourcesPage.Controls.Add(editResourcesPanel);
 
             // Update menu
             this.fileClose.Enabled = true;
