@@ -24,6 +24,8 @@ using System.Collections;
 using System.ComponentModel;
 using System.Xml;
 
+using System.Windows.Forms;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// This class adapts attributes of a xml node to properties, suitable for the <c>PropertyGrid</c>.
@@ -31,10 +33,21 @@ namespace WixEdit.PropertyGridExtensions {
     public class XmlAttributeAdapter : PropertyAdapterBase {
         protected XmlNode xmlNode;
         protected XmlNode xmlNodeDefinition;
+        protected bool showInnerTextIfEmpty;
+
+        public bool ShowInnerTextIfEmpty {
+            get {
+                return this.showInnerTextIfEmpty;
+            }
+            set {
+                this.showInnerTextIfEmpty = value;
+            }
+        }
 
         public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
             this.xmlNode = xmlNode;
             this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
+            this.showInnerTextIfEmpty = false;
         }
 
         public XmlNode XmlNode {
@@ -54,7 +67,7 @@ namespace WixEdit.PropertyGridExtensions {
 
             foreach(XmlAttribute xmlAttribute in xmlNode.Attributes) {
                 // Select attribute definition.
-                string selectAttribute = String.Format("xs:attribute[@name='{1}']", xmlNode.Name, xmlAttribute.Name);
+                string selectAttribute = String.Format("//xs:attribute[@name='{0}']", xmlAttribute.Name);
                 XmlNode xmlAttributeDefinition = this.xmlNodeDefinition.SelectSingleNode(selectAttribute, wixFiles.XsdNsmgr);
 
                 ArrayList attrs = new ArrayList();
@@ -85,6 +98,30 @@ namespace WixEdit.PropertyGridExtensions {
                 // Create and add PropertyDescriptor
                 XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(attrib, xmlAttributeDefinition,
                                                                            xmlAttributeDefinition.Attributes["name"].Value, attrArray);
+                
+                props.Add(pd);
+            }
+
+            XmlNode xmlSimpleContentExtensionDefinition = this.xmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
+
+            if (xmlSimpleContentExtensionDefinition != null && 
+                ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) {
+//                xmlNode.InnerText = "";
+
+                ArrayList attrs = new ArrayList();
+
+                // Add default attributes Category, TypeConverter and Description
+                attrs.Add(new CategoryAttribute("WXS Attribute"));
+                attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
+
+                attrs.Add(new DescriptionAttribute("InnerText of the element."));
+
+
+                // Make Attribute array
+                Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+
+                // Create and add PropertyDescriptor
+                InnerTextPropertyDescriptor pd = new InnerTextPropertyDescriptor(xmlNode, attrArray);
                 
                 props.Add(pd);
             }

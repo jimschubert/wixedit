@@ -260,7 +260,7 @@ namespace WixEdit {
         private string GetProductName() {
             string returnValue = String.Empty;
 
-            XmlNode productyNode = _wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Product", _wixFiles.WxsNsmgr);
+            XmlNode productyNode = _wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", _wixFiles.WxsNsmgr);
             XmlAttribute nameAttribute = productyNode.Attributes["Name"];
             if (nameAttribute != null) {
                 returnValue = nameAttribute.Value;

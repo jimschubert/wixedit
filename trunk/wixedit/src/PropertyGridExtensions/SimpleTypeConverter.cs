@@ -62,7 +62,7 @@ namespace WixEdit.PropertyGridExtensions {
     
                 XmlAttribute typeAttrib = desc.AttributeDescription.Attributes["type"];
                 if (typeAttrib == null) {
-                    enumeration = desc.AttributeDescription.SelectNodes("xs:simpleType/xs:restriction/xs:enumeration", adapter.WixFiles.XsdNsmgr);
+                    enumeration = desc.AttributeDescription.SelectNodes("/xs:simpleType/xs:restriction/xs:enumeration", adapter.WixFiles.XsdNsmgr);
                 } else {
                     string simpleType = desc.AttributeDescription.Attributes["type"].Value;
                     string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']/xs:restriction/xs:enumeration", simpleType);
