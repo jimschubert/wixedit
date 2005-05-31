@@ -21,7 +21,7 @@
    IN THE SOFTWARE.
 -->
 <project name="WixEdit" default="all">
-    <property name="project.version" value="0.1.1"/>
+    <property name="project.version" value="0.2.1"/>
 
     <property name="project.build" value="${nant.project.basedir}\build"/>
     <property name="project.source" value="${nant.project.basedir}\src"/>
@@ -47,7 +47,7 @@
         <delete failonerror="false" file="${project.source}/AssemblyVersionInfo.cs"/>
     </target>
 
-    <target name="build">
+    <target name="build" depends="generate-version">
 		<mkdir dir="${project.build}" />
 		<csc    target="winexe" 
                 output="${project.output}"
@@ -58,7 +58,7 @@
         <copy file="${project.source}\${nant.project.name}.exe.manifest" todir="${project.build}" />  
     </target>
 
-    <target name="release" depends="generate-version,all">
+    <target name="release" depends="all">
 		<mkdir dir="${project.release}" />
         <zip zipfile="${project.release}\wixedit-${project.version}-bin.zip">
             <fileset basedir="${nant.project.basedir}">
