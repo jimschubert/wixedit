@@ -59,6 +59,8 @@ namespace WixEdit {
         private IconMenuItem AlwaysOnTop;
 
         private IconMenuItem newControlElementMenu;
+        private IconMenuItem newControlSubElementsMenu;
+        private IconMenuItem newTextElementMenu;
         private IconMenuItem newPublishElementMenu;
         private IconMenuItem newConditionElementMenu;
         private IconMenuItem newSubscribeElementMenu;
@@ -182,10 +184,8 @@ namespace WixEdit {
             this.dialogTreeView.ImageList = GetDialogTreeViewImageList();
 
             this.newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            this.newPublishElementMenu = new IconMenuItem("New Publish", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            this.newConditionElementMenu = new IconMenuItem("New Condition", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            this.newSubscribeElementMenu = new IconMenuItem("New Subsribe", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
+            this.newControlElementMenu.Click += new System.EventHandler(this.NewControlElement_Click);
+            
 /*
 
     ImageList myImageList = new ImageList();
@@ -199,8 +199,22 @@ namespace WixEdit {
 
 */
 
+            this.newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
 
+            this.newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newTextElementMenu.Click += new System.EventHandler(this.NewTextElement_Click);
 
+            this.newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newPublishElementMenu.Click += new System.EventHandler(this.NewPublishElement_Click);
+
+            this.newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newConditionElementMenu.Click += new System.EventHandler(this.NewConditionElement_Click);
+
+            this.newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newSubscribeElementMenu.Click += new System.EventHandler(this.NewSubscribeElement_Click);
+
+            this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
+            this.deleteCurrentElementMenu.Click += new System.EventHandler(this.DeleteElement_Click);
 
             // 
             // propertyGridContextMenu
@@ -570,6 +584,7 @@ namespace WixEdit {
                     return;
                 }
                 dialogTreeView.SelectedNode = node;
+
                 Point spot = this.PointToClient(dialogTreeView.PointToScreen(new Point(e.X,e.Y)));
                 dialogTreeViewContextMenu.Show(this, spot);
             }
@@ -588,9 +603,11 @@ namespace WixEdit {
                     dialogTreeViewContextMenu.MenuItems.Add(this.newControlElementMenu);
                     break;
                 case "Control":
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newPublishElementMenu);
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newConditionElementMenu);
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newSubscribeElementMenu);
+                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlSubElementsMenu);
+                    this.newControlSubElementsMenu.MenuItems.Add(this.newTextElementMenu);
+                    this.newControlSubElementsMenu.MenuItems.Add(this.newPublishElementMenu);
+                    this.newControlSubElementsMenu.MenuItems.Add(this.newConditionElementMenu);
+                    this.newControlSubElementsMenu.MenuItems.Add(this.newSubscribeElementMenu);
                     break;
                 default:
                     break;
@@ -601,6 +618,55 @@ namespace WixEdit {
 
         private void OnPropertyDoubleClick(object sender, System.EventArgs e) {
             // Edit here?
+        }
+
+        private void NewControlElement_Click(object sender, System.EventArgs e) {
+            XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
+            if (node == null) {
+                return;
+            }
+
+            // Name should be dialog...
+            if (node.Name == "Dialog") {
+                // Get new name, and add control
+                EnterStringForm frm = new EnterStringForm();
+                frm.Text = "Enter new Control name";
+                if (DialogResult.OK == frm.ShowDialog()) {
+                    XmlElement newControl = node.OwnerDocument.CreateElement("Control", "http://schemas.microsoft.com/wix/2003/01/wi");
+    
+                    XmlAttribute newAttr = node.OwnerDocument.CreateAttribute("Id");
+                    newAttr.Value = frm.SelectedString;
+
+                    newControl.Attributes.Append(newAttr);
+
+                    node.AppendChild(newControl);
+
+                    TreeNode control = new TreeNode(frm.SelectedString);
+                    control.Tag = newControl;
+                    control.ImageIndex = 2;
+                    control.SelectedImageIndex = 2;
+
+                    dialogTreeView.TopNode.Nodes.Add(control);
+                    dialogTreeView.SelectedNode = control;
+
+                    ShowWixProperties(newControl);
+                }
+            }
+        }
+
+        private void NewTextElement_Click(object sender, System.EventArgs e) {
+        }
+
+        private void NewPublishElement_Click(object sender, System.EventArgs e) {
+        }
+
+        private void NewConditionElement_Click(object sender, System.EventArgs e) {
+        }
+
+        private void NewSubscribeElement_Click(object sender, System.EventArgs e) {
+        }
+
+        private void DeleteElement_Click(object sender, System.EventArgs e) {
         }
 
         private void Opacity_Click(object sender, System.EventArgs e) {
@@ -615,6 +681,7 @@ namespace WixEdit {
                 currentDialog.Opacity = GetOpacity();
             }
         }
+
         private void AlwaysOnTop_Click(object sender, System.EventArgs e) {
             this.AlwaysOnTop.Checked = !this.AlwaysOnTop.Checked;
 

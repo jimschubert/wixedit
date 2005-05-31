@@ -130,8 +130,9 @@ namespace WixEdit {
 
         private void OnDoubleClickList(object sender, EventArgs e) {
             // Cannot determine if an item is double clicked or not.
-            // this.selectedString = this.StringList.SelectedItem.ToString();
-            // this.DialogResult = DialogResult.OK;
+            // but just pretend if we do... ;)
+            this.selectedString = this.StringList.SelectedItem.ToString();
+            this.DialogResult = DialogResult.OK;
         }
     }
 }

@@ -79,8 +79,8 @@ namespace WixEdit {
             //
             this.binaryGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
-            BinaryElementAdapter propAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            this.binaryGrid.SelectedObject = propAdapter;
+            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
+            this.binaryGrid.SelectedObject = binAdapter;
 
             this.Controls.Add(this.binaryGrid);
         }
@@ -110,23 +110,27 @@ namespace WixEdit {
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
             if (DialogResult.OK == frm.ShowDialog()) {
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("wix:Property", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("wix:Binary", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
+                newAttr = wixFiles.WxsDocument.CreateAttribute("src");
+                newAttr.Value = "";
+                newProp.Attributes.Append(newAttr);
+
                 XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
                 
 
-                XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
                 product.AppendChild(newProp);
-                binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(binaries, wixFiles);
+                BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
 
-                this.binaryGrid.SelectedObject = propAdapter;
+                this.binaryGrid.SelectedObject = binAdapter;
                 binaryGrid.Update();
 
                 foreach (GridItem it in binaryGrid.SelectedGridItem.Parent.GridItems) {
@@ -140,20 +144,20 @@ namespace WixEdit {
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = binaryGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.PropertyElement;
+            BinaryElementPropertyDescriptor desc = binaryGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
+            XmlNode element = desc.BinaryElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the binaryGrid.
-            PropertyElementAdapter propAdapter = binaryGrid.SelectedObject as PropertyElementAdapter;
+            BinaryElementAdapter binAdapter = binaryGrid.SelectedObject as BinaryElementAdapter;
             binaryGrid.SelectedObject = null;
 
             // Remove the attribute
-//            propAdapter.PropertyNodes.Remove(element);
+//            binAdapter.PropertyNodes.Remove(element);
             element.ParentNode.RemoveChild(element);
 
-            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(binaries, wixFiles);
-            this.binaryGrid.SelectedObject = propAdapter;
+            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
+            binAdapter = new BinaryElementAdapter(binaries, wixFiles);
+            this.binaryGrid.SelectedObject = binAdapter;
             binaryGrid.Update();
         }
     }

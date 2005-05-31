@@ -29,8 +29,9 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 
-namespace WixEdit
-{
+using WixEdit.About;
+
+namespace WixEdit {
 	/// <summary>
 	/// Summary description for Form1.
 	/// </summary>
@@ -52,13 +53,15 @@ namespace WixEdit
         private MenuItem fileClose;
         private MenuItem fileSeparator;
         private MenuItem fileExit;
+        private MenuItem helpMenu;
+        private MenuItem helpAbout;
 
         private bool fileIsDirty;
 
         private WixFiles wixFiles;
 
 		public EditorForm() {
-			InitializeComponent();
+            InitializeComponent();
 		}
 
         private void InitializeComponent() {
@@ -109,7 +112,31 @@ namespace WixEdit
             
             this.mainMenu.MenuItems.Add(0, this.fileMenu);
 
+            this.helpMenu = new IconMenuItem();
+            this.helpAbout = new IconMenuItem();
+
+            this.helpAbout.Text = "About";
+            this.helpAbout.Click += new System.EventHandler(this.helpAbout_Click);
+
+            this.helpMenu.Text = "Help";
+            this.helpMenu.MenuItems.Add(0, this.helpAbout);
+
+            this.mainMenu.MenuItems.Add(1, this.helpMenu);
+
+
             this.Menu = this.mainMenu;
+
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length == 2) {
+                string xmlFile = args[1];
+                if (xmlFile != null && xmlFile.Length > 0 && 
+                   (xmlFile.ToLower().EndsWith(".xml") || xmlFile.ToLower().EndsWith(".wxs"))) {
+                    FileInfo xmlFileInfo = new FileInfo(xmlFile);
+                    if (xmlFileInfo.Exists) {
+                        LoadWxsFile(xmlFileInfo.FullName);
+                    }
+                }
+            }
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
@@ -135,6 +162,11 @@ namespace WixEdit
 
         private void fileExit_Click(object sender, System.EventArgs e) {
             Application.Exit();
+        }
+
+        private void helpAbout_Click(object sender, System.EventArgs e) {
+            AboutForm frm = new AboutForm();
+            frm.ShowDialog();
         }
 
         private void LoadWxsFile(string file) {
@@ -185,10 +217,6 @@ namespace WixEdit
         }
 
         private void ToggleDirty(bool dirty) {
-            this.fileIsDirty = true;
-            this.fileSave.Enabled = true;
-            return;
-
             if (dirty != this.fileIsDirty) {
                 this.fileIsDirty = dirty;
                 this.fileSave.Enabled = dirty;
