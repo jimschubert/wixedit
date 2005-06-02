@@ -65,10 +65,31 @@ namespace WixEdit.PropertyGridExtensions {
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
 
+/*
+// This shows all existing elements
             foreach(XmlAttribute xmlAttribute in xmlNode.Attributes) {
                 // Select attribute definition.
                 string selectAttribute = String.Format("//xs:attribute[@name='{0}']", xmlAttribute.Name);
                 XmlNode xmlAttributeDefinition = this.xmlNodeDefinition.SelectSingleNode(selectAttribute, wixFiles.XsdNsmgr);
+/**/
+// This shows all existing + required elements
+            XmlNodeList xmlAttributeDefinitions = this.xmlNodeDefinition.SelectNodes("xs:attribute", wixFiles.XsdNsmgr);
+            foreach(XmlNode xmlAttributeDefinition in xmlAttributeDefinitions) {
+                XmlAttribute xmlAttribute = xmlNode.Attributes[xmlAttributeDefinition.Attributes["name"].Value];
+
+                if (xmlAttribute == null) {
+                    if (xmlAttributeDefinition.Attributes["use"] == null || 
+                        xmlAttributeDefinition.Attributes["use"].Value != "required") {
+                        continue;
+                    }
+
+                    // If there is no attibute present, create one.
+                    if (xmlAttribute == null) {
+                        xmlAttribute = xmlNode.OwnerDocument.CreateAttribute(xmlAttributeDefinition.Attributes["name"].Value);
+                        xmlNode.Attributes.Append(xmlAttribute);
+                    }                    
+                }
+/**/
 
                 ArrayList attrs = new ArrayList();
 
@@ -88,15 +109,10 @@ namespace WixEdit.PropertyGridExtensions {
                 // Make Attribute array
                 Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
-                // If there is no attibute present, create one.
-                XmlAttribute attrib = xmlAttribute;
-                if (attrib == null) {
-                    attrib = xmlNode.OwnerDocument.CreateAttribute(xmlAttributeDefinition.Attributes["name"].Value);
-                    xmlNode.Attributes.Append(attrib);
-                }
+
 
                 // Create and add PropertyDescriptor
-                XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(attrib, xmlAttributeDefinition,
+                XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(xmlAttribute, xmlAttributeDefinition,
                                                                            xmlAttributeDefinition.Attributes["name"].Value, attrArray);
                 
                 props.Add(pd);
