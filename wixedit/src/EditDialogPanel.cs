@@ -65,6 +65,8 @@ namespace WixEdit {
         private IconMenuItem newConditionElementMenu;
         private IconMenuItem newSubscribeElementMenu;
         private IconMenuItem deleteCurrentElementMenu;
+
+        private IconMenuItem infoAboutCurrentElementMenu;
         #endregion
 
         private WixFiles wixFiles;
@@ -215,6 +217,9 @@ namespace WixEdit {
 
             this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
             this.deleteCurrentElementMenu.Click += new System.EventHandler(this.DeleteElement_Click);
+
+            this.infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("WixEdit.help.bmp")));
+            this.infoAboutCurrentElementMenu.Click += new System.EventHandler(this.InfoAboutCurrentElement_Click);
 
             // 
             // propertyGridContextMenu
@@ -603,6 +608,7 @@ namespace WixEdit {
                     dialogTreeViewContextMenu.MenuItems.Add(this.newControlElementMenu);
                     break;
                 case "Control":
+                    this.newControlSubElementsMenu.MenuItems.Clear();
                     dialogTreeViewContextMenu.MenuItems.Add(this.newControlSubElementsMenu);
                     this.newControlSubElementsMenu.MenuItems.Add(this.newTextElementMenu);
                     this.newControlSubElementsMenu.MenuItems.Add(this.newPublishElementMenu);
@@ -614,6 +620,18 @@ namespace WixEdit {
             }
 
             dialogTreeViewContextMenu.MenuItems.Add(this.deleteCurrentElementMenu);
+
+
+            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+
+            XmlNode documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
+            if(documentation == null) {
+                documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
+            }
+
+            if (documentation != null) {
+                dialogTreeViewContextMenu.MenuItems.Add(this.infoAboutCurrentElementMenu);
+            }
         }
 
         private void OnPropertyDoubleClick(object sender, System.EventArgs e) {
@@ -653,20 +671,71 @@ namespace WixEdit {
                 }
             }
         }
+        private void CreateNewControlSubElement(string typeName, int imageIndex) {
+            XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
+            if (node == null) {
+                return;
+            }
 
-        private void NewTextElement_Click(object sender, System.EventArgs e) {
+            // Name should be dialog...
+            if (node.Name == "Control") {
+                // Get new name, and add Text element
+                // EnterStringForm frm = new EnterStringForm();
+                // frm.Text = "Enter new Text value";
+                // if (DialogResult.OK == frm.ShowDialog()) {
+                    XmlElement newText = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
+    
+                    // XmlText newValue = node.OwnerDocument.CreateTextNode(frm.SelectedString);
+
+                    // newText.AppendChild(newValue);
+
+                    // node.AppendChild(newText);
+
+                    TreeNode control = new TreeNode(typeName);
+                    control.Tag = newText;
+                    control.ImageIndex = imageIndex;
+                    control.SelectedImageIndex = imageIndex;
+
+                    dialogTreeView.SelectedNode.Nodes.Add(control);
+                    dialogTreeView.SelectedNode = control;
+
+                    ShowWixProperties(newText);
+                //}
+            }
         }
 
-        private void NewPublishElement_Click(object sender, System.EventArgs e) {
+        private void NewTextElement_Click(object sender, System.EventArgs e) {
+            CreateNewControlSubElement("Text", 3);
         }
 
         private void NewConditionElement_Click(object sender, System.EventArgs e) {
+            CreateNewControlSubElement("Condition", 4);
         }
 
         private void NewSubscribeElement_Click(object sender, System.EventArgs e) {
+            CreateNewControlSubElement("Subscribe", 5);
+        }
+
+        private void NewPublishElement_Click(object sender, System.EventArgs e) {
+            CreateNewControlSubElement("Publish", 6);
         }
 
         private void DeleteElement_Click(object sender, System.EventArgs e) {
+        }
+
+        private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
+            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+
+            XmlNode documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
+            if(documentation == null) {
+                documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
+            }
+
+            if(documentation != null) {
+                MessageBox.Show(documentation.InnerText);
+            } else {
+                MessageBox.Show("No documentation found.");
+            }
         }
 
         private void Opacity_Click(object sender, System.EventArgs e) {

@@ -46,7 +46,13 @@ namespace WixEdit.PropertyGridExtensions {
 
         public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
             this.xmlNode = xmlNode;
-            this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
+
+            this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType/xs:simpleContent/xs:extension", xmlNode.Name), wixFiles.XsdNsmgr);
+
+            if (this.xmlNodeDefinition == null) {
+                this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
+            }
+
             this.showInnerTextIfEmpty = false;
         }
 
