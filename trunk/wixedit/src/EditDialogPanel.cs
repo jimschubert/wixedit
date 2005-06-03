@@ -218,7 +218,7 @@ namespace WixEdit {
             this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
             this.deleteCurrentElementMenu.Click += new System.EventHandler(this.DeleteElement_Click);
 
-            this.infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("WixEdit.help.bmp")));
+            this.infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("WixEdit.info.bmp")));
             this.infoAboutCurrentElementMenu.Click += new System.EventHandler(this.InfoAboutCurrentElement_Click);
 
             // 
@@ -731,11 +731,16 @@ namespace WixEdit {
                 documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
             }
 
+            string message = null;
             if(documentation != null) {
-                MessageBox.Show(documentation.InnerText);
+                message = documentation.InnerText;
             } else {
-                MessageBox.Show("No documentation found.");
+                message = "No documentation found.";
             }
+
+            string title = String.Format("Info about '{0}' element", dialogTreeView.SelectedNode.Text);
+
+            MessageBox.Show(message, title);
         }
 
         private void Opacity_Click(object sender, System.EventArgs e) {
@@ -790,6 +795,7 @@ namespace WixEdit {
                     currentDialog.Dispose();
                 }
             }
+
             base.Dispose( disposing );
         }
     }
