@@ -51,9 +51,10 @@ namespace WixEdit.PropertyGridExtensions {
 
             if (this.xmlNodeDefinition == null) {
                 this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
+                this.showInnerTextIfEmpty = false;
+            } else {
+                this.showInnerTextIfEmpty = true;
             }
-
-            this.showInnerTextIfEmpty = false;
         }
 
         public XmlNode XmlNode {
@@ -124,9 +125,7 @@ namespace WixEdit.PropertyGridExtensions {
                 props.Add(pd);
             }
 
-            XmlNode xmlSimpleContentExtensionDefinition = this.xmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
-
-            if (xmlSimpleContentExtensionDefinition != null && 
+            if (this.XmlNodeDefinition.Name == "xs:extension" &&
                 ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) {
 //                xmlNode.InnerText = "";
 
