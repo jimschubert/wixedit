@@ -383,8 +383,7 @@ namespace WixEdit {
                 }
             }
 
-            XmlNode xmlSimpleContentExtension = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
-            if (xmlSimpleContentExtension != null) {
+            if (attAdapter.XmlNodeDefinition.Name == "xs:extension") {
                 bool hasInnerText = false;
                 foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
                     if (it.Label == "InnerText") {
