@@ -185,34 +185,22 @@ namespace WixEdit {
 
             this.dialogTreeView.ImageList = GetDialogTreeViewImageList();
 
-            this.newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("WixEdit.control.bmp")));
             this.newControlElementMenu.Click += new System.EventHandler(this.NewControlElement_Click);
-            
-/*
 
-    ImageList myImageList = new ImageList();
-    myImageList.Images.Add(Image.FromFile("Default.gif"));
-    myImageList.Images.Add(Image.FromFile("SelectedDefault.gif"));
-    myImageList.Images.Add(Image.FromFile("Root.gif"));
-    myImageList.Images.Add(Image.FromFile("UnselectedCustomer.gif"));
-    myImageList.Images.Add(Image.FromFile("SelectedCustomer.gif"));
-    myImageList.Images.Add(Image.FromFile("UnselectedOrder.gif"));
-    myImageList.Images.Add(Image.FromFile("SelectedOrder.gif"));
-
-*/
 
             this.newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
 
-            this.newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("WixEdit.text.bmp")));
             this.newTextElementMenu.Click += new System.EventHandler(this.NewTextElement_Click);
 
-            this.newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("WixEdit.publish.bmp")));
             this.newPublishElementMenu.Click += new System.EventHandler(this.NewPublishElement_Click);
 
-            this.newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("WixEdit.condition.bmp")));
             this.newConditionElementMenu.Click += new System.EventHandler(this.NewConditionElement_Click);
 
-            this.newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            this.newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("WixEdit.subscribe.bmp")));
             this.newSubscribeElementMenu.Click += new System.EventHandler(this.NewSubscribeElement_Click);
 
             this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));

@@ -406,7 +406,7 @@ namespace WixEdit {
                 string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
                 string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
 
-                XmlNode radioGroup = _wixFiles.WxsDocument.SelectSingleNode("//wix:RadioGroup[@Property='IAgree']", _wixFiles.WxsNsmgr);
+                XmlNode radioGroup = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), _wixFiles.WxsNsmgr);
 
                 Panel panel = new Panel();
                 SetControlSizes(panel, radioButtonGroup);
