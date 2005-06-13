@@ -121,6 +121,8 @@ namespace WixEdit {
                 AddTreeNodesRecursive(file, directoryTreeView.Nodes);
             }
 
+            directoryTreeView.ExpandAll();
+
             // 
             // splitter1
             // 
