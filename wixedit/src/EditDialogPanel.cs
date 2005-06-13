@@ -117,7 +117,7 @@ namespace WixEdit {
             this.Separator = new IconMenuItem("-");
             this.AlwaysOnTop = new IconMenuItem();
             this.dialogTreeView = new TreeView();
-            this.propertyGrid = new PropertyGrid();
+            this.propertyGrid = new CustomPropertyGrid();
             this.propertyGridContextMenu = new ContextMenu();
             this.wxsDialogs = new ListView();
             this.splitter1 = new Splitter();

@@ -57,7 +57,7 @@ namespace WixEdit {
         private void InitializeComponent() {
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
-            this.propertyGrid = new PropertyGrid();
+            this.propertyGrid = new CustomPropertyGrid();
             this.propertyGridContextMenu = new ContextMenu();
 
             // 

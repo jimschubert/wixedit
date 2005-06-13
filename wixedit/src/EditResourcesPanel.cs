@@ -57,7 +57,7 @@ namespace WixEdit {
         private void InitializeComponent() {
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
-            this.binaryGrid = new PropertyGrid();
+            this.binaryGrid = new CustomPropertyGrid();
             this.binaryGridContextMenu = new ContextMenu();
 
             // 
