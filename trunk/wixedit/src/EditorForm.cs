@@ -30,6 +30,7 @@ using System.Resources;
 using System.Reflection;
 
 using WixEdit.About;
+using WixEdit.Settings;
 
 namespace WixEdit {
 	/// <summary>
@@ -55,6 +56,8 @@ namespace WixEdit {
         private MenuItem fileClose;
         private MenuItem fileSeparator;
         private MenuItem fileExit;
+        private MenuItem toolsMenu;
+        private MenuItem toolsOptions;
         private MenuItem helpMenu;
         private MenuItem helpAbout;
 
@@ -114,8 +117,25 @@ namespace WixEdit {
             
             this.mainMenu.MenuItems.Add(0, this.fileMenu);
 
+
+
+
+            this.toolsMenu = new IconMenuItem();
+            this.toolsOptions = new IconMenuItem();
+
+            this.toolsOptions.Text = "Options";
+            this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
+
+            this.toolsMenu.Text = "Tools";
+            this.toolsMenu.MenuItems.Add(0, this.toolsOptions);
+            
+            this.mainMenu.MenuItems.Add(1, this.toolsMenu);
+
+
+
+
             this.helpMenu = new IconMenuItem();
-            this.helpAbout = new IconMenuItem();
+            this.helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"), 16, 16));
 
             this.helpAbout.Text = "About";
             this.helpAbout.Click += new System.EventHandler(this.helpAbout_Click);
@@ -123,7 +143,7 @@ namespace WixEdit {
             this.helpMenu.Text = "Help";
             this.helpMenu.MenuItems.Add(0, this.helpAbout);
 
-            this.mainMenu.MenuItems.Add(1, this.helpMenu);
+            this.mainMenu.MenuItems.Add(2, this.helpMenu);
 
 
             this.Menu = this.mainMenu;
@@ -164,6 +184,11 @@ namespace WixEdit {
 
         private void fileExit_Click(object sender, System.EventArgs e) {
             Application.Exit();
+        }
+
+        private void toolsOptions_Click(object sender, System.EventArgs e) {
+            SettingsForm frm = new SettingsForm();
+            frm.ShowDialog();
         }
 
         private void helpAbout_Click(object sender, System.EventArgs e) {
