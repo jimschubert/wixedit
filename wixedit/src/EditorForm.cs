@@ -20,8 +20,9 @@
 
 
 using System;
-using System.Drawing;
 using System.Collections;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Data;
 using System.Xml;
@@ -58,10 +59,16 @@ namespace WixEdit {
         private MenuItem fileExit;
         private MenuItem toolsMenu;
         private MenuItem toolsOptions;
+        private MenuItem toolsWixCompile;
         private MenuItem helpMenu;
         private MenuItem helpAbout;
 
+        protected OutputPanel outputPanel;
+        private Splitter outputSplitter;
+
         private bool fileIsDirty;
+
+        BasePanel[] panels = new BasePanel[4];
 
         private WixFiles wixFiles;
 
@@ -72,7 +79,7 @@ namespace WixEdit {
         private void InitializeComponent() {
             this.Text = "WiX Edit";
             this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
-            this.ClientSize = new System.Drawing.Size(553, 358); // Height of 358 aligns the bottom of the dialog selection list 
+            this.ClientSize = new System.Drawing.Size(583, 358); // Height of 358 aligns the bottom of the dialog selection list 
 
             this.openWxsFileDialog = new OpenFileDialog();
 
@@ -122,16 +129,19 @@ namespace WixEdit {
 
             this.toolsMenu = new IconMenuItem();
             this.toolsOptions = new IconMenuItem();
+            this.toolsWixCompile = new IconMenuItem();
+
+            this.toolsWixCompile.Text = "Wix Compile";
+            this.toolsWixCompile.Click += new System.EventHandler(this.toolsWixCompile_Click);
 
             this.toolsOptions.Text = "Options";
             this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
 
             this.toolsMenu.Text = "Tools";
-            this.toolsMenu.MenuItems.Add(0, this.toolsOptions);
+            this.toolsMenu.MenuItems.Add(0, this.toolsWixCompile);
+            this.toolsMenu.MenuItems.Add(1, this.toolsOptions);
             
             this.mainMenu.MenuItems.Add(1, this.toolsMenu);
-
-
 
 
             this.helpMenu = new IconMenuItem();
@@ -145,8 +155,36 @@ namespace WixEdit {
 
             this.mainMenu.MenuItems.Add(2, this.helpMenu);
 
-
             this.Menu = this.mainMenu;
+
+
+            this.tabControl = new TabControl();
+            this.tabControl.Dock = DockStyle.Fill;
+            this.Controls.Add(this.tabControl);
+            this.tabControl.Visible = false;
+
+            //this.tabControl.Alignment = TabAlignment.Left;
+            //this.tabControl.Appearance = TabAppearance.FlatButtons;
+            this.tabControl.Click += new EventHandler(OnTabChanged) ;
+
+
+            outputSplitter = new Splitter();
+            outputSplitter.Dock = DockStyle.Bottom;
+            outputSplitter.Height = 2;
+            this.Controls.Add(outputSplitter);
+
+            outputPanel = new OutputPanel(wixFiles);
+            outputPanel.Dock = DockStyle.Bottom;
+            outputPanel.Height = 100;
+            outputPanel.Size = new Size(200, 150);
+
+            outputPanel.CloseClicked += new EventHandler(HideOutputPanel);
+
+            this.Controls.Add(outputPanel);
+
+            outputPanel.Visible = false;
+            outputSplitter.Visible = false;
+
 
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length == 2) {
@@ -163,6 +201,8 @@ namespace WixEdit {
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
             this.openWxsFileDialog.Filter = "xml files (*.xml)|*.xml|wxs files (*.wxs)|*.wxs|All files (*.*)|*.*" ;
+            this.openWxsFileDialog.FilterIndex = 2 ;
+
             this.openWxsFileDialog.RestoreDirectory = true ;
 
             if(this.openWxsFileDialog.ShowDialog() == DialogResult.OK) {
@@ -186,6 +226,48 @@ namespace WixEdit {
             Application.Exit();
         }
 
+        private void toolsWixCompile_Click(object sender, System.EventArgs e) {
+            ShowOutputPanel(null, null);
+
+            outputPanel.Clear();
+            this.Update();
+
+            string candleExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Candle.exe");
+
+            ProcessStartInfo psiCandle = new ProcessStartInfo();
+            psiCandle.FileName = candleExe;
+            psiCandle.CreateNoWindow = true;
+            psiCandle.UseShellExecute = false;
+            psiCandle.RedirectStandardOutput = true;
+            psiCandle.RedirectStandardError = false;
+            psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
+
+            string lightExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Light.exe");
+
+            ProcessStartInfo psiLight = new ProcessStartInfo();
+            psiLight.FileName = lightExe;
+            psiLight.CreateNoWindow = true;
+            psiLight.UseShellExecute = false;
+            psiLight.RedirectStandardOutput = true;
+            psiLight.RedirectStandardError = false;            
+            psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi"));
+
+            int ret = outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
+            if (ret != 0) {
+                MessageBox.Show("Process exited with errorcode " + ret.ToString());
+            }
+        }
+
+        private void ShowOutputPanel(object sender, System.EventArgs e) {
+            outputSplitter.Visible = true;
+            outputPanel.Visible = true;
+        }
+
+        private void HideOutputPanel(object sender, System.EventArgs e) {
+            outputSplitter.Visible = false;
+            outputPanel.Visible = false;
+        }
+
         private void toolsOptions_Click(object sender, System.EventArgs e) {
             SettingsForm frm = new SettingsForm();
             frm.ShowDialog();
@@ -196,16 +278,31 @@ namespace WixEdit {
             frm.ShowDialog();
         }
 
+        int oldTabIndex = 0;
+        private void OnTabChanged(object sender, EventArgs e) {
+            if (oldTabIndex == tabControl.SelectedIndex) {
+                return;
+            }
+
+            if (panels[panels.Length - 1] == null) {
+                return;
+            }
+
+            if (panels[oldTabIndex].Menu != null) {
+                this.mainMenu.MenuItems.RemoveAt(1);
+            }
+
+            if (panels[tabControl.SelectedIndex].Menu != null) {
+                this.mainMenu.MenuItems.Add(1, panels[tabControl.SelectedIndex].Menu);
+            }
+
+            oldTabIndex = tabControl.SelectedIndex;
+        }
+
         private void LoadWxsFile(string file) {
             this.wixFiles = new WixFiles(new FileInfo(file));
 
-            this.tabControl = new TabControl();
-            this.tabControl.Dock = DockStyle.Fill;
-            this.Controls.Add(this.tabControl);
-
-            //this.tabControl.Alignment = TabAlignment.Left;
-            //this.tabControl.Appearance = TabAppearance.FlatButtons;
-            
+            this.tabControl.Visible = true;
 
             // Add dialog tab
             this.editDialogPage = new TabPage("Dialogs");
@@ -215,6 +312,8 @@ namespace WixEdit {
             this.editDialogPanel.Dock = DockStyle.Fill;
 
             this.editDialogPage.Controls.Add(editDialogPanel);
+
+            panels[0] = editDialogPanel;
 
             this.mainMenu.MenuItems.Add(1, this.editDialogPanel.Menu);
 
@@ -228,6 +327,7 @@ namespace WixEdit {
 
             this.editPropertiesPage.Controls.Add(editPropertiesPanel);
 
+            panels[1] = editPropertiesPanel;
 
             // Add Resources tab
             this.editResourcesPage = new TabPage("Resources");
@@ -238,6 +338,8 @@ namespace WixEdit {
 
             this.editResourcesPage.Controls.Add(editResourcesPanel);
 
+            panels[2] = editResourcesPanel;
+
 
             // Add Files tab
             this.editFilesPage = new TabPage("Files");
@@ -247,6 +349,8 @@ namespace WixEdit {
             this.editFilesPanel.Dock = DockStyle.Fill;
 
             this.editFilesPage.Controls.Add(editFilesPanel);
+
+            panels[3] = editFilesPanel;
 
 
             // Update menu
@@ -265,11 +369,10 @@ namespace WixEdit {
         }
 
         private void CloseWxsFile() {
-            if (this.tabControl != null) {
-                this.Controls.Remove(tabControl);
-                this.tabControl.Dispose();
-                this.tabControl = null;
-            }
+            this.tabControl.Visible = false;
+            this.tabControl.TabPages.Clear();
+
+            panels = new BasePanel[4];
 
             if (this.editDialogPanel != null) {
                 if (this.mainMenu != null) {
@@ -311,7 +414,7 @@ namespace WixEdit {
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
-		//[STAThread]
+		[STAThread]
 		static void Main() 
 		{
 			Application.Run(new EditorForm());

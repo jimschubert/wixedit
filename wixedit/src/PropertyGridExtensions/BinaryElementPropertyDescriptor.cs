@@ -25,7 +25,7 @@ using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// Summary description for XmlAttributeBinaryDescriptor.
+    /// PropertyDescriptor for BinaryElements.
     /// </summary>
     public class BinaryElementPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode binaryElement;

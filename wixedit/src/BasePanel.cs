@@ -1,3 +1,4 @@
+
 // Copyright (c) 2005 J.Keuper (j.keuper@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,35 +21,33 @@
 
 
 using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Collections;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Data;
+using System.Xml;
+using System.IO;
+using System.Resources;
+using System.Reflection;
 
-namespace WixEdit.PropertyGridExtensions {
+using WixEdit.PropertyGridExtensions;
+
+namespace WixEdit {
     /// <summary>
-    /// A customized PropertyGrid control.
+    /// Summary description for EditPropertiesPanel.
     /// </summary>
-    public class CustomPropertyGrid : PropertyGrid {
-        protected override bool ProcessTabKey(bool forward) {
-            bool foundItem = false;
-            bool done = false;
+    public class BasePanel : Panel{
+        protected WixFiles wixFiles;
 
-            if (SelectedGridItem != null && SelectedGridItem.Parent != null) {
-                foreach (GridItem item in SelectedGridItem.Parent.GridItems) {
-                    if (foundItem == true) {
-                        SelectedGridItem = item;
-                        done = true;
-                        break;
-                    }
-                    if (item == SelectedGridItem) {
-                        foundItem = true;
-                    }
-                } 
-    
-                if (foundItem == true && done == false) {
-                    SelectedGridItem = SelectedGridItem.Parent.GridItems[0];
-                    done = true;
-                }
-            }
-            return done;
+        public BasePanel(WixFiles wixFiles) {
+            this.wixFiles = wixFiles;
+        }
+
+        public virtual MenuItem Menu {
+            get { return null; }
         }
     }
 }

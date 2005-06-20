@@ -38,7 +38,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditDialogPanel.
     /// </summary>
-    public class EditDialogPanel : Panel {
+    public class EditDialogPanel : BasePanel {
         #region Controls
         
         private Form currentDialog;
@@ -69,11 +69,7 @@ namespace WixEdit {
         private IconMenuItem infoAboutCurrentElementMenu;
         #endregion
 
-        private WixFiles wixFiles;
-
-        public EditDialogPanel(WixFiles wixFiles) {
-            this.wixFiles = wixFiles;
-
+        public EditDialogPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
            
             Opacity100.Checked = true;
@@ -92,7 +88,6 @@ namespace WixEdit {
             this.wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
 
             this.wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
-
         }
 
         private void OnResizeWxsDialogs(object sender, System.EventArgs e) {
@@ -101,7 +96,7 @@ namespace WixEdit {
             }
         }
 
-        public MenuItem Menu {
+        public override MenuItem Menu {
             get {
                 return viewMenu;
             }
@@ -133,7 +128,7 @@ namespace WixEdit {
                                                               this.Opacity25,
                                                               this.Separator,
                                                               this.AlwaysOnTop});
-            this.viewMenu.Text = "Tools";
+            this.viewMenu.Text = "Dialogs";
             // 
             // Opacity100
             // 

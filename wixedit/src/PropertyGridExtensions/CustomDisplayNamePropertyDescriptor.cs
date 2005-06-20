@@ -20,35 +20,29 @@
 
 
 using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
+
 using System.Windows.Forms;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// A customized PropertyGrid control.
+    /// Summary description for XmlAttributeBinaryDescriptor.
     /// </summary>
-    public class CustomPropertyGrid : PropertyGrid {
-        protected override bool ProcessTabKey(bool forward) {
-            bool foundItem = false;
-            bool done = false;
+    public class CustomDisplayNamePropertyDescriptor : CustomPropertyDescriptorBase {
+        PropertyInfo propertyInfo;
 
-            if (SelectedGridItem != null && SelectedGridItem.Parent != null) {
-                foreach (GridItem item in SelectedGridItem.Parent.GridItems) {
-                    if (foundItem == true) {
-                        SelectedGridItem = item;
-                        done = true;
-                        break;
-                    }
-                    if (item == SelectedGridItem) {
-                        foundItem = true;
-                    }
-                } 
-    
-                if (foundItem == true && done == false) {
-                    SelectedGridItem = SelectedGridItem.Parent.GridItems[0];
-                    done = true;
-                }
-            }
-            return done;
+        public CustomDisplayNamePropertyDescriptor(PropertyInfo propInfo, Attribute[] attrs) : base(Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), attrs) {
+            this.propertyInfo = propInfo;
+        }
+
+
+        public override object GetValue(object component) {
+            return propertyInfo.GetValue(component, new object[] {});
+        }
+
+        public override void SetValue(object component, object value) {
+            propertyInfo.SetValue(component, value, null);
         }
     }
 }
