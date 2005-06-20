@@ -20,30 +20,38 @@
 
 
 using System;
+using System.Collections;
+using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Windows.Forms;
 
+using WixEdit.PropertyGridExtensions;
+
 namespace WixEdit.Settings {
-    [XmlRoot("WixEdit")]
-    public class WixEditSettings {
+    [DefaultPropertyAttribute("BinDirectory")]
+    public class WixEditSettings : PropertyAdapterBase {
+        [XmlRoot("WixEdit")]
+        public class WixEditData {
+            public WixEditData() {}
+            public string BinDirectory;
+        }
+
         private static string filename = "WixEditSettings.xml";
         private static string defaultXml = "<WixEdit />";
-        private static WixEditSettings instance;
 
-        public static WixEditSettings Instance {
-            get {
-                if (instance == null) {
-                    instance = null;
-                }
-                return instance;
-            }
-        }
+        private WixEditData data;
+        public readonly static WixEditSettings Instance = new WixEditSettings();
         
-        static WixEditSettings() {
+        private WixEditSettings() : base(null) {
+            LoadFromDisk();
+        }
+
+        void LoadFromDisk() {
             Stream xmlStream = null;
             if (File.Exists(filename)) {
                 // A FileStream is needed to read the XML document.
@@ -56,7 +64,7 @@ namespace WixEdit.Settings {
             using (xmlStream) {
                 // Create an instance of the XmlSerializer class;
                 // specify the type of object to be deserialized.
-                XmlSerializer serializer = new XmlSerializer(typeof(WixEditSettings));
+                XmlSerializer serializer = new XmlSerializer(typeof(WixEditData));
     
                 // If the XML document has been altered with unknown 
                 // nodes or attributes, handle them with the 
@@ -65,35 +73,51 @@ namespace WixEdit.Settings {
                 serializer.UnknownAttribute += new XmlAttributeEventHandler(DeserializeUnknownAttribute);
                 
     
-                // Declare an object variable of the type to be deserialized.
-                WixEditSettings settings;
                 // Use the Deserialize method to restore the object's state with
                 // data from the XML document
-                settings = (WixEditSettings) serializer.Deserialize(xmlStream);
-    
-                instance = settings;
+                data = (WixEditData) serializer.Deserialize(xmlStream);
             }
         }
 
-        public static void SaveChanges() {
-            XmlSerializer ser = new XmlSerializer(typeof(WixEditSettings));
+
+        public void DiscardChanges() {
+            LoadFromDisk();
+        }
+
+        public void SaveChanges() {
+            XmlSerializer ser = new XmlSerializer(typeof(WixEditData));
             // A FileStream is used to write the file.
             FileStream fs = new FileStream("WixEditSettings.xml",FileMode.OpenOrCreate|FileMode.Truncate);
 
-            ser.Serialize(fs,instance);
+            ser.Serialize(fs, data);
             fs.Close();
         }
-          
-        string binDirectory;
+
+        [
+        Category("WiX Settings"), 
+        Description("The directory where the WiX binaries are located."), 
+        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        ]
         public string BinDirectory {
             get {
-                return binDirectory;
+                return data.BinDirectory;
             }
             set {
-                binDirectory = value;
+                data.BinDirectory = value;
             }
         }
 
+        [
+        Category("Version"), 
+        Description("The version number of the WixEdit application."), 
+        ReadOnly(true)
+        ]
+        public string AppVersion {
+            get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+            set {}
+        }
+
+        #region Serialization helpers
         static protected void DeserializeUnknownNode(object sender, XmlNodeEventArgs e) {
             MessageBox.Show("Ignoring Unknown Node: " +   e.Name + "='" + e.Text + "'");
         }
@@ -102,6 +126,19 @@ namespace WixEdit.Settings {
             System.Xml.XmlAttribute attr = e.Attr;
             MessageBox.Show("Ignoring Unknown attribute: " + attr.Name + "='" + attr.Value + "'");
         }
+        #endregion
+
+        #region PropertyAdapterBase overrides
+        public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
+            ArrayList propertyDescriptors = new ArrayList();
+            foreach (PropertyInfo propInfo in this.GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
+                ArrayList atts = new ArrayList(propInfo.GetCustomAttributes(false));
+                propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(propInfo, (Attribute[]) atts.ToArray(typeof(Attribute))));
+            }
+
+            return new PropertyDescriptorCollection((PropertyDescriptor[]) propertyDescriptors.ToArray(typeof(PropertyDescriptor)));
+        }
+        #endregion
 
     }
 }

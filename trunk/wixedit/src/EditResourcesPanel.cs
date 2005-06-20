@@ -39,17 +39,13 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditResourcesPanel.
     /// </summary>
-    public class EditResourcesPanel : Panel {
+    public class EditResourcesPanel : BasePanel {
         #region Controls
         private PropertyGrid binaryGrid;
         private ContextMenu binaryGridContextMenu;
         #endregion
 
-        private WixFiles wixFiles;
-
-        public EditResourcesPanel(WixFiles wixFiles) {
-            this.wixFiles = wixFiles;
-
+        public EditResourcesPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
         }
 

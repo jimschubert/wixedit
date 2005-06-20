@@ -35,7 +35,16 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override bool IsReadOnly {
-            get { return false; }
+            get {
+                foreach (Attribute att in base.Attributes) {
+                    if (att.GetType().Equals(typeof(ReadOnlyAttribute))) {
+                        ReadOnlyAttribute readonlyAtt = att as ReadOnlyAttribute;
+                        return readonlyAtt.IsReadOnly;
+                    }
+                }
+
+                return false; 
+            }
         }
 
         public override Type PropertyType {

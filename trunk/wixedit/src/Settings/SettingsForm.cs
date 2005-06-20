@@ -56,7 +56,9 @@ namespace WixEdit.Settings {
             this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
             this.ClientSize = new System.Drawing.Size(360, 256); 
             this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.MinimizeBox = false;
+            this.MaximizeBox = false;
 /*
 Fixed3D 
 FixedDialog 
@@ -80,7 +82,7 @@ SizableToolWindow
             this.propertyGrid.Location = new Point(0, 0);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.TabIndex = 1;
-            this.propertyGrid.PropertySort = PropertySort.Alphabetical;
+            this.propertyGrid.PropertySort = PropertySort.CategorizedAlphabetical;
             this.propertyGrid.ToolbarVisible = false;
             this.propertyGrid.HelpVisible = false;
             this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
@@ -99,14 +101,18 @@ SizableToolWindow
             this.ok.FlatStyle = FlatStyle.System;
             this.ok.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             this.Controls.Add(ok);
+            this.ok.Click += new EventHandler(OnOk);
 
 
             this.cancel = new Button();
             this.cancel.Text = "Cancel";
             this.cancel.FlatStyle = FlatStyle.System;
             this.cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            this.Controls.Add(cancel);            
+            this.Controls.Add(cancel);       
+            this.cancel.Click += new EventHandler(OnCancel);
 
+            this.AcceptButton = ok;
+            this.CancelButton = cancel;     
 
             int padding = 2;
 
@@ -127,5 +133,15 @@ SizableToolWindow
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
         }
+
+        private void OnOk(object sender, EventArgs e) {
+            WixEditSettings.Instance.SaveChanges();
+            this.DialogResult = DialogResult.OK;
+        }
+       
+        private void OnCancel(object sender, EventArgs e) {
+            WixEditSettings.Instance.DiscardChanges();
+            this.DialogResult = DialogResult.Cancel;
+        }        
     }
 }

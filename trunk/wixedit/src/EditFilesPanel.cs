@@ -39,8 +39,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditResourcesPanel.
     /// </summary>
-    public class EditFilesPanel : Panel {
-        private WixFiles wixFiles;
+    public class EditFilesPanel : BasePanel {
         private TreeView directoryTreeView;
         private ContextMenu directoryTreeViewContextMenu;
         private StringCollection types;
@@ -49,9 +48,7 @@ namespace WixEdit {
         private Panel panel1;
         private ContextMenu propertyGridContextMenu;
 
-        public EditFilesPanel(WixFiles wixFiles) {
-            this.wixFiles = wixFiles;
-    
+        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
             types = new StringCollection();
             types.AddRange(new string[] {
                 "RemoveFolder", "Directory", "Component", "Category", "Certificate", "Class", "Condition", "CopyFile", "CreateFolder",
