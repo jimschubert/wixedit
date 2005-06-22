@@ -119,6 +119,9 @@ namespace WixEdit {
             }
 
             directoryTreeView.ExpandAll();
+            if (directoryTreeView.Nodes.Count > 0) {
+                directoryTreeView.SelectedNode = directoryTreeView.Nodes[0];
+            }
 
             // 
             // splitter1

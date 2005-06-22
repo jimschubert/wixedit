@@ -35,7 +35,7 @@ using WixEdit.Settings;
 
 namespace WixEdit {
 	/// <summary>
-	/// Summary description for Form1.
+	/// The main dialog.
 	/// </summary>
 	public class EditorForm : Form 	{
         private OpenFileDialog openWxsFileDialog;
@@ -60,6 +60,7 @@ namespace WixEdit {
         private MenuItem toolsMenu;
         private MenuItem toolsOptions;
         private MenuItem toolsWixCompile;
+        private MenuItem toolsWixDecompile;
         private MenuItem helpMenu;
         private MenuItem helpAbout;
 
@@ -129,17 +130,23 @@ namespace WixEdit {
 
             this.toolsMenu = new IconMenuItem();
             this.toolsOptions = new IconMenuItem();
-            this.toolsWixCompile = new IconMenuItem();
+            this.toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.compile.bmp")));
+            this.toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.decompile.bmp")));
 
             this.toolsWixCompile.Text = "Wix Compile";
             this.toolsWixCompile.Click += new System.EventHandler(this.toolsWixCompile_Click);
+
+            this.toolsWixDecompile.Text = "Wix Decompile";
+            this.toolsWixDecompile.Click += new System.EventHandler(this.toolsWixDecompile_Click);
 
             this.toolsOptions.Text = "Options";
             this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
 
             this.toolsMenu.Text = "Tools";
             this.toolsMenu.MenuItems.Add(0, this.toolsWixCompile);
-            this.toolsMenu.MenuItems.Add(1, this.toolsOptions);
+            this.toolsMenu.MenuItems.Add(1, this.toolsWixDecompile);
+            this.toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            this.toolsMenu.MenuItems.Add(3, this.toolsOptions);
             
             this.mainMenu.MenuItems.Add(1, this.toolsMenu);
 
@@ -252,10 +259,39 @@ namespace WixEdit {
             psiLight.RedirectStandardError = false;            
             psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi"));
 
-            int ret = outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
-            if (ret != 0) {
-                MessageBox.Show("Process exited with errorcode " + ret.ToString());
+            outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
+        }
+
+        private void toolsWixDecompile_Click(object sender, System.EventArgs e) {
+            OpenFileDialog openMsiFileDialog = new OpenFileDialog();
+
+            openMsiFileDialog.Filter = "msi files (*.msi)|*.msi|msm files (*.msm)|*.msm" ;
+            openMsiFileDialog.FilterIndex = 1 ;
+
+            openMsiFileDialog.RestoreDirectory = true ;
+
+            if(openMsiFileDialog.ShowDialog() != DialogResult.OK) {
+                return;
             }
+
+            FileInfo msiFile = new FileInfo(openMsiFileDialog.FileName);
+
+            ShowOutputPanel(null, null);
+
+            outputPanel.Clear();
+            this.Update();
+
+            string darkExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Dark.exe");
+
+            ProcessStartInfo psiDark = new ProcessStartInfo();
+            psiDark.FileName = darkExe;
+            psiDark.CreateNoWindow = true;
+            psiDark.UseShellExecute = false;
+            psiDark.RedirectStandardOutput = true;
+            psiDark.RedirectStandardError = false;
+            psiDark.Arguments = String.Format("-nologo -x \"{0}\" \"{1}\" \"{2}\"", msiFile.DirectoryName, msiFile.FullName, Path.ChangeExtension(msiFile.FullName, "wxs"));
+
+            outputPanel.Run(psiDark);
         }
 
         private void ShowOutputPanel(object sender, System.EventArgs e) {
