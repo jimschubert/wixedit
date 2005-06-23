@@ -32,10 +32,14 @@ namespace WixEdit {
         protected AxWebBrowser webBrowser;
         protected string url;
         
-        public XmlDisplayForm(string url) {
-            this.url = url;
+        public XmlDisplayForm() {
+
             InitializeComponent();
 		}
+
+        public string Url {
+            get { return url; }
+        }
 
         private void InitializeComponent() {
             this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.source.ico"));
@@ -55,7 +59,19 @@ namespace WixEdit {
             webBrowser.RegisterAsBrowser = true;
             webBrowser.RegisterAsDropTarget = true;
             webBrowser.Silent = false;
+        }
             
+        protected override void OnClosed(EventArgs e) {
+            if (webBrowser != null) {
+                this.Controls.Remove(webBrowser);
+                webBrowser.Dispose();
+                webBrowser = null;
+            }
+            base.OnClosed(e);
+        }
+
+        public void ShowFile(string url) {
+            this.url = url;
             object o = null;
             webBrowser.Navigate(url, ref o, ref o, ref o, ref o);
         }

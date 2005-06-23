@@ -41,7 +41,7 @@ namespace WixEdit {
     /// Summary description for OutputPanel.
     /// </summary>
     public class OutputPanel : BasePanel{
-        protected OutputTextbox outputBox;
+        protected OutputTextbox outputTextBox;
         protected Process activeProcess;
         Button closeButton;
         Label outputLabel;
@@ -50,12 +50,14 @@ namespace WixEdit {
         private bool isFirstClick = true;
         private int milliseconds = 0;
 
+        XmlDisplayForm xmlDisplayForm = new XmlDisplayForm();
+
         public OutputPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
         }
 
         public RichTextBox RichTextBox {
-            get { return outputBox; }
+            get { return outputTextBox; }
         }
 
         public event EventHandler CloseClicked;
@@ -68,7 +70,7 @@ namespace WixEdit {
             int paddingY = 2;
 
             closeButton = new Button();
-            outputBox = new OutputTextbox();
+            outputTextBox = new OutputTextbox();
             outputLabel = new Label();
 
             closeButton.Size = new Size(buttonWidth, buttonHeigth);
@@ -95,38 +97,39 @@ namespace WixEdit {
             outputLabel.ForeColor = Color.LightGray;
 
 
-            outputBox.Dock = DockStyle.Bottom;
-            outputBox.Location = new Point(0, buttonHeigth + 3*paddingY);
-            outputBox.Size = new Size(200, this.ClientSize.Height - outputBox.Location.Y);
-            outputBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            outputBox.ScrollBars = RichTextBoxScrollBars.Both;
-            outputBox.WordWrap = false;
-            outputBox.AllowDrop = false;
+            outputTextBox.Dock = DockStyle.Bottom;
+            outputTextBox.Location = new Point(0, buttonHeigth + 3*paddingY);
+            outputTextBox.Size = new Size(200, this.ClientSize.Height - outputTextBox.Location.Y);
+            outputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            outputTextBox.ScrollBars = RichTextBoxScrollBars.Both;
+            outputTextBox.WordWrap = false;
+            outputTextBox.AllowDrop = false;
 
             this.Controls.Add(closeButton);
             this.Controls.Add(outputLabel);
-            this.Controls.Add(outputBox);
+            this.Controls.Add(outputTextBox);
+
 
             closeButton.TabStop = true;
             outputLabel.TabStop = true;
-            outputBox.TabStop = true;
+            outputTextBox.TabStop = true;
 
             closeButton.LostFocus += new EventHandler(HasFocus);
             outputLabel.LostFocus += new EventHandler(HasFocus);
-            outputBox.LostFocus += new EventHandler(HasFocus);
+            outputTextBox.LostFocus += new EventHandler(HasFocus);
 
             closeButton.GotFocus += new EventHandler(HasFocus);
             outputLabel.GotFocus += new EventHandler(HasFocus);
-            outputBox.GotFocus += new EventHandler(HasFocus);
+            outputTextBox.GotFocus += new EventHandler(HasFocus);
 
             closeButton.Enter += new EventHandler(HasFocus);
             outputLabel.Enter += new EventHandler(HasFocus);
-            outputBox.Enter += new EventHandler(HasFocus);
+            outputTextBox.Enter += new EventHandler(HasFocus);
 
             closeButton.Click += new EventHandler(HasFocus);
             outputLabel.Click += new EventHandler(HasFocus);
 
-            outputBox.MouseUp += new MouseEventHandler(outputBox_MouseDown);
+            outputTextBox.MouseUp += new MouseEventHandler(outputTextBox_MouseDown);
 
 
             doubleClickTimer.Interval = 100;
@@ -139,8 +142,7 @@ namespace WixEdit {
             }
         }
 
-
-        private void outputBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
+        private void outputTextBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
             HasFocus(sender, e);
             
             // This is the first mouse click.
@@ -175,40 +177,47 @@ namespace WixEdit {
 
         private void OpenLine(int x, int y) {
             // Obtain the character index at which the mouse cursor was clicked at.
-            int currentIndex = outputBox.GetCharIndexFromPosition(new Point(x, y));
-            int currentLine = outputBox.GetLineFromCharIndex(currentIndex);
+            int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
+            int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
 
-            int lineCount = outputBox.Lines.Length;
+            int lineCount = outputTextBox.Lines.Length;
 
             int beginLineIndex = currentIndex;
             if (currentLine == 0) {
                 beginLineIndex = 0;
             } else {
-                while (currentLine == outputBox.GetLineFromCharIndex(beginLineIndex - 1) && 
+                while (currentLine == outputTextBox.GetLineFromCharIndex(beginLineIndex - 1) && 
                        currentLine != 0) {
                     beginLineIndex--;
                 }
             }
 
-            outputBox.Select(0, outputBox.TextLength);
-            outputBox.SelectionBackColor = Color.White;
-            outputBox.SelectionColor = Color.Black;
-            outputBox.HideSelection = true;
+            outputTextBox.SuspendLayout();
+            outputTextBox.HideSelection = true;
 
-            outputBox.Select(beginLineIndex, outputBox.Lines[currentLine].Length + 1);
-            outputBox.SelectionBackColor = SystemColors.Highlight;
-            outputBox.SelectionColor = SystemColors.HighlightText;
+            outputTextBox.Select(0, outputTextBox.TextLength);       
+            outputTextBox.SelectionBackColor = Color.White;
+            outputTextBox.SelectionColor = Color.Black;
 
-            string text = outputBox.SelectedText;
-
-            outputBox.Select(beginLineIndex, 0);
-            outputBox.HideSelection = true;
+            outputTextBox.Select(beginLineIndex, outputTextBox.Lines[currentLine].Length + 1);
+            outputTextBox.SelectionBackColor = SystemColors.Highlight;
+            outputTextBox.SelectionColor = SystemColors.HighlightText;
             
+            string text = outputTextBox.SelectedText;
+
+            outputTextBox.Select(beginLineIndex, 0);
+
 
             int bracketStart = text.IndexOf("(");
             int bracketEnd = text.IndexOf(")");
 
             if (bracketStart == -1 || bracketEnd == -1) {
+                outputTextBox.Select(0, outputTextBox.TextLength);       
+                outputTextBox.SelectionBackColor = Color.White;
+                outputTextBox.SelectionColor = Color.Black;
+                outputTextBox.Select(beginLineIndex, 0);
+                outputTextBox.ResumeLayout();
+
                 return;
             }
 
@@ -219,8 +228,16 @@ namespace WixEdit {
             string message = text.Substring(bracketEnd+1);
 
             if (File.Exists(fileName) == false) {
+                outputTextBox.Select(0, outputTextBox.TextLength);       
+                outputTextBox.SelectionBackColor = Color.White;
+                outputTextBox.SelectionColor = Color.Black;
+                outputTextBox.Select(beginLineIndex, 0);
+                outputTextBox.ResumeLayout();
+
                 return;
             }
+
+            outputTextBox.ResumeLayout();
 
             int anchorCount = 0;
             using (StreamReader sr = new StreamReader(fileName)) {
@@ -271,15 +288,19 @@ namespace WixEdit {
             }
 
 
-            XmlDisplayForm form = new XmlDisplayForm(String.Format("{0}#a{1}", outputFile, anchorNumber));
-            form.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
-            form.Show();
+            if (xmlDisplayForm.Visible == false) {
+                xmlDisplayForm = new XmlDisplayForm();
+            }
+
+            xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
+            xmlDisplayForm.ShowFile(String.Format("{0}#a{1}", outputFile, anchorNumber));
+            xmlDisplayForm.Show();
         }
 
         protected void HasFocus(Object sender, EventArgs e) {
             if (closeButton.Focused ||
                 outputLabel.Focused ||
-                outputBox.Focused || outputBox.Capture) {
+                outputTextBox.Focused || outputTextBox.Capture) {
                 outputLabel.BackColor = Color.DimGray;
                 outputLabel.ForeColor = Color.White;
             } else {
@@ -289,7 +310,7 @@ namespace WixEdit {
         }
 
         public int Run(ProcessStartInfo[] processStartInfos) {
-            outputBox.Rtf = "";
+            outputTextBox.Rtf = "";
 
             DateTime start = DateTime.Now;
 
@@ -361,13 +382,13 @@ namespace WixEdit {
                 }
             }
 
-            outputBox.Select(outputBox.Text.Length, 0);
-            outputBox.SelectedRtf = String.Format(@"{{\rtf1\ansi\ansicpg1252\deff0\deflang1033{{\fonttbl{{\f0\fmodern\fprq1\fcharset0 Courier New;}}}}" +
+            outputTextBox.Select(outputTextBox.Text.Length, 0);
+            outputTextBox.SelectedRtf = String.Format(@"{{\rtf1\ansi\ansicpg1252\deff0\deflang1033{{\fonttbl{{\f0\fmodern\fprq1\fcharset0 Courier New;}}}}" +
                                             @"\viewkind4\uc1\pard\f0\fs16 {0}}}", output);
 
-            outputBox.Select(outputBox.Text.Length, 0);
-            outputBox.Focus();
-            outputBox.ScrollToCaret();
+            outputTextBox.Select(outputTextBox.Text.Length, 0);
+            outputTextBox.Focus();
+            outputTextBox.ScrollToCaret();
         }
 
         private void OutputStart(ProcessStartInfo processStartInfo, DateTime start) {
@@ -381,7 +402,7 @@ namespace WixEdit {
         }
 
         public void Clear() {
-            outputBox.Text = "";
+            outputTextBox.Text = "";
         }
     }
 }

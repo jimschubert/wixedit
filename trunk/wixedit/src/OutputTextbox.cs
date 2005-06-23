@@ -73,7 +73,7 @@ public class OutputTextbox : RichTextBox {
     public Color SelectionBackColor {
         get {
             IntPtr HWND = this.Handle;
-            CharFormat2 Format= new CharFormat2();
+            CharFormat2 Format = new CharFormat2();
             Format.dwMask = CFM_BACKCOLOR;
             Format.cbSize = Marshal.SizeOf(Format);
             SendMessage(this.Handle, EM_GETCHARFORMAT, SCF_SELECTION, ref Format);
