@@ -53,9 +53,9 @@ namespace WixEdit.Settings {
 
         void LoadFromDisk() {
             Stream xmlStream = null;
-            if (File.Exists(filename)) {
+            if (File.Exists(SettingsFilename)) {
                 // A FileStream is needed to read the XML document.
-                xmlStream = new FileStream(filename, FileMode.Open);
+                xmlStream = new FileStream(SettingsFilename, FileMode.Open);
             } else {
                 byte[] data = Encoding.ASCII.GetBytes(defaultXml);
                 xmlStream = new MemoryStream(data);
@@ -84,10 +84,23 @@ namespace WixEdit.Settings {
             LoadFromDisk();
         }
 
+        private string SettingsFilename {
+            get {
+                return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
+            }
+        }
+
         public void SaveChanges() {
             XmlSerializer ser = new XmlSerializer(typeof(WixEditData));
             // A FileStream is used to write the file.
-            FileStream fs = new FileStream("WixEditSettings.xml",FileMode.OpenOrCreate|FileMode.Truncate);
+            FileStream fs;
+            FileMode mode = FileMode.OpenOrCreate;
+
+            if (File.Exists(SettingsFilename)) {
+                mode = mode | FileMode.Truncate;
+            }
+
+            fs = new FileStream(SettingsFilename, mode);
 
             ser.Serialize(fs, data);
             fs.Close();
