@@ -51,6 +51,12 @@ namespace WixEdit.Settings {
             LoadFromDisk();
         }
 
+        private string SettingsFile {
+            get {
+                return Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName, filename);
+            }
+        }
+
         void LoadFromDisk() {
             Stream xmlStream = null;
             if (File.Exists(SettingsFilename)) {
@@ -93,14 +99,13 @@ namespace WixEdit.Settings {
         public void SaveChanges() {
             XmlSerializer ser = new XmlSerializer(typeof(WixEditData));
             // A FileStream is used to write the file.
-            FileStream fs;
-            FileMode mode = FileMode.OpenOrCreate;
 
-            if (File.Exists(SettingsFilename)) {
-                mode = mode | FileMode.Truncate;
+            FileMode mode = FileMode.OpenOrCreate;
+            if (File.Exists(SettingsFile)) {
+                mode = mode|FileMode.Truncate;
             }
 
-            fs = new FileStream(SettingsFilename, mode);
+            FileStream fs = new FileStream(SettingsFile, mode);
 
             ser.Serialize(fs, data);
             fs.Close();

@@ -135,9 +135,13 @@ namespace WixEdit {
 
             this.toolsWixCompile.Text = "Wix Compile";
             this.toolsWixCompile.Click += new System.EventHandler(this.toolsWixCompile_Click);
+            this.toolsWixCompile.Enabled = false;
+
 
             this.toolsWixDecompile.Text = "Wix Decompile";
             this.toolsWixDecompile.Click += new System.EventHandler(this.toolsWixDecompile_Click);
+            this.toolsWixDecompile.Enabled = false;
+
 
             this.toolsOptions.Text = "Options";
             this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
@@ -207,9 +211,7 @@ namespace WixEdit {
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
-            this.openWxsFileDialog.Filter = "xml files (*.xml)|*.xml|wxs files (*.wxs)|*.wxs|All files (*.*)|*.*" ;
-            this.openWxsFileDialog.FilterIndex = 2 ;
-
+            this.openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
             this.openWxsFileDialog.RestoreDirectory = true ;
 
             if(this.openWxsFileDialog.ShowDialog() == DialogResult.OK) {
@@ -234,12 +236,23 @@ namespace WixEdit {
         }
 
         private void toolsWixCompile_Click(object sender, System.EventArgs e) {
+            if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
+                MessageBox.Show("Please specify the path to the Wix binaries in the settings dialog.");
+
+                return;
+            }
+
             ShowOutputPanel(null, null);
 
             outputPanel.Clear();
             this.Update();
 
             string candleExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Candle.exe");
+            if (File.Exists(candleExe) == false) {
+                MessageBox.Show("candle.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
+
+                return;
+            }
 
             ProcessStartInfo psiCandle = new ProcessStartInfo();
             psiCandle.FileName = candleExe;
@@ -250,6 +263,11 @@ namespace WixEdit {
             psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
 
             string lightExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Light.exe");
+            if (File.Exists(lightExe) == false) {
+                MessageBox.Show("light.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
+
+                return;
+            }
 
             ProcessStartInfo psiLight = new ProcessStartInfo();
             psiLight.FileName = lightExe;
@@ -263,6 +281,12 @@ namespace WixEdit {
         }
 
         private void toolsWixDecompile_Click(object sender, System.EventArgs e) {
+            if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
+                MessageBox.Show("Please specify the path to the Wix binaries in the settings dialog.");
+
+                return;
+            }
+
             OpenFileDialog openMsiFileDialog = new OpenFileDialog();
 
             openMsiFileDialog.Filter = "msi files (*.msi)|*.msi|msm files (*.msm)|*.msm" ;
@@ -282,6 +306,11 @@ namespace WixEdit {
             this.Update();
 
             string darkExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Dark.exe");
+            if (File.Exists(darkExe) == false) {
+                MessageBox.Show("dark.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
+
+                return;
+            }
 
             ProcessStartInfo psiDark = new ProcessStartInfo();
             psiDark.FileName = darkExe;
@@ -395,6 +424,10 @@ namespace WixEdit {
 
             ToggleDirty(false);
             this.fileSave.Enabled = true;
+
+            this.toolsWixCompile.Enabled = true;
+            this.toolsWixDecompile.Enabled = true;
+
         }
 
         private void ToggleDirty(bool dirty) {
@@ -405,6 +438,9 @@ namespace WixEdit {
         }
 
         private void CloseWxsFile() {
+            this.toolsWixCompile.Enabled = false;
+            this.toolsWixDecompile.Enabled = false;
+            
             this.tabControl.Visible = false;
             this.tabControl.TabPages.Clear();
 

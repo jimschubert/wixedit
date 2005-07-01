@@ -331,8 +331,11 @@ namespace WixEdit {
                 OutputDone(activeProcess, subStart);
             }
 
+            Output("", true);
+            Output("----- Finished", true);
+            Output("", false);
+
             if (activeProcess.ExitCode != 0) {
-                Output("", false);
                 Output("Error in " + Path.GetFileNameWithoutExtension(activeProcess.StartInfo.FileName), true);
             } else {
                 Output(String.Format("Finished in: {0} seconds", activeProcess.ExitTime.Subtract(start).Seconds.ToString()), true);
@@ -392,11 +395,12 @@ namespace WixEdit {
         }
 
         private void OutputStart(ProcessStartInfo processStartInfo, DateTime start) {
-            Output(String.Format("Starting {0} {1} at {2}", processStartInfo.FileName, processStartInfo.Arguments, start), true);
+            Output(String.Format("----- Starting {0} {1} at {2}", processStartInfo.FileName, processStartInfo.Arguments, start), true);
             Output("", true);
         }
 
         private void OutputDone(Process process, DateTime start) {
+            Output("", true);
             Output(String.Format("Done in: {0} ms", process.ExitTime.Subtract(start).Milliseconds), true);
             Output("", true);
         }

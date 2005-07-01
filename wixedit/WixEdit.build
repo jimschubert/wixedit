@@ -100,6 +100,9 @@
                 <includes name="res/**/*" />
                 <includes name="lib/**/*" />
                 <includes name="installer/**/*" />
+                <includes name="sample/UISample/*" />
+                <includes name="sample/DarkSample/*" />
+                <includes name="sample/SimpleSample/*" />
                 <includes name="*.build" />
                 <excludes name="**/CVS/" />
             </fileset>

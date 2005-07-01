@@ -50,17 +50,26 @@ namespace WixEdit {
 
         public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
             types = new StringCollection();
-            types.AddRange(new string[] {
-                "RemoveFolder", "Directory", "Component", "Category", "Certificate", "Class", "Condition", "CopyFile", "CreateFolder",
-                "Environment", "Extension", "File", "FileGroup", "FileShare", "IniFile", 
-                "Interface", "IsolateComponent", "ODBCDataSource", "ODBCDriver", "ODBCTranslator", 
-                "ProgId", "Registry", "RemoveFile", "ReserveCost", "ServiceConfig", 
-                "ServiceControl", "ServiceInstall", "Shortcut", "SqlDatabase", "SqlScript", 
-                "SqlString", "TypeLib", "User", "WebAppPool", "WebDir", "WebFilter", "WebProperty",
-                "WebServiceExtension", "WebSite", "WebVirtualDir"
-            });
+            
+            RecurseTypes("Directory", types);
 
             InitializeComponent();
+        }
+
+        private void RecurseTypes(string name, StringCollection types) {
+            XmlNodeList xmlSubElements = wixFiles.XsdDocument.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType/xs:choice/xs:element", name), wixFiles.XsdNsmgr);
+
+            foreach (XmlNode xmlSubElement in xmlSubElements) {
+                XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
+                if (refAtt != null) {
+                    if (refAtt.Value != null && refAtt.Value.Length > 0) {
+                        if (types.Contains(refAtt.Value) == false) {
+                            types.Add(refAtt.Value);
+                            RecurseTypes(refAtt.Value, types);
+                        }
+                    }
+                }
+            }
         }
 
         private ImageList GetTypesImageList() {
@@ -101,13 +110,12 @@ namespace WixEdit {
             this.directoryTreeView.Location = new Point(0, 0);
             this.directoryTreeView.Name = "directoryTreeView";
             this.directoryTreeView.SelectedImageIndex = -1;
-            this.directoryTreeView.Size = new Size(200, 266);
+            this.directoryTreeView.Size = new Size(350, 266);
             this.directoryTreeView.TabIndex = 6;
-            this.directoryTreeView.AfterSelect += new TreeViewEventHandler(this.OnAfterSelect);
 
+            this.directoryTreeView.AfterSelect += new TreeViewEventHandler(this.OnAfterSelect);
             this.directoryTreeViewContextMenu = new ContextMenu();
             this.directoryTreeViewContextMenu.Popup += new EventHandler(PopupDirectoryTreeViewContextMenu);
-
             this.directoryTreeView.MouseDown += new MouseEventHandler(DirectoryViewMouseDown);
 
             this.directoryTreeView.ImageList = GetTypesImageList();
@@ -326,8 +334,11 @@ namespace WixEdit {
             }
 
             node.Tag = file;
-            node.ImageIndex = types.IndexOf(file.Name);
-            node.SelectedImageIndex = types.IndexOf(file.Name);
+            int imageIndex = types.IndexOf(file.Name);
+            if (imageIndex >= 0) {
+                node.ImageIndex = imageIndex;
+                node.SelectedImageIndex = imageIndex;
+            }
 
             nodes.Add(node);
 
@@ -339,16 +350,14 @@ namespace WixEdit {
 
         private void DirectoryViewMouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
             if (e.Button == MouseButtons.Right) {
-/*
-                TreeNode node = dialogTreeView.GetNodeAt(e.X, e.Y);
+                TreeNode node = directoryTreeView.GetNodeAt(e.X, e.Y);
                 if (node == null) {
                     return;
                 }
-                dialogTreeView.SelectedNode = node;
+                directoryTreeView.SelectedNode = node;
 
-                Point spot = this.PointToClient(dialogTreeView.PointToScreen(new Point(e.X,e.Y)));
-                dialogTreeViewContextMenu.Show(this, spot);
-*/
+                Point spot = this.PointToClient(directoryTreeView.PointToScreen(new Point(e.X,e.Y)));
+                directoryTreeViewContextMenu.Show(this, spot);
             }
         }
 
@@ -369,46 +378,56 @@ namespace WixEdit {
         }
 
         protected void PopupDirectoryTreeViewContextMenu(System.Object sender, System.EventArgs e) {
-/*
-            XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
+            XmlNode node = directoryTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
             }
 
-            dialogTreeViewContextMenu.MenuItems.Clear();
+            directoryTreeViewContextMenu.MenuItems.Clear();
 
-            switch (node.Name) {
-                case "Dialog":
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlElementMenu);
-                    break;
-                case "Control":
-                    this.newControlSubElementsMenu.MenuItems.Clear();
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlSubElementsMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newTextElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newPublishElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newConditionElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newSubscribeElementMenu);
-                    break;
-                default:
-                    break;
+            XmlNodeList xmlSubElements = wixFiles.XsdDocument.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType/xs:choice/xs:element", node.Name), wixFiles.XsdNsmgr);
+
+            foreach (XmlNode xmlSubElement in xmlSubElements) {
+                XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
+                if (refAtt != null) {
+                    if (refAtt.Value != null && refAtt.Value.Length > 0) {
+                        directoryTreeViewContextMenu.MenuItems.Add(refAtt.Value, new EventHandler(NewElement_Click));       
+                    }
+                }
             }
-
-            dialogTreeViewContextMenu.MenuItems.Add(this.deleteCurrentElementMenu);
-
-
-            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
-
-            XmlNode documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            if(documentation == null) {
-                documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            }
-
-            if (documentation != null) {
-                dialogTreeViewContextMenu.MenuItems.Add(this.infoAboutCurrentElementMenu);
-            }
-*/
         }
 
+        private void NewElement_Click(object sender, System.EventArgs e) {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null) {
+                CreateNewSubElement(menuItem.Text);
+            }
+        }
+
+        private void CreateNewSubElement(string typeName) {
+            XmlNode node = directoryTreeView.SelectedNode.Tag as XmlNode;
+            if (node == null) {
+                return;
+            }
+
+            // Get new name, and add Text element
+            // EnterStringForm frm = new EnterStringForm();
+            // frm.Text = "Enter new Text value";
+            XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
+            TreeNode control = new TreeNode(typeName);
+            control.Tag = newElement;
+            
+            int imageIndex = types.IndexOf(typeName);
+            if (imageIndex >= 0) {
+                control.ImageIndex = imageIndex;
+                control.SelectedImageIndex = imageIndex;
+            }
+
+            directoryTreeView.SelectedNode.Nodes.Add(control);
+            directoryTreeView.SelectedNode = control;
+
+            ShowProperties(newElement);       
+        }
 
         private ImageList GetDirectoryTreeViewImageList() {
             ImageList images = new ImageList(); 
