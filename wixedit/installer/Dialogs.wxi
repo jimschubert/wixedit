@@ -641,7 +641,7 @@
         <Publish Event="NewDialog" Value="SetupTypeDlg"><![CDATA[InstallMode = "Typical" OR InstallMode = "Complete"]]></Publish>
       </Control>
       <Control Id="Text" Type="Text" X="25" Y="70" Width="320" Height="20">
-        <Text>Click Install to begin the installation.  If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.</Text>
+        <Text>Click Install to begin the installation to [TARGETDIR]. If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.</Text>
       </Control>
       <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="374" Height="0" />
       <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="374" Height="0" />
