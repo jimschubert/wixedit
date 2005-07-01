@@ -21,7 +21,7 @@
    IN THE SOFTWARE.
 -->
 <project name="WixEdit" default="all">
-    <property name="project.version" value="0.2.3"/>
+    <property name="project.version" value="0.2.5"/>
 
     <property name="project.build" value="${nant.project.basedir}\build"/>
     <property name="project.source" value="${nant.project.basedir}\src"/>
@@ -30,71 +30,171 @@
     <property name="project.release" value="${nant.project.basedir}\release"/>
     <property name="project.lib" value="${nant.project.basedir}\lib"/>
 
+    <property name="project.installer" value="${nant.project.basedir}\installer"/>
+
+    <property name="project.install" value="${nant.project.basedir}\install"/>
+    <property name="project.install.src" value="${project.install}\src"/>
+    <property name="project.install.res" value="${project.install}\res"/>
+    <property name="project.install.bin" value="${project.install}\bin"/>
+    <property name="project.install.lib" value="${project.install}\lib"/>
+
     <property name="project.output" value="${project.build}\${nant.project.name}.exe"/>
 
-    <fileset id="project.files.sources" basedir="${nant.project.basedir}">
-        <includes name="**/*.cs" />
-    </fileset>
 
-    <resourcefileset id="project.files.resources" prefix="${nant.project.name}" basedir="${project.resource}">
-        <includes name="**/*.*" />
-    </resourcefileset>
+    <property name="project.wix" value="${nant.project.basedir}\wix-2.0.2912.0"/>
 
-	<fileset id="project.references" basedir="${project.lib}" >
-		<includes name="*.dll" />
-	</fileset>
+
 
     <target name="all" depends="clean,build" />
 
     <target name="clean">
         <delete failonerror="false" dir="${project.build}"/>
+        <delete failonerror="false" dir="${project.install}"/>
         <delete failonerror="false" dir="${project.release}"/>
-        <delete failonerror="false" file="${project.source}/AssemblyVersionInfo.cs"/>
+        <delete failonerror="false" file="${project.source}\AssemblyVersionInfo.cs"/>
     </target>
 
     <target name="build" depends="generate-version">
 		<mkdir dir="${project.build}" />
 		<csc    target="winexe" 
                 output="${project.output}"
-                win32icon="${project.source}/App.ico"
+                win32icon="${project.source}\App.ico"
                 debug="true">
-			<sources refid="project.files.sources" />
-			<resources refid="project.files.resources" />
-            <references refid="project.references" />
+            <sources basedir="${project.source}">
+                <includes name="**/*.cs" />
+            </sources>
+        
+            <resources prefix="${nant.project.name}" basedir="${project.resource}">
+                <includes name="**/*.*" />
+            </resources>
+        
+        	<references basedir="${project.lib}" >
+        		<includes name="*.dll" />
+        	</references>
         </csc>
         <copy file="${project.source}\${nant.project.name}.exe.manifest" todir="${project.build}" />  
         <copy todir="${project.build}">  
-        	<fileset refid="project.references" />
+        	<fileset basedir="${project.lib}" >
+        		<includes name="*.dll" />
+            </fileset>
         </copy>
     </target>
 
     <target name="release" depends="all">
+        <property name="project.version.last" value="1"/>
+
 		<mkdir dir="${project.release}" />
         <zip zipfile="${project.release}\wixedit-${project.version}-bin.zip">
             <fileset basedir="${nant.project.basedir}">
                 <includes name="build/**/*" />
-                <includes name="sample/**/*" />
+                <includes name="sample/UISample/*" />
+                <includes name="sample/DarkSample/*" />
+                <includes name="sample/SimpleSample/*" />
                 <excludes name="**/CVS/" />
+                <excludes name="**/*.pdb" />
             </fileset>
         </zip>
         <zip zipfile="${project.release}\wixedit-${project.version}-src.zip">
             <fileset basedir="${nant.project.basedir}">
                 <includes name="src/**/*" />
                 <includes name="res/**/*" />
-                <includes name="sample/**/*" />
+                <includes name="lib/**/*" />
+                <includes name="installer/**/*" />
                 <includes name="*.build" />
                 <excludes name="**/CVS/" />
             </fileset>
         </zip>
+
+		<mkdir dir="${project.install}" />
+		<mkdir dir="${project.install}\WixEdit" />
+        <copy todir="${project.install}\WixEdit">  
+        	<fileset basedir="${nant.project.basedir}">
+                <includes name="src/**/*" />
+                <includes name="res/**/*" />
+                <includes name="lib/**/*" />
+                <includes name="installer/**/*" />
+                <includes name="sample/UISample/*" />
+                <includes name="sample/DarkSample/*" />
+                <includes name="sample/SimpleSample/*" />
+                <includes name="*.build" />
+                <excludes name="**/CVS/" />
+            </fileset>
+        </copy>
+
+        <copy todir="${project.install}">  
+        	<fileset basedir="${nant.project.basedir}">
+                <includes name="sample/**/*" />
+                <excludes name="**/CVS/" />
+            </fileset>
+        </copy>
+
+        <copy todir="${project.install}">  
+        	<fileset basedir="${project.installer}">
+                <includes name="license.rtf" />
+            </fileset>
+        </copy>
+
+        <copy todir="${project.install}">  
+        	<fileset basedir="${project.installer}">
+                <includes name="Binary/**/*" />
+                <excludes name="**/CVS/" />
+            </fileset>
+        </copy>
+
+        <available type="Directory" resource="${project.wix}" property="wix.dir.present" />
+        <ifnot propertytrue="wix.dir.present">
+            <fail message="Cannot find Wix binaries directory for making a release" />
+        </ifnot>
+        <if propertytrue="wix.dir.present">
+          <!-- Tallow.exe isn't flexible enough:
+                - Should generate guid's for each component, or else components wont be uninstalled.
+                - Multiple Fragments require other naming patterns for components, cant handle duplicat names. -->
+          <exec program="${project.wix}/tallow.exe" commandline="-nologo -d installer -d res -d src -d lib" output="${project.install}\Sources.wxs" workingdir="${project.install}\WixEdit" />
+          
+          <script language="C#">
+            <imports>
+              <import name="System.Xml" />
+            </imports>
+            <code>
+              <![CDATA[
+                public static void ScriptMain(Project project) {
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(project.Properties["project.install"] + @"\Sources.wxs");
+  
+                    XmlNamespaceManager wxsNsmgr = new XmlNamespaceManager(doc.NameTable);
+                    wxsNsmgr.AddNamespace("wix", doc.DocumentElement.NamespaceURI);
+  
+  
+                    foreach (XmlNode node in doc.SelectNodes("//wix:Component", wxsNsmgr)) {
+                      XmlAttribute newAttr = doc.CreateAttribute("Guid");
+                      newAttr.Value = Guid.NewGuid().ToString();
+  
+                      node.Attributes.Append(newAttr);
+                    }
+  
+                    doc.Save(project.Properties["project.install"] + @"\Sources.wxs");
+                }
+              ]]>
+            </code>
+          </script>
+  
+          <exec program="${project.wix}/candle.exe" commandline="-nologo &quot;${project.installer}\WixEdit.wxs&quot; &quot;${project.install}\Sources.wxs&quot;" workingdir="${project.install}" />
+          <exec program="${project.wix}/light.exe" commandline="-nologo -out WixEdit-${project.version}.msi WixEdit.wixobj Sources.wixobj" workingdir="${project.install}" />
+  
+          <copy todir="${project.release}" file="${project.install}\WixEdit-${project.version}.msi" />
+        </if>
     </target>
 
     <target name="generate-version">
+        <ifnot propertyexists="project.version.last">
+            <property name="project.version.last" value="*"/>
+        </ifnot>
         <asminfo output="${project.source}/AssemblyVersionInfo.cs" language="CSharp">
             <imports>
                 <import name="System.Reflection" />
             </imports>
             <attributes>
-                <attribute type="AssemblyVersionAttribute" value="${project.version}.*" />
+                <attribute type="AssemblyVersionAttribute" value="${project.version}.${project.version.last}" />
                 <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
             </attributes>
         </asminfo>
