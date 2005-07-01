@@ -24,6 +24,8 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
+using WixEdit.Settings;
+
 namespace WixEdit {
     public class WixFiles : IDisposable {
         FileInfo _wxsFile;
@@ -44,7 +46,14 @@ namespace WixEdit {
             this._wxsNsmgr.AddNamespace("wix", this._wxsDocument.DocumentElement.NamespaceURI);
 
             this._xsdDocument = new XmlDocument();
-            this._xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
+
+            if (WixEditSettings.Instance.BinDirectory != null &&
+                Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
+                File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"))) {
+                this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
+            } else {
+                this._xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
+            }
             
             this._xsdNsmgr = new XmlNamespaceManager(this._xsdDocument.NameTable);
             this._xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");

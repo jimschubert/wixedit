@@ -113,9 +113,14 @@ namespace WixEdit {
             newDialog.MaximizeBox = false;
             newDialog.FormBorderStyle = FormBorderStyle.FixedDialog;
 
-            // newDialog.Width = dialogUnitToPixelsWidth(XmlConvert.ToInt32(dialog.Attributes["Width"].Value));
-            // newDialog.Height = dialogUnitToPixelsHeight(XmlConvert.ToInt32(dialog.Attributes["Height"].Value));
-            newDialog.ClientSize = new Size(dialogUnitToPixelsWidth(XmlConvert.ToInt32(dialog.Attributes["Width"].Value)), dialogUnitToPixelsHeight(XmlConvert.ToInt32(dialog.Attributes["Height"].Value)));
+            if (dialog.Attributes["Width"] == null ||
+                dialog.Attributes["Width"].Value.Trim().Length == 0 ||
+                dialog.Attributes["Height"] == null ||
+                dialog.Attributes["Height"].Value.Trim().Length == 0) {
+                return null;
+            }
+
+            newDialog.ClientSize = new Size(dialogUnitToPixelsWidth(XmlConvert.ToInt32(dialog.Attributes["Width"].Value.Trim())), dialogUnitToPixelsHeight(XmlConvert.ToInt32(dialog.Attributes["Height"].Value.Trim())));
 
             // Background Images should be added first, these controls should be used as parent 
             // to get correct transparancy. For now only 1 bitmap is supported per Dialog.

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Product Name="WixEdit"
+           Id="DEADBEEF-0CDA-4c4b-A0C6-3A56017C9CE6"
+           Version="0.2.5.1"
+           UpgradeCode="5D5D3F6C-20FE-487e-9836-542950FD7921" 
+           Manufacturer="Jasper Keuper (jkeuper@gmail.com)"
+           Language="1033">
+    <Package Compressed="yes" Id="????????-????-????-????-????????????" />
+
+	<Condition Message="You must install the Microsoft .NET Framework SDK 1.1.4322 before running [ProductName] [Setup].">MsiNetAssemblySupport&gt;="1.1.4322"</Condition>
+
+    <?include Dialogs.wxi?>
+    <Property Id="VSDSupportedRuntimes">1.1.4322</Property>
+    <Property Id="ARPHELPLINK">http://wixedit.sourceforge.net</Property>
+    <Property Id="ARPCONTACT">Jasper Keuper (jkeuper@gmail.com)</Property>
+    <Property Id="ARPURLINFOABOUT">http://wixedit.sourceforge.net</Property>
+
+    <Directory Id="ProgramFilesFolder" Name="SourceDir">
+      <Directory Id="WixEdit" Name="WixEdit">
+        <Directory Id="TARGETDIR" Name=".">
+          <Component Id="BuildFile" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0001">
+            <File Id="WixEdit.build" Name="WixEdit.bld" LongName="WixEdit.build" src="..\WixEdit.build" />
+          </Component>
+          <Directory Id="Binaries" Name="binaries">
+            <Component Id="Binaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0002">
+              <File Id="manifest" Name="WIXEDI_1.MAN" LongName="WixEdit.exe.manifest" src="..\build\WixEdit.exe.manifest" />
+              <File Id="exe" Name="WIXEDI_1.EXE" LongName="WixEdit.exe" src="..\build\WixEdit.exe" />
+              <File Id="AxSHDocVw.dll" Name="AXSHDO_1.DLL" LongName="AxSHDocVw.dll" src="..\build\AxSHDocVw.dll" />
+              <File Id="SHDocVw.dll" Name="SHDOCV_1.DLL" LongName="SHDocVw.dll" src="..\build\SHDocVw.dll" />
+            </Component>
+          </Directory>
+          <Directory Id="Samples" Name="sample">
+            <Directory Id="UISample" Name="uisample" LongName="UISample">
+              <Component Id="Sample.UISample" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0003">
+                <File Id="UISample.xml" Name="UISAMPLE.XML" LongName="UISample.xml" src="..\sample\UISample\UISample.xml" />
+              </Component>
+              <Directory Id="Binary" Name="Binary">
+                <Component Id="Sample.UISample.Binary" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0004">
+                  <File Id="bannrbmp.ibd" Name="BANNRBMP.IBD" LongName="bannrbmp.ibd" src="..\sample\UISample\Binary\bannrbmp.ibd" />
+                  <File Id="completi.ibd" Name="COMPLETI.IBD" LongName="completi.ibd" src="..\sample\UISample\Binary\completi.ibd" />
+                  <File Id="custicon.ibd" Name="CUSTICON.IBD" LongName="custicon.ibd" src="..\sample\UISample\Binary\custicon.ibd" />
+                  <File Id="dlgbmp.ibd" Name="DLGBMP.IBD" LongName="dlgbmp.ibd" src="..\sample\UISample\Binary\dlgbmp.ibd" />
+                  <File Id="exclamic.ibd" Name="EXCLAMIC.IBD" LongName="exclamic.ibd" src="..\sample\UISample\Binary\exclamic.ibd" />
+                  <File Id="info.ibd" Name="INFO.IBD" LongName="info.ibd" src="..\sample\UISample\Binary\info.ibd" />
+                  <File Id="insticon.ibd" Name="INSTICON.IBD" LongName="insticon.ibd" src="..\sample\UISample\Binary\insticon.ibd" />
+                  <File Id="New.ibd" Name="NEW.IBD" LongName="New.ibd" src="..\sample\UISample\Binary\New.ibd" />
+                  <File Id="removico.ibd" Name="REMOVICO.IBD" LongName="removico.ibd" src="..\sample\UISample\Binary\removico.ibd" />
+                  <File Id="repairic.ibd" Name="REPAIRIC.IBD" LongName="repairic.ibd" src="..\sample\UISample\Binary\repairic.ibd" />
+                  <File Id="Up.ibd" Name="UP.IBD" LongName="Up.ibd" src="..\sample\UISample\Binary\Up.ibd" />
+                </Component>
+              </Directory>
+            </Directory>
+            <Directory Id="DarkSample" Name="darksam" LongName="DarkSample">
+              <Component Id="Sample.DarkSample" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0005">
+                <File Id="UISample.msi" Name="UISAMPLE.MSI" LongName="UISample.msi" src="..\sample\DarkSample\UISample.msi" />
+              </Component>
+            </Directory>
+            <Directory Id="SimpleSample" Name="simpsam" LongName="SimpleSample">
+              <Component Id="Sample.SimpleSample" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0006">
+                <File Id="SimpleSample.wxs" Name="SIMPSAMP.WXS" LongName="SimpleSample.wxs" src="..\sample\SimpleSample\SimpleSample.wxs" />
+                <File Id="Test.txt" Name="TEST.TXT" LongName="Test.txt" src="..\sample\SimpleSample\Test.txt" />
+              </Component>
+            </Directory>
+          </Directory>
+          <Directory Id="WixBinaries" Name="WIX-2~1" LongName="wix-2.0.2912.0">
+            <Component Id="WixBinaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0007">
+              <File Id="candle.exe" Name="candle.exe" src="..\wix-2.0.2912.0\candle.exe" />
+              <File Id="CPL.TXT" Name="CPL.TXT" src="..\wix-2.0.2912.0\CPL.TXT" />
+              <File Id="dark.exe" Name="dark.exe" src="..\wix-2.0.2912.0\dark.exe" />
+              <File Id="light.exe" Name="light.exe" src="..\wix-2.0.2912.0\light.exe" />
+              <File Id="lit.exe" Name="lit.exe" src="..\wix-2.0.2912.0\lit.exe" />
+              <File Id="pcaext.dll" Name="pcaext.dll" src="..\wix-2.0.2912.0\pcaext.dll" />
+              <File Id="tallow.exe" Name="tallow.exe" src="..\wix-2.0.2912.0\tallow.exe" />
+              <File Id="winterop.dll" Name="winterop.dll" src="..\wix-2.0.2912.0\winterop.dll" />
+              <File Id="wix.dll" Name="wix.dll" src="..\wix-2.0.2912.0\wix.dll" />
+            </Component>
+            <Directory Id="WixBinaries.ca" Name="ca">
+              <Component Id="WixBinaries.ca" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0008">
+                <File Id="pcaexec.dll" Name="pcaexec.dll" src="..\wix-2.0.2912.0\ca\pcaexec.dll" />
+                <File Id="pcasched.dll" Name="pcasched.dll" src="..\wix-2.0.2912.0\ca\pcasched.dll" />
+                <File Id="PUBCA_1.WIX" Name="PUBCA_1.WIX" LongName="pubca.wixlib" src="..\wix-2.0.2912.0\ca\pubca.wixlib" />
+                <File Id="SCA_1.WIX" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-2.0.2912.0\ca\sca.wixlib" />
+                <File Id="scaexec.dll" Name="scaexec.dll" src="..\wix-2.0.2912.0\ca\scaexec.dll" />
+                <File Id="scasched.dll" Name="scasched.dll" src="..\wix-2.0.2912.0\ca\scasched.dll" />
+                <File Id="wixca.dll" Name="wixca.dll" src="..\wix-2.0.2912.0\ca\wixca.dll" />
+                <File Id="WIXCA_1.WIX" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-2.0.2912.0\ca\wixca.wixlib" />
+              </Component>
+            </Directory>
+            <Directory Id="WixBinaries.doc" Name="doc">
+              <Component Id="WixBinaries.doc" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0009">
+                <File Id="WiX.chm" Name="WiX.chm" src="..\wix-2.0.2912.0\doc\WiX.chm" />
+                <File Id="wix.xsd" Name="wix.xsd" src="..\wix-2.0.2912.0\doc\wix.xsd" />
+                <File Id="wixloc.xsd" Name="wixloc.xsd" src="..\wix-2.0.2912.0\doc\wixloc.xsd" />
+              </Component>
+            </Directory>
+            <Directory Id="WixBinaries.lib" Name="lib">
+              <Component Id="WixBinaries.lib" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0010">
+                <File Id="dutil.lib" Name="dutil.lib" src="..\wix-2.0.2912.0\lib\dutil.lib" />
+                <File Id="wcautil.lib" Name="wcautil.lib" src="..\wix-2.0.2912.0\lib\wcautil.lib" />
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="BinariesFeature" Level="1" Title="Binaries" ConfigurableDirectory="TARGETDIR" Absent="disallow"
+             Description="The WixEdit binaries.">
+      <ComponentRef Id="Binaries" />
+    </Feature>
+
+    <Feature Id="SourcesFeature" Level="1" Title="Sources" ConfigurableDirectory="TARGETDIR"
+             Description="The WixEdit sources in C#, which can be build with NAnt.">
+      <!-- Generated with tallow.exe -->
+      <ComponentRef Id="BuildFile" />
+      <ComponentRef Id="component0" />
+      <ComponentRef Id="component1" />
+      <ComponentRef Id="component2" />
+      <ComponentRef Id="component3" />
+      <ComponentRef Id="component4" />
+      <ComponentRef Id="component5" />
+      <ComponentRef Id="component6" />
+      <ComponentRef Id="component7" />
+      <ComponentRef Id="component8" />
+      <ComponentRef Id="component9" />
+      <ComponentRef Id="component10" />
+      <ComponentRef Id="component11" />
+    </Feature>
+
+    <Feature Id="SamplesFeature" Title="Samples" Level="1" Display="expand"
+             Description="WixEdit samples">
+      <FeatureRef Id="SamplesFeature.UISample" />
+      <FeatureRef Id="SamplesFeature.DarkSample" />
+      <FeatureRef Id="SamplesFeature.SimpleSample" />
+    </Feature>
+
+    <Feature Id="SamplesFeature.UISample" Title="UI Sample" Level="1" ConfigurableDirectory="TARGETDIR"
+             Description="A WixEdit sample with all kinds of dialogs.">
+      <ComponentRef Id="Sample.UISample" />
+      <ComponentRef Id="Sample.UISample.Binary" />
+    </Feature>
+
+    <Feature Id="SamplesFeature.DarkSample" Title="Dark Sample" Level="1" ConfigurableDirectory="TARGETDIR"
+             Description="A WixEdit sample for decompiling msi installer files.">
+      <ComponentRef Id="Sample.DarkSample" />
+    </Feature>
+
+    <Feature Id="SamplesFeature.SimpleSample" Title="Simple Sample" Level="1" ConfigurableDirectory="TARGETDIR"
+             Description="A Simple WixEdit sample which installs one file only.">
+      <ComponentRef Id="Sample.SimpleSample" />
+    </Feature>
+
+    <Feature Id="WixBinariesFeature" Level="1" Title="Wix 2.0.2912.0" ConfigurableDirectory="TARGETDIR"
+             Description="The Wix binaries.">
+      <ComponentRef Id="WixBinaries" />
+      <ComponentRef Id="WixBinaries.ca" />
+      <ComponentRef Id="WixBinaries.doc" />
+      <ComponentRef Id="WixBinaries.lib" />
+    </Feature>
+
+    <!-- Upgrading is a pain, skipping it. -->
+    <!-- Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
+      <UpgradeVersion Minimum="0.2.5.1" Property="VERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
+    </Upgrade -->
+
+    <Media Id="1" EmbedCab="yes" Cabinet="Files.cab" />
+
+  </Product>
+</Wix>
