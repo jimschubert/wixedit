@@ -20,6 +20,7 @@
 
 
 using System;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
@@ -53,6 +54,39 @@ namespace WixEdit.PropertyGridExtensions {
             if (value == null) {
                 attribute.Value = String.Empty;
             } else {
+                string stringValue = value.ToString();
+
+                XmlAttributeAdapter adapter = component as XmlAttributeAdapter;
+                XmlNode simpleType;
+
+                XmlAttribute typeAttrib = AttributeDescription.Attributes["type"];
+                if (typeAttrib == null) {
+                    simpleType = AttributeDescription.SelectSingleNode("xs:simpleType", adapter.WixFiles.XsdNsmgr);
+                } else {
+                    string simpleTypeString = AttributeDescription.Attributes["type"].Value;
+                    string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']", simpleTypeString);
+    
+                    simpleType = AttributeDescription.OwnerDocument.SelectSingleNode(selectString, adapter.WixFiles.XsdNsmgr);
+                }
+
+                if (simpleType != null) {
+                    XmlNode pattern = simpleType.SelectSingleNode("xs:restriction/xs:pattern", adapter.WixFiles.XsdNsmgr);
+                    if (pattern != null && pattern.Attributes["value"] != null) {
+                        string patternValue = pattern.Attributes["value"].Value;
+                        if (patternValue != null && patternValue.Length > 0) {
+                            Match match = Regex.Match(stringValue, patternValue);
+                            if (match.Success == false) {
+                                XmlNode documentation = simpleType.SelectSingleNode("xs:annotation/xs:documentation", adapter.WixFiles.XsdNsmgr);
+                                if (documentation != null) {
+                                    throw new Exception(documentation.InnerText);
+                                } else {
+                                    throw new Exception("Invalide by xsd definition");
+                                }
+                            }
+                        }                    
+                    }
+                }
+
                 attribute.Value = value.ToString();
             }
         }

@@ -118,7 +118,24 @@ namespace WixEdit.Settings {
         ]
         public string BinDirectory {
             get {
-                return data.BinDirectory;
+                if (data.BinDirectory != null && data.BinDirectory.Length > 0) {
+                    return BinDirectory;
+                }
+
+                // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
+                // relative to the WixEdit binary.
+                DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
+                if (parent != null) {
+                    foreach (DirectoryInfo dir in parent.GetDirectories("wix*")) {
+                        foreach (FileInfo file in dir.GetFiles("*.exe")) {
+                            if (file.Name.ToLower().Equals("candle.exe")) {
+                                return dir.FullName;
+                            }
+                        }
+                    }
+                }
+
+                return null;
             }
             set {
                 data.BinDirectory = value;

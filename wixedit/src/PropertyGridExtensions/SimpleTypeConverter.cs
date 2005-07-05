@@ -36,7 +36,6 @@ namespace WixEdit.PropertyGridExtensions {
         
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
             XmlNodeList e = GetEnumeration(context);
-
             if (IsValidEnumeration(e)) {
                 ArrayList strings = new ArrayList();
                 foreach (XmlNode node in e) {
@@ -50,28 +49,56 @@ namespace WixEdit.PropertyGridExtensions {
         } 
         
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
-            XmlNodeList e = GetEnumeration(context);
+            XmlAttributeAdapter adapter = context.Instance as XmlAttributeAdapter;
+            XmlAttributePropertyDescriptor desc = context.PropertyDescriptor as XmlAttributePropertyDescriptor;
 
-            return IsValidEnumeration(e);
-        }
-
-        private XmlNodeList GetEnumeration(ITypeDescriptorContext context) {
-            if (enumeration == null) {
-                XmlAttributeAdapter adapter = context.Instance as XmlAttributeAdapter;
-                XmlAttributePropertyDescriptor desc = context.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            XmlNode simpleType = GetSimpleType(desc.AttributeDescription, adapter.WixFiles.XsdNsmgr);
+            if (simpleType != null) {
+                XmlNodeList e = GetEnumeration(context);
     
-                XmlAttribute typeAttrib = desc.AttributeDescription.Attributes["type"];
-                if (typeAttrib == null) {
-                    enumeration = desc.AttributeDescription.SelectNodes("/xs:simpleType/xs:restriction/xs:enumeration", adapter.WixFiles.XsdNsmgr);
-                } else {
-                    string simpleType = desc.AttributeDescription.Attributes["type"].Value;
-                    string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']/xs:restriction/xs:enumeration", simpleType);
+                if (IsValidEnumeration(e) == false) {
+                    return false;
+                }
 
-                    enumeration = adapter.WixFiles.XsdDocument.SelectNodes(selectString, adapter.WixFiles.XsdNsmgr);
+                XmlNode restriction = simpleType.SelectSingleNode("xs:restriction", adapter.WixFiles.XsdNsmgr);
+                XmlAttribute baseAtt = restriction.Attributes["base"];
+                if (baseAtt != null && baseAtt.Value != null) {
+                    if (baseAtt.Value.ToLower() == "xs:nmtoken") {
+                        return true;
+                    }
                 }
             }
 
+            return false;
+        }
+
+        private XmlNodeList GetEnumeration(ITypeDescriptorContext context) {
+            XmlAttributeAdapter adapter = context.Instance as XmlAttributeAdapter;
+            XmlAttributePropertyDescriptor desc = context.PropertyDescriptor as XmlAttributePropertyDescriptor;
+
+            XmlNode simpleType = GetSimpleType(desc.AttributeDescription, adapter.WixFiles.XsdNsmgr);
+            return GetEnumeration(context, simpleType);
+        }
+
+        private XmlNodeList GetEnumeration(ITypeDescriptorContext context, XmlNode simpleType) {
+            if (enumeration == null) {
+                XmlAttributeAdapter adapter = context.Instance as XmlAttributeAdapter;
+                enumeration = simpleType.SelectNodes("xs:restriction/xs:enumeration", adapter.WixFiles.XsdNsmgr);
+            }
+
             return enumeration;
+        }
+
+        private XmlNode GetSimpleType(XmlNode attributeDescription, XmlNamespaceManager xsdNsmgr) {
+            XmlAttribute typeAttrib = attributeDescription.Attributes["type"];
+            if (typeAttrib == null) {
+                return attributeDescription.SelectSingleNode("xs:simpleType", xsdNsmgr);
+            } else {
+                string simpleType = attributeDescription.Attributes["type"].Value;
+                string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']", simpleType);
+
+                return attributeDescription.OwnerDocument.SelectSingleNode(selectString, xsdNsmgr);
+            }
         }
 
         private bool IsValidEnumeration(XmlNodeList e) {

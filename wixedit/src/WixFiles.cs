@@ -49,8 +49,13 @@ namespace WixEdit {
 
             if (WixEditSettings.Instance.BinDirectory != null &&
                 Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
-                File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"))) {
-                this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
+                ( File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd")) ||
+                  File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
+                if (File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"))) {
+                    this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
+                } else {
+                    this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
+                }
             } else {
                 this._xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
             }

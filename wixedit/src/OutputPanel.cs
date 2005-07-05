@@ -200,8 +200,8 @@ namespace WixEdit {
             outputTextBox.SelectionColor = Color.Black;
 
             outputTextBox.Select(beginLineIndex, outputTextBox.Lines[currentLine].Length + 1);
-            outputTextBox.SelectionBackColor = SystemColors.Highlight;
-            outputTextBox.SelectionColor = SystemColors.HighlightText;
+            outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
+            outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
             
             string text = outputTextBox.SelectedText;
 

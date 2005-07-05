@@ -168,7 +168,8 @@ namespace WixEdit.PropertyGridExtensions {
                 case "yesnotype":
                     return typeof(SimpleTypeConverter);
                 default:
-                    return typeof(StringConverter);
+                    return typeof(SimpleTypeConverter);
+//                    return typeof(StringConverter);
             }
         }
     }
