@@ -48,6 +48,7 @@ namespace WixEdit {
 
         private MainMenu mainMenu;
         private MenuItem fileMenu;
+        private MenuItem fileNew;
         private MenuItem fileLoad;
         private MenuItem fileSave;
         private MenuItem fileClose;
@@ -85,11 +86,17 @@ namespace WixEdit {
 
             this.mainMenu = new MainMenu();
             this.fileMenu = new IconMenuItem();
+            this.fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
             this.fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.open.bmp")));
             this.fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.save.bmp")));
             this.fileClose = new IconMenuItem();
             this.fileSeparator = new IconMenuItem("-");
             this.fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.exit.bmp")));
+
+            this.fileNew.Text = "New";
+            this.fileNew.Click += new System.EventHandler(this.fileNew_Click);
+            this.fileNew.Shortcut = Shortcut.CtrlN;
+            this.fileNew.ShowShortcut = true;
 
             this.fileLoad.Text = "Open";
             this.fileLoad.Click += new System.EventHandler(this.fileLoad_Click);
@@ -115,12 +122,13 @@ namespace WixEdit {
             this.fileExit.Shortcut = Shortcut.AltF4;
             this.fileExit.ShowShortcut = true;
 
-            this.fileMenu.Text = "File";
-            this.fileMenu.MenuItems.Add(0, this.fileLoad);
-            this.fileMenu.MenuItems.Add(1, this.fileSave);
-            this.fileMenu.MenuItems.Add(2, this.fileClose);
-            this.fileMenu.MenuItems.Add(3, this.fileSeparator);
-            this.fileMenu.MenuItems.Add(4, this.fileExit);
+            this.fileMenu.Text = "&File";
+            this.fileMenu.MenuItems.Add(0, this.fileNew);
+            this.fileMenu.MenuItems.Add(1, this.fileLoad);
+            this.fileMenu.MenuItems.Add(2, this.fileSave);
+            this.fileMenu.MenuItems.Add(3, this.fileClose);
+            this.fileMenu.MenuItems.Add(4, this.fileSeparator);
+            this.fileMenu.MenuItems.Add(5, this.fileExit);
             
             this.mainMenu.MenuItems.Add(0, this.fileMenu);
 
@@ -147,10 +155,10 @@ namespace WixEdit {
             this.toolsProductProperties.Enabled = false;
 
 
-            this.toolsOptions.Text = "Options";
+            this.toolsOptions.Text = "&Options";
             this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
 
-            this.toolsMenu.Text = "Tools";
+            this.toolsMenu.Text = "&Tools";
             this.toolsMenu.MenuItems.Add(0, this.toolsWixCompile);
             this.toolsMenu.MenuItems.Add(1, this.toolsWixDecompile);
             this.toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
@@ -167,7 +175,7 @@ namespace WixEdit {
             this.helpAbout.Text = "About";
             this.helpAbout.Click += new System.EventHandler(this.helpAbout_Click);
 
-            this.helpMenu.Text = "Help";
+            this.helpMenu.Text = "&Help";
             this.helpMenu.MenuItems.Add(0, this.helpAbout);
 
             this.mainMenu.MenuItems.Add(2, this.helpMenu);
@@ -211,6 +219,16 @@ namespace WixEdit {
                         LoadWxsFile(xmlFileInfo.FullName);
                     }
                 }
+            }
+        }
+
+        private void fileNew_Click(object sender, System.EventArgs e) {
+            NewProjectForm frm = new NewProjectForm();
+            if (frm.ShowDialog() == DialogResult.OK) {
+                CloseWxsFile();
+                LoadWxsFile(frm.NewFileName);
+
+                toolsProductProperties_Click(null, null);
             }
         }
 

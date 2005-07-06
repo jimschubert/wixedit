@@ -101,6 +101,28 @@
               </Component>
             </Directory>
           </Directory>
+          <Directory Id="Templates" Name="template" LongName="templates">
+            <Directory Id="TemplatesUISample" Name="uisample" LongName="UISample">
+              <Component Id="Templates.UISample" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0011">
+                <File Id="Templates.UISample.wxi" Name="UISAMPLE.WXI" LongName="UISample.wxi" src="..\templates\UISample\UISample.wxi" />
+              </Component>
+              <Directory Id="Templates.Binary" Name="Binary">
+                <Component Id="Templates.UISample.Binary" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0012">
+                  <File Id="Templates.bannrbmp.bmp" Name="BANNRBMP.IBD" LongName="bannrbmp.ibd" src="..\templates\UISample\Binary\bannrbmp.bmp" />
+                  <File Id="Templates.completi.ico" Name="COMPLETI.IBD" LongName="completi.ibd" src="..\templates\UISample\Binary\completi.ico" />
+                  <File Id="Templates.custicon.ico" Name="CUSTICON.IBD" LongName="custicon.ibd" src="..\templates\UISample\Binary\custicon.ico" />
+                  <File Id="Templates.dlgbmp.bmp" Name="DLGBMP.IBD" LongName="dlgbmp.ibd" src="..\templates\UISample\Binary\dlgbmp.bmp" />
+                  <File Id="Templates.exclamic.ico" Name="EXCLAMIC.IBD" LongName="exclamic.ibd" src="..\templates\UISample\Binary\exclamic.ico" />
+                  <File Id="Templates.info.ico" Name="INFO.IBD" LongName="info.ibd" src="..\templates\UISample\Binary\info.ico" />
+                  <File Id="Templates.insticon.ico" Name="INSTICON.IBD" LongName="insticon.ibd" src="..\templates\UISample\Binary\insticon.ico" />
+                  <File Id="Templates.New.ico" Name="NEW.IBD" LongName="New.ibd" src="..\templates\UISample\Binary\New.ico" />
+                  <File Id="Templates.removico.ico" Name="REMOVICO.IBD" LongName="removico.ibd" src="..\templates\UISample\Binary\removico.ico" />
+                  <File Id="Templates.repairic.ico" Name="REPAIRIC.IBD" LongName="repairic.ibd" src="..\templates\UISample\Binary\repairic.ico" />
+                  <File Id="Templates.Up.ico" Name="UP.IBD" LongName="Up.ibd" src="..\templates\UISample\Binary\Up.ico" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
         </Directory>
       </Directory>
     </Directory>
@@ -108,6 +130,12 @@
     <Feature Id="BinariesFeature" Level="1" Title="Binaries" ConfigurableDirectory="TARGETDIR" Absent="disallow"
              Description="The WixEdit binaries.">
       <ComponentRef Id="Binaries" />
+    </Feature>
+
+    <Feature Id="TemplatesFeature" Level="1" Title="Templates" ConfigurableDirectory="TARGETDIR" Absent="disallow"
+             Description="The WixEdit Templates to create new WiX files.">
+      <ComponentRef Id="Templates.UISample" />
+      <ComponentRef Id="Templates.UISample.Binary" />
     </Feature>
 
     <Feature Id="SourcesFeature" Level="1" Title="Sources" ConfigurableDirectory="TARGETDIR"
@@ -126,6 +154,7 @@
       <ComponentRef Id="component9" />
       <ComponentRef Id="component10" />
       <ComponentRef Id="component11" />
+      <ComponentRef Id="component12" />
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Samples" Level="1" Display="expand"

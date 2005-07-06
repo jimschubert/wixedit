@@ -39,6 +39,7 @@ namespace WixEdit.Settings {
         public class WixEditData {
             public WixEditData() {}
             public string BinDirectory;
+            public string TemplateDirectory;
         }
 
         private static string filename = "WixEditSettings.xml";
@@ -112,7 +113,7 @@ namespace WixEdit.Settings {
         }
 
         [
-        Category("WiX Settings"), 
+        Category("WixEdit Settings"), 
         Description("The directory where the WiX binaries are located."), 
         Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
@@ -139,6 +140,34 @@ namespace WixEdit.Settings {
             }
             set {
                 data.BinDirectory = value;
+            }
+        }
+
+        [
+        Category("WixEdit Settings"), 
+        Description("The directory where the WixEdit templates are located."), 
+        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        ]
+        public string TemplateDirectory {
+            get {
+                if (data.TemplateDirectory != null && data.TemplateDirectory.Length > 0) {
+                    return TemplateDirectory;
+                }
+
+                // With the installation of WixEdit the WixEdit Templates are installed in "..\templates", 
+                // relative to the WixEdit binary.
+                DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
+                if (parent != null) {
+                    string templateDir = Path.Combine(parent.FullName, "templates");
+                    if (Directory.Exists(templateDir)) {
+                        return templateDir;
+                    }
+                }
+
+                return null;
+            }
+            set {
+                data.TemplateDirectory = value;
             }
         }
 
