@@ -30,7 +30,7 @@ using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
 	/// <summary>
-	/// Summary description for Form1.
+	/// ProductPropertiesForm edits the Attributes of the Product element.
 	/// </summary>
 	public class ProductPropertiesForm : Form {
         protected Button buttonOk;
@@ -51,9 +51,10 @@ namespace WixEdit {
         private void InitializeComponent() {
             this.Text = "Product Properties";
             this.ShowInTaskbar = false;
+            this.SizeGripStyle = SizeGripStyle.Hide;
 
             this.buttonOk = new Button();
-            this.buttonOk.Text = "Ok";
+            this.buttonOk.Text = "Done";
             this.buttonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
             this.buttonOk.FlatStyle = FlatStyle.System;
             this.buttonOk.Click += new EventHandler(OnOk);
@@ -77,15 +78,15 @@ namespace WixEdit {
 
             this.ClientSize = new Size(384, 256);
 
-            this.productPropertyGrid.Size = new Size(this.ClientSize.Width, this.ClientSize.Height-23);
+            this.productPropertyGrid.Size = new Size(this.ClientSize.Width, this.ClientSize.Height-29);
 
 
 //            this.buttonCancel.Left = this.ClientSize.Width - this.buttonCancel.Width;
 //            this.buttonOk.Left = this.buttonCancel.Left - this.buttonOk.Width - 2;
-            this.buttonOk.Left = this.ClientSize.Width - this.buttonOk.Width;
+            this.buttonOk.Left = this.ClientSize.Width - this.buttonOk.Width - 2;
 
-//            this.buttonCancel.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height;
-            this.buttonOk.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height;
+//            this.buttonCancel.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height + 3;
+            this.buttonOk.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height + 3;
 
             this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
@@ -94,7 +95,7 @@ namespace WixEdit {
 
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.ControlBox = false; 
+            this.ControlBox = true; 
 
             this.StartPosition = FormStartPosition.CenterParent;
 

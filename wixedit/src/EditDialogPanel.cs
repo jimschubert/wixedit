@@ -113,7 +113,7 @@ namespace WixEdit {
                                                               this.Opacity25,
                                                               this.Separator,
                                                               this.AlwaysOnTop});
-            this.viewMenu.Text = "Dialogs";
+            this.viewMenu.Text = "&Dialogs";
             // 
             // Opacity100
             // 

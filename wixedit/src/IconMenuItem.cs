@@ -257,7 +257,12 @@ namespace WixEdit {
             } else {
                 graphics.FillRectangle(SystemBrushes.Control, dest.X, dest.Y, dest.Width + 1, dest.Height);
             }
-            graphics.DrawString(this.Text, font, Brushes.Black, dest.Left + 6, dest.Top + 3);
+
+            StringFormat format = new StringFormat();
+            format.HotkeyPrefix = HotkeyPrefix.Show;
+            format.SetTabStops(60, new Single[] {0});
+
+            graphics.DrawString(this.Text, font, Brushes.Black, dest.Left + 6, dest.Top + 3, format);
         }
 
         private void DrawSeparator(Graphics graphics, Rectangle dest) {
@@ -361,7 +366,9 @@ namespace WixEdit {
                 
                 Keys k = (Keys)s;
                 text = text + Convert.ToChar(9) + TypeDescriptor.GetConverter(typeof(Keys)).ConvertToString(k);
-            }
+            } else {
+                text = text.Replace("&", "");
+            }          
 
             return text;
         }
