@@ -33,8 +33,12 @@ namespace WixEdit {
         XmlDocument _wxsDocument;
         XmlNamespaceManager _wxsNsmgr;
 
-        XmlDocument _xsdDocument;
-        XmlNamespaceManager _xsdNsmgr;
+        static XmlDocument _xsdDocument;
+        static XmlNamespaceManager _xsdNsmgr;
+
+        static WixFiles() {
+            ReloadXsd();
+        }
 
         public WixFiles(FileInfo wxsFile) {
             _wxsFile = wxsFile;
@@ -44,24 +48,34 @@ namespace WixEdit {
             
             this._wxsNsmgr = new XmlNamespaceManager(this._wxsDocument.NameTable);
             this._wxsNsmgr.AddNamespace("wix", this._wxsDocument.DocumentElement.NamespaceURI);
+        }
 
-            this._xsdDocument = new XmlDocument();
+        public static void ReloadXsd() {
+            _xsdDocument = new XmlDocument();
 
             if (WixEditSettings.Instance.BinDirectory != null &&
                 Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
                 ( File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd")) ||
                   File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
                 if (File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"))) {
-                    this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
+                    _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
                 } else {
-                    this._xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
+                    _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
                 }
             } else {
-                this._xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
+                _xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
             }
             
-            this._xsdNsmgr = new XmlNamespaceManager(this._xsdDocument.NameTable);
-            this._xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+            _xsdNsmgr = new XmlNamespaceManager(_xsdDocument.NameTable);
+            _xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+        }
+
+        public static XmlDocument GetXsdDocument() {
+            return _xsdDocument;
+        }
+
+        public static XmlNamespaceManager GetXsdNsmgr() {
+            return _xsdNsmgr;
         }
 
         public XmlDocument WxsDocument {
@@ -73,11 +87,11 @@ namespace WixEdit {
         }
 
         public XmlDocument XsdDocument {
-            get { return this._xsdDocument; }
+            get { return _xsdDocument; }
         }
 
         public XmlNamespaceManager XsdNsmgr {
-            get { return this._xsdNsmgr; }
+            get { return _xsdNsmgr; }
         }
 
         public FileInfo WxsFile {
@@ -108,8 +122,8 @@ namespace WixEdit {
             this._wxsDocument = null;
             this._wxsNsmgr = null;
 
-            this._xsdDocument = null;
-            this._xsdNsmgr = null;
+            _xsdDocument = null;
+            _xsdNsmgr = null;
         }
 
         #endregion

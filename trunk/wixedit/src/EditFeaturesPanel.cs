@@ -25,15 +25,15 @@ using System.Xml;
 
 namespace WixEdit {
     /// <summary>
-    /// Panel for adding and removing files and other installable items.
+    /// Panel to edit features.
     /// </summary>
-    public class EditFilesPanel : DetailsBasePanel {
-        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
+    public class EditFeaturesPanel : DetailsBasePanel {
+        public EditFeaturesPanel(WixFiles wixFiles) : base(wixFiles) {
         }
 
         protected override ArrayList GetXmlNodes() {
             ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:Directory", wixFiles.WxsNsmgr);
+            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Feature", wixFiles.WxsNsmgr);
             foreach (XmlNode xmlNode in xmlNodes) {
                 nodes.Add(xmlNode);
             }

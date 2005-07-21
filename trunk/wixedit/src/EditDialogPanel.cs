@@ -23,11 +23,13 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Data;
 using System.Xml;
+using System.Text;
 using System.IO;
 using System.Resources;
 using System.Reflection;
@@ -36,12 +38,12 @@ using WixEdit.PropertyGridExtensions;
  
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditDialogPanel.
+    /// Editing of dialogs.
     /// </summary>
     public class EditDialogPanel : BasePanel {
         #region Controls
         
-        private Form currentDialog;
+        private DesignerForm currentDialog;
         private TreeView dialogTreeView;
         private PropertyGrid propertyGrid;
         private ContextMenu wxsDialogsContextMenu;
@@ -423,7 +425,7 @@ namespace WixEdit {
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             // Temporarily store the XmlAttributeAdapter
-            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
             ArrayList attributes = new ArrayList();
 
@@ -493,7 +495,7 @@ namespace WixEdit {
             XmlAttribute att = desc.Attribute;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
             propertyGrid.SelectedObject = null;
 
             // Remove the attribute
@@ -516,7 +518,7 @@ namespace WixEdit {
         }
 
         private void ShowWixDialog(XmlNode dialog) {
-            Form prevDialog = null;
+            DesignerForm prevDialog = null;
             int prevTop = 0;
             int prevLeft = 0;
 
@@ -639,6 +641,7 @@ namespace WixEdit {
             XmlNode node = e.Node.Tag as XmlNode;
             if (node != null) {
                 ShowWixProperties(node);
+                currentDialog.SelectedNode = node;
             }
         }
 
@@ -682,14 +685,11 @@ namespace WixEdit {
             dialogTreeViewContextMenu.MenuItems.Add(this.deleteCurrentElementMenu);
 
 
-            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
-            XmlNode documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            if(documentation == null) {
-                documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            }
-
-            if (documentation != null) {
+            XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
+            if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
+                dialogTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
                 dialogTreeViewContextMenu.MenuItems.Add(this.infoAboutCurrentElementMenu);
             }
         }
@@ -791,27 +791,19 @@ namespace WixEdit {
 
             dialogTreeView.Nodes.Remove(dialogTreeView.SelectedNode);
 
-            ShowWixProperties(null);
+            ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
         }
 
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
-            XmlAttributeAdapter attAdapter = propertyGrid.SelectedObject as XmlAttributeAdapter;
+            XmlNode xmlNode = (XmlNode) dialogTreeView.SelectedNode.Tag;
 
-            XmlNode documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            if(documentation == null) {
-                documentation = attAdapter.XmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-            }
+            XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
-            string message = null;
-            if(documentation != null) {
-                message = documentation.InnerText;
-            } else {
-                message = "No documentation found.";
-            }
+            string title = String.Format("Info about '{0}' element", xmlNode.Name);            
+            string message = docManager.GetDocumentation(attAdapter.XmlNodeDefinition);
 
-            string title = String.Format("Info about '{0}' element", dialogTreeView.SelectedNode.Text);
-
-            MessageBox.Show(message, title);
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void Opacity_Click(object sender, System.EventArgs e) {

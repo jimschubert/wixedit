@@ -79,8 +79,8 @@ namespace WixEdit {
         }
 
         private bool HasFancyMenus() {
-            return (Environment.OSVersion.Version.Major >= 5 && 
-                Environment.OSVersion.Version.Minor >= 1 );
+            return (Environment.OSVersion.Version.Major > 5  ||
+                ( Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1 ));
         }
 
         public Bitmap Bitmap {

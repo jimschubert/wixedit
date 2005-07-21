@@ -38,163 +38,165 @@ namespace WixEdit {
 	/// The main dialog.
 	/// </summary>
 	public class EditorForm : Form 	{
-        private OpenFileDialog openWxsFileDialog;
+        protected OpenFileDialog openWxsFileDialog;
 
-        private TabButtonControl tabButtonControl;
-        private EditDialogPanel editDialogPanel;
-        private EditPropertiesPanel editPropertiesPanel;
-        private EditResourcesPanel editResourcesPanel;
-        private EditFilesPanel editFilesPanel;
+        protected TabButtonControl tabButtonControl;
+        protected EditUIPanel editUIPanel;
+        protected EditPropertiesPanel editPropertiesPanel;
+        protected EditResourcesPanel editResourcesPanel;
+        protected EditInstallDataPanel editInstallDataPanel;
+        protected EditGlobalDataPanel editGlobalDataPanel;
+        protected EditActionsPanel editActionsPanel;
 
-        private MainMenu mainMenu;
-        private MenuItem fileMenu;
-        private MenuItem fileNew;
-        private MenuItem fileLoad;
-        private MenuItem fileSave;
-        private MenuItem fileClose;
-        private MenuItem fileSeparator;
-        private MenuItem fileExit;
-        private MenuItem toolsMenu;
-        private MenuItem toolsOptions;
-        private MenuItem toolsProductProperties;
-        private MenuItem toolsWixCompile;
-        private MenuItem toolsWixDecompile;
-        private MenuItem helpMenu;
-        private MenuItem helpAbout;
+        protected MainMenu mainMenu;
+        protected MenuItem fileMenu;
+        protected MenuItem fileNew;
+        protected MenuItem fileLoad;
+        protected MenuItem fileSave;
+        protected MenuItem fileClose;
+        protected MenuItem fileSeparator;
+        protected MenuItem fileExit;
+        protected MenuItem toolsMenu;
+        protected MenuItem toolsOptions;
+        protected MenuItem toolsProductProperties;
+        protected MenuItem toolsWixCompile;
+        protected MenuItem toolsWixDecompile;
+        protected MenuItem helpMenu;
+        protected MenuItem helpAbout;
 
         protected OutputPanel outputPanel;
-        private Splitter outputSplitter;
+        protected Splitter outputSplitter;
 
-        private bool fileIsDirty;
+        protected bool fileIsDirty;
 
-        private int oldTabIndex = 0;
+        protected int oldTabIndex = 0;
 
-        BasePanel[] panels = new BasePanel[4];
+        const int panelCount = 6;
+        BasePanel[] panels = new BasePanel[panelCount];
 
-        private WixFiles wixFiles;
+        protected WixFiles wixFiles;
 
 		public EditorForm() {
             InitializeComponent();
 		}
 
         private void InitializeComponent() {
-            this.Text = "WiX Edit";
-            this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
-            this.ClientSize = new System.Drawing.Size(630, 480);
+            Text = "WiX Edit";
+            Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
+            ClientSize = new System.Drawing.Size(630, 480);
 
-            this.openWxsFileDialog = new OpenFileDialog();
+            openWxsFileDialog = new OpenFileDialog();
 
-            this.mainMenu = new MainMenu();
-            this.fileMenu = new IconMenuItem();
-            this.fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            this.fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.open.bmp")));
-            this.fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.save.bmp")));
-            this.fileClose = new IconMenuItem();
-            this.fileSeparator = new IconMenuItem("-");
-            this.fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.exit.bmp")));
+            mainMenu = new MainMenu();
+            fileMenu = new IconMenuItem();
+            fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.open.bmp")));
+            fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.save.bmp")));
+            fileClose = new IconMenuItem();
+            fileSeparator = new IconMenuItem("-");
+            fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.exit.bmp")));
 
-            this.fileNew.Text = "New";
-            this.fileNew.Click += new System.EventHandler(this.fileNew_Click);
-            this.fileNew.Shortcut = Shortcut.CtrlN;
-            this.fileNew.ShowShortcut = true;
+            fileNew.Text = "New";
+            fileNew.Click += new System.EventHandler(fileNew_Click);
+            fileNew.Shortcut = Shortcut.CtrlN;
+            fileNew.ShowShortcut = true;
 
-            this.fileLoad.Text = "Open";
-            this.fileLoad.Click += new System.EventHandler(this.fileLoad_Click);
-            this.fileLoad.Shortcut = Shortcut.CtrlO;
-            this.fileLoad.ShowShortcut = true;
+            fileLoad.Text = "Open";
+            fileLoad.Click += new System.EventHandler(fileLoad_Click);
+            fileLoad.Shortcut = Shortcut.CtrlO;
+            fileLoad.ShowShortcut = true;
 
-            this.fileSave.Text = "Save";
-            this.fileSave.Click += new System.EventHandler(this.fileSave_Click);
-            this.fileSave.Enabled = false;
-            this.fileSave.Shortcut = Shortcut.CtrlS;
-            this.fileSave.ShowShortcut = true;
+            fileSave.Text = "Save";
+            fileSave.Click += new System.EventHandler(fileSave_Click);
+            fileSave.Enabled = false;
+            fileSave.Shortcut = Shortcut.CtrlS;
+            fileSave.ShowShortcut = true;
 
-            this.fileIsDirty = false;
+            fileIsDirty = false;
 
-            this.fileClose.Text = "Close";
-            this.fileClose.Click += new System.EventHandler(this.fileClose_Click);
-            this.fileClose.Enabled = false;
-            this.fileClose.Shortcut = Shortcut.CtrlW;
-            this.fileClose.ShowShortcut = true;
+            fileClose.Text = "Close";
+            fileClose.Click += new System.EventHandler(fileClose_Click);
+            fileClose.Enabled = false;
+            fileClose.Shortcut = Shortcut.CtrlW;
+            fileClose.ShowShortcut = true;
 
-            this.fileExit.Text = "Exit";
-            this.fileExit.Click += new System.EventHandler(this.fileExit_Click);
-            this.fileExit.Shortcut = Shortcut.AltF4;
-            this.fileExit.ShowShortcut = true;
+            fileExit.Text = "Exit";
+            fileExit.Click += new System.EventHandler(fileExit_Click);
+            fileExit.ShowShortcut = true;
 
-            this.fileMenu.Text = "&File";
-            this.fileMenu.MenuItems.Add(0, this.fileNew);
-            this.fileMenu.MenuItems.Add(1, this.fileLoad);
-            this.fileMenu.MenuItems.Add(2, this.fileSave);
-            this.fileMenu.MenuItems.Add(3, this.fileClose);
-            this.fileMenu.MenuItems.Add(4, this.fileSeparator);
-            this.fileMenu.MenuItems.Add(5, this.fileExit);
+            fileMenu.Text = "&File";
+            fileMenu.MenuItems.Add(0, fileNew);
+            fileMenu.MenuItems.Add(1, fileLoad);
+            fileMenu.MenuItems.Add(2, fileSave);
+            fileMenu.MenuItems.Add(3, fileClose);
+            fileMenu.MenuItems.Add(4, fileSeparator);
+            fileMenu.MenuItems.Add(5, fileExit);
             
-            this.mainMenu.MenuItems.Add(0, this.fileMenu);
+            mainMenu.MenuItems.Add(0, fileMenu);
 
 
 
 
-            this.toolsMenu = new IconMenuItem();
-            this.toolsProductProperties = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.prop.bmp")));
-            this.toolsOptions = new IconMenuItem();
-            this.toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.compile.bmp")));
-            this.toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.decompile.bmp")));
+            toolsMenu = new IconMenuItem();
+            toolsProductProperties = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.prop.bmp")));
+            toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.options.bmp")));
+            toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.compile.bmp")));
+            toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.decompile.bmp")));
 
-            this.toolsWixCompile.Text = "Wix Compile";
-            this.toolsWixCompile.Click += new System.EventHandler(this.toolsWixCompile_Click);
-            this.toolsWixCompile.Enabled = false;
-
-
-            this.toolsWixDecompile.Text = "Wix Decompile";
-            this.toolsWixDecompile.Click += new System.EventHandler(this.toolsWixDecompile_Click);
-            this.toolsWixDecompile.Enabled = false;
-
-            this.toolsProductProperties.Text = "Project Properties";
-            this.toolsProductProperties.Click += new System.EventHandler(this.toolsProductProperties_Click);
-            this.toolsProductProperties.Enabled = false;
+            toolsWixCompile.Text = "Wix Compile";
+            toolsWixCompile.Click += new System.EventHandler(toolsWixCompile_Click);
+            toolsWixCompile.Enabled = false;
 
 
-            this.toolsOptions.Text = "&Options";
-            this.toolsOptions.Click += new System.EventHandler(this.toolsOptions_Click);
+            toolsWixDecompile.Text = "Wix Decompile";
+            toolsWixDecompile.Click += new System.EventHandler(toolsWixDecompile_Click);
+            toolsWixDecompile.Enabled = false;
 
-            this.toolsMenu.Text = "&Tools";
-            this.toolsMenu.MenuItems.Add(0, this.toolsWixCompile);
-            this.toolsMenu.MenuItems.Add(1, this.toolsWixDecompile);
-            this.toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            this.toolsMenu.MenuItems.Add(3, this.toolsProductProperties);
-            this.toolsMenu.MenuItems.Add(4, new IconMenuItem("-"));
-            this.toolsMenu.MenuItems.Add(5, this.toolsOptions);
+            toolsProductProperties.Text = "Project Properties";
+            toolsProductProperties.Click += new System.EventHandler(toolsProductProperties_Click);
+            toolsProductProperties.Enabled = false;
+
+
+            toolsOptions.Text = "&Options";
+            toolsOptions.Click += new System.EventHandler(toolsOptions_Click);
+
+            toolsMenu.Text = "&Tools";
+            toolsMenu.MenuItems.Add(0, toolsWixCompile);
+            toolsMenu.MenuItems.Add(1, toolsWixDecompile);
+            toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(3, toolsProductProperties);
+            toolsMenu.MenuItems.Add(4, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(5, toolsOptions);
             
-            this.mainMenu.MenuItems.Add(1, this.toolsMenu);
+            mainMenu.MenuItems.Add(1, toolsMenu);
 
 
-            this.helpMenu = new IconMenuItem();
-            this.helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"), 16, 16));
+            helpMenu = new IconMenuItem();
+            helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"), 16, 16));
 
-            this.helpAbout.Text = "About";
-            this.helpAbout.Click += new System.EventHandler(this.helpAbout_Click);
+            helpAbout.Text = "About";
+            helpAbout.Click += new System.EventHandler(helpAbout_Click);
 
-            this.helpMenu.Text = "&Help";
-            this.helpMenu.MenuItems.Add(0, this.helpAbout);
+            helpMenu.Text = "&Help";
+            helpMenu.MenuItems.Add(0, helpAbout);
 
-            this.mainMenu.MenuItems.Add(2, this.helpMenu);
+            mainMenu.MenuItems.Add(2, helpMenu);
 
-            this.Menu = this.mainMenu;
+            Menu = mainMenu;
 
 
-            this.tabButtonControl = new TabButtonControl();
-            this.tabButtonControl.Dock = DockStyle.Fill;
-            this.Controls.Add(this.tabButtonControl);
-            this.tabButtonControl.Visible = false;
+            tabButtonControl = new TabButtonControl();
+            tabButtonControl.Dock = DockStyle.Fill;
+            Controls.Add(tabButtonControl);
+            tabButtonControl.Visible = false;
 
-            this.tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
+            tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
 
 
             outputSplitter = new Splitter();
             outputSplitter.Dock = DockStyle.Bottom;
             outputSplitter.Height = 2;
-            this.Controls.Add(outputSplitter);
+            Controls.Add(outputSplitter);
 
             outputPanel = new OutputPanel(wixFiles);
             outputPanel.Dock = DockStyle.Bottom;
@@ -203,7 +205,7 @@ namespace WixEdit {
 
             outputPanel.CloseClicked += new EventHandler(HideOutputPanel);
 
-            this.Controls.Add(outputPanel);
+            Controls.Add(outputPanel);
 
             outputPanel.Visible = false;
             outputSplitter.Visible = false;
@@ -233,20 +235,20 @@ namespace WixEdit {
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
-            this.openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
-            this.openWxsFileDialog.RestoreDirectory = true ;
+            openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            openWxsFileDialog.RestoreDirectory = true ;
 
-            if(this.openWxsFileDialog.ShowDialog() == DialogResult.OK) {
+            if(openWxsFileDialog.ShowDialog() == DialogResult.OK) {
                 CloseWxsFile();
-                LoadWxsFile(this.openWxsFileDialog.FileName);
+                LoadWxsFile(openWxsFileDialog.FileName);
             }
         }
 
         private void fileSave_Click(object sender, System.EventArgs e) {
             ToggleDirty(false);
-            this.fileSave.Enabled = true;
+            fileSave.Enabled = true;
 
-            this.wixFiles.Save();
+            wixFiles.Save();
         }
 
         private void fileClose_Click(object sender, System.EventArgs e) {
@@ -267,7 +269,7 @@ namespace WixEdit {
             ShowOutputPanel(null, null);
 
             outputPanel.Clear();
-            this.Update();
+            Update();
 
             string candleExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Candle.exe");
             if (File.Exists(candleExe) == false) {
@@ -325,7 +327,7 @@ namespace WixEdit {
             ShowOutputPanel(null, null);
 
             outputPanel.Clear();
-            this.Update();
+            Update();
 
             string darkExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Dark.exe");
             if (File.Exists(darkExe) == false) {
@@ -381,111 +383,133 @@ namespace WixEdit {
             }
 
             if (panels[oldTabIndex].Menu != null) {
-                this.mainMenu.MenuItems.RemoveAt(1);
+                mainMenu.MenuItems.RemoveAt(1);
             }
 
             if (panels[tabButtonControl.SelectedIndex].Menu != null) {
-                this.mainMenu.MenuItems.Add(1, panels[tabButtonControl.SelectedIndex].Menu);
+                mainMenu.MenuItems.Add(1, panels[tabButtonControl.SelectedIndex].Menu);
             }
 
             oldTabIndex = tabButtonControl.SelectedIndex;
         }
 
         private void LoadWxsFile(string file) {
-            this.wixFiles = new WixFiles(new FileInfo(file));
+            wixFiles = new WixFiles(new FileInfo(file));
 
-            this.tabButtonControl.Visible = true;
+            tabButtonControl.Visible = true;
 
-            // Add dialog tab
-            this.editDialogPanel = new EditDialogPanel(wixFiles);
-            this.editDialogPanel.Dock = DockStyle.Fill;
+            // Add Global tab
+            editGlobalDataPanel = new EditGlobalDataPanel(wixFiles);
+            editGlobalDataPanel.Dock = DockStyle.Fill;
 
-            this.tabButtonControl.AddTab("Dialogs", editDialogPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.dialogs.bmp")));
+            tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.global.bmp")));
 
-            panels[0] = editDialogPanel;
-
-            this.mainMenu.MenuItems.Add(1, this.editDialogPanel.Menu);
-
-
-            // Add properties tab
-            this.editPropertiesPanel = new EditPropertiesPanel(wixFiles);
-            this.editPropertiesPanel.Dock = DockStyle.Fill;
-
-            this.tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.properties.bmp")));
-
-            panels[1] = editPropertiesPanel;
-
-            // Add Resources tab
-            this.editResourcesPanel = new EditResourcesPanel(wixFiles);
-            this.editResourcesPanel.Dock = DockStyle.Fill;
-
-            this.tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.resources.bmp")));
-
-            panels[2] = editResourcesPanel;
+            panels[0] = editGlobalDataPanel;
 
 
             // Add Files tab
-            this.editFilesPanel = new EditFilesPanel(wixFiles);
-            this.editFilesPanel.Dock = DockStyle.Fill;
+            editInstallDataPanel = new EditInstallDataPanel(wixFiles);
+            editInstallDataPanel.Dock = DockStyle.Fill;
 
-            this.tabButtonControl.AddTab("Files", editFilesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.files.bmp")));
+            tabButtonControl.AddTab("Files", editInstallDataPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.files.bmp")));
 
-            panels[3] = editFilesPanel;
+            panels[1] = editInstallDataPanel;
+
+
+            // Add properties tab
+            editPropertiesPanel = new EditPropertiesPanel(wixFiles);
+            editPropertiesPanel.Dock = DockStyle.Fill;
+
+            tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.properties.bmp")));
+
+            panels[2] = editPropertiesPanel;
+
+
+            // Add dialog tab
+            editUIPanel = new EditUIPanel(wixFiles);
+            editUIPanel.Dock = DockStyle.Fill;
+
+            tabButtonControl.AddTab("Dialogs", editUIPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.dialogs.bmp")));
+
+            panels[3] = editUIPanel;
+
+
+            if (editUIPanel.Menu != null) {
+                mainMenu.MenuItems.Add(1, editUIPanel.Menu);
+            }
+
+            // Add Resources tab
+            editResourcesPanel = new EditResourcesPanel(wixFiles);
+            editResourcesPanel.Dock = DockStyle.Fill;
+
+            tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.resources.bmp")));
+
+            panels[4] = editResourcesPanel;
+
+
+            // Add Resources tab
+            editActionsPanel = new EditActionsPanel(wixFiles);
+            editActionsPanel.Dock = DockStyle.Fill;
+
+            tabButtonControl.AddTab("Actions", editActionsPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.actions.bmp")));
+
+            panels[5] = editActionsPanel;
+
 
 
             // Update menu
-            this.fileClose.Enabled = true;
-            this.Text = "WiX Edit - " + this.wixFiles.WxsFile.Name;
+            fileClose.Enabled = true;
+            Text = "WiX Edit - " + wixFiles.WxsFile.Name;
 
             ToggleDirty(false);
-            this.fileSave.Enabled = true;
+            fileSave.Enabled = true;
 
-            this.toolsWixCompile.Enabled = true;
-            this.toolsWixDecompile.Enabled = true;
-            this.toolsProductProperties.Enabled = true;
+            toolsWixCompile.Enabled = true;
+            toolsWixDecompile.Enabled = true;
+            toolsProductProperties.Enabled = true;
         }
 
         private void ToggleDirty(bool dirty) {
-            if (dirty != this.fileIsDirty) {
-                this.fileIsDirty = dirty;
-                this.fileSave.Enabled = dirty;
+            if (dirty != fileIsDirty) {
+                fileIsDirty = dirty;
+                fileSave.Enabled = dirty;
             }
         }
 
         private void CloseWxsFile() {
-            this.toolsWixCompile.Enabled = false;
-            this.toolsWixDecompile.Enabled = false;
-            this.toolsProductProperties.Enabled = false;
+            toolsWixCompile.Enabled = false;
+            toolsWixDecompile.Enabled = false;
+            toolsProductProperties.Enabled = false;
             
-            this.tabButtonControl.Visible = false;
-            this.tabButtonControl.ClearTabs();
+            tabButtonControl.Visible = false;
+            tabButtonControl.ClearTabs();
 
-            panels = new BasePanel[4];
+            panels = new BasePanel[panelCount];
 
-            if (this.editDialogPanel != null) {
-                if (this.mainMenu != null) {
-                    this.mainMenu.MenuItems.Remove(editDialogPanel.Menu);
+            if (editUIPanel != null) {
+                if (mainMenu != null) {
+                    mainMenu.MenuItems.Remove(editUIPanel.Menu);
                 }
 
-                this.editDialogPanel.Dispose();
-                this.editDialogPanel = null;
+                editUIPanel.Dispose();
+                editUIPanel = null;
             }
 
-            if (this.editPropertiesPanel != null) {
-                this.editPropertiesPanel.Dispose();
-                this.editPropertiesPanel = null;
+            if (editPropertiesPanel != null) {
+                editPropertiesPanel.Dispose();
+                editPropertiesPanel = null;
             }
 
-            if (this.wixFiles != null) {
-                this.wixFiles.Dispose(); 
-                this.wixFiles = null;
+            if (wixFiles != null) {
+                wixFiles.Dispose(); 
+                wixFiles = null;
             }
 
-            this.fileClose.Enabled = false;
-            this.Text = "WiX Edit";
+            fileClose.Enabled = false;
+            Text = "WiX Edit";
 
             ToggleDirty(false);
-            this.fileSave.Enabled = false;
+            fileSave.Enabled = false;
         }
 
 		/// <summary>

@@ -43,51 +43,51 @@ namespace WixEdit {
 		}
 
         private void InitializeComponent() {
-            this.Text = "New Attribute Name";
-            this.ShowInTaskbar = false;
+            Text = "New Attribute Name";
+            ShowInTaskbar = false;
 
-            this.ButtonOk = new Button();
-            this.ButtonOk.Text = "Ok";
-            this.ButtonOk.Dock = DockStyle.Left;
-            this.ButtonOk.FlatStyle = FlatStyle.System;
-            this.ButtonOk.Click += new EventHandler(OnOk);
-            this.ButtonOk.Enabled = false;
-            this.Controls.Add(this.ButtonOk);
+            ButtonOk = new Button();
+            ButtonOk.Text = "Ok";
+            ButtonOk.Dock = DockStyle.Left;
+            ButtonOk.FlatStyle = FlatStyle.System;
+            ButtonOk.Click += new EventHandler(OnOk);
+            ButtonOk.Enabled = false;
+            Controls.Add(ButtonOk);
 
-            this.ButtonCancel = new Button();
-            this.ButtonCancel.Text = "Cancel";
-            this.ButtonCancel.Dock = DockStyle.Right;
-            this.ButtonCancel.FlatStyle = FlatStyle.System;
-            this.Controls.Add(this.ButtonCancel);
+            ButtonCancel = new Button();
+            ButtonCancel.Text = "Cancel";
+            ButtonCancel.Dock = DockStyle.Right;
+            ButtonCancel.FlatStyle = FlatStyle.System;
+            Controls.Add(ButtonCancel);
 
-            this.StringList = new ListBox();
-            this.StringList.Dock = DockStyle.Top;
-            this.StringList.SelectionMode = SelectionMode.One;
-            this.StringList.DoubleClick += new EventHandler(OnDoubleClickList);
-            this.StringList.SelectedValueChanged += new EventHandler(OnSelectionChanged);
-            this.Controls.Add(this.StringList);
+            StringList = new ListBox();
+            StringList.Dock = DockStyle.Top;
+            StringList.SelectionMode = SelectionMode.One;
+            StringList.DoubleClick += new EventHandler(OnDoubleClickList);
+            StringList.SelectedValueChanged += new EventHandler(OnSelectionChanged);
+            Controls.Add(StringList);
 
-            this.StringList.Size = new Size(this.ButtonCancel.Width+2+this.ButtonOk.Width, 237);
+            StringList.Size = new Size(ButtonCancel.Width+2+ButtonOk.Width, 237);
 
-            this.ClientSize = new Size(this.ButtonCancel.Width+2+this.ButtonOk.Width, 250);
-            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            ClientSize = new Size(ButtonCancel.Width+2+ButtonOk.Width, 250);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-            this.AcceptButton = ButtonOk;
-            this.CancelButton = ButtonCancel;
+            AcceptButton = ButtonOk;
+            CancelButton = ButtonCancel;
 
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ControlBox = false; 
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ControlBox = false; 
 
-            this.StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterParent;
 
-            this.Activated += new EventHandler(OnActivate);
+            Activated += new EventHandler(OnActivate);
         }
 
         private void OnActivate(object sender, EventArgs e) {   
-            this.StringList.Items.Clear();
+            StringList.Items.Clear();
             foreach (string it in possibleStrings) {
-                this.StringList.Items.Add(it);
+                StringList.Items.Add(it);
             }
 
             UpdateOkButton();
@@ -98,41 +98,43 @@ namespace WixEdit {
         }
 
         private void UpdateOkButton() {
-            if (this.StringList.SelectedItem == null) {
-                this.ButtonOk.Enabled = false;
+            if (StringList.SelectedItem == null) {
+                ButtonOk.Enabled = false;
             } else {
-                this.ButtonOk.Enabled = true;
+                ButtonOk.Enabled = true;
             }
         }        
 
         public string SelectedString {
             get {
-                return this.selectedString;
+                return selectedString;
             }
             set {
-                this.selectedString = value;
+                selectedString = value;
             }
         }
 
         public string[] PossibleStrings {
             get {
-                return this.possibleStrings;
+                return possibleStrings;
             }
             set {
-                this.possibleStrings = value;
+                possibleStrings = value;
             }
         }
 
         private void OnOk(object sender, EventArgs e) {
-            this.selectedString = this.StringList.SelectedItem.ToString();
-            this.DialogResult = DialogResult.OK;
+            selectedString = StringList.SelectedItem.ToString();
+            DialogResult = DialogResult.OK;
         }
 
         private void OnDoubleClickList(object sender, EventArgs e) {
             // Cannot determine if an item is double clicked or not.
             // but just pretend if we do... ;)
-            this.selectedString = this.StringList.SelectedItem.ToString();
-            this.DialogResult = DialogResult.OK;
+            if (StringList.SelectedItem != null) {
+                selectedString = StringList.SelectedItem.ToString();
+                DialogResult = DialogResult.OK;
+            }
         }
     }
 }
