@@ -94,8 +94,8 @@ namespace WixEdit {
         }
 
         int _parentHwnd;
-        public Form GenerateDialog(XmlNode dialog, Control parent) {
-            Form newDialog = new Form();
+        public DesignerForm GenerateDialog(XmlNode dialog, Control parent) {
+            DesignerForm newDialog = new DesignerForm();
 
             _parentHwnd = (int)parent.Handle;
 
@@ -274,7 +274,7 @@ namespace WixEdit {
             return returnValue;
         }
 
-        private void AddButtons(Form newDialog, XmlNodeList buttons) {
+        private void AddButtons(DesignerForm newDialog, XmlNodeList buttons) {
             foreach (XmlNode button in buttons) {
                 Button newButton = new Button();
                 SetControlSizes(newButton, button);
@@ -293,11 +293,11 @@ namespace WixEdit {
                     SetText(newButton, button);
                 }
                 
-                newDialog.Controls.Add(newButton);
+                newDialog.AddControl(button, newButton);
             }
         }
 
-        private void AddEditBoxes(Form newDialog, XmlNodeList editboxes) {
+        private void AddEditBoxes(DesignerForm newDialog, XmlNodeList editboxes) {
             foreach (XmlNode edit in editboxes) {
                 TextBox newEdit = new TextBox();
                 SetControlSizes(newEdit, edit);
@@ -305,21 +305,21 @@ namespace WixEdit {
 
                 newEdit.BorderStyle = BorderStyle.Fixed3D;
 
-                newDialog.Controls.Add(newEdit);
+                newDialog.AddControl(edit, newEdit);
             }
         }
 
-        private void AddPathEditBoxes(Form newDialog, XmlNodeList patheditboxes) {
+        private void AddPathEditBoxes(DesignerForm newDialog, XmlNodeList patheditboxes) {
             foreach (XmlNode pathEdit in patheditboxes) {
                 TextBox newPathEdit = new TextBox();
                 SetControlSizes(newPathEdit, pathEdit);
                 SetText(newPathEdit, pathEdit);
 
-                newDialog.Controls.Add(newPathEdit);
+                newDialog.AddControl(pathEdit, newPathEdit);
             }
         }
 
-        private void AddLines(Form newDialog, XmlNodeList lines) {
+        private void AddLines(DesignerForm newDialog, XmlNodeList lines) {
             foreach (XmlNode line in lines) {
                 Label label = new Label();
                 SetControlSizes(label, line);
@@ -327,11 +327,11 @@ namespace WixEdit {
                 label.Height = 2;
                 label.BorderStyle = BorderStyle.Fixed3D;
 
-                newDialog.Controls.Add(label);
+                newDialog.AddControl(line, label);
             }
         }
 
-        private void AddTexts(Form newDialog, XmlNodeList texts) {
+        private void AddTexts(DesignerForm newDialog, XmlNodeList texts) {
             foreach (XmlNode text in texts) {
                 Label label = new Label();
                 SetControlSizes(label, text);
@@ -341,31 +341,31 @@ namespace WixEdit {
 
                 label.BackColor = Color.Transparent;
 
-                newDialog.Controls.Add(label);
+                newDialog.AddControl(text, label);
             }
         }
 
-        private void AddRftTextBoxes(Form newDialog, XmlNodeList rtfTexts) {
+        private void AddRftTextBoxes(DesignerForm newDialog, XmlNodeList rtfTexts) {
             foreach (XmlNode text in rtfTexts) {
                 RichTextBox rtfCtrl = new RichTextBox();
                 SetControlSizes(rtfCtrl, text);
                 rtfCtrl.Rtf = GetTextFromXmlElement(text);
 
-                newDialog.Controls.Add(rtfCtrl);
+                newDialog.AddControl(text, rtfCtrl);
             }
         }
 
-        private void AddGroupBoxes(Form newDialog, XmlNodeList groupBoxes) {
+        private void AddGroupBoxes(DesignerForm newDialog, XmlNodeList groupBoxes) {
             foreach (XmlNode group in groupBoxes) {
                 GroupBox groupCtrl = new GroupBox();
                 SetControlSizes(groupCtrl, group);
                 SetText(groupCtrl, group);
 
-                newDialog.Controls.Add(groupCtrl);
+                newDialog.AddControl(group, groupCtrl);
             }
         }
 
-        private void AddIcons(Form newDialog, XmlNodeList icons) {
+        private void AddIcons(DesignerForm newDialog, XmlNodeList icons) {
             foreach (XmlNode icon in icons) {
                 PictureBox picCtrl = new PictureBox();
                 SetControlSizes(picCtrl, icon);
@@ -379,22 +379,22 @@ namespace WixEdit {
                 } catch {
                 }
 
-                newDialog.Controls.Add(picCtrl);
+                newDialog.AddControl(icon, picCtrl);
             }
         }
 
-        private void AddListBoxes(Form newDialog, XmlNodeList listBoxes) {
+        private void AddListBoxes(DesignerForm newDialog, XmlNodeList listBoxes) {
             foreach (XmlNode list in listBoxes) {
                 ListBox listCtrl = new ListBox();
                 SetControlSizes(listCtrl, list);
 
                 listCtrl.Items.Add(GetFromXmlElement(list, "Property"));
 
-                newDialog.Controls.Add(listCtrl);
+                newDialog.AddControl(list, listCtrl);
             }
         }
 
-        private void AddProgressBars(Form newDialog, XmlNodeList progressBars) {
+        private void AddProgressBars(DesignerForm newDialog, XmlNodeList progressBars) {
             foreach (XmlNode progressbar in progressBars) {
                 ProgressBar progressCtrl = new ProgressBar();
                 SetControlSizes(progressCtrl, progressbar);
@@ -402,16 +402,19 @@ namespace WixEdit {
                 progressCtrl.Maximum = 100;
                 progressCtrl.Value = 33;
 
-                newDialog.Controls.Add(progressCtrl);
+                newDialog.AddControl(progressbar, progressCtrl);
             }
         }
 
-        private void AddRadioButtonGroups(Form newDialog, XmlNodeList radioButtonGroups) {
+        private void AddRadioButtonGroups(DesignerForm newDialog, XmlNodeList radioButtonGroups) {
             foreach (XmlNode radioButtonGroup in radioButtonGroups) {
                 string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
                 string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
 
                 XmlNode radioGroup = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), _wixFiles.WxsNsmgr);
+                if (radioGroup == null) {
+                    radioGroup = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioButtonGroup[@Property='{0}']", radioGroupName), _wixFiles.WxsNsmgr);
+                }
 
                 Panel panel = new Panel();
                 SetControlSizes(panel, radioButtonGroup);
@@ -430,20 +433,20 @@ namespace WixEdit {
                     }
                 }
 
-                newDialog.Controls.Add(panel);
+                newDialog.AddControl(radioButtonGroup, panel);
             }
         }
 
-        private void AddDirectoryCombos(Form newDialog, XmlNodeList directoryCombos) {
+        private void AddDirectoryCombos(DesignerForm newDialog, XmlNodeList directoryCombos) {
             foreach (XmlNode directoryCombo in directoryCombos) {
                 ComboBox comboCtrl = new ComboBox();
                 SetControlSizes(comboCtrl, directoryCombo);
 
-                newDialog.Controls.Add(comboCtrl);
+                newDialog.AddControl(directoryCombo, comboCtrl);
             }
         }
         
-        private void AddBackgroundBitmaps(Form newDialog, XmlNodeList bitmaps) {
+        private void AddBackgroundBitmaps(DesignerForm newDialog, XmlNodeList bitmaps) {
             foreach (XmlNode bitmap in bitmaps) {
                 if (_bgImage == null) {
                     _bgImage = new Bitmap(newDialog.Width, newDialog.Height);

@@ -90,6 +90,5 @@ namespace WixEdit.PropertyGridExtensions {
                 attribute.Value = value.ToString();
             }
         }
-
     }
 }

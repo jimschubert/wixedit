@@ -21,8 +21,6 @@
    IN THE SOFTWARE.
 -->
 <project name="WixEdit" default="all">
-    <property name="project.version" value="0.2.5"/>
-
     <property name="project.build" value="${nant.project.basedir}\build"/>
     <property name="project.source" value="${nant.project.basedir}\src"/>
     <property name="project.resource" value="${nant.project.basedir}\res" />
@@ -40,10 +38,7 @@
 
     <property name="project.output" value="${project.build}\${nant.project.name}.exe"/>
 
-
-    <property name="project.wix" value="${nant.project.basedir}\wix-2.0.2912.0"/>
-
-
+    <property name="project.wix" value="${nant.project.basedir}\wix-2.0.3116.0"/>
 
     <target name="all" depends="clean,build" />
 
@@ -51,7 +46,6 @@
         <delete failonerror="false" dir="${project.build}"/>
         <delete failonerror="false" dir="${project.install}"/>
         <delete failonerror="false" dir="${project.release}"/>
-        <delete failonerror="false" file="${project.source}\AssemblyVersionInfo.cs"/>
     </target>
 
     <target name="build" depends="generate-version">
@@ -80,11 +74,22 @@
         </copy>
     </target>
 
+    <target name="rerelease" >
+        <property name="project.revision" value="true"/>
+
+		<call target="release" />
+    </target>
+
     <target name="release" depends="all">
-        <property name="project.version.last" value="1"/>
+        <if propertyexists="project.version">
+            <property name="project.version.string" value="-${project.version}" />
+        </if>
+        <ifnot propertyexists="project.version">
+            <property name="project.version.string" value="" />
+        </ifnot>
 
 		<mkdir dir="${project.release}" />
-        <zip zipfile="${project.release}\wixedit-${project.version}-bin.zip">
+        <zip zipfile="${project.release}\wixedit${project.version.string}-bin.zip">
             <fileset basedir="${nant.project.basedir}">
                 <includes name="build/**/*" />
                 <includes name="sample/UISample/*" />
@@ -94,7 +99,7 @@
                 <excludes name="**/*.pdb" />
             </fileset>
         </zip>
-        <zip zipfile="${project.release}\wixedit-${project.version}-src.zip">
+        <zip zipfile="${project.release}\wixedit${project.version.string}-src.zip">
             <fileset basedir="${nant.project.basedir}">
                 <includes name="src/**/*" />
                 <includes name="res/**/*" />
@@ -180,26 +185,71 @@
               ]]>
             </code>
           </script>
+
+
+          <if propertyexists="project.version">
+              <property name="installer.version" value="${project.version}" />
+          </if>
+          <ifnot propertyexists="project.version">
+              <property name="installer.version" value="0.0.0" />
+          </ifnot>
   
-          <exec program="${project.wix}/candle.exe" commandline="-nologo &quot;${project.installer}\WixEdit.wxs&quot; &quot;${project.install}\Sources.wxs&quot;" workingdir="${project.install}" />
-          <exec program="${project.wix}/light.exe" commandline="-nologo -out WixEdit-${project.version}.msi WixEdit.wixobj Sources.wixobj" workingdir="${project.install}" />
+          <exec program="${project.wix}/candle.exe" commandline="-nologo &quot;${project.installer}\WixEdit.wxs&quot; &quot;${project.install}\Sources.wxs&quot; -dVERSION=${installer.version}" workingdir="${project.install}" />
+          <exec program="${project.wix}/light.exe" commandline="-nologo -out WixEdit${project.version.string}.msi WixEdit.wixobj Sources.wixobj" workingdir="${project.install}" />
   
-          <copy todir="${project.release}" file="${project.install}\WixEdit-${project.version}.msi" />
+          <copy todir="${project.release}" file="${project.install}\WixEdit${project.version.string}.msi" />
         </if>
     </target>
 
+    <!--
+        Generate the version:
+        Increment build number and set the revision to 0.
+        In case of a rerelease, only increment revision.
+
+        To change the MajorVersion of MinorVersion edit the WixEdit.version.xml
+    -->
     <target name="generate-version">
-        <ifnot propertyexists="project.version.last">
-            <property name="project.version.last" value="*"/>
-        </ifnot>
-        <asminfo output="${project.source}/AssemblyVersionInfo.cs" language="CSharp">
-            <imports>
-                <import name="System.Reflection" />
-            </imports>
-            <attributes>
-                <attribute type="AssemblyVersionAttribute" value="${project.version}.${project.version.last}" />
-                <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
-            </attributes>
-        </asminfo>
+        <available type="File" resource="WixEdit.version.xml" property="project.version.present" />
+
+        <if propertytrue="project.version.present">
+            <xmlpeek file="WixEdit.version.xml" xpath="/WixEdit/MajorVersion" property="project.version.major" />
+            <xmlpeek file="WixEdit.version.xml" xpath="/WixEdit/MinorVersion" property="project.version.minor" />
+            <xmlpeek file="WixEdit.version.xml" xpath="/WixEdit/BuildNumber" property="project.version.build" />
+            <xmlpeek file="WixEdit.version.xml" xpath="/WixEdit/Revision" property="project.version.revision" />
+    
+            <script language="C#">
+              <code>
+                <![CDATA[
+                  public static void ScriptMain(Project project) {
+                      if (project.Properties["project.revision"] != null &&
+                          project.Properties["project.revision"] == "true") {
+                          int revisionNumber = int.Parse(project.Properties["project.version.revision"]) + 1;
+                          project.Properties["project.version.revision"] = revisionNumber.ToString();
+                      } else {
+                          int buildNumber = int.Parse(project.Properties["project.version.build"]) + 1;
+                          project.Properties["project.version.build"] = buildNumber.ToString();
+                          project.Properties["project.version.revision"] = "0";
+                      }
+                  }
+                ]]>
+              </code>
+            </script>
+    
+            <xmlpoke file="WixEdit.version.xml" xpath="/WixEdit/BuildNumber" value="${project.version.build}" />
+            <xmlpoke file="WixEdit.version.xml" xpath="/WixEdit/Revision" value="${project.version.revision}" />
+    
+            <property name="project.version" value="${project.version.major}.${project.version.minor}.${project.version.build}"/>
+    
+            <delete failonerror="false" file="${project.source}\AssemblyVersionInfo.cs"/>
+            <asminfo output="${project.source}/AssemblyVersionInfo.cs" language="CSharp">
+                <imports>
+                    <import name="System.Reflection" />
+                </imports>
+                <attributes>
+                    <attribute type="AssemblyVersionAttribute" value="${project.version}.${project.version.revision}" />
+                    <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
+                </attributes>
+            </asminfo>
+        </if>
     </target>
 </project>

@@ -33,54 +33,65 @@ namespace WixEdit.PropertyGridExtensions {
     public class XmlAttributeAdapter : PropertyAdapterBase {
         protected XmlNode xmlNode;
         protected XmlNode xmlNodeDefinition;
+        protected XmlNode xmlNodeElement;
         protected bool showInnerTextIfEmpty;
 
         public bool ShowInnerTextIfEmpty {
             get {
-                return this.showInnerTextIfEmpty;
+                return showInnerTextIfEmpty;
             }
             set {
-                this.showInnerTextIfEmpty = value;
+                showInnerTextIfEmpty = value;
             }
         }
 
         public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
             this.xmlNode = xmlNode;
+            xmlNodeElement = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", xmlNode.Name), wixFiles.XsdNsmgr);
 
-            this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType/xs:simpleContent/xs:extension", xmlNode.Name), wixFiles.XsdNsmgr);
 
-            if (this.xmlNodeDefinition == null) {
-                this.xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']/xs:complexType", xmlNode.Name), wixFiles.XsdNsmgr);
-                this.showInnerTextIfEmpty = false;
+            if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
+                xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                if (xmlNodeDefinition == null) {
+                    xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                    showInnerTextIfEmpty = false;
+                } else {
+                    showInnerTextIfEmpty = true;
+                }
             } else {
-                this.showInnerTextIfEmpty = true;
+                xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType/xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
+                if (xmlNodeDefinition == null) {
+                    xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType", wixFiles.XsdNsmgr);
+                    showInnerTextIfEmpty = false;
+                } else {
+                    showInnerTextIfEmpty = true;
+                }
             }
         }
 
         public XmlNode XmlNode {
             get { 
-                return this.xmlNode;
+                return xmlNode;
+            }
+        }
+
+        public XmlNode XmlNodeElement {
+            get { 
+                return xmlNodeElement;
             }
         }
 
         public XmlNode XmlNodeDefinition {
             get { 
-                return this.xmlNodeDefinition;
+                return xmlNodeDefinition;
             }
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
 
-/*
-// This shows all existing elements
-            foreach(XmlAttribute xmlAttribute in xmlNode.Attributes) {
-                // Select attribute definition.
-                string selectAttribute = String.Format("//xs:attribute[@name='{0}']", xmlAttribute.Name);
-                XmlNode xmlAttributeDefinition = this.xmlNodeDefinition.SelectSingleNode(selectAttribute, wixFiles.XsdNsmgr);
-/**/
-// This shows all existing + required elements
-            XmlNodeList xmlAttributeDefinitions = this.xmlNodeDefinition.SelectNodes("xs:attribute", wixFiles.XsdNsmgr);
+            // Show all existing + required elements
+            XmlNodeList xmlAttributeDefinitions = xmlNodeDefinition.SelectNodes("xs:attribute", wixFiles.XsdNsmgr);
             foreach(XmlNode xmlAttributeDefinition in xmlAttributeDefinitions) {
                 XmlAttribute xmlAttribute = xmlNode.Attributes[xmlAttributeDefinition.Attributes["name"].Value];
 
@@ -96,7 +107,6 @@ namespace WixEdit.PropertyGridExtensions {
                         xmlNode.Attributes.Append(xmlAttribute);
                     }                    
                 }
-/**/
 
                 ArrayList attrs = new ArrayList();
 
@@ -106,7 +116,20 @@ namespace WixEdit.PropertyGridExtensions {
 
                 XmlNode documentation = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
                 if(documentation != null) {
-                    attrs.Add(new DescriptionAttribute(documentation.InnerText));
+                    string docuString = documentation.InnerText;
+                    docuString = docuString.Replace("\t", " ");
+                    docuString = docuString.Replace("\r\n", " ");
+    
+                    string tmpDocuString = docuString;
+                    do {
+                        docuString = tmpDocuString;
+                        tmpDocuString = docuString.Replace("  ", " ");
+                    } while (docuString != tmpDocuString);
+
+                    docuString = tmpDocuString;
+                    docuString = docuString.Trim(' ');
+
+                    attrs.Add(new DescriptionAttribute(docuString));
                 }
 
                 // We could add an UITypeEditor if desired
@@ -125,10 +148,8 @@ namespace WixEdit.PropertyGridExtensions {
                 props.Add(pd);
             }
 
-            if (this.XmlNodeDefinition.Name == "xs:extension" &&
+            if (XmlNodeDefinition.Name == "xs:extension" &&
                 ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) {
-//                xmlNode.InnerText = "";
-
                 ArrayList attrs = new ArrayList();
 
                 // Add default attributes Category, TypeConverter and Description
@@ -155,6 +176,13 @@ namespace WixEdit.PropertyGridExtensions {
         private Type GetAttributeType(XmlNode xmlAttributeDefinition) {
             if (xmlAttributeDefinition.Attributes["type"] == null) {
                 return typeof(SimpleTypeConverter);
+            }
+
+            if (xmlAttributeDefinition.Attributes["name"] != null &&
+                xmlAttributeDefinition.Attributes["name"].Value == "Id") {
+                if (xmlNodeElement.Attributes["name"].Value.EndsWith("Ref")) {
+                    return typeof(ReferenceConverter);
+                }
             }
 
             switch (xmlAttributeDefinition.Attributes["type"].Value.ToLower()) {

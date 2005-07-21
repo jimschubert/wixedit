@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
   <Product Name="WixEdit"
            Id="DEADBEEF-0CDA-4c4b-A0C6-3A56017C9CE6"
-           Version="0.2.5.1"
+           Version="$(var.VERSION)"
            UpgradeCode="5D5D3F6C-20FE-487e-9836-542950FD7921" 
            Manufacturer="Jasper Keuper (jkeuper@gmail.com)"
            Language="1033">
@@ -63,41 +63,41 @@
               </Component>
             </Directory>
           </Directory>
-          <Directory Id="WixBinaries" Name="WIX-2~1" LongName="wix-2.0.2912.0">
+          <Directory Id="WixBinaries" Name="WIX-2~1" LongName="wix-2.0.3116.0">
             <Component Id="WixBinaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0007">
-              <File Id="candle.exe" Name="candle.exe" src="..\wix-2.0.2912.0\candle.exe" />
-              <File Id="CPL.TXT" Name="CPL.TXT" src="..\wix-2.0.2912.0\CPL.TXT" />
-              <File Id="dark.exe" Name="dark.exe" src="..\wix-2.0.2912.0\dark.exe" />
-              <File Id="light.exe" Name="light.exe" src="..\wix-2.0.2912.0\light.exe" />
-              <File Id="lit.exe" Name="lit.exe" src="..\wix-2.0.2912.0\lit.exe" />
-              <File Id="pcaext.dll" Name="pcaext.dll" src="..\wix-2.0.2912.0\pcaext.dll" />
-              <File Id="tallow.exe" Name="tallow.exe" src="..\wix-2.0.2912.0\tallow.exe" />
-              <File Id="winterop.dll" Name="winterop.dll" src="..\wix-2.0.2912.0\winterop.dll" />
-              <File Id="wix.dll" Name="wix.dll" src="..\wix-2.0.2912.0\wix.dll" />
+              <File Id="candle.exe" Name="candle.exe" src="..\wix-2.0.3116.0\candle.exe" />
+              <File Id="CPL.TXT" Name="CPL.TXT" src="..\wix-2.0.3116.0\CPL.TXT" />
+              <File Id="dark.exe" Name="dark.exe" src="..\wix-2.0.3116.0\dark.exe" />
+              <File Id="light.exe" Name="light.exe" src="..\wix-2.0.3116.0\light.exe" />
+              <File Id="lit.exe" Name="lit.exe" src="..\wix-2.0.3116.0\lit.exe" />
+              <File Id="pcaext.dll" Name="pcaext.dll" src="..\wix-2.0.3116.0\pcaext.dll" />
+              <File Id="tallow.exe" Name="tallow.exe" src="..\wix-2.0.3116.0\tallow.exe" />
+              <File Id="winterop.dll" Name="winterop.dll" src="..\wix-2.0.3116.0\winterop.dll" />
+              <File Id="wix.dll" Name="wix.dll" src="..\wix-2.0.3116.0\wix.dll" />
             </Component>
             <Directory Id="WixBinaries.ca" Name="ca">
               <Component Id="WixBinaries.ca" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0008">
-                <File Id="pcaexec.dll" Name="pcaexec.dll" src="..\wix-2.0.2912.0\ca\pcaexec.dll" />
-                <File Id="pcasched.dll" Name="pcasched.dll" src="..\wix-2.0.2912.0\ca\pcasched.dll" />
-                <File Id="PUBCA_1.WIX" Name="PUBCA_1.WIX" LongName="pubca.wixlib" src="..\wix-2.0.2912.0\ca\pubca.wixlib" />
-                <File Id="SCA_1.WIX" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-2.0.2912.0\ca\sca.wixlib" />
-                <File Id="scaexec.dll" Name="scaexec.dll" src="..\wix-2.0.2912.0\ca\scaexec.dll" />
-                <File Id="scasched.dll" Name="scasched.dll" src="..\wix-2.0.2912.0\ca\scasched.dll" />
-                <File Id="wixca.dll" Name="wixca.dll" src="..\wix-2.0.2912.0\ca\wixca.dll" />
-                <File Id="WIXCA_1.WIX" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-2.0.2912.0\ca\wixca.wixlib" />
+                <File Id="pcaexec.dll" Name="pcaexec.dll" src="..\wix-2.0.3116.0\ca\pcaexec.dll" />
+                <File Id="pcasched.dll" Name="pcasched.dll" src="..\wix-2.0.3116.0\ca\pcasched.dll" />
+                <File Id="PUBCA_1.WIX" Name="PUBCA_1.WIX" LongName="pubca.wixlib" src="..\wix-2.0.3116.0\ca\pubca.wixlib" />
+                <File Id="SCA_1.WIX" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-2.0.3116.0\ca\sca.wixlib" />
+                <File Id="scaexec.dll" Name="scaexec.dll" src="..\wix-2.0.3116.0\ca\scaexec.dll" />
+                <File Id="scasched.dll" Name="scasched.dll" src="..\wix-2.0.3116.0\ca\scasched.dll" />
+                <File Id="wixca.dll" Name="wixca.dll" src="..\wix-2.0.3116.0\ca\wixca.dll" />
+                <File Id="WIXCA_1.WIX" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-2.0.3116.0\ca\wixca.wixlib" />
               </Component>
             </Directory>
             <Directory Id="WixBinaries.doc" Name="doc">
               <Component Id="WixBinaries.doc" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0009">
-                <File Id="WiX.chm" Name="WiX.chm" src="..\wix-2.0.2912.0\doc\WiX.chm" />
-                <File Id="wix.xsd" Name="wix.xsd" src="..\wix-2.0.2912.0\doc\wix.xsd" />
-                <File Id="wixloc.xsd" Name="wixloc.xsd" src="..\wix-2.0.2912.0\doc\wixloc.xsd" />
+                <File Id="WiX.chm" Name="WiX.chm" src="..\wix-2.0.3116.0\doc\WiX.chm" />
+                <File Id="wix.xsd" Name="wix.xsd" src="..\wix-2.0.3116.0\doc\wix.xsd" />
+                <File Id="wixloc.xsd" Name="wixloc.xsd" src="..\wix-2.0.3116.0\doc\wixloc.xsd" />
               </Component>
             </Directory>
             <Directory Id="WixBinaries.lib" Name="lib">
               <Component Id="WixBinaries.lib" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0010">
-                <File Id="dutil.lib" Name="dutil.lib" src="..\wix-2.0.2912.0\lib\dutil.lib" />
-                <File Id="wcautil.lib" Name="wcautil.lib" src="..\wix-2.0.2912.0\lib\wcautil.lib" />
+                <File Id="dutil.lib" Name="dutil.lib" src="..\wix-2.0.3116.0\lib\dutil.lib" />
+                <File Id="wcautil.lib" Name="wcautil.lib" src="..\wix-2.0.3116.0\lib\wcautil.lib" />
               </Component>
             </Directory>
           </Directory>
@@ -108,17 +108,17 @@
               </Component>
               <Directory Id="Templates.Binary" Name="Binary">
                 <Component Id="Templates.UISample.Binary" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0012">
-                  <File Id="Templates.bannrbmp.bmp" Name="BANNRBMP.IBD" LongName="bannrbmp.ibd" src="..\templates\UISample\Binary\bannrbmp.bmp" />
-                  <File Id="Templates.completi.ico" Name="COMPLETI.IBD" LongName="completi.ibd" src="..\templates\UISample\Binary\completi.ico" />
-                  <File Id="Templates.custicon.ico" Name="CUSTICON.IBD" LongName="custicon.ibd" src="..\templates\UISample\Binary\custicon.ico" />
-                  <File Id="Templates.dlgbmp.bmp" Name="DLGBMP.IBD" LongName="dlgbmp.ibd" src="..\templates\UISample\Binary\dlgbmp.bmp" />
-                  <File Id="Templates.exclamic.ico" Name="EXCLAMIC.IBD" LongName="exclamic.ibd" src="..\templates\UISample\Binary\exclamic.ico" />
-                  <File Id="Templates.info.ico" Name="INFO.IBD" LongName="info.ibd" src="..\templates\UISample\Binary\info.ico" />
-                  <File Id="Templates.insticon.ico" Name="INSTICON.IBD" LongName="insticon.ibd" src="..\templates\UISample\Binary\insticon.ico" />
-                  <File Id="Templates.New.ico" Name="NEW.IBD" LongName="New.ibd" src="..\templates\UISample\Binary\New.ico" />
-                  <File Id="Templates.removico.ico" Name="REMOVICO.IBD" LongName="removico.ibd" src="..\templates\UISample\Binary\removico.ico" />
-                  <File Id="Templates.repairic.ico" Name="REPAIRIC.IBD" LongName="repairic.ibd" src="..\templates\UISample\Binary\repairic.ico" />
-                  <File Id="Templates.Up.ico" Name="UP.IBD" LongName="Up.ibd" src="..\templates\UISample\Binary\Up.ico" />
+                  <File Id="Templates.bannrbmp.bmp" Name="BANNRBMP.BMP" LongName="bannrbmp.bmp" src="..\templates\UISample\Binary\bannrbmp.bmp" />
+                  <File Id="Templates.completi.ico" Name="COMPLETI.ICO" LongName="completi.ico" src="..\templates\UISample\Binary\completi.ico" />
+                  <File Id="Templates.custicon.ico" Name="CUSTICON.ICO" LongName="custicon.ico" src="..\templates\UISample\Binary\custicon.ico" />
+                  <File Id="Templates.dlgbmp.bmp" Name="DLGBMP.BMP" LongName="dlgbmp.bmp" src="..\templates\UISample\Binary\dlgbmp.bmp" />
+                  <File Id="Templates.exclamic.ico" Name="EXCLAMIC.ICO" LongName="exclamic.ico" src="..\templates\UISample\Binary\exclamic.ico" />
+                  <File Id="Templates.info.ico" Name="INFO.ICO" LongName="info.ico" src="..\templates\UISample\Binary\info.ico" />
+                  <File Id="Templates.insticon.ico" Name="INSTICON.ICO" LongName="insticon.ico" src="..\templates\UISample\Binary\insticon.ico" />
+                  <File Id="Templates.New.ico" Name="NEW.ICO" LongName="New.ico" src="..\templates\UISample\Binary\New.ico" />
+                  <File Id="Templates.removico.ico" Name="REMOVICO.ICO" LongName="removico.ico" src="..\templates\UISample\Binary\removico.ico" />
+                  <File Id="Templates.repairic.ico" Name="REPAIRIC.ICO" LongName="repairic.ico" src="..\templates\UISample\Binary\repairic.ico" />
+                  <File Id="Templates.Up.ico" Name="UP.ICO" LongName="Up.ico" src="..\templates\UISample\Binary\Up.ico" />
                 </Component>
               </Directory>
             </Directory>
@@ -155,6 +155,7 @@
       <ComponentRef Id="component10" />
       <ComponentRef Id="component11" />
       <ComponentRef Id="component12" />
+      <ComponentRef Id="component13" />
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Samples" Level="1" Display="expand"
@@ -180,7 +181,7 @@
       <ComponentRef Id="Sample.SimpleSample" />
     </Feature>
 
-    <Feature Id="WixBinariesFeature" Level="1" Title="Wix 2.0.2912.0" ConfigurableDirectory="TARGETDIR"
+    <Feature Id="WixBinariesFeature" Level="1" Title="Wix 2.0.3116.0" ConfigurableDirectory="TARGETDIR"
              Description="The Wix binaries.">
       <ComponentRef Id="WixBinaries" />
       <ComponentRef Id="WixBinaries.ca" />
@@ -190,7 +191,7 @@
 
     <!-- Upgrading is a pain, skipping it. -->
     <!-- Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
-      <UpgradeVersion Minimum="0.2.5.1" Property="VERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
+      <UpgradeVersion Minimum="$(var.VERSION)" Property="VERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
     </Upgrade -->
 
     <Media Id="1" EmbedCab="yes" Cabinet="Files.cab" />

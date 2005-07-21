@@ -21,19 +21,43 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Xml;
 
 namespace WixEdit {
     /// <summary>
-    /// Panel for adding and removing files and other installable items.
+    /// Panel to edit global data.
     /// </summary>
-    public class EditFilesPanel : DetailsBasePanel {
-        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
+    public class EditGlobalDataPanel : DetailsBasePanel {
+        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles) {
+        }
+
+        private StringCollection skipElements;
+        protected override StringCollection SkipElements {
+            get {
+                if (skipElements == null) {
+                    skipElements = new StringCollection();
+                    skipElements = new StringCollection();
+                    skipElements.Add("Property");
+                    skipElements.Add("UI");
+                    skipElements.Add("Binary");
+                    skipElements.Add("Feature");
+                    skipElements.Add("Directory");
+                    skipElements.Add("InstallExecuteSequence");
+                    skipElements.Add("InstallUISequence");
+                    skipElements.Add("AdminExecuteSequence");
+                    skipElements.Add("AdminUISequence");
+                    skipElements.Add("AdvertiseExecuteSequence");
+                    skipElements.Add("CustomAction");
+                }
+
+                return skipElements;
+            }
         }
 
         protected override ArrayList GetXmlNodes() {
             ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:Directory", wixFiles.WxsNsmgr);
+            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*", wixFiles.WxsNsmgr);
             foreach (XmlNode xmlNode in xmlNodes) {
                 nodes.Add(xmlNode);
             }
