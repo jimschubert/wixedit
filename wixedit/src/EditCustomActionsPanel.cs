@@ -47,7 +47,7 @@ namespace WixEdit {
         protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
             globalTreeViewContextMenu.MenuItems.Clear();
 
-            IconMenuItem subMenuItem = new IconMenuItem("New CustomAction", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
+            IconMenuItem subMenuItem = new IconMenuItem("New CustomAction", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             subMenuItem.Click += new EventHandler(NewCustomElement_Click);
 
             globalTreeViewContextMenu.MenuItems.Add(subMenuItem);

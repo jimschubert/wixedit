@@ -84,7 +84,7 @@ namespace WixEdit {
             outputLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold, GraphicsUnit.Point, ((System.Byte)(0)));;
             outputLabel.BorderStyle = BorderStyle.FixedSingle;
 
-            Bitmap bmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.close_8x8.bmp"));
+            Bitmap bmp = new Bitmap(WixFiles.GetResourceStream("close_8x8.bmp"));
             bmp.MakeTransparent();
             closeButton.Image = bmp;
             closeButton.FlatStyle = FlatStyle.Flat;
@@ -272,7 +272,7 @@ namespace WixEdit {
 
         protected void LaunchFile(string filename, int anchorNumber, int lineNumber, string message) {
             XslTransform transform = new XslTransform();
-            using (Stream strm = WixFiles.GetResourceStream("WixEdit.viewWixXml.xsl")) {
+            using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
                  XmlTextReader xr = new XmlTextReader(strm);
                 transform.Load(xr, null, null);
             }

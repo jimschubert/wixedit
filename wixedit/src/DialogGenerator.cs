@@ -105,7 +105,7 @@ namespace WixEdit {
             // newDialog.TopMost = true;
             // newDialog.Opacity = 0.75;
 
-            newDialog.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.msi.ico"));
+            newDialog.Icon = new Icon(WixFiles.GetResourceStream("dialog.msi.ico"));
             
             newDialog.StartPosition = FormStartPosition.Manual;
 

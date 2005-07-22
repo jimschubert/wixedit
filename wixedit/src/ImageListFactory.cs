@@ -62,13 +62,13 @@ namespace WixEdit {
         private static ImageList CreateImageList(StringCollection types) {
             ImageList images = new ImageList(); 
 
-            Bitmap unknownBmp = new Bitmap(WixFiles.GetResourceStream("WixEdit.empty.bmp"));
+            Bitmap unknownBmp = new Bitmap(WixFiles.GetResourceStream("elements.empty.bmp"));
             unknownBmp.MakeTransparent();
 
             Bitmap typeBmp;
             foreach (string type in types) {
                 try {
-                    typeBmp = new Bitmap(WixFiles.GetResourceStream(String.Format("WixEdit.{0}.bmp", type.ToLower())));
+                    typeBmp = new Bitmap(WixFiles.GetResourceStream(String.Format("elements.{0}.bmp", type.ToLower())));
                     typeBmp.MakeTransparent();
                 } catch {
                     typeBmp = unknownBmp;
