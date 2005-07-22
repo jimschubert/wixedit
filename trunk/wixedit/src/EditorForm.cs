@@ -82,19 +82,19 @@ namespace WixEdit {
 
         private void InitializeComponent() {
             Text = "WiX Edit";
-            Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
             ClientSize = new System.Drawing.Size(630, 480);
 
             openWxsFileDialog = new OpenFileDialog();
 
             mainMenu = new MainMenu();
             fileMenu = new IconMenuItem();
-            fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.open.bmp")));
-            fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.save.bmp")));
+            fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.open.bmp")));
+            fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.save.bmp")));
             fileClose = new IconMenuItem();
             fileSeparator = new IconMenuItem("-");
-            fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.exit.bmp")));
+            fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.exit.bmp")));
 
             fileNew.Text = "New";
             fileNew.Click += new System.EventHandler(fileNew_Click);
@@ -138,10 +138,10 @@ namespace WixEdit {
 
 
             toolsMenu = new IconMenuItem();
-            toolsProductProperties = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.prop.bmp")));
-            toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.options.bmp")));
-            toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.compile.bmp")));
-            toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("WixEdit.decompile.bmp")));
+            toolsProductProperties = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.prop.bmp")));
+            toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
+            toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
+            toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.decompile.bmp")));
 
             toolsWixCompile.Text = "Wix Compile";
             toolsWixCompile.Click += new System.EventHandler(toolsWixCompile_Click);
@@ -172,7 +172,7 @@ namespace WixEdit {
 
 
             helpMenu = new IconMenuItem();
-            helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"), 16, 16));
+            helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.main.ico"), 16, 16));
 
             helpAbout.Text = "About";
             helpAbout.Click += new System.EventHandler(helpAbout_Click);
@@ -402,7 +402,7 @@ namespace WixEdit {
             editGlobalDataPanel = new EditGlobalDataPanel(wixFiles);
             editGlobalDataPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.global.bmp")));
+            tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.global.bmp")));
 
             panels[0] = editGlobalDataPanel;
 
@@ -411,7 +411,7 @@ namespace WixEdit {
             editInstallDataPanel = new EditInstallDataPanel(wixFiles);
             editInstallDataPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Files", editInstallDataPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.files.bmp")));
+            tabButtonControl.AddTab("Files", editInstallDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.files.bmp")));
 
             panels[1] = editInstallDataPanel;
 
@@ -420,7 +420,7 @@ namespace WixEdit {
             editPropertiesPanel = new EditPropertiesPanel(wixFiles);
             editPropertiesPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.properties.bmp")));
+            tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.properties.bmp")));
 
             panels[2] = editPropertiesPanel;
 
@@ -429,7 +429,7 @@ namespace WixEdit {
             editUIPanel = new EditUIPanel(wixFiles);
             editUIPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Dialogs", editUIPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.dialogs.bmp")));
+            tabButtonControl.AddTab("Dialogs", editUIPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.dialogs.bmp")));
 
             panels[3] = editUIPanel;
 
@@ -442,7 +442,7 @@ namespace WixEdit {
             editResourcesPanel = new EditResourcesPanel(wixFiles);
             editResourcesPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.resources.bmp")));
+            tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.resources.bmp")));
 
             panels[4] = editResourcesPanel;
 
@@ -451,7 +451,7 @@ namespace WixEdit {
             editActionsPanel = new EditActionsPanel(wixFiles);
             editActionsPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Actions", editActionsPanel, new Bitmap(WixFiles.GetResourceStream("WixEdit.tabbutton.actions.bmp")));
+            tabButtonControl.AddTab("Actions", editActionsPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.actions.bmp")));
 
             panels[5] = editActionsPanel;
 

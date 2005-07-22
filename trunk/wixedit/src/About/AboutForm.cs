@@ -70,7 +70,7 @@ namespace WixEdit.About {
             this.Width = 320;
             this.Height = 160;
 
-            splashScreen = Image.FromStream(WixFiles.GetResourceStream("WixEdit.About.png"));
+            splashScreen = Image.FromStream(WixFiles.GetResourceStream("About.png"));
 
             int labelHeight = 16;
 

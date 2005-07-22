@@ -58,7 +58,7 @@
                 <includes name="**/*.cs" />
             </sources>
         
-            <resources prefix="${nant.project.name}" basedir="${project.resource}">
+            <resources prefix="${nant.project.name}.res" basedir="${project.resource}" dynamicprefix="true">
                 <includes name="**/*.*" />
             </resources>
         

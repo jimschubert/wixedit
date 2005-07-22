@@ -42,7 +42,7 @@ namespace WixEdit {
         }
 
         private void InitializeComponent() {
-            this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.source.ico"));
+            this.Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
             this.ClientSize = new System.Drawing.Size(800, 600);
 
             webBrowser = new AxWebBrowser();

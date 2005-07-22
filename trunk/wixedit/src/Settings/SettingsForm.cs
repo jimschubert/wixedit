@@ -53,22 +53,12 @@ namespace WixEdit.Settings {
 
         private void InitializeComponent() {
             this.Text = "WiX Edit Settings";
-            this.Icon = new Icon(WixFiles.GetResourceStream("WixEdit.main.ico"));
+            this.Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
             this.ClientSize = new System.Drawing.Size(360, 256); 
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.MinimizeBox = false;
             this.MaximizeBox = false;
-/*
-Fixed3D 
-FixedDialog 
-FixedSingle 
-FixedToolWindow 
-None 
-Sizable 
-SizableToolWindow 
-*/
-
             this.ShowInTaskbar = false;
 
             this.propertyGrid = new CustomPropertyGrid();

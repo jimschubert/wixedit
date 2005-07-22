@@ -73,8 +73,8 @@ namespace WixEdit {
         }
 
         public void DrawSelection(Control ctrl, Graphics formGraphics) {
-            Brush horBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("WixEdit.hcontrolborder.bmp")));
-            Brush verBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("WixEdit.vcontrolborder.bmp")));
+            Brush horBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("hcontrolborder.bmp")));
+            Brush verBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("vcontrolborder.bmp")));
 
             Rectangle topBorder = new Rectangle(ctrl.Left, ctrl.Top - 7, ctrl.Width, 7);
             Rectangle bottomBorder = new Rectangle(ctrl.Left, ctrl.Bottom, ctrl.Width, 7);

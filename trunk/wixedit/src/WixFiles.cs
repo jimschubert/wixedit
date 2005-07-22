@@ -56,16 +56,16 @@ namespace WixEdit {
             if (WixEditSettings.Instance.BinDirectory != null &&
                 Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
                 ( File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd")) ||
-                  File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
+                File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
                 if (File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"))) {
                     _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
                 } else {
                     _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
                 }
             } else {
-                _xsdDocument.Load(WixFiles.GetResourceStream("WixEdit.wix.xsd"));
+                _xsdDocument.Load(WixFiles.GetResourceStream("wix.xsd"));
             }
-            
+        
             _xsdNsmgr = new XmlNamespaceManager(_xsdDocument.NameTable);
             _xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
         }
@@ -103,14 +103,15 @@ namespace WixEdit {
         }
 
         public static Stream GetResourceStream(string resourceName) {
+            string resourceNamespace = "WixEdit.res.";
             Assembly assembly = Assembly.GetExecutingAssembly();
-            if (assembly.GetManifestResourceInfo(resourceName) == null) {
-                throw new Exception("Could not find resource: " + resourceName);
+            if (assembly.GetManifestResourceInfo(resourceNamespace + resourceName) == null) {
+                throw new Exception("Could not find resource: " + resourceNamespace + resourceName);
             }
 
-            Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
+            Stream resourceStream = assembly.GetManifestResourceStream(resourceNamespace + resourceName);
             if (resourceStream == null) {
-                throw new Exception("Could not load resource: " +  resourceName);
+                throw new Exception("Could not load resource: " + resourceNamespace + resourceName);
             }
 
             return resourceStream;

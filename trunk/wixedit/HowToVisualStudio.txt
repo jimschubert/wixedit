@@ -1,0 +1,31 @@
+How to create a Visual Studio 2003 project for WixEdit (as of jull 22nd):
+
+Create a New Project
+ - Empty project
+ - Name: WixEdit
+ - at a temporary location
+
+Copy all created files from the temporary location to the wixedit directory
+
+Open solution in Visual Studio.
+
+Change Project properties
+ - Output type: Windows Application
+
+Solution Explorer:
+ - Show all files
+ - Select src directory -> Right click: Include in project
+ - Select res directory -> Right click: Include in project
+ - Change build action of all files in the res directory to Embedded Resource
+
+Add References:
+ - Browse to lib\AxSHDocVw.dll
+ - Browse to lib\SHDocVw.dll
+ - System
+ - System.Data
+ - System.Design
+ - System.Drawing
+ - System.Windows.Forms
+ - System.Xml
+
+You are now ready to build the project.

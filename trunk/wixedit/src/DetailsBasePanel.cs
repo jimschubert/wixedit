@@ -81,11 +81,11 @@ namespace WixEdit {
             treeViewContextMenu.Popup += new EventHandler(PopupTreeViewContextMenu);
             treeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
 
-            newSubElementsMenu = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
+            newSubElementsMenu = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             deleteCurrentElementMenu.Click += new System.EventHandler(DeleteElement_Click);
 
-            infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("WixEdit.info.bmp")));
+            infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
             infoAboutCurrentElementMenu.Click += new System.EventHandler(InfoAboutCurrentElement_Click);
 
             GetXmlNodes();
@@ -180,8 +180,8 @@ namespace WixEdit {
             MenuItem menuItemSeparator = new IconMenuItem("-");
 
             // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("WixEdit.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("WixEdit.delete.bmp")));
+            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             MenuItem menuItem3 = new IconMenuItem("Description");
             
             menuItem3.Checked = propertyGrid.HelpVisible;
@@ -438,7 +438,7 @@ namespace WixEdit {
                             continue;
                         }
 
-                        IconMenuItem subMenuItem = new IconMenuItem(refAtt.Value, new Bitmap(WixFiles.GetResourceStream("WixEdit.empty.bmp")));
+                        IconMenuItem subMenuItem = new IconMenuItem(refAtt.Value, new Bitmap(WixFiles.GetResourceStream("elements.empty.bmp")));
                         subMenuItem.Click += new EventHandler(NewElement_Click);
 
                         newSubElementsMenu.MenuItems.Add(subMenuItem);
