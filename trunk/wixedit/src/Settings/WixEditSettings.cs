@@ -37,7 +37,6 @@ namespace WixEdit.Settings {
     public class WixEditSettings : PropertyAdapterBase {
         [XmlRoot("WixEdit")]
         public class WixEditData {
-            public WixEditData() {}
             public string BinDirectory;
             public string TemplateDirectory;
         }
@@ -114,13 +113,13 @@ namespace WixEdit.Settings {
 
         [
         Category("WixEdit Settings"), 
-        Description("The directory where the WiX binaries are located."), 
+        Description("The directory where the WiX binaries are located. The wix.xsd is also being located by this path."), 
         Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
         public string BinDirectory {
             get {
                 if (data.BinDirectory != null && data.BinDirectory.Length > 0) {
-                    return BinDirectory;
+                    return data.BinDirectory;
                 }
 
                 // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
@@ -151,7 +150,7 @@ namespace WixEdit.Settings {
         public string TemplateDirectory {
             get {
                 if (data.TemplateDirectory != null && data.TemplateDirectory.Length > 0) {
-                    return TemplateDirectory;
+                    return data.TemplateDirectory;
                 }
 
                 // With the installation of WixEdit the WixEdit Templates are installed in "..\templates", 

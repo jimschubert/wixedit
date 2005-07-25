@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
-    public class SimpleTypeConverter: StringConverter {
+    public class SimpleTypeConverter : StringConverter {
         XmlNodeList enumeration; 
         
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) {

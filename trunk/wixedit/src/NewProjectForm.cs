@@ -309,7 +309,7 @@ namespace WixEdit {
             dialog.Description = "Select the directory where you want to create your new Wix project.";
 
             // Allow the user to create new files via the FolderBrowserDialog.
-            dialog.ShowNewFolderButton = false;
+            dialog.ShowNewFolderButton = true;
 
             // Default to the My Documents folder.
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;

@@ -162,10 +162,12 @@ namespace WixEdit {
             if (tabButtons.SelectedIndex == -1) {
                 contentPanel.Controls.Clear();
             } else if (contentPanel.Controls.Count == 0) {
-                contentPanel.Controls.Add(tabPanels[tabButtons.SelectedIndex] as Panel);
+                Panel newPanel = tabPanels[tabButtons.SelectedIndex] as Panel;
+                contentPanel.Controls.Add(newPanel);
             } else if (tabPanels[tabButtons.SelectedIndex] != contentPanel.Controls[0]) {
+                Panel newPanel = tabPanels[tabButtons.SelectedIndex] as Panel;
                 contentPanel.Controls.Clear();
-                contentPanel.Controls.Add(tabPanels[tabButtons.SelectedIndex] as Panel);
+                contentPanel.Controls.Add(newPanel);
             }
 
             selectedIndex = tabButtons.SelectedIndex;

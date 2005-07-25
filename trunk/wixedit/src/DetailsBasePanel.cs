@@ -88,18 +88,6 @@ namespace WixEdit {
             infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
             infoAboutCurrentElementMenu.Click += new System.EventHandler(InfoAboutCurrentElement_Click);
 
-            GetXmlNodes();
-            IList files = GetXmlNodes();
-            foreach (XmlNode file in files) {
-                AddTreeNodesRecursive(file, treeView.Nodes);
-            }
-
-
-            treeView.ExpandAll();
-            if (treeView.Nodes.Count > 0) {
-                treeView.SelectedNode = treeView.Nodes[0];
-            }
-
             // 
             // splitter1
             // 
@@ -146,9 +134,25 @@ namespace WixEdit {
             Controls.Add(splitter1);
             Controls.Add(treeView);
 
-
+            LoadData();
         }
         #endregion
+
+        protected void LoadData() {
+            treeView.Nodes.Clear();
+
+            GetXmlNodes();
+            IList files = GetXmlNodes();
+            foreach (XmlNode file in files) {
+                AddTreeNodesRecursive(file, treeView.Nodes);
+            }
+
+
+            treeView.ExpandAll();
+            if (treeView.Nodes.Count > 0) {
+                treeView.SelectedNode = treeView.Nodes[0];
+            }
+        }
 
         protected virtual StringCollection SkipElements {
             get {
@@ -516,6 +520,10 @@ namespace WixEdit {
             treeView.SelectedNode = control;
 
             ShowProperties(newElement);       
+        }
+
+        public void Reload() {
+            LoadData();
         }
     }
 }
