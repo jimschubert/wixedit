@@ -58,7 +58,6 @@ namespace WixEdit {
         protected MenuItem fileExit;
         protected MenuItem toolsMenu;
         protected MenuItem toolsOptions;
-        protected MenuItem toolsProductProperties;
         protected MenuItem toolsWixCompile;
         protected MenuItem toolsWixDecompile;
         protected MenuItem helpMenu;
@@ -138,7 +137,6 @@ namespace WixEdit {
 
 
             toolsMenu = new IconMenuItem();
-            toolsProductProperties = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.prop.bmp")));
             toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
             toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
             toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.decompile.bmp")));
@@ -152,10 +150,6 @@ namespace WixEdit {
             toolsWixDecompile.Click += new System.EventHandler(toolsWixDecompile_Click);
             toolsWixDecompile.Enabled = false;
 
-            toolsProductProperties.Text = "Project Properties";
-            toolsProductProperties.Click += new System.EventHandler(toolsProductProperties_Click);
-            toolsProductProperties.Enabled = false;
-
 
             toolsOptions.Text = "&Options";
             toolsOptions.Click += new System.EventHandler(toolsOptions_Click);
@@ -164,9 +158,8 @@ namespace WixEdit {
             toolsMenu.MenuItems.Add(0, toolsWixCompile);
             toolsMenu.MenuItems.Add(1, toolsWixDecompile);
             toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(3, toolsProductProperties);
-            toolsMenu.MenuItems.Add(4, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(5, toolsOptions);
+            toolsMenu.MenuItems.Add(3, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(4, toolsOptions);
             
             mainMenu.MenuItems.Add(1, toolsMenu);
 
@@ -230,7 +223,7 @@ namespace WixEdit {
                 CloseWxsFile();
                 LoadWxsFile(frm.NewFileName);
 
-                toolsProductProperties_Click(null, null);
+                ShowProductProperties();               
             }
         }
 
@@ -357,10 +350,12 @@ namespace WixEdit {
             outputPanel.Visible = false;
         }
 
-        private void toolsProductProperties_Click(object sender, System.EventArgs e) {
+        protected void ShowProductProperties() {
             XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Product", wixFiles.WxsNsmgr);
             ProductPropertiesForm frm = new ProductPropertiesForm(product, wixFiles);
             frm.ShowDialog();
+
+            editGlobalDataPanel.Reload();
         }
 
         private void toolsOptions_Click(object sender, System.EventArgs e) {
@@ -415,6 +410,9 @@ namespace WixEdit {
 
             panels[1] = editInstallDataPanel;
 
+            if (editInstallDataPanel.Menu != null) {
+                mainMenu.MenuItems.Add(1, editInstallDataPanel.Menu);
+            }
 
             // Add properties tab
             editPropertiesPanel = new EditPropertiesPanel(wixFiles);
@@ -433,10 +431,6 @@ namespace WixEdit {
 
             panels[3] = editUIPanel;
 
-
-            if (editUIPanel.Menu != null) {
-                mainMenu.MenuItems.Add(1, editUIPanel.Menu);
-            }
 
             // Add Resources tab
             editResourcesPanel = new EditResourcesPanel(wixFiles);
@@ -466,7 +460,6 @@ namespace WixEdit {
 
             toolsWixCompile.Enabled = true;
             toolsWixDecompile.Enabled = true;
-            toolsProductProperties.Enabled = true;
         }
 
         private void ToggleDirty(bool dirty) {
@@ -479,7 +472,6 @@ namespace WixEdit {
         private void CloseWxsFile() {
             toolsWixCompile.Enabled = false;
             toolsWixDecompile.Enabled = false;
-            toolsProductProperties.Enabled = false;
             
             tabButtonControl.Visible = false;
             tabButtonControl.ClearTabs();
@@ -487,10 +479,11 @@ namespace WixEdit {
             panels = new BasePanel[panelCount];
 
             if (editUIPanel != null) {
+/*
                 if (mainMenu != null) {
                     mainMenu.MenuItems.Remove(editUIPanel.Menu);
                 }
-
+*/
                 editUIPanel.Dispose();
                 editUIPanel = null;
             }

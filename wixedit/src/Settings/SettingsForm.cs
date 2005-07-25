@@ -74,7 +74,7 @@ namespace WixEdit.Settings {
             this.propertyGrid.TabIndex = 1;
             this.propertyGrid.PropertySort = PropertySort.CategorizedAlphabetical;
             this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.HelpVisible = false;
+            this.propertyGrid.HelpVisible = true;
             this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
 
             // 

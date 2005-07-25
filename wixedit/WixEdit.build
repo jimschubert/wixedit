@@ -95,6 +95,7 @@
                 <includes name="sample/UISample/*" />
                 <includes name="sample/DarkSample/*" />
                 <includes name="sample/SimpleSample/*" />
+                <includes name="templates/UISample/**/*" />
                 <excludes name="**/CVS/" />
                 <excludes name="**/*.pdb" />
             </fileset>
@@ -108,6 +109,7 @@
                 <includes name="sample/UISample/*" />
                 <includes name="sample/DarkSample/*" />
                 <includes name="sample/SimpleSample/*" />
+                <includes name="templates/UISample/**/*" />
                 <includes name="*.build" />
                 <excludes name="**/CVS/" />
             </fileset>
@@ -195,9 +197,9 @@
           </ifnot>
   
           <exec program="${project.wix}/candle.exe" commandline="-nologo &quot;${project.installer}\WixEdit.wxs&quot; &quot;${project.install}\Sources.wxs&quot; -dVERSION=${installer.version}" workingdir="${project.install}" />
-          <exec program="${project.wix}/light.exe" commandline="-nologo -out WixEdit${project.version.string}.msi WixEdit.wixobj Sources.wixobj" workingdir="${project.install}" />
+          <exec program="${project.wix}/light.exe" commandline="-nologo -out wixedit${project.version.string}.msi WixEdit.wixobj Sources.wixobj" workingdir="${project.install}" />
   
-          <copy todir="${project.release}" file="${project.install}\WixEdit${project.version.string}.msi" />
+          <copy todir="${project.release}" file="${project.install}\wixedit${project.version.string}.msi" />
         </if>
     </target>
 

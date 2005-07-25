@@ -29,9 +29,9 @@ namespace WixEdit {
     public class EditUIPanel : BasePanel {
         protected TabControl tabControl;
         protected TabPage editDialogTabPage;
-        protected Panel editDialogPanel;
+        protected EditDialogPanel editDialogPanel;
         protected TabPage editUISequenceTabPage;
-        protected Panel editUISequencePanel;
+        protected EditUISequencePanel editUISequencePanel;
 
         public EditUIPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -63,5 +63,12 @@ namespace WixEdit {
 
         }
         #endregion
+
+        public override MenuItem Menu {
+            get {
+                return editDialogPanel.Menu;
+            }
+        }
+
     }
 }

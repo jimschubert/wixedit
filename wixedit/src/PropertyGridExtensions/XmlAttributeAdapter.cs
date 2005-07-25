@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Xml;
 
 using System.Windows.Forms;
@@ -49,22 +50,25 @@ namespace WixEdit.PropertyGridExtensions {
             this.xmlNode = xmlNode;
             xmlNodeElement = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", xmlNode.Name), wixFiles.XsdNsmgr);
 
-
-            if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
-                xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
-                if (xmlNodeDefinition == null) {
-                    xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
-                    showInnerTextIfEmpty = false;
-                } else {
-                    showInnerTextIfEmpty = true;
-                }
+            if (xmlNodeElement == null) {
+                MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             } else {
-                xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType/xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
-                if (xmlNodeDefinition == null) {
-                    xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType", wixFiles.XsdNsmgr);
-                    showInnerTextIfEmpty = false;
+                if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
+                    xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                    if (xmlNodeDefinition == null) {
+                        xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                        showInnerTextIfEmpty = false;
+                    } else {
+                        showInnerTextIfEmpty = true;
+                    }
                 } else {
-                    showInnerTextIfEmpty = true;
+                    xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType/xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
+                    if (xmlNodeDefinition == null) {
+                        xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType", wixFiles.XsdNsmgr);
+                        showInnerTextIfEmpty = false;
+                    } else {
+                        showInnerTextIfEmpty = true;
+                    }
                 }
             }
         }
@@ -112,7 +116,7 @@ namespace WixEdit.PropertyGridExtensions {
 
                 // Add default attributes Category, TypeConverter and Description
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
-                attrs.Add(new TypeConverterAttribute(GetAttributeType(xmlAttributeDefinition)));
+                attrs.Add(new TypeConverterAttribute(GetAttributeTypeConverter(xmlAttributeDefinition)));
 
                 XmlNode documentation = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
                 if(documentation != null) {
@@ -134,6 +138,7 @@ namespace WixEdit.PropertyGridExtensions {
 
                 // We could add an UITypeEditor if desired
                 // attrs.Add(new EditorAttribute(?property.EditorTypeName?, typeof(UITypeEditor)));
+                attrs.Add(new EditorAttribute(GetAttributeEditor(xmlAttributeDefinition), typeof(UITypeEditor)));
                 
 
                 // Make Attribute array
@@ -173,24 +178,59 @@ namespace WixEdit.PropertyGridExtensions {
             return new PropertyDescriptorCollection(propArray);
         }
 
-        private Type GetAttributeType(XmlNode xmlAttributeDefinition) {
+        private Type GetAttributeEditor(XmlNode xmlAttributeDefinition) {
+            if (xmlAttributeDefinition.Attributes["type"] == null) {
+                return typeof(UITypeEditor);
+            }
+
+            switch (xmlAttributeDefinition.Attributes["type"].Value.ToLower()) {
+                case "uuid":
+                case "autogenuuid":
+                case "uuidorexample":
+                    return typeof(GuidUITypeEditor);
+                default:
+                    return typeof(UITypeEditor);
+            }
+        }
+
+        private Type GetAttributeTypeConverter(XmlNode xmlAttributeDefinition) {
             if (xmlAttributeDefinition.Attributes["type"] == null) {
                 return typeof(SimpleTypeConverter);
             }
 
             if (xmlAttributeDefinition.Attributes["name"] != null &&
-                xmlAttributeDefinition.Attributes["name"].Value == "Id") {
-                if (xmlNodeElement.Attributes["name"].Value.EndsWith("Ref")) {
-                    return typeof(ReferenceConverter);
-                }
+                xmlAttributeDefinition.Attributes["name"].Value == "Id" &&
+                xmlNodeElement.Attributes["name"].Value.EndsWith("Ref")) {
+                return typeof(ReferenceConverter);
             }
 
-            switch (xmlAttributeDefinition.Attributes["type"].Value.ToLower()) {
+            string name = xmlAttributeDefinition.Attributes["type"].Value;
+
+            XmlNode xmlDefinitionRestriction = xmlNodeDefinition.SelectSingleNode(String.Format("//xs:simpleType[@name='{0}']/xs:restriction", name), wixFiles.XsdNsmgr);
+            if (xmlDefinitionRestriction != null &&
+                xmlDefinitionRestriction.Attributes["base"] != null &&
+                xmlDefinitionRestriction.Attributes["base"].Value != null &&
+                xmlDefinitionRestriction.Attributes["base"].Value.Length > 0) {
+                name = xmlDefinitionRestriction.Attributes["base"].Value;
+            }
+
+            switch (name.ToLower()) {
                 case "xs:string":
                     return typeof(StringConverter);
-                case "xs:int":
                 case "xs:integer":
-                    return typeof(Int32Converter);
+                case "xs:long":
+                case "xs:int":
+                case "xs:short":
+                case "xs:byte":
+                case "xs:nonnegativeinteger":
+                case "xs:positiveinteger":
+                case "xs:unsignedlong":
+                case "xs:unsignedint":
+                case "xs:unsignedshort":
+                case "xs:unsignedbyte":
+                case "xs:nonpositiveinteger":
+                case "xs:negativeinteger":
+                    return typeof(IntegerConverter);
                 case "xs:datetime":
                     return typeof(DateTimeConverter);
                 case "yesnotype":
