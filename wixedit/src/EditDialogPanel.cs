@@ -77,7 +77,7 @@ namespace WixEdit {
         }
 
         private void OnResizeWxsDialogs(object sender, System.EventArgs e) {
-            if (this.wxsDialogs.Columns[0] != null) {
+            if (this.wxsDialogs.Columns.Count > 0 && this.wxsDialogs.Columns[0] != null) {
                 this.wxsDialogs.Columns[0].Width = this.wxsDialogs.ClientSize.Width - 4;
             }
         }

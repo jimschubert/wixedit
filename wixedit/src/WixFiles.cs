@@ -120,11 +120,8 @@ namespace WixEdit {
         #region IDisposable Members
 
         public void Dispose() {
-            this._wxsDocument = null;
-            this._wxsNsmgr = null;
-
-            _xsdDocument = null;
-            _xsdNsmgr = null;
+            _wxsDocument = null;
+            _wxsNsmgr = null;
         }
 
         #endregion
