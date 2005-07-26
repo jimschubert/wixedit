@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -38,17 +39,25 @@ namespace WixEdit.Settings {
         [XmlRoot("WixEdit")]
         public class WixEditData {
             public string BinDirectory;
+            public string DarkLocation;
+            public string CandleLocation;
+            public string XsdLocation;
             public string TemplateDirectory;
         }
 
         private static string filename = "WixEditSettings.xml";
         private static string defaultXml = "<WixEdit />";
 
-        private WixEditData data;
+        protected WixEditData data;
+
         public readonly static WixEditSettings Instance = new WixEditSettings();
         
         private WixEditSettings() : base(null) {
             LoadFromDisk();
+        }
+
+        public WixEditData GetInternalDataStructure() {
+            return data;
         }
 
         private string SettingsFile {
@@ -114,12 +123,13 @@ namespace WixEdit.Settings {
         [
         Category("WixEdit Settings"), 
         Description("The directory where the WiX binaries are located. The wix.xsd is also being located by this path."), 
-        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor)),
+        TypeConverter(typeof(BinDirectoryStructure.BinDirectoryExpandableObjectConverter))
         ]
-        public string BinDirectory {
+        public BinDirectoryStructure WixBinariesDirectory {
             get {
                 if (data.BinDirectory != null && data.BinDirectory.Length > 0) {
-                    return data.BinDirectory;
+                    return new BinDirectoryStructure(data);
                 }
 
                 // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
@@ -129,7 +139,8 @@ namespace WixEdit.Settings {
                     foreach (DirectoryInfo dir in parent.GetDirectories("wix*")) {
                         foreach (FileInfo file in dir.GetFiles("*.exe")) {
                             if (file.Name.ToLower().Equals("candle.exe")) {
-                                return dir.FullName;
+                                data.BinDirectory = dir.FullName;
+                                return new BinDirectoryStructure(data);
                             }
                         }
                     }
@@ -138,7 +149,14 @@ namespace WixEdit.Settings {
                 return null;
             }
             set {
-                data.BinDirectory = value;
+                if (value.HasSameBinDirectory()) {
+                    data.BinDirectory = new FileInfo(value.Candle).Directory.FullName;
+                } else {
+                    data.CandleLocation = value.Candle;
+                    data.DarkLocation = value.Dark;
+                    data.XsdLocation = value.Xsd;
+                    data.BinDirectory = value.BinDirectory;
+                }
             }
         }
 
@@ -203,5 +221,5 @@ namespace WixEdit.Settings {
         }
         #endregion
 
-    }
+   }
 }

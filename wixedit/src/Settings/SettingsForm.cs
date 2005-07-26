@@ -60,6 +60,7 @@ namespace WixEdit.Settings {
             this.MinimizeBox = false;
             this.MaximizeBox = false;
             this.ShowInTaskbar = false;
+            this.SizeGripStyle = SizeGripStyle.Hide;
 
             this.propertyGrid = new CustomPropertyGrid();
             this.propertyGridContextMenu = new ContextMenu();
