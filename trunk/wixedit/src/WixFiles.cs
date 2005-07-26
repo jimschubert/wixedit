@@ -53,7 +53,7 @@ namespace WixEdit {
         public static void ReloadXsd() {
             _xsdDocument = new XmlDocument();
 
-            if (WixEditSettings.Instance.BinDirectory != null &&
+/*            if (WixEditSettings.Instance.BinDirectory != null &&
                 Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
                 ( File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd")) ||
                 File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
@@ -61,7 +61,9 @@ namespace WixEdit {
                     _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
                 } else {
                     _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
-                }
+                }*/
+            if (File.Exists(WixEditSettings.Instance.WixBinariesDirectory.Xsd)) {
+                _xsdDocument.Load(WixEditSettings.Instance.WixBinariesDirectory.Xsd);
             } else {
                 _xsdDocument.Load(WixFiles.GetResourceStream("wix.xsd"));
             }

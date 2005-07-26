@@ -59,7 +59,6 @@ namespace WixEdit {
         protected MenuItem toolsMenu;
         protected MenuItem toolsOptions;
         protected MenuItem toolsWixCompile;
-        protected MenuItem toolsWixDecompile;
         protected MenuItem helpMenu;
         protected MenuItem helpAbout;
 
@@ -139,27 +138,18 @@ namespace WixEdit {
             toolsMenu = new IconMenuItem();
             toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
             toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
-            toolsWixDecompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.decompile.bmp")));
 
             toolsWixCompile.Text = "Wix Compile";
             toolsWixCompile.Click += new System.EventHandler(toolsWixCompile_Click);
             toolsWixCompile.Enabled = false;
-
-
-            toolsWixDecompile.Text = "Wix Decompile";
-            toolsWixDecompile.Click += new System.EventHandler(toolsWixDecompile_Click);
-            toolsWixDecompile.Enabled = false;
-
 
             toolsOptions.Text = "&Options";
             toolsOptions.Click += new System.EventHandler(toolsOptions_Click);
 
             toolsMenu.Text = "&Tools";
             toolsMenu.MenuItems.Add(0, toolsWixCompile);
-            toolsMenu.MenuItems.Add(1, toolsWixDecompile);
-            toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(3, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(4, toolsOptions);
+            toolsMenu.MenuItems.Add(1, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(2, toolsOptions);
             
             mainMenu.MenuItems.Add(1, toolsMenu);
 
@@ -228,12 +218,31 @@ namespace WixEdit {
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
-            openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            OpenFile();
+        }
+
+        private void OpenFile() {
+            openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|MSI Files (*.msi;*.msm)|*.MSI;*.MSM|All files (*.*)|*.*" ;
             openWxsFileDialog.RestoreDirectory = true ;
 
             if(openWxsFileDialog.ShowDialog() == DialogResult.OK) {
                 CloseWxsFile();
-                LoadWxsFile(openWxsFileDialog.FileName);
+
+                string fileToOpen = openWxsFileDialog.FileName;
+                if (fileToOpen.ToLower().EndsWith("msi") || fileToOpen.ToLower().EndsWith("msm")) {
+                    try {
+                        // Either the wxs file doesn't exist or the user gives permission to overwrite the wxs file
+                        if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
+                            MessageBox.Show("Do you want to overwrite the existing wxs file?", "Overwrite?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            Decompile(fileToOpen);
+                            LoadWxsFile(Path.ChangeExtension(fileToOpen, "wxs"));
+                        }
+                    } catch (Exception ex) {
+                        MessageBox.Show(ex.Message, "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                } else {
+                    LoadWxsFile(openWxsFileDialog.FileName);
+                }
             }
         }
 
@@ -253,18 +262,18 @@ namespace WixEdit {
         }
 
         private void toolsWixCompile_Click(object sender, System.EventArgs e) {
-            if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
+            /*if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
                 MessageBox.Show("Please specify the path to the Wix binaries in the settings dialog.");
 
                 return;
-            }
+            }*/
 
             ShowOutputPanel(null, null);
 
             outputPanel.Clear();
             Update();
 
-            string candleExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Candle.exe");
+            string candleExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(candleExe) == false) {
                 MessageBox.Show("candle.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
 
@@ -279,7 +288,7 @@ namespace WixEdit {
             psiCandle.RedirectStandardError = false;
             psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
 
-            string lightExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Light.exe");
+            string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(lightExe) == false) {
                 MessageBox.Show("light.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
 
@@ -297,36 +306,21 @@ namespace WixEdit {
             outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
         }
 
-        private void toolsWixDecompile_Click(object sender, System.EventArgs e) {
-            if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
-                MessageBox.Show("Please specify the path to the Wix binaries in the settings dialog.");
+        private void Decompile(string fileName) {
+            /*if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
+                throw new Exception("Please specify the path to the Wix binaries in the settings dialog.");
+            }*/
 
-                return;
-            }
-
-            OpenFileDialog openMsiFileDialog = new OpenFileDialog();
-
-            openMsiFileDialog.Filter = "msi files (*.msi)|*.msi|msm files (*.msm)|*.msm" ;
-            openMsiFileDialog.FilterIndex = 1 ;
-
-            openMsiFileDialog.RestoreDirectory = true ;
-
-            if(openMsiFileDialog.ShowDialog() != DialogResult.OK) {
-                return;
-            }
-
-            FileInfo msiFile = new FileInfo(openMsiFileDialog.FileName);
+            FileInfo msiFile = new FileInfo(fileName);
 
             ShowOutputPanel(null, null);
 
             outputPanel.Clear();
             Update();
 
-            string darkExe = Path.Combine(WixEditSettings.Instance.BinDirectory, "Dark.exe");
+            string darkExe = WixEditSettings.Instance.WixBinariesDirectory.Dark;
             if (File.Exists(darkExe) == false) {
-                MessageBox.Show("dark.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
-
-                return;
+                throw new Exception("dark.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiDark = new ProcessStartInfo();
@@ -459,7 +453,6 @@ namespace WixEdit {
             fileSave.Enabled = true;
 
             toolsWixCompile.Enabled = true;
-            toolsWixDecompile.Enabled = true;
         }
 
         private void ToggleDirty(bool dirty) {
@@ -471,7 +464,6 @@ namespace WixEdit {
 
         private void CloseWxsFile() {
             toolsWixCompile.Enabled = false;
-            toolsWixDecompile.Enabled = false;
             
             tabButtonControl.Visible = false;
             tabButtonControl.ClearTabs();
