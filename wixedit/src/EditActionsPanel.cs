@@ -20,18 +20,19 @@
 
 
 using System;
+using System.Xml;
 using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
     /// Panel to edit install data.
     /// </summary>
-    public class EditActionsPanel : BasePanel {
+    public class EditActionsPanel : DisplayBasePanel {
         protected TabControl tabControl;
         protected TabPage editCustomActionsTabPage;
-        protected Panel editCustomActionsPanel;
+        protected EditCustomActionsPanel editCustomActionsPanel;
         protected TabPage editExecuteSequenceTabPage;
-        protected Panel editExecuteSequencePanel;
+        protected EditExecuteSequencePanel editExecuteSequencePanel;
 
         public EditActionsPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -39,29 +40,43 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            this.tabControl = new TabControl();
-            this.tabControl.Dock = DockStyle.Fill;
+            tabControl = new TabControl();
+            tabControl.Dock = DockStyle.Fill;
 
-            this.Controls.Add(tabControl);
+            Controls.Add(tabControl);
 
-            this.editCustomActionsPanel = new EditCustomActionsPanel(this.wixFiles);
-            this.editCustomActionsPanel.Dock = DockStyle.Fill;
+            editCustomActionsPanel = new EditCustomActionsPanel(wixFiles);
+            editCustomActionsPanel.Dock = DockStyle.Fill;
 
-            this.editCustomActionsTabPage = new TabPage("Custom Actions");
-            this.editCustomActionsTabPage.Controls.Add(this.editCustomActionsPanel);
+            editCustomActionsTabPage = new TabPage("Custom Actions");
+            editCustomActionsTabPage.Controls.Add(editCustomActionsPanel);
 
-            this.tabControl.TabPages.Add(this.editCustomActionsTabPage);
+            tabControl.TabPages.Add(editCustomActionsTabPage);
 
 
-            this.editExecuteSequencePanel = new EditExecuteSequencePanel(this.wixFiles);
-            this.editExecuteSequencePanel.Dock = DockStyle.Fill;
+            editExecuteSequencePanel = new EditExecuteSequencePanel(wixFiles);
+            editExecuteSequencePanel.Dock = DockStyle.Fill;
 
-            this.editExecuteSequenceTabPage = new TabPage("Execute Sequence");
-            this.editExecuteSequenceTabPage.Controls.Add(this.editExecuteSequencePanel);
+            editExecuteSequenceTabPage = new TabPage("Execute Sequence");
+            editExecuteSequenceTabPage.Controls.Add(editExecuteSequencePanel);
 
-            this.tabControl.TabPages.Add(this.editExecuteSequenceTabPage);
+            tabControl.TabPages.Add(editExecuteSequenceTabPage);
 
         }
         #endregion
+
+        public override bool IsOwnerOfNode(XmlNode node) {
+            return (editCustomActionsPanel.IsOwnerOfNode(node) || editExecuteSequencePanel.IsOwnerOfNode(node));
+        }
+
+        public override void ShowNode(XmlNode node) {
+            if (editCustomActionsPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editCustomActionsTabPage;
+                editCustomActionsPanel.ShowNode(node);
+            } else {
+                editExecuteSequencePanel.ShowNode(node);
+                tabControl.SelectedTab = editExecuteSequenceTabPage;
+            }
+        }
     }
 }

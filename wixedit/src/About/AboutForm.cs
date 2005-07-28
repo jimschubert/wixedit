@@ -60,15 +60,15 @@ namespace WixEdit.About {
         }
 
         private void Initialize() {
-            this.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
+            Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
 
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.None;
+            ShowInTaskbar = false;
 
 
-            this.Width = 320;
-            this.Height = 160;
+            Width = 320;
+            Height = 160;
 
             splashScreen = Image.FromStream(WixFiles.GetResourceStream("About.png"));
 
@@ -83,7 +83,7 @@ namespace WixEdit.About {
             versionLabel.BackColor = Color.Transparent;
             versionLabel.Click += new EventHandler(OnClose);
 
-            this.Controls.Add(versionLabel);
+            Controls.Add(versionLabel);
 
             copyrightLabel = new Label();
             copyrightLabel.Text = copyright;
@@ -94,7 +94,7 @@ namespace WixEdit.About {
             copyrightLabel.BackColor = Color.Transparent;
             copyrightLabel.Click += new EventHandler(OnClose);
 
-            this.Controls.Add(copyrightLabel);
+            Controls.Add(copyrightLabel);
 
             urlLabel = new LinkLabel();
             urlLabel.Text = url;
@@ -105,17 +105,17 @@ namespace WixEdit.About {
             urlLabel.BackColor = Color.Transparent;
 
             urlLabel.Links.Add(0, url.Length, url);
-            urlLabel.LinkClicked += new LinkLabelLinkClickedEventHandler(this.OnUrlClicked);
+            urlLabel.LinkClicked += new LinkLabelLinkClickedEventHandler(OnUrlClicked);
 
-            this.Controls.Add(urlLabel);
+            Controls.Add(urlLabel);
 
-            this.Click += new EventHandler(OnClose);
+            Click += new EventHandler(OnClose);
 
             // Make the background color of form display transparently.
             // The image with the semi transparant stuff, will use this color (glow-like)
             if (useRealTransparency) {
-                this.BackColor = realTransparencyColor;
-                this.TransparencyKey = BackColor;
+                BackColor = realTransparencyColor;
+                TransparencyKey = BackColor;
             }
         }
 
@@ -143,7 +143,7 @@ namespace WixEdit.About {
         }
 
         public void OnClose(object sender, EventArgs e) {
-            this.Close();
+            Close();
         }
 
         protected override void OnPaintBackground(PaintEventArgs args) {

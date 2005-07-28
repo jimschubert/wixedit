@@ -30,7 +30,7 @@ namespace WixEdit.PropertyGridExtensions {
 
         public override Type ComponentType {
             get {
-                return this.AttributeArray.GetType();
+                return AttributeArray.GetType();
             }
         }
 
@@ -52,7 +52,7 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override bool CanResetValue(object component) {
-            return (this.GetValue(component).Equals("") == false);
+            return (GetValue(component).Equals("") == false);
         }
 
         public override void ResetValue(object component) {

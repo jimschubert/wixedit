@@ -40,7 +40,7 @@ namespace WixEdit {
     /// <summary>
     /// Editing of dialogs.
     /// </summary>
-    public class EditDialogPanel : BasePanel {
+    public class EditDialogPanel : DisplayBasePanel {
         #region Controls
         
         private DesignerForm currentDialog;
@@ -77,8 +77,8 @@ namespace WixEdit {
         }
 
         private void OnResizeWxsDialogs(object sender, System.EventArgs e) {
-            if (this.wxsDialogs.Columns.Count > 0 && this.wxsDialogs.Columns[0] != null) {
-                this.wxsDialogs.Columns[0].Width = this.wxsDialogs.ClientSize.Width - 4;
+            if (wxsDialogs.Columns.Count > 0 && wxsDialogs.Columns[0] != null) {
+                wxsDialogs.Columns[0].Width = wxsDialogs.ClientSize.Width - 4;
             }
         }
 
@@ -90,203 +90,287 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            this.viewMenu = new IconMenuItem();
-            this.Opacity100 = new IconMenuItem();
-            this.Opacity75 = new IconMenuItem();
-            this.Opacity50 = new IconMenuItem();
-            this.Opacity25 = new IconMenuItem();
-            this.Separator = new IconMenuItem("-");
-            this.AlwaysOnTop = new IconMenuItem();
-            this.dialogTreeView = new TreeView();
-            this.propertyGrid = new CustomPropertyGrid();
-            this.propertyGridContextMenu = new ContextMenu();
-            this.wxsDialogs = new ListView();
-            this.wxsDialogsContextMenu = new ContextMenu();
-            this.splitter1 = new Splitter();
-            this.splitter2 = new Splitter();
-            this.panel1 = new Panel();
-            this.panel1.SuspendLayout();
-            this.SuspendLayout();
+            viewMenu = new IconMenuItem();
+            Opacity100 = new IconMenuItem();
+            Opacity75 = new IconMenuItem();
+            Opacity50 = new IconMenuItem();
+            Opacity25 = new IconMenuItem();
+            Separator = new IconMenuItem("-");
+            AlwaysOnTop = new IconMenuItem();
+            dialogTreeView = new TreeView();
+            propertyGrid = new CustomPropertyGrid();
+            propertyGridContextMenu = new ContextMenu();
+            wxsDialogs = new ListView();
+            wxsDialogsContextMenu = new ContextMenu();
+            splitter1 = new Splitter();
+            splitter2 = new Splitter();
+            panel1 = new Panel();
+            panel1.SuspendLayout();
+            SuspendLayout();
             
-            this.viewMenu.MenuItems.AddRange(new MenuItem[] {
-                                                              this.Opacity100,
-                                                              this.Opacity75,
-                                                              this.Opacity50,
-                                                              this.Opacity25,
-                                                              this.Separator,
-                                                              this.AlwaysOnTop});
-            this.viewMenu.Text = "&Dialogs";
+            viewMenu.MenuItems.AddRange(new MenuItem[] {
+                                                              Opacity100,
+                                                              Opacity75,
+                                                              Opacity50,
+                                                              Opacity25,
+                                                              Separator,
+                                                              AlwaysOnTop});
+            viewMenu.Text = "&Dialogs";
             // 
             // Opacity100
             // 
-            this.Opacity100.Index = 0;
-            this.Opacity100.Text = "Set Opacity 100%";
-            this.Opacity100.Click += new System.EventHandler(this.Opacity_Click);
+            Opacity100.Index = 0;
+            Opacity100.Text = "Set Opacity 100%";
+            Opacity100.Click += new System.EventHandler(Opacity_Click);
             // 
             // Opacity75
             // 
-            this.Opacity75.Index = 1;
-            this.Opacity75.Text = "Set Opacity 75%";
-            this.Opacity75.Click += new System.EventHandler(this.Opacity_Click);
+            Opacity75.Index = 1;
+            Opacity75.Text = "Set Opacity 75%";
+            Opacity75.Click += new System.EventHandler(Opacity_Click);
             // 
             // Opacity50
             // 
-            this.Opacity50.Index = 2;
-            this.Opacity50.Text = "Set Opacity 50%";
-            this.Opacity50.Click += new System.EventHandler(this.Opacity_Click);
+            Opacity50.Index = 2;
+            Opacity50.Text = "Set Opacity 50%";
+            Opacity50.Click += new System.EventHandler(Opacity_Click);
             // 
             // Opacity25
             // 
-            this.Opacity25.Index = 3;
-            this.Opacity25.Text = "Set Opacity 25%";
-            this.Opacity25.Click += new System.EventHandler(this.Opacity_Click);
+            Opacity25.Index = 3;
+            Opacity25.Text = "Set Opacity 25%";
+            Opacity25.Click += new System.EventHandler(Opacity_Click);
             //
             // Separator
             //
-            this.Separator.Index = 4;
+            Separator.Index = 4;
             // 
             // AlwaysOnTop
             // 
-            this.AlwaysOnTop.Index = 5;
-            this.AlwaysOnTop.Text = "Always on top";
-            this.AlwaysOnTop.Click += new System.EventHandler(this.AlwaysOnTop_Click);
+            AlwaysOnTop.Index = 5;
+            AlwaysOnTop.Text = "Always on top";
+            AlwaysOnTop.Click += new System.EventHandler(AlwaysOnTop_Click);
             // 
             // dialogTreeView
             // 
-            this.dialogTreeView.Dock = DockStyle.Left;
-            this.dialogTreeView.ImageIndex = -1;
-            this.dialogTreeView.Location = new Point(0, 0);
-            this.dialogTreeView.Name = "dialogTreeView";
-            this.dialogTreeView.SelectedImageIndex = -1;
-            this.dialogTreeView.Size = new Size(170, 266);
-            this.dialogTreeView.TabIndex = 6;
-            this.dialogTreeView.AfterSelect += new TreeViewEventHandler(this.OnAfterSelect);
-            this.dialogTreeViewContextMenu = new ContextMenu();
-            this.dialogTreeViewContextMenu.Popup += new EventHandler(PopupDialogTreeViewContextMenu);
-            this.dialogTreeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
+            dialogTreeView.Dock = DockStyle.Left;
+            dialogTreeView.ImageIndex = -1;
+            dialogTreeView.Location = new Point(0, 0);
+            dialogTreeView.Name = "dialogTreeView";
+            dialogTreeView.SelectedImageIndex = -1;
+            dialogTreeView.Size = new Size(170, 266);
+            dialogTreeView.TabIndex = 6;
+            dialogTreeView.AfterSelect += new TreeViewEventHandler(OnAfterSelect);
+            dialogTreeViewContextMenu = new ContextMenu();
+            dialogTreeViewContextMenu.Popup += new EventHandler(PopupDialogTreeViewContextMenu);
+            dialogTreeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
 
-            this.dialogTreeView.ImageList = GetDialogTreeViewImageList();
+            dialogTreeView.ImageList = GetDialogTreeViewImageList();
 
-            this.newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("elements.control.bmp")));
-            this.newControlElementMenu.Click += new System.EventHandler(this.NewControlElement_Click);
+            newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("elements.control.bmp")));
+            newControlElementMenu.Click += new System.EventHandler(NewControlElement_Click);
 
 
-            this.newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
-            this.newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("elements.text.bmp")));
-            this.newTextElementMenu.Click += new System.EventHandler(this.NewTextElement_Click);
+            newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("elements.text.bmp")));
+            newTextElementMenu.Click += new System.EventHandler(NewTextElement_Click);
 
-            this.newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp")));
-            this.newPublishElementMenu.Click += new System.EventHandler(this.NewPublishElement_Click);
+            newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp")));
+            newPublishElementMenu.Click += new System.EventHandler(NewPublishElement_Click);
 
-            this.newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp")));
-            this.newConditionElementMenu.Click += new System.EventHandler(this.NewConditionElement_Click);
+            newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp")));
+            newConditionElementMenu.Click += new System.EventHandler(NewConditionElement_Click);
 
-            this.newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
-            this.newSubscribeElementMenu.Click += new System.EventHandler(this.NewSubscribeElement_Click);
+            newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
+            newSubscribeElementMenu.Click += new System.EventHandler(NewSubscribeElement_Click);
 
-            this.deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            this.deleteCurrentElementMenu.Click += new System.EventHandler(this.DeleteElement_Click);
+            deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            deleteCurrentElementMenu.Click += new System.EventHandler(DeleteElement_Click);
 
-            this.infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
-            this.infoAboutCurrentElementMenu.Click += new System.EventHandler(this.InfoAboutCurrentElement_Click);
+            infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
+            infoAboutCurrentElementMenu.Click += new System.EventHandler(InfoAboutCurrentElement_Click);
 
             // 
             // propertyGridContextMenu
             //
-            this.propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
             // 
             // propertyGrid
             //
-            this.propertyGrid.Dock = DockStyle.Fill;
-            this.propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.propertyGrid.Location = new Point(140, 0);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new Size(250, 266);
-            this.propertyGrid.TabIndex = 1;
-            this.propertyGrid.PropertySort = PropertySort.Alphabetical;
-            this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(OnPropertyValueChanged);
-            this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
+            propertyGrid.Dock = DockStyle.Fill;
+            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            propertyGrid.Location = new Point(140, 0);
+            propertyGrid.Name = "propertyGrid";
+            propertyGrid.Size = new Size(250, 266);
+            propertyGrid.TabIndex = 1;
+            propertyGrid.PropertySort = PropertySort.Alphabetical;
+            propertyGrid.ToolbarVisible = false;
+            propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(OnPropertyValueChanged);
+            propertyGrid.ContextMenu = propertyGridContextMenu;
 
             // 
             // wxsDialogs
             // 
-            this.wxsDialogs.Dock = DockStyle.Left;
-            this.wxsDialogs.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.wxsDialogs.Location = new Point(0, 0);
-            this.wxsDialogs.Name = "wxsDialogs";
-            this.wxsDialogs.Size = new Size(140, 264);
-            this.wxsDialogs.TabIndex = 0;
-            this.wxsDialogs.View = View.Details;
-            this.wxsDialogs.MultiSelect = false;
-            this.wxsDialogs.HideSelection = false;
-            this.wxsDialogs.FullRowSelect = true;
-            this.wxsDialogs.GridLines = false;
-            this.wxsDialogs.SelectedIndexChanged += new System.EventHandler(this.OnSelectedDialogChanged);
-            this.wxsDialogs.ContextMenu = this.wxsDialogsContextMenu;
+            wxsDialogs.Dock = DockStyle.Left;
+            wxsDialogs.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            wxsDialogs.Location = new Point(0, 0);
+            wxsDialogs.Name = "wxsDialogs";
+            wxsDialogs.Size = new Size(140, 264);
+            wxsDialogs.TabIndex = 0;
+            wxsDialogs.View = View.Details;
+            wxsDialogs.MultiSelect = false;
+            wxsDialogs.HideSelection = false;
+            wxsDialogs.FullRowSelect = true;
+            wxsDialogs.GridLines = false;
+            wxsDialogs.SelectedIndexChanged += new System.EventHandler(OnSelectedDialogChanged);
+            wxsDialogs.ContextMenu = wxsDialogsContextMenu;
 
-            this.wxsDialogsContextMenu.Popup += new EventHandler(OnWxsDialogsPopupContextMenu);
+            wxsDialogsContextMenu.Popup += new EventHandler(OnWxsDialogsPopupContextMenu);
             // 
             // splitter1
             // 
-            this.splitter1.Location = new Point(140, 0);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new Size(2, 266);
-            this.splitter1.TabIndex = 7;
-            this.splitter1.TabStop = false;
+            splitter1.Location = new Point(140, 0);
+            splitter1.Name = "splitter1";
+            splitter1.Size = new Size(2, 266);
+            splitter1.TabIndex = 7;
+            splitter1.TabStop = false;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.splitter2);
-            this.panel1.Controls.Add(this.propertyGrid);
-            this.panel1.Controls.Add(this.dialogTreeView);
-            this.panel1.Dock = DockStyle.Fill;
-            this.panel1.Location = new Point(142, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new Size(409, 266);
-            this.panel1.TabIndex = 9;
+            panel1.Controls.Add(splitter2);
+            panel1.Controls.Add(propertyGrid);
+            panel1.Controls.Add(dialogTreeView);
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new Point(142, 0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(409, 266);
+            panel1.TabIndex = 9;
             // 
             // splitter2
             // 
-            this.splitter2.Location = new Point(140, 0);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new Size(2, 266);
-            this.splitter2.TabIndex = 7;
-            this.splitter2.TabStop = false;
+            splitter2.Location = new Point(140, 0);
+            splitter2.Name = "splitter2";
+            splitter2.Size = new Size(2, 266);
+            splitter2.TabIndex = 7;
+            splitter2.TabStop = false;
             // 
             // EditorForm
             // 
-            //this.AutoScaleBaseSize = new Size(5, 14);
-            this.ClientSize = new Size(553, 266);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.splitter1);
-            this.Controls.Add(this.wxsDialogs);
-            this.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            //AutoScaleBaseSize = new Size(5, 14);
+            ClientSize = new Size(553, 266);
+            Controls.Add(panel1);
+            Controls.Add(splitter1);
+            Controls.Add(wxsDialogs);
+            Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
             
-            this.Name = "EditorForm";
-            this.Text = "Wix Dialog Editor";
-            this.panel1.ResumeLayout(false);
-            this.ResumeLayout(false);
+            Name = "EditorForm";
+            Text = "Wix Dialog Editor";
+            panel1.ResumeLayout(false);
+            ResumeLayout(false);
            
             Opacity100.Checked = true;
 
-            this.wxsDialogs.Items.Clear();
+            wxsDialogs.Items.Clear();
 
             XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
             foreach (XmlNode dialog in dialogs) {
                 XmlAttribute attr = dialog.Attributes["Id"];
                 if (attr != null) {
-                    this.wxsDialogs.Items.Add(new ListViewItem(attr.Value));
+                    ListViewItem toAdd = new ListViewItem(attr.Value);
+                    toAdd.Tag = dialog;
+
+                    wxsDialogs.Items.Add(toAdd);
                 }
             }
 
-            this.wxsDialogs.Columns.Add("Item Column", -2, HorizontalAlignment.Left);
-            this.wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
+            wxsDialogs.Columns.Add("Item Column", -2, HorizontalAlignment.Left);
+            wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
 
-            this.wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
+            wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
         }
 
+        #endregion
+
+        #region DisplayBasePanel overrides and helpers
+        public override bool IsOwnerOfNode(XmlNode node) {
+            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
+            return FindNode(GetShowableNode(node), dialogs);
+        }
+
+        private XmlNode GetShowableNode(XmlNode node) {
+            XmlNode showableNode = node;
+            while (showableNode.NodeType != XmlNodeType.Element) {
+                if (showableNode.NodeType == XmlNodeType.Attribute) {
+                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
+                } else {
+                    showableNode = showableNode.ParentNode;
+                }
+            }
+
+            return showableNode;
+        }
+
+        private bool FindNode(XmlNode nodeToFind, IEnumerable xmlNodes) {
+            foreach (XmlNode node in xmlNodes) {
+                if (node == nodeToFind) {
+                    return true;
+                }
+
+                if (FindNode(nodeToFind, node.ChildNodes)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public override void ShowNode(XmlNode node) {
+            XmlNode showable = GetShowableNode(node);
+
+            XmlNode dialog = showable;
+            while (dialog.Name != "Dialog") {
+                dialog = dialog.ParentNode;
+            }
+
+            foreach (ListViewItem item in wxsDialogs.Items) {
+                if (dialog == item.Tag) {
+                    item.Selected = true;
+
+                    ShowWixDialog(null);  
+                    ShowWixDialogTree(null);
+                    ShowWixProperties(null);
+          
+                    ShowWixDialog(dialog);
+                    ShowWixDialogTree(dialog);
+                    ShowWixProperties(dialog);
+
+
+                    break;
+                }
+            }
+
+            TreeNode treeNode = FindTreeNode(showable, dialogTreeView.Nodes);
+            if (treeNode != null) {
+                dialogTreeView.SelectedNode = null;
+                dialogTreeView.SelectedNode = treeNode;
+            }
+        }
+
+        private TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
+            foreach (TreeNode treeNode in treeNodes) {
+                if (treeNode.Tag == node) {
+                    return treeNode;
+                }
+
+                TreeNode foundNode = FindTreeNode(node, treeNode.Nodes);
+                if (foundNode != null) {
+                    return foundNode;
+                }
+            }
+
+            return null;
+        }
         #endregion
 
         private ImageList GetDialogTreeViewImageList() {
@@ -324,8 +408,6 @@ namespace WixEdit {
         }
 
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
-            // TODO: Good place to keep track of command, for undo functionality
-
             string currentDialogId = wxsDialogs.SelectedItems[0].Text;
             XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
             
@@ -388,7 +470,7 @@ namespace WixEdit {
                 ui.AppendChild(dialog);
 
                 ListViewItem item = new ListViewItem(frm.SelectedString);
-                this.wxsDialogs.Items.Add(item);
+                wxsDialogs.Items.Add(item);
 
                 item.Selected = true;
                 item.Focused = true;
@@ -527,8 +609,8 @@ namespace WixEdit {
                 prevLeft = currentDialog.Left;
                 prevDialog = currentDialog;
             } else {
-                prevTop = this.TopLevelControl.Top;
-                prevLeft = this.TopLevelControl.Right;
+                prevTop = TopLevelControl.Top;
+                prevLeft = TopLevelControl.Right;
             }
 
             if (dialog != null) {
@@ -540,7 +622,7 @@ namespace WixEdit {
                     currentDialog.Top = prevTop;
         
                     currentDialog.Opacity = GetOpacity();
-                    currentDialog.TopMost = this.AlwaysOnTop.Checked;
+                    currentDialog.TopMost = AlwaysOnTop.Checked;
         
                     currentDialog.Show();
                 }
@@ -550,7 +632,7 @@ namespace WixEdit {
                 prevDialog.Dispose();
             }
 
-            this.Focus();
+            Focus();
         }
 
         private void ShowWixDialogTree(XmlNode dialog) {
@@ -653,7 +735,7 @@ namespace WixEdit {
                 }
                 dialogTreeView.SelectedNode = node;
 
-                Point spot = this.PointToClient(dialogTreeView.PointToScreen(new Point(e.X,e.Y)));
+                Point spot = PointToClient(dialogTreeView.PointToScreen(new Point(e.X,e.Y)));
                 dialogTreeViewContextMenu.Show(this, spot);
             }
         }
@@ -668,21 +750,21 @@ namespace WixEdit {
 
             switch (node.Name) {
                 case "Dialog":
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlElementMenu);
+                    dialogTreeViewContextMenu.MenuItems.Add(newControlElementMenu);
                     break;
                 case "Control":
-                    this.newControlSubElementsMenu.MenuItems.Clear();
-                    dialogTreeViewContextMenu.MenuItems.Add(this.newControlSubElementsMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newTextElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newPublishElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newConditionElementMenu);
-                    this.newControlSubElementsMenu.MenuItems.Add(this.newSubscribeElementMenu);
+                    newControlSubElementsMenu.MenuItems.Clear();
+                    dialogTreeViewContextMenu.MenuItems.Add(newControlSubElementsMenu);
+                    newControlSubElementsMenu.MenuItems.Add(newTextElementMenu);
+                    newControlSubElementsMenu.MenuItems.Add(newPublishElementMenu);
+                    newControlSubElementsMenu.MenuItems.Add(newConditionElementMenu);
+                    newControlSubElementsMenu.MenuItems.Add(newSubscribeElementMenu);
                     break;
                 default:
                     break;
             }
 
-            dialogTreeViewContextMenu.MenuItems.Add(this.deleteCurrentElementMenu);
+            dialogTreeViewContextMenu.MenuItems.Add(deleteCurrentElementMenu);
 
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
@@ -690,7 +772,7 @@ namespace WixEdit {
             XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
             if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
                 dialogTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
-                dialogTreeViewContextMenu.MenuItems.Add(this.infoAboutCurrentElementMenu);
+                dialogTreeViewContextMenu.MenuItems.Add(infoAboutCurrentElementMenu);
             }
         }
 
@@ -820,10 +902,10 @@ namespace WixEdit {
         }
 
         private void AlwaysOnTop_Click(object sender, System.EventArgs e) {
-            this.AlwaysOnTop.Checked = !this.AlwaysOnTop.Checked;
+            AlwaysOnTop.Checked = !AlwaysOnTop.Checked;
 
             if (currentDialog != null) {
-                currentDialog.TopMost = this.AlwaysOnTop.Checked;
+                currentDialog.TopMost = AlwaysOnTop.Checked;
             }
         }
 

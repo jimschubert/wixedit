@@ -47,6 +47,9 @@ namespace WixEdit {
         protected TextBox directoryName;
         protected Button directoryBrowseButton;
 
+        protected Label wixDestinationLabel;
+        protected Label wixDestinationTextLabel;
+
         protected Label installerTypeLabel;
         protected RadioButton productRadioButton;
         protected RadioButton moduleRadioButton;
@@ -60,156 +63,175 @@ namespace WixEdit {
         private void InitializeComponent() {
             int padding = 2;
 
-            this.Text = "Create new WiX file";
-            this.ShowInTaskbar = false;
+            Text = "Create new WiX file";
+            ShowInTaskbar = false;
 
-            this.ClientSize = new Size(384, 239);
-            this.SizeGripStyle = SizeGripStyle.Hide;
+            ClientSize = new Size(480, 256);
+            SizeGripStyle = SizeGripStyle.Hide;
 
 
-            this.buttonOk = new Button();
-            this.buttonOk.Text = "Ok";
-            this.buttonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-            this.buttonOk.FlatStyle = FlatStyle.System;
-            this.buttonOk.Click += new EventHandler(OnOk);
-            this.Controls.Add(this.buttonOk);
+            buttonOk = new Button();
+            buttonOk.Text = "Ok";
+            buttonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            buttonOk.FlatStyle = FlatStyle.System;
+            buttonOk.Click += new EventHandler(OnOk);
+            Controls.Add(buttonOk);
 
-            this.buttonCancel = new Button();
-            this.buttonCancel.Text = "Cancel";
-            this.buttonCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-            this.buttonCancel.FlatStyle = FlatStyle.System;
-            this.Controls.Add(this.buttonCancel);
+            buttonCancel = new Button();
+            buttonCancel.Text = "Cancel";
+            buttonCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            buttonCancel.FlatStyle = FlatStyle.System;
+            Controls.Add(buttonCancel);
 
-            this.templateListLabel = new Label();
-            this.templateListLabel.Text = "Select template:";
-            this.templateListLabel.Top = 0;
-            this.templateListLabel.Left = padding;
-            this.templateListLabel.Height = 14;
-            this.templateListLabel.Width = ClientSize.Width - 2*padding;
-            this.templateListLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
-            this.Controls.Add(this.templateListLabel);
+            templateListLabel = new Label();
+            templateListLabel.Text = "Select template:";
+            templateListLabel.Top = 0;
+            templateListLabel.Left = padding;
+            templateListLabel.Height = 14;
+            templateListLabel.Width = ClientSize.Width - 2*padding;
+            templateListLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
+            Controls.Add(templateListLabel);
 
-            this.templateList = new ListBox();
-            this.templateList.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.templateList.Name = "templateList";
-            this.templateList.TabIndex = 1;
-            this.templateList.Top = templateListLabel.Bottom;
-            this.templateList.Left = padding;
-            this.templateList.Height = ClientSize.Height - 157;
-            this.templateList.Width = ClientSize.Width - 2*padding;
-            this.templateList.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
-            this.Controls.Add(this.templateList);
+            templateList = new ListBox();
+            templateList.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            templateList.Name = "templateList";
+            templateList.TabIndex = 1;
+            templateList.Top = templateListLabel.Bottom;
+            templateList.Left = padding;
+            templateList.Height = ClientSize.Height - 193;
+            templateList.Width = ClientSize.Width - 2*padding;
+            templateList.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
+            Controls.Add(templateList);
 
-            this.templateList.Items.Add("<none>");
-            this.templateList.SelectedIndex = 0;
+            templateList.Items.Add("<none>");
+            templateList.SelectedIndex = 0;
             if (WixEditSettings.Instance.TemplateDirectory != null && Directory.Exists(WixEditSettings.Instance.TemplateDirectory)) {
                 foreach (string dir in Directory.GetDirectories(WixEditSettings.Instance.TemplateDirectory)) {
                     DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                    this.templateList.Items.Add(dirInfo.Name);
+                    templateList.Items.Add(dirInfo.Name);
                 }
             }
 
-            this.wixFileNameLabel = new Label();
-            this.wixFileNameLabel.Text = "Enter WiX filename:";
-            this.wixFileNameLabel.Top = templateList.Bottom + 2;
-            this.wixFileNameLabel.Left = padding;
-            this.wixFileNameLabel.Height = 14;
-            this.wixFileNameLabel.Width = ClientSize.Width - 2*padding;
-            this.wixFileNameLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.Controls.Add(this.wixFileNameLabel);
+            wixFileNameLabel = new Label();
+            wixFileNameLabel.Text = "Enter WiX Project name:";
+            wixFileNameLabel.Top = templateList.Bottom + 2;
+            wixFileNameLabel.Left = padding;
+            wixFileNameLabel.Height = 14;
+            wixFileNameLabel.Width = ClientSize.Width - 2*padding;
+            wixFileNameLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(wixFileNameLabel);
             
-            this.wixFileName = new TextBox();
-            this.wixFileName.Top = wixFileNameLabel.Bottom;
-            this.wixFileName.Left = padding;
-            this.wixFileName.Width = ClientSize.Width - 2*padding;
-            this.wixFileName.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.wixFileName.Text = "NewFile.wxs";
-            this.wixFileName.TextChanged += new EventHandler(OnCheckEnableOkButton);
-            this.Controls.Add(this.wixFileName);
+            wixFileName = new TextBox();
+            wixFileName.Top = wixFileNameLabel.Bottom;
+            wixFileName.Left = padding;
+            wixFileName.Width = ClientSize.Width - 2*padding;
+            wixFileName.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            wixFileName.Text = "NewFile.wxs";
+            wixFileName.TextChanged += new EventHandler(OnCheckEnableOkButton);
+            Controls.Add(wixFileName);
 
-            this.directoryNameLabel = new Label();
-            this.directoryNameLabel.Text = "Select directory:";
-            this.directoryNameLabel.Top = wixFileName.Bottom + 2;
-            this.directoryNameLabel.Left = padding;
-            this.directoryNameLabel.Height = 14;
-            this.directoryNameLabel.Width = ClientSize.Width - 2*padding;
-            this.directoryNameLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.Controls.Add(this.directoryNameLabel);
+            directoryNameLabel = new Label();
+            directoryNameLabel.Text = "Select directory:";
+            directoryNameLabel.Top = wixFileName.Bottom + 2;
+            directoryNameLabel.Left = padding;
+            directoryNameLabel.Height = 14;
+            directoryNameLabel.Width = ClientSize.Width - 2*padding;
+            directoryNameLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(directoryNameLabel);
 
-            this.directoryName = new TextBox();
-            this.directoryName.Top = directoryNameLabel.Bottom;
-            this.directoryName.Left = padding;
-            this.directoryName.Width = ClientSize.Width - buttonOk.Width - 3*padding;
-            this.directoryName.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.directoryName.TextChanged += new EventHandler(OnCheckEnableOkButton);
-            this.Controls.Add(this.directoryName);
+            directoryName = new TextBox();
+            directoryName.Top = directoryNameLabel.Bottom;
+            directoryName.Left = padding;
+            directoryName.Width = ClientSize.Width - buttonOk.Width - 3*padding;
+            directoryName.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            directoryName.TextChanged += new EventHandler(OnCheckEnableOkButton);
+            directoryName.Text = WixEditSettings.Instance.DefaultProjectDirectory;
+            Controls.Add(directoryName);
 
-            this.directoryBrowseButton = new Button();
-            this.directoryBrowseButton.Text = "Browse";
-            this.directoryBrowseButton.FlatStyle = FlatStyle.System;
-            this.directoryBrowseButton.Top = directoryNameLabel.Bottom;
-            this.directoryBrowseButton.Height = wixFileName.Height;
-            this.directoryBrowseButton.Left = this.ClientSize.Width - this.directoryBrowseButton.Width - padding;
-            this.directoryBrowseButton.Width = buttonOk.Width;
-            this.directoryBrowseButton.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.directoryBrowseButton.Click += new EventHandler(OnDirectoryBrowse);
-            this.Controls.Add(this.directoryBrowseButton);
+            directoryBrowseButton = new Button();
+            directoryBrowseButton.Text = "Browse";
+            directoryBrowseButton.FlatStyle = FlatStyle.System;
+            directoryBrowseButton.Top = directoryNameLabel.Bottom;
+            directoryBrowseButton.Height = wixFileName.Height;
+            directoryBrowseButton.Left = ClientSize.Width - directoryBrowseButton.Width - padding;
+            directoryBrowseButton.Width = buttonOk.Width;
+            directoryBrowseButton.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            directoryBrowseButton.Click += new EventHandler(OnDirectoryBrowse);
+            Controls.Add(directoryBrowseButton);
 
-            this.installerTypeLabel = new Label();
-            this.installerTypeLabel.Text = "Choose Installer Type:";
-            this.installerTypeLabel.Top = directoryName.Bottom + 4;
-            this.installerTypeLabel.Left = padding;
-            this.installerTypeLabel.Height = 14;
-            this.installerTypeLabel.Width = ClientSize.Width - 2*padding;
-            this.installerTypeLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.Controls.Add(this.installerTypeLabel);
+            wixDestinationTextLabel = new Label();
+            wixDestinationTextLabel.Text = "Project will be created at:";
+            wixDestinationTextLabel.Top = directoryName.Bottom + 2;
+            wixDestinationTextLabel.Left = padding;
+            wixDestinationTextLabel.Height = 14;
+            wixDestinationTextLabel.Width = ClientSize.Width - 2*padding;
+            wixDestinationTextLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(wixDestinationTextLabel);
 
-            this.productRadioButton = new RadioButton();
-            this.productRadioButton.Text = "Product";
-            this.productRadioButton.Tag = "Product";
-            this.productRadioButton.Top = this.installerTypeLabel.Bottom;
-            this.productRadioButton.Left = 20;
-            this.productRadioButton.Width = ClientSize.Width - 20 - padding;
-            this.productRadioButton.Height = 14;
-            this.productRadioButton.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.productRadioButton.Checked = true;
-            this.Controls.Add(this.productRadioButton);
+            wixDestinationLabel = new Label();
+            wixDestinationLabel.Text = "";
+            wixDestinationLabel.Top = wixDestinationTextLabel.Bottom + 2;
+            wixDestinationLabel.Left = padding;
+            wixDestinationLabel.Height = 14;
+            wixDestinationLabel.Width = ClientSize.Width - 2*padding;
+            wixDestinationLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(wixDestinationLabel);
 
-            this.moduleRadioButton = new RadioButton();
-            this.moduleRadioButton.Text = "Module";
-            this.moduleRadioButton.Tag = "Module";
-            this.moduleRadioButton.Top = this.productRadioButton.Bottom;
-            this.moduleRadioButton.Left = 20;
-            this.moduleRadioButton.Width = ClientSize.Width - 20 - padding;
-            this.moduleRadioButton.Height = 14;
-            this.moduleRadioButton.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            this.Controls.Add(this.moduleRadioButton);
+            installerTypeLabel = new Label();
+            installerTypeLabel.Text = "Choose Installer Type:";
+            installerTypeLabel.Top = wixDestinationLabel.Bottom + 8;
+            installerTypeLabel.Left = padding;
+            installerTypeLabel.Height = 14;
+            installerTypeLabel.Width = ClientSize.Width - 2*padding;
+            installerTypeLabel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(installerTypeLabel);
+
+            productRadioButton = new RadioButton();
+            productRadioButton.Text = "Product";
+            productRadioButton.Tag = "Product";
+            productRadioButton.Top = installerTypeLabel.Bottom;
+            productRadioButton.Left = 20;
+            productRadioButton.Width = ClientSize.Width - 20 - padding;
+            productRadioButton.Height = 14;
+            productRadioButton.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            productRadioButton.Checked = true;
+            Controls.Add(productRadioButton);
+
+            moduleRadioButton = new RadioButton();
+            moduleRadioButton.Text = "Module";
+            moduleRadioButton.Tag = "Module";
+            moduleRadioButton.Top = productRadioButton.Bottom;
+            moduleRadioButton.Left = 20;
+            moduleRadioButton.Width = ClientSize.Width - 20 - padding;
+            moduleRadioButton.Height = 14;
+            moduleRadioButton.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
+            Controls.Add(moduleRadioButton);
 
 
-            this.buttonCancel.Left = this.ClientSize.Width - this.buttonCancel.Width - padding;
-            this.buttonOk.Left = this.buttonCancel.Left - this.buttonOk.Width - 2*padding;
+            buttonCancel.Left = ClientSize.Width - buttonCancel.Width - padding;
+            buttonOk.Left = buttonCancel.Left - buttonOk.Width - 2*padding;
 
-            this.buttonCancel.Top = moduleRadioButton.Bottom;
-            this.buttonOk.Top = moduleRadioButton.Bottom;
+            buttonCancel.Top = moduleRadioButton.Bottom;
+            buttonOk.Top = moduleRadioButton.Bottom;
 
-            this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
-            this.AcceptButton = buttonOk;
-            this.CancelButton = buttonCancel;
+            AcceptButton = buttonOk;
+            CancelButton = buttonCancel;
 
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ControlBox = true; 
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ControlBox = true; 
 
-            this.StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterParent;
 
-            this.Activated += new EventHandler(IsActivated);
+            Activated += new EventHandler(IsActivated);
 
-            this.wixFileName.SelectAll();
+            wixFileName.SelectAll();
 
             CheckEnableOkButton();
 
-            this.wixFileName.Select();
+            wixFileName.Select();
         }
 
         private void IsActivated(object sender, EventArgs e) {
@@ -217,22 +239,14 @@ namespace WixEdit {
         }
 
         private void OnOk(object sender, EventArgs e) {
-            string wixFile = Path.Combine(directoryName.Text, wixFileName.Text);
-            if (Path.GetExtension(wixFile).Length == 0) {
-                if (wixFile.EndsWith(".") == false) {
-                    wixFile = wixFile + ".";
-                }
-
-                wixFile = wixFile + "wxs";
-            }
-
+            string wixFile = Path.Combine(directoryName.Text, wixFileName + "\\" + wixFileName + ".wxs");
             if (File.Exists(wixFile)) {
                 MessageBox.Show(wixFile + " Does already exist.");
 
                 return;
             }
 
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
 
             XmlDocument wixXmlDoc = new XmlDocument();
             XmlNamespaceManager wxsNsmgr = new XmlNamespaceManager(wixXmlDoc.NameTable);
@@ -311,8 +325,7 @@ namespace WixEdit {
             // Allow the user to create new files via the FolderBrowserDialog.
             dialog.ShowNewFolderButton = true;
 
-            // Default to the My Documents folder.
-            dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+            dialog.SelectedPath = directoryName.Text;
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {
@@ -326,6 +339,15 @@ namespace WixEdit {
         }
 
         private void CheckEnableOkButton() {
+            if (wixDestinationLabel != null) {
+                if (directoryName.Text != null && directoryName.Text.Length > 0 &&
+                    wixFileName.Text != null && wixFileName.Text.Length > 0) {
+                    wixDestinationLabel.Text = Path.Combine(directoryName.Text, wixFileName.Text + "\\" + wixFileName.Text + ".wxs");
+                } else {
+                    wixDestinationLabel.Text = "";
+                }
+            }
+
             if (directoryName.Text.Length > 0 &&
                 Directory.Exists(directoryName.Text) &&
                 wixFileName.Text.Length > 0) {

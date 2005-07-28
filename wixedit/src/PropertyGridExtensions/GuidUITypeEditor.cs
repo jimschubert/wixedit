@@ -49,13 +49,13 @@ namespace WixEdit.PropertyGridExtensions {
         /// <param name="value">the value prior to editing</param>
         /// <returns>the new connection string after editing</returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
-            return this.EditValue(value as string);
+            return EditValue(value as string);
         }
 
         /// <summary>show the form for the new connection string</summary>
         /// <returns>the new connection string after editing</returns>
         public string EditValue() {
-            return this.EditValue(string.Empty);
+            return EditValue(string.Empty);
         }
 
         /// <summary>show the form for the new connection string based on an an existing one</summary>

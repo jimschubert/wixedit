@@ -56,6 +56,9 @@ namespace WixEdit {
         protected MenuItem fileClose;
         protected MenuItem fileSeparator;
         protected MenuItem fileExit;
+        protected MenuItem editMenu;
+        protected MenuItem editUndo;
+        protected MenuItem editRedo;
         protected MenuItem toolsMenu;
         protected MenuItem toolsOptions;
         protected MenuItem toolsWixCompile;
@@ -123,6 +126,7 @@ namespace WixEdit {
             fileExit.ShowShortcut = true;
 
             fileMenu.Text = "&File";
+            fileMenu.Popup += new EventHandler(fileMenu_Popup);
             fileMenu.MenuItems.Add(0, fileNew);
             fileMenu.MenuItems.Add(1, fileLoad);
             fileMenu.MenuItems.Add(2, fileSave);
@@ -133,6 +137,27 @@ namespace WixEdit {
             mainMenu.MenuItems.Add(0, fileMenu);
 
 
+            editMenu = new IconMenuItem();
+            editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
+            editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
+
+            editUndo.Text = "&Undo";
+            editUndo.Click += new System.EventHandler(editUndo_Click);
+            editUndo.Shortcut = Shortcut.CtrlZ;
+            editUndo.ShowShortcut = true;
+
+            editRedo.Text = "&Redo";
+            editRedo.Click += new System.EventHandler(editRedo_Click);
+            editRedo.Shortcut = Shortcut.CtrlR;
+            editRedo.ShowShortcut = true;
+
+
+            editMenu.Text = "&Edit";
+            editMenu.Popup += new EventHandler(editMenu_Popup);
+            editMenu.MenuItems.Add(0, editUndo);
+            editMenu.MenuItems.Add(1, editRedo);
+            
+            mainMenu.MenuItems.Add(1, editMenu);
 
 
             toolsMenu = new IconMenuItem();
@@ -150,8 +175,8 @@ namespace WixEdit {
             toolsMenu.MenuItems.Add(0, toolsWixCompile);
             toolsMenu.MenuItems.Add(1, new IconMenuItem("-"));
             toolsMenu.MenuItems.Add(2, toolsOptions);
-            
-            mainMenu.MenuItems.Add(1, toolsMenu);
+
+            mainMenu.MenuItems.Add(2, toolsMenu);
 
 
             helpMenu = new IconMenuItem();
@@ -163,7 +188,7 @@ namespace WixEdit {
             helpMenu.Text = "&Help";
             helpMenu.MenuItems.Add(0, helpAbout);
 
-            mainMenu.MenuItems.Add(2, helpMenu);
+            mainMenu.MenuItems.Add(3, helpMenu);
 
             Menu = mainMenu;
 
@@ -208,6 +233,14 @@ namespace WixEdit {
         }
 
         private void fileNew_Click(object sender, System.EventArgs e) {
+            NewFile();
+        }
+
+        private void NewFile() {
+            if (HandlePendingChanges() == false) {
+                return;
+            }
+
             NewProjectForm frm = new NewProjectForm();
             if (frm.ShowDialog() == DialogResult.OK) {
                 CloseWxsFile();
@@ -222,6 +255,10 @@ namespace WixEdit {
         }
 
         private void OpenFile() {
+            if (HandlePendingChanges() == false) {
+                return;
+            }
+
             openWxsFileDialog.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|MSI Files (*.msi;*.msm)|*.MSI;*.MSM|All files (*.*)|*.*" ;
             openWxsFileDialog.RestoreDirectory = true ;
 
@@ -233,7 +270,7 @@ namespace WixEdit {
                     try {
                         // Either the wxs file doesn't exist or the user gives permission to overwrite the wxs file
                         if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
-                            MessageBox.Show("Do you want to overwrite the existing wxs file?", "Overwrite?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            MessageBox.Show("The existing wxs file will be overwritten.\r\n\r\nAre you sure you want to continue?", "Overwrite?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             Decompile(fileToOpen);
                             LoadWxsFile(Path.ChangeExtension(fileToOpen, "wxs"));
                         }
@@ -247,13 +284,14 @@ namespace WixEdit {
         }
 
         private void fileSave_Click(object sender, System.EventArgs e) {
-            ToggleDirty(false);
-            fileSave.Enabled = true;
-
             wixFiles.Save();
         }
 
         private void fileClose_Click(object sender, System.EventArgs e) {
+            if (HandlePendingChanges() == false) {
+                return;
+            }
+
             CloseWxsFile();
         }
 
@@ -261,23 +299,74 @@ namespace WixEdit {
             Application.Exit();
         }
 
+        private void fileMenu_Popup(object sender, System.EventArgs e) {
+            if (wixFiles != null) {
+                fileSave.Enabled = wixFiles.UndoManager.HasChanges();
+            }
+        }
+
+        private void editMenu_Popup(object sender, System.EventArgs e) {
+            // Clear the menu, so when we change the text the 
+            // IconMenuItem.OnMeasureItem will be fired.
+            editMenu.MenuItems.Clear();
+
+            if (wixFiles == null || wixFiles.UndoManager.CanUndo() == false) {
+                editUndo.Enabled = false;
+                editUndo.Text = "Undo";
+            } else {
+                editUndo.Enabled = true;
+                editUndo.Text = "Undo " + wixFiles.UndoManager.GetNextUndoActionString();
+            } 
+
+            if (wixFiles == null || wixFiles.UndoManager.CanRedo() == false) {
+                editRedo.Enabled = false;
+                editRedo.Text = "Redo";
+            } else {
+                editRedo.Enabled = true;
+                editRedo.Text = "Redo " + wixFiles.UndoManager.GetNextRedoActionString();
+            }
+
+            editMenu.MenuItems.Add(0, editUndo);
+            editMenu.MenuItems.Add(1, editRedo);
+        }
+
+        private void editUndo_Click(object sender, System.EventArgs e) {
+            XmlNode node = wixFiles.UndoManager.Undo();
+
+            ShowNode(node);
+        }
+        
+        
+        private void editRedo_Click(object sender, System.EventArgs e) {
+            XmlNode node = wixFiles.UndoManager.Redo();
+
+            ShowNode(node);
+        }
+
+        private void ShowNode(XmlNode node) {
+            if (node != null) {
+                foreach (DisplayBasePanel panel in panels) {
+                    if (panel.IsOwnerOfNode(node)) {
+                        tabButtonControl.SelectedPanel = panel;
+                        panel.ShowNode(node);
+                        break;
+                    }
+                }
+            }
+        }
+
         private void toolsWixCompile_Click(object sender, System.EventArgs e) {
-            /*if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
-                MessageBox.Show("Please specify the path to the Wix binaries in the settings dialog.");
+            try {
+                Compile();
+            } catch (Exception ex) {
+                MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-                return;
-            }*/
-
-            ShowOutputPanel(null, null);
-
-            outputPanel.Clear();
-            Update();
-
+        private void Compile() {
             string candleExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(candleExe) == false) {
-                MessageBox.Show("candle.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
-
-                return;
+                throw new Exception("The executable \"candle.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiCandle = new ProcessStartInfo();
@@ -290,9 +379,7 @@ namespace WixEdit {
 
             string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(lightExe) == false) {
-                MessageBox.Show("light.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
-
-                return;
+                throw new Exception("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiLight = new ProcessStartInfo();
@@ -303,24 +390,19 @@ namespace WixEdit {
             psiLight.RedirectStandardError = false;            
             psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi"));
 
+            ShowOutputPanel(null, null);
+            outputPanel.Clear();
+            Update();
+
             outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
         }
 
         private void Decompile(string fileName) {
-            /*if (WixEditSettings.Instance.BinDirectory == null || Directory.Exists(WixEditSettings.Instance.BinDirectory) == false) {
-                throw new Exception("Please specify the path to the Wix binaries in the settings dialog.");
-            }*/
-
             FileInfo msiFile = new FileInfo(fileName);
-
-            ShowOutputPanel(null, null);
-
-            outputPanel.Clear();
-            Update();
 
             string darkExe = WixEditSettings.Instance.WixBinariesDirectory.Dark;
             if (File.Exists(darkExe) == false) {
-                throw new Exception("dark.exe not found. Please specify the correct path to the Wix binaries in the settings dialog.");
+                throw new Exception("The executable \"dark.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiDark = new ProcessStartInfo();
@@ -330,6 +412,10 @@ namespace WixEdit {
             psiDark.RedirectStandardOutput = true;
             psiDark.RedirectStandardError = false;
             psiDark.Arguments = String.Format("-nologo -x \"{0}\" \"{1}\" \"{2}\"", msiFile.DirectoryName, msiFile.FullName, Path.ChangeExtension(msiFile.FullName, "wxs"));
+
+            ShowOutputPanel(null, null);
+            outputPanel.Clear();
+            Update();
 
             outputPanel.Run(psiDark);
         }
@@ -372,14 +458,27 @@ namespace WixEdit {
             }
 
             if (panels[oldTabIndex].Menu != null) {
-                mainMenu.MenuItems.RemoveAt(1);
+                mainMenu.MenuItems.RemoveAt(2);
             }
 
             if (panels[tabButtonControl.SelectedIndex].Menu != null) {
-                mainMenu.MenuItems.Add(1, panels[tabButtonControl.SelectedIndex].Menu);
+                mainMenu.MenuItems.Add(2, panels[tabButtonControl.SelectedIndex].Menu);
             }
 
             oldTabIndex = tabButtonControl.SelectedIndex;
+        }
+
+        private bool HandlePendingChanges() {
+            if (wixFiles != null && wixFiles.UndoManager.HasChanges() == true) {
+                DialogResult result = MessageBox.Show("Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes) {
+                    wixFiles.Save();
+                } else if (result == DialogResult.Cancel) {
+                    return false;
+                }   
+            }
+
+            return true;
         }
 
         private void LoadWxsFile(string file) {
@@ -405,7 +504,7 @@ namespace WixEdit {
             panels[1] = editInstallDataPanel;
 
             if (editInstallDataPanel.Menu != null) {
-                mainMenu.MenuItems.Add(1, editInstallDataPanel.Menu);
+                mainMenu.MenuItems.Add(2, editInstallDataPanel.Menu);
             }
 
             // Add properties tab
@@ -449,17 +548,9 @@ namespace WixEdit {
             fileClose.Enabled = true;
             Text = "WiX Edit - " + wixFiles.WxsFile.Name;
 
-            ToggleDirty(false);
             fileSave.Enabled = true;
 
             toolsWixCompile.Enabled = true;
-        }
-
-        private void ToggleDirty(bool dirty) {
-            if (dirty != fileIsDirty) {
-                fileIsDirty = dirty;
-                fileSave.Enabled = dirty;
-            }
         }
 
         private void CloseWxsFile() {
@@ -493,7 +584,6 @@ namespace WixEdit {
             fileClose.Enabled = false;
             Text = "WiX Edit";
 
-            ToggleDirty(false);
             fileSave.Enabled = false;
         }
 

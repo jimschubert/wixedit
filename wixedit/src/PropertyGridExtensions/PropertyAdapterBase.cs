@@ -68,7 +68,7 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         PropertyDescriptorCollection System.ComponentModel.ICustomTypeDescriptor.GetProperties() {
-            return this.GetProperties(new Attribute[0]);
+            return GetProperties(new Attribute[0]);
         }
 
         public object GetEditor(Type editorBaseType) {

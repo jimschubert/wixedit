@@ -104,94 +104,98 @@ namespace WixEdit.PropertyGridExtensions {
 
             XmlAttributeAdapter adapter = context.Instance as XmlAttributeAdapter;
             XmlAttributePropertyDescriptor desc = context.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            XmlNode simpleType = GetSimpleType(desc.AttributeDescription, adapter.WixFiles.XsdNsmgr);
 
             long minVal = Int64.MinValue;
             long maxVal = Int64.MaxValue;
 
-            // <xs:restriction base="xs:nonNegativeInteger">
-            XmlNode restriction = simpleType.SelectSingleNode("xs:restriction", adapter.WixFiles.XsdNsmgr);
-            if (IsValidAttribute(restriction.Attributes["base"])) {
-                string baseString = restriction.Attributes["base"].Value;
-                switch (baseString.ToLower()) {
-                    case "xs:integer":
-                        break;
-                    case "xs:long":
-                        minVal = long.MinValue;
-                        maxVal = long.MaxValue;
-                        break;
-                    case "xs:int":
-                        minVal = int.MinValue;
-                        maxVal = int.MaxValue;
-                        break;
-                    case "xs:short":
-                        minVal = short.MinValue;
-                        maxVal = short.MaxValue;
-                        break;
-                    case "xs:byte":
-                        minVal = byte.MinValue;
-                        maxVal = byte.MaxValue;
-                        break;
-                    case "xs:nonnegativeinteger":
-                    case "xs:positiveInteger":
-                        minVal = 0;
-                        break;
-                    case "xs:unsignedlong":
-                        minVal = 0;
-                        maxVal = long.MaxValue;
-                        break;
-                    case "xs:unsignedint":
-                        minVal = 0;
-                        maxVal = int.MaxValue;
-                        break;
-                    case "xs:unsignedshort":
-                        minVal = 0;
-                        maxVal = short.MaxValue;
-                        break;
-                    case "xs:unsignedbyte":
-                        minVal = 0;
-                        maxVal = byte.MaxValue;
-                        break;
-                    case "xs:nonpositiveinteger":
-                    case "xs:negativeinteger":
-                        maxVal = 0;
-                        break;
-                    default:
-                        throw new Exception(baseString + " is a non supported type!");
+            XmlNode restriction = null;
 
+            string typeString = desc.AttributeDescription.Attributes["type"].Value;
+            if (typeString.StartsWith("xs:") == false) {
+                XmlNode simpleType = GetSimpleType(desc.AttributeDescription, adapter.WixFiles.XsdNsmgr);
+
+                if (simpleType != null) {
+                    restriction = simpleType.SelectSingleNode("xs:restriction", adapter.WixFiles.XsdNsmgr);
+                    if (IsValidAttribute(restriction.Attributes["base"])) {
+                        typeString = restriction.Attributes["base"].Value;
+                    }
                 }
             }
 
-            XmlNode restrictionSubNode = restriction.SelectSingleNode("xs:maxExclusive", adapter.WixFiles.XsdNsmgr);
-            if (restrictionSubNode != null &&
-                IsValidAttribute(restrictionSubNode.Attributes["value"])) {
-                maxVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value) - 1;
+            switch (typeString.ToLower()) {
+                case "xs:integer":
+                    break;
+                case "xs:long":
+                    minVal = long.MinValue;
+                    maxVal = long.MaxValue;
+                    break;
+                case "xs:int":
+                    minVal = int.MinValue;
+                    maxVal = int.MaxValue;
+                    break;
+                case "xs:short":
+                    minVal = short.MinValue;
+                    maxVal = short.MaxValue;
+                    break;
+                case "xs:byte":
+                    minVal = byte.MinValue;
+                    maxVal = byte.MaxValue;
+                    break;
+                case "xs:nonnegativeinteger":
+                case "xs:positiveInteger":
+                    minVal = 0;
+                    break;
+                case "xs:unsignedlong":
+                    minVal = 0;
+                    maxVal = long.MaxValue;
+                    break;
+                case "xs:unsignedint":
+                    minVal = 0;
+                    maxVal = int.MaxValue;
+                    break;
+                case "xs:unsignedshort":
+                    minVal = 0;
+                    maxVal = short.MaxValue;
+                    break;
+                case "xs:unsignedbyte":
+                    minVal = 0;
+                    maxVal = byte.MaxValue;
+                    break;
+                case "xs:nonpositiveinteger":
+                case "xs:negativeinteger":
+                    maxVal = 0;
+                    break;
+                default:
+                    throw new Exception(typeString + " is a non supported type!");
+
             }
 
-            restrictionSubNode = restriction.SelectSingleNode("xs:maxInclusive", adapter.WixFiles.XsdNsmgr);
-            if (restrictionSubNode != null &&
-                IsValidAttribute(restrictionSubNode.Attributes["value"])) {
-                maxVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value);
-            }
 
-            restrictionSubNode = restriction.SelectSingleNode("xs:minExclusive", adapter.WixFiles.XsdNsmgr);
-            if (restrictionSubNode != null &&
-                IsValidAttribute(restrictionSubNode.Attributes["value"])) {
-                minVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value) + 1;
+            if (restriction != null) {    
+                XmlNode restrictionSubNode = restriction.SelectSingleNode("xs:maxExclusive", adapter.WixFiles.XsdNsmgr);
+                if (restrictionSubNode != null &&
+                    IsValidAttribute(restrictionSubNode.Attributes["value"])) {
+                    maxVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value) - 1;
+                }
+    
+                restrictionSubNode = restriction.SelectSingleNode("xs:maxInclusive", adapter.WixFiles.XsdNsmgr);
+                if (restrictionSubNode != null &&
+                    IsValidAttribute(restrictionSubNode.Attributes["value"])) {
+                    maxVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value);
+                }
+    
+                restrictionSubNode = restriction.SelectSingleNode("xs:minExclusive", adapter.WixFiles.XsdNsmgr);
+                if (restrictionSubNode != null &&
+                    IsValidAttribute(restrictionSubNode.Attributes["value"])) {
+                    minVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value) + 1;
+                }
+    
+                restrictionSubNode = restriction.SelectSingleNode("xs:minInclusive", adapter.WixFiles.XsdNsmgr);
+                if (restrictionSubNode != null &&
+                    IsValidAttribute(restrictionSubNode.Attributes["value"])) {
+                    minVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value);
+                }
             }
-
-            restrictionSubNode = restriction.SelectSingleNode("xs:minInclusive", adapter.WixFiles.XsdNsmgr);
-            if (restrictionSubNode != null &&
-                IsValidAttribute(restrictionSubNode.Attributes["value"])) {
-                minVal = Int64.Parse(restrictionSubNode.Attributes["value"].Value);
-            }
-
-//	<xs:simpleType name="PercentType">
-//		<xs:annotation><xs:documentation>Values of this type are any integers between 0 and 100, inclusive.</xs:documentation></xs:annotation>
-//		<xs:restriction base="xs:nonNegativeInteger">
-//			<xs:maxInclusive value="100"/>
-//		</xs:restriction>
-//	</xs:simpleType>
 
             Int64 intValue = (Int64) value;
 

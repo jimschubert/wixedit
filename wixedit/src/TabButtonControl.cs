@@ -110,9 +110,33 @@ namespace WixEdit {
             get {
                 return selectedIndex;
             }
+            set {
+                tabButtons.SelectedIndex = value;
+            }
+        }
+
+
+        public Panel SelectedPanel {
+            get {
+                return (Panel) tabPanels[selectedIndex];
+            }
+            set {
+                for (int i = 0; i < tabButtons.Items.Count; i++) {
+                    if (value == tabPanels[i]) {
+                        tabButtons.SelectedIndex = i;
+                        return;
+                    }
+                }
+
+                throw new Exception("Panel not found in TabButtonControl.");
+            }
         }
 
         private void tabButtons_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e) {
+            if (e.Index == -1) {
+                return;
+            }
+
             // Draw the background of the ListBox control for each item.
             e.DrawBackground();
 
@@ -137,7 +161,7 @@ namespace WixEdit {
             Bitmap img = tabBitmaps[e.Index] as Bitmap;
             Rectangle imgBounds = e.Bounds;
 
-            Point imgPos = new Point(e.Bounds.X, e.Bounds.Y);
+            Point imgPos = new Point(e.Bounds.X, e.Bounds.Y+2);
             imgPos.X += (e.Bounds.Width-img.Width)/2;
             imgPos.Y += ((e.Bounds.Height-Convert.ToInt32(textSize.Height))/2) - ((img.Width)/2);
             e.Graphics.DrawImage(img, imgPos);

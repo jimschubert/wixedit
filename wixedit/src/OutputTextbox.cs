@@ -72,21 +72,21 @@ public class OutputTextbox : RichTextBox {
 
     public Color SelectionBackColor {
         get {
-            IntPtr HWND = this.Handle;
+            IntPtr HWND = Handle;
             CharFormat2 Format = new CharFormat2();
             Format.dwMask = CFM_BACKCOLOR;
             Format.cbSize = Marshal.SizeOf(Format);
-            SendMessage(this.Handle, EM_GETCHARFORMAT, SCF_SELECTION, ref Format);
+            SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, ref Format);
             return ColorTranslator.FromOle(Format.crBackColor);
         }
         set {
-            IntPtr HWND = this.Handle;
+            IntPtr HWND = Handle;
             CharFormat2 Format = new CharFormat2();
             Format.crBackColor = ColorTranslator.ToOle(value);
             Format.dwMask = CFM_BACKCOLOR;
             Format.cbSize = Marshal.SizeOf(Format);
 
-            SendMessage(this.Handle, EM_SETCHARFORMAT, SCF_SELECTION, ref Format);
+            SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, ref Format);
         }
     }
 }

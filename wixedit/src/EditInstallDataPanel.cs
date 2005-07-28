@@ -20,18 +20,19 @@
 
 
 using System;
+using System.Xml;
 using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
     /// Panel to edit install data.
     /// </summary>
-    public class EditInstallDataPanel : BasePanel {
+    public class EditInstallDataPanel : DisplayBasePanel {
         protected TabControl tabControl;
         protected TabPage editFilesTabPage;
-        protected Panel editFilesPanel;
+        protected EditFilesPanel editFilesPanel;
         protected TabPage editFeaturesTabPage;
-        protected Panel editFeaturesPanel;
+        protected EditFeaturesPanel editFeaturesPanel;
 
         public EditInstallDataPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -39,29 +40,45 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            this.tabControl = new TabControl();
-            this.tabControl.Dock = DockStyle.Fill;
+            tabControl = new TabControl();
+            tabControl.Dock = DockStyle.Fill;
 
-            this.Controls.Add(tabControl);
+            Controls.Add(tabControl);
 
-            this.editFilesPanel = new EditFilesPanel(this.wixFiles);
-            this.editFilesPanel.Dock = DockStyle.Fill;
+            editFilesPanel = new EditFilesPanel(wixFiles);
+            editFilesPanel.Dock = DockStyle.Fill;
 
-            this.editFilesTabPage = new TabPage("Files");
-            this.editFilesTabPage.Controls.Add(this.editFilesPanel);
+            editFilesTabPage = new TabPage("Files");
+            editFilesTabPage.Controls.Add(editFilesPanel);
 
-            this.tabControl.TabPages.Add(this.editFilesTabPage);
+            tabControl.TabPages.Add(editFilesTabPage);
 
 
-            this.editFeaturesPanel = new EditFeaturesPanel(this.wixFiles);
-            this.editFeaturesPanel.Dock = DockStyle.Fill;
+            editFeaturesPanel = new EditFeaturesPanel(wixFiles);
+            editFeaturesPanel.Dock = DockStyle.Fill;
 
-            this.editFeaturesTabPage = new TabPage("Features");
-            this.editFeaturesTabPage.Controls.Add(this.editFeaturesPanel);
+            editFeaturesTabPage = new TabPage("Features");
+            editFeaturesTabPage.Controls.Add(editFeaturesPanel);
 
-            this.tabControl.TabPages.Add(this.editFeaturesTabPage);
+            tabControl.TabPages.Add(editFeaturesTabPage);
 
         }
         #endregion
+
+        public override bool IsOwnerOfNode(XmlNode node) {
+            return (editFilesPanel.IsOwnerOfNode(node) || editFeaturesPanel.IsOwnerOfNode(node));
+        }
+
+        public override void ShowNode(XmlNode node) {
+            if (editFilesPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editFilesTabPage;
+                editFilesPanel.ShowNode(node);
+            } else if (editFeaturesPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editFeaturesTabPage;
+                editFeaturesPanel.ShowNode(node);
+            } else {
+                tabControl.SelectedTab = editFilesTabPage;
+            }
+        }
     }
 }

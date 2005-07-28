@@ -52,9 +52,9 @@ namespace WixEdit.Settings {
         /// <returns>the new connection string after editing</returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
             if (value is string) {
-                return this.EditValue(value as string);
+                return EditValue(value as string);
             } else if (value is BinDirectoryStructure) {
-                return this.EditValue(value as BinDirectoryStructure);
+                return EditValue(value as BinDirectoryStructure);
             } else {
                 throw new Exception("Invalid type");
             }
@@ -63,7 +63,7 @@ namespace WixEdit.Settings {
         /// <summary>show the form for the new connection string</summary>
         /// <returns>the new connection string after editing</returns>
         public string EditValue() {
-            return this.EditValue(string.Empty);
+            return EditValue(string.Empty);
         }
 
         /// <summary>show the form for the new connection string based on an an existing one</summary>

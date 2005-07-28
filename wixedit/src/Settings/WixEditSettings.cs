@@ -43,6 +43,7 @@ namespace WixEdit.Settings {
             public string CandleLocation;
             public string XsdLocation;
             public string TemplateDirectory;
+            public string DefaultProjectDirectory;
         }
 
         private static string filename = "WixEditSettings.xml";
@@ -128,25 +129,23 @@ namespace WixEdit.Settings {
         ]
         public BinDirectoryStructure WixBinariesDirectory {
             get {
-                if (data.BinDirectory != null && data.BinDirectory.Length > 0) {
-                    return new BinDirectoryStructure(data);
-                }
-
-                // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
-                // relative to the WixEdit binary.
-                DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
-                if (parent != null) {
-                    foreach (DirectoryInfo dir in parent.GetDirectories("wix*")) {
-                        foreach (FileInfo file in dir.GetFiles("*.exe")) {
-                            if (file.Name.ToLower().Equals("candle.exe")) {
-                                data.BinDirectory = dir.FullName;
-                                return new BinDirectoryStructure(data);
+                if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.XsdLocation == null) {
+                    // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
+                    // relative to the WixEdit binary.
+                    DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
+                    if (parent != null) {
+                        foreach (DirectoryInfo dir in parent.GetDirectories("wix*")) {
+                            foreach (FileInfo file in dir.GetFiles("*.exe")) {
+                                if (file.Name.ToLower().Equals("candle.exe")) {
+                                    data.BinDirectory = dir.FullName;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
-                return null;
+                return new BinDirectoryStructure(data);
             }
             set {
                 if (value.HasSameBinDirectory()) {
@@ -189,6 +188,20 @@ namespace WixEdit.Settings {
         }
 
         [
+        Category("WixEdit Settings"), 
+        Description("The default directory where WixEdit create projects."), 
+        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        ]
+        public string DefaultProjectDirectory {
+            get {
+                return data.DefaultProjectDirectory;
+            }
+            set {
+                data.DefaultProjectDirectory = value;
+            }
+        }
+
+        [
         Category("Version"), 
         Description("The version number of the WixEdit application."), 
         ReadOnly(true)
@@ -212,7 +225,7 @@ namespace WixEdit.Settings {
         #region PropertyAdapterBase overrides
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList propertyDescriptors = new ArrayList();
-            foreach (PropertyInfo propInfo in this.GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
+            foreach (PropertyInfo propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
                 ArrayList atts = new ArrayList(propInfo.GetCustomAttributes(false));
                 propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(propInfo, (Attribute[]) atts.ToArray(typeof(Attribute))));
             }

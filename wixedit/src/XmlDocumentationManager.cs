@@ -36,6 +36,10 @@ namespace WixEdit {
         }
 
         public bool HasDocumentation(XmlNode xmlNodeDefinition) {
+            if (xmlNodeDefinition == null) {
+                return false;
+            }
+
             XmlNode documentation = xmlNodeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
             if(documentation == null) {
                 documentation = xmlNodeDefinition.SelectSingleNode("xs:simpleContent/xs:extension/xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
