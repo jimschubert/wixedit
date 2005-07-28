@@ -45,14 +45,14 @@ namespace WixEdit {
         }
 
         public IconMenuItem(Icon icon) {
-            this.bitmap = icon.ToBitmap();
+            bitmap = icon.ToBitmap();
             
             Init();
         }
 
         public IconMenuItem(string text, Icon icon) {
-            this.bitmap = icon.ToBitmap();
-            this.Text = text;
+            bitmap = icon.ToBitmap();
+            Text = text;
 
             Init();
         }
@@ -66,14 +66,14 @@ namespace WixEdit {
 
         public IconMenuItem(string text, Bitmap bitmap) {
             this.bitmap = bitmap;
-            this.Text = text;
             this.bitmap.MakeTransparent();
+            Text = text;
 
             Init();
         }
 
         public IconMenuItem(string text) {
-            this.Text = text;
+            Text = text;
 
             Init();
         }
@@ -85,15 +85,15 @@ namespace WixEdit {
 
         public Bitmap Bitmap {
             get {
-                return this.bitmap;
+                return bitmap;
             }
             set {
-                this.bitmap = value;
+                bitmap = value;
             }
         }
 
         public bool HasIcon() {
-            return (this.bitmap != null);
+            return (bitmap != null);
         }
 
         private void Init() {
@@ -129,16 +129,15 @@ namespace WixEdit {
 */
         protected override void OnMeasureItem(MeasureItemEventArgs e) {
             StringFormat format = new StringFormat();
+            format.SetTabStops(0, new Single[] {0});
             format.HotkeyPrefix = HotkeyPrefix.Show;
-            format.SetTabStops(60, new Single[] {0});
+            float textWidth = e.Graphics.MeasureString(GetFormattedText(), font, 50000, format).Width;
 
-            float textWidth = e.Graphics.MeasureString(GetFormattedText(), font, 10000, format).Width;
-
-            if (this.Parent.GetType().Equals(typeof(MainMenu))) {
+            if (Parent.GetType().Equals(typeof(MainMenu))) {
                 e.ItemWidth = (int) (textWidth) - 2;
                 e.ItemHeight = SystemInformation.MenuHeight + 2;
             } else {
-                e.ItemWidth = e.ItemHeight + (int)Math.Ceiling(textWidth) + sideBarWidth;
+                e.ItemWidth = e.ItemHeight + (int)Math.Ceiling(textWidth) + sideBarWidth + 10;
 
                 if (IsSeparator()) {
                     e.ItemHeight = menuSeperaterWidth + 2;
@@ -149,7 +148,7 @@ namespace WixEdit {
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e) {
-            if (this.Parent.GetType().Equals(typeof(MainMenu))) {
+            if (Parent.GetType().Equals(typeof(MainMenu))) {
                 DrawMainMenu(e.Graphics, e.Bounds, e.State);
             } else if (IsSeparator()) {
                 DrawSeparator(e.Graphics, e.Bounds);
@@ -157,7 +156,7 @@ namespace WixEdit {
                 Rectangle backRect = e.Bounds;
                 backRect.X += 1;
 
-                if (IsSelected(e.State) && this.Enabled) {
+                if (IsSelected(e.State) && Enabled) {
                     DrawSelection(e.Graphics, backRect);
                     if (HasIcon()) {
                         DrawSelectedIcon(e.Graphics, e.Bounds);
@@ -167,7 +166,7 @@ namespace WixEdit {
                     DrawSideBar(e.Graphics, e.Bounds);
                     
                     if (HasIcon()) {
-                        if (this.Enabled) {
+                        if (Enabled) {
                             DrawNormalIcon(e.Graphics, e.Bounds);
                         } else {
                             DrawDisabledIcon(e.Graphics, e.Bounds);
@@ -177,7 +176,7 @@ namespace WixEdit {
         
                 DrawText(e.Graphics, e.Bounds);
 
-                if (this.Checked) {
+                if (Checked) {
                     if (HasIcon() == false) {
                         DrawCheck(e.Graphics, e.Bounds);
                     } else {
@@ -195,16 +194,16 @@ namespace WixEdit {
             ImageAttributes a = new ImageAttributes();
 
             Rectangle iconDest = new Rectangle(dest.Left + 4, dest.Top + 5, 16, 16); 
-            graphics.DrawImage(MakeMonochrome(this.Bitmap, Color.Gray), iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+            graphics.DrawImage(MakeMonochrome(Bitmap, Color.Gray), iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
 
             iconDest = new Rectangle(dest.Left + 2, dest.Top + 3, 16, 16); 
-            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+            graphics.DrawImage(Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
 
 //            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 3);
         }
 
         private void DrawDisabledIcon(Graphics graphics, Rectangle dest) {
-            ControlPaint.DrawImageDisabled(graphics, this.Bitmap, dest.Left + 3, dest.Top + 4, menuBackColor);
+            ControlPaint.DrawImageDisabled(graphics, Bitmap, dest.Left + 3, dest.Top + 4, menuBackColor);
         }
 
         private void DrawNormalIcon(Graphics graphics, Rectangle dest) {
@@ -216,7 +215,7 @@ namespace WixEdit {
             
             a.SetColorMatrix(cm);
             
-            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+            graphics.DrawImage(Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
         }
 
         private void DrawSideBar(Graphics graphics, Rectangle dest) {
@@ -233,10 +232,16 @@ namespace WixEdit {
             Brush br;
 
             StringFormat format = new StringFormat();
-            format.HotkeyPrefix = HotkeyPrefix.Show;
             format.SetTabStops(60, new Single[] {0});
+            format.HotkeyPrefix = HotkeyPrefix.Show;
 
-            if (this.Enabled) {
+            // Alligned Right, looks messy. Because the letter widths are not equal
+            float scTextWidth = graphics.MeasureString(GetShortcutText(), font, 50000, format).Width;
+
+            int tabStopWidth = dest.Width - sideBarWidth - 5 - (int) Math.Ceiling(scTextWidth);
+            format.SetTabStops(tabStopWidth, new Single[] {0});
+
+            if (Enabled) {
                 br = new SolidBrush(Color.Black);
             } else {
                 br = new SolidBrush(Color.Gray);
@@ -262,7 +267,7 @@ namespace WixEdit {
             format.HotkeyPrefix = HotkeyPrefix.Show;
             format.SetTabStops(60, new Single[] {0});
 
-            graphics.DrawString(this.Text, font, Brushes.Black, dest.Left + 6, dest.Top + 3, format);
+            graphics.DrawString(Text, font, Brushes.Black, dest.Left + 6, dest.Top + 3, format);
         }
 
         private void DrawSeparator(Graphics graphics, Rectangle dest) {
@@ -281,11 +286,11 @@ namespace WixEdit {
             ImageAttributes a = new ImageAttributes();
 
             Rectangle iconDest = new Rectangle(dest.Left + 2, dest.Top + 2, 16, 16); 
-            graphics.DrawImage(this.Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
+            graphics.DrawImage(Bitmap, iconDest, 0,0,16,16, GraphicsUnit.Pixel, a);
 //            graphics.DrawIcon(icon, dest.Left + 2, dest.Top + 2);
     
             Pen pen;
-            if (this.Enabled) {
+            if (Enabled) {
                 pen = new Pen(Color.Gray);
             } else {
                 pen = new Pen(Color.DarkGray);
@@ -299,7 +304,7 @@ namespace WixEdit {
             Pen rectPen;
             Pen checkPen;
 
-            if (this.Enabled) {
+            if (Enabled) {
                 rectPen = new Pen(Color.Gray);
                 checkPen = new Pen(Color.Black);
             } else {
@@ -357,12 +362,25 @@ namespace WixEdit {
             bitmap1.UnlockBits(data2);
             return bitmap1;
         }
+
+        protected string GetShortcutText() {
+            string text = "";
+
+            if (ShowShortcut && Shortcut != Shortcut.None) {
+                Shortcut s = Shortcut;
+                
+                Keys k = (Keys)s;
+                text = TypeDescriptor.GetConverter(typeof(Keys)).ConvertToString(k);
+            }          
+
+            return text;
+        }
  
         protected string GetFormattedText() {
-            string text = this.Text;
+            string text = Text;
 
-            if (this.ShowShortcut && this.Shortcut != Shortcut.None) {
-                Shortcut s = this.Shortcut;
+            if (ShowShortcut && Shortcut != Shortcut.None) {
+                Shortcut s = Shortcut;
                 
                 Keys k = (Keys)s;
                 text = text + Convert.ToChar(9) + TypeDescriptor.GetConverter(typeof(Keys)).ConvertToString(k);

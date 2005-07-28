@@ -39,7 +39,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditPropertiesPanel.
     /// </summary>
-    public class EditPropertiesPanel : BasePanel {
+    public class EditPropertiesPanel : DisplayBasePanel {
         #region Controls
         private PropertyGrid propertyGrid;
         private ContextMenu propertyGridContextMenu;
@@ -53,32 +53,32 @@ namespace WixEdit {
         private void InitializeComponent() {
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
-            this.propertyGrid = new CustomPropertyGrid();
-            this.propertyGridContextMenu = new ContextMenu();
+            propertyGrid = new CustomPropertyGrid();
+            propertyGridContextMenu = new ContextMenu();
 
             // 
             // propertyGrid
             //
-            this.propertyGrid.Dock = DockStyle.Fill;
-            this.propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.propertyGrid.Location = new Point(140, 0);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new Size(269, 266);
-            this.propertyGrid.TabIndex = 1;
-            this.propertyGrid.PropertySort = PropertySort.Alphabetical;
-            this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.HelpVisible = false;
-            this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
+            propertyGrid.Dock = DockStyle.Fill;
+            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            propertyGrid.Location = new Point(140, 0);
+            propertyGrid.Name = "propertyGrid";
+            propertyGrid.Size = new Size(269, 266);
+            propertyGrid.TabIndex = 1;
+            propertyGrid.PropertySort = PropertySort.Alphabetical;
+            propertyGrid.ToolbarVisible = false;
+            propertyGrid.HelpVisible = false;
+            propertyGrid.ContextMenu = propertyGridContextMenu;
 
             // 
             // propertyGridContextMenu
             //
-            this.propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
             PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            this.propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.SelectedObject = propAdapter;
 
-            this.Controls.Add(this.propertyGrid);
+            Controls.Add(propertyGrid);
         }
         #endregion
 
@@ -115,14 +115,15 @@ namespace WixEdit {
                 XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
                 
 
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-
+//                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
                 product.AppendChild(newProp);
-                properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+//                properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+
+                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
                 PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
 
-                this.propertyGrid.SelectedObject = propAdapter;
+                propertyGrid.SelectedObject = propAdapter;
                 propertyGrid.Update();
 
                 foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
@@ -149,8 +150,40 @@ namespace WixEdit {
 
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
             propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            this.propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.SelectedObject = propAdapter;
             propertyGrid.Update();
+        }
+
+        public override bool IsOwnerOfNode(XmlNode node) {
+            XmlNode showable = GetShowableNode(node);
+            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr)) {
+                if (showable == xmlNode) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public override void ShowNode(XmlNode node) {
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+    
+            propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.Update();
+        }
+
+        private XmlNode GetShowableNode(XmlNode node) {
+            XmlNode showableNode = node;
+            while (showableNode.NodeType != XmlNodeType.Element) {
+                if (showableNode.NodeType == XmlNodeType.Attribute) {
+                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
+                } else {
+                    showableNode = showableNode.ParentNode;
+                }
+            }
+
+            return showableNode;
         }
     }
 }

@@ -21,33 +21,17 @@
 
 
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Collections;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Data;
 using System.Xml;
-using System.IO;
-using System.Resources;
-using System.Reflection;
-
-using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditPropertiesPanel.
+    /// Summary description for DisplayBasePanel.
     /// </summary>
-    public abstract class BasePanel : Panel{
-        protected WixFiles wixFiles;
-
-        public BasePanel(WixFiles wixFiles) {
-            this.wixFiles = wixFiles;
+    public abstract class DisplayBasePanel : BasePanel{
+        public DisplayBasePanel(WixFiles wixFiles) : base(wixFiles) {
         }
 
-        public virtual MenuItem Menu {
-            get { return null; }
-        }
+        public abstract bool IsOwnerOfNode(XmlNode node);
+        public abstract void ShowNode(XmlNode node);
     }
 }

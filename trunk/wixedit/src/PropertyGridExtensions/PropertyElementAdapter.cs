@@ -37,10 +37,10 @@ namespace WixEdit.PropertyGridExtensions {
 
         public XmlNodeList PropertyNodes {
             get {
-                return this.propertyNodes;
+                return propertyNodes;
             }
             set {
-                this.propertyNodes = value;
+                propertyNodes = value;
             }
         }
 

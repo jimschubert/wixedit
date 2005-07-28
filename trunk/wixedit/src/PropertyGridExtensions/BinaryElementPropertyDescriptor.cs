@@ -79,7 +79,7 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override bool CanResetValue(object component) {
-            return (this.GetValue(component).Equals("") == false);
+            return (GetValue(component).Equals("") == false);
         }
     }
 }

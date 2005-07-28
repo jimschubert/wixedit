@@ -38,10 +38,10 @@ namespace WixEdit.PropertyGridExtensions {
 
         public XmlNodeList BinaryNodes {
             get {
-                return this.binaryNodes;
+                return binaryNodes;
             }
             set {
-                this.binaryNodes = value;
+                binaryNodes = value;
             }
         }
 

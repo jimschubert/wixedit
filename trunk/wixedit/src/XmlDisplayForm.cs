@@ -42,8 +42,8 @@ namespace WixEdit {
         }
 
         private void InitializeComponent() {
-            this.Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
-            this.ClientSize = new System.Drawing.Size(800, 600);
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
+            ClientSize = new System.Drawing.Size(800, 600);
 
             webBrowser = new AxWebBrowser();
 
@@ -53,7 +53,7 @@ namespace WixEdit {
             //AxWebBrowser.Anchor = AnchorStyles.All;
             webBrowser.Dock = DockStyle.Fill;
             
-            this.Controls.Add(webBrowser);
+            Controls.Add(webBrowser);
             webBrowser.EndInit();
       
             webBrowser.RegisterAsBrowser = true;
@@ -63,7 +63,7 @@ namespace WixEdit {
             
         protected override void OnClosed(EventArgs e) {
             if (webBrowser != null) {
-                this.Controls.Remove(webBrowser);
+                Controls.Remove(webBrowser);
                 webBrowser.Dispose();
                 webBrowser = null;
             }

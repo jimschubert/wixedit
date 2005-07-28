@@ -28,80 +28,81 @@ using WixEdit.Settings;
 
 namespace WixEdit {
     public class WixFiles : IDisposable {
-        FileInfo _wxsFile;
+        FileInfo wxsFile;
 
-        XmlDocument _wxsDocument;
-        XmlNamespaceManager _wxsNsmgr;
+        UndoManager undoManager;
 
-        static XmlDocument _xsdDocument;
-        static XmlNamespaceManager _xsdNsmgr;
+        XmlDocument wxsDocument;
+        XmlNamespaceManager wxsNsmgr;
+
+        static XmlDocument xsdDocument;
+        static XmlNamespaceManager xsdNsmgr;
 
         static WixFiles() {
             ReloadXsd();
         }
 
-        public WixFiles(FileInfo wxsFile) {
-            _wxsFile = wxsFile;
+        public WixFiles(FileInfo wxsFileInfo) {
+            wxsFile = wxsFileInfo;
 
-            this._wxsDocument = new XmlDocument();
-            this._wxsDocument.Load(wxsFile.FullName);
+            wxsDocument = new XmlDocument();
+            wxsDocument.Load(wxsFile.FullName);
             
-            this._wxsNsmgr = new XmlNamespaceManager(this._wxsDocument.NameTable);
-            this._wxsNsmgr.AddNamespace("wix", this._wxsDocument.DocumentElement.NamespaceURI);
+            wxsNsmgr = new XmlNamespaceManager(wxsDocument.NameTable);
+            wxsNsmgr.AddNamespace("wix", wxsDocument.DocumentElement.NamespaceURI);
+
+            undoManager = new UndoManager(wxsDocument);
+        }
+
+        public UndoManager UndoManager {
+            get {
+                return undoManager;
+            }
         }
 
         public static void ReloadXsd() {
-            _xsdDocument = new XmlDocument();
+            xsdDocument = new XmlDocument();
 
-/*            if (WixEditSettings.Instance.BinDirectory != null &&
-                Directory.Exists(WixEditSettings.Instance.BinDirectory) &&
-                ( File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd")) ||
-                File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd")))) {
-                if (File.Exists(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"))) {
-                    _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "doc\\wix.xsd"));
-                } else {
-                    _xsdDocument.Load(Path.Combine(WixEditSettings.Instance.BinDirectory, "wix.xsd"));
-                }*/
             if (File.Exists(WixEditSettings.Instance.WixBinariesDirectory.Xsd)) {
-                _xsdDocument.Load(WixEditSettings.Instance.WixBinariesDirectory.Xsd);
+                xsdDocument.Load(WixEditSettings.Instance.WixBinariesDirectory.Xsd);
             } else {
-                _xsdDocument.Load(WixFiles.GetResourceStream("wix.xsd"));
+                xsdDocument.Load(WixFiles.GetResourceStream("wix.xsd"));
             }
         
-            _xsdNsmgr = new XmlNamespaceManager(_xsdDocument.NameTable);
-            _xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+            xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
+            xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
         }
 
         public static XmlDocument GetXsdDocument() {
-            return _xsdDocument;
+            return xsdDocument;
         }
 
         public static XmlNamespaceManager GetXsdNsmgr() {
-            return _xsdNsmgr;
+            return xsdNsmgr;
         }
 
         public XmlDocument WxsDocument {
-            get { return this._wxsDocument; }
+            get { return wxsDocument; }
         }
 
         public XmlNamespaceManager WxsNsmgr {
-            get { return this._wxsNsmgr; }
+            get { return wxsNsmgr; }
         }
 
         public XmlDocument XsdDocument {
-            get { return _xsdDocument; }
+            get { return xsdDocument; }
         }
 
         public XmlNamespaceManager XsdNsmgr {
-            get { return _xsdNsmgr; }
+            get { return xsdNsmgr; }
         }
 
         public FileInfo WxsFile {
-            get { return this._wxsFile; }
+            get { return wxsFile; }
         }
 
         public DirectoryInfo WxsDirectory {
-            get { return this._wxsFile.Directory; }
+            get { return wxsFile.Directory; }
         }
 
         public static Stream GetResourceStream(string resourceName) {
@@ -122,14 +123,16 @@ namespace WixEdit {
         #region IDisposable Members
 
         public void Dispose() {
-            _wxsDocument = null;
-            _wxsNsmgr = null;
+            wxsDocument = null;
+            wxsNsmgr = null;
         }
 
         #endregion
 
         public void Save() {
-            this._wxsDocument.Save(_wxsFile.FullName);
+            wxsDocument.Save(wxsFile.FullName);
+
+            undoManager.Clear();
         }
     }
 }

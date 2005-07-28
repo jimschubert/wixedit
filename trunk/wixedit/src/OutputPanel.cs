@@ -63,7 +63,7 @@ namespace WixEdit {
         public event EventHandler CloseClicked;
 
         private void InitializeComponent() {
-            this.TabStop = true;
+            TabStop = true;
             int buttonWidth = 11;
             int buttonHeigth = 11;
             int paddingX = 2;
@@ -75,7 +75,7 @@ namespace WixEdit {
 
             closeButton.Size = new Size(buttonWidth, buttonHeigth);
             closeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            closeButton.Location = new Point(this.ClientSize.Width - buttonWidth - 2*paddingX, paddingY);
+            closeButton.Location = new Point(ClientSize.Width - buttonWidth - 2*paddingX, paddingY);
             closeButton.BackColor = Color.Transparent;
             closeButton.Click += new EventHandler(OnCloseClick);
 
@@ -99,15 +99,15 @@ namespace WixEdit {
 
             outputTextBox.Dock = DockStyle.Bottom;
             outputTextBox.Location = new Point(0, buttonHeigth + 3*paddingY);
-            outputTextBox.Size = new Size(200, this.ClientSize.Height - outputTextBox.Location.Y);
+            outputTextBox.Size = new Size(200, ClientSize.Height - outputTextBox.Location.Y);
             outputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             outputTextBox.ScrollBars = RichTextBoxScrollBars.Both;
             outputTextBox.WordWrap = false;
             outputTextBox.AllowDrop = false;
 
-            this.Controls.Add(closeButton);
-            this.Controls.Add(outputLabel);
-            this.Controls.Add(outputTextBox);
+            Controls.Add(closeButton);
+            Controls.Add(outputLabel);
+            Controls.Add(outputTextBox);
 
 
             closeButton.TabStop = true;

@@ -39,7 +39,7 @@ namespace WixEdit {
     /// <summary>
     /// Base panel to edit data with a treeview and a details section.
     /// </summary>
-    public abstract class DetailsBasePanel : BasePanel {
+    public abstract class DetailsBasePanel : DisplayBasePanel {
         protected TreeView treeView;
         protected IconMenuItem newSubElementsMenu;
         protected IconMenuItem deleteCurrentElementMenu;
@@ -125,12 +125,12 @@ namespace WixEdit {
             // 
             panel1.Controls.Add(propertyGrid);
             panel1.Dock = DockStyle.Fill;
-            this.panel1.Location = new Point(142, 0);
+            panel1.Location = new Point(142, 0);
             panel1.Name = "panel1";
             panel1.Size = new Size(409, 266);
             panel1.TabIndex = 9;
 
-            this.Controls.Add(panel1);
+            Controls.Add(panel1);
             Controls.Add(splitter1);
             Controls.Add(treeView);
 
@@ -141,7 +141,6 @@ namespace WixEdit {
         protected void LoadData() {
             treeView.Nodes.Clear();
 
-            GetXmlNodes();
             IList files = GetXmlNodes();
             foreach (XmlNode file in files) {
                 AddTreeNodesRecursive(file, treeView.Nodes);
@@ -158,6 +157,65 @@ namespace WixEdit {
             get {
                 return new StringCollection();
             }
+        }
+
+        public override bool IsOwnerOfNode(XmlNode node) {
+            return FindNode(GetShowableNode(node), GetXmlNodes());
+        }
+
+        private XmlNode GetShowableNode(XmlNode node) {
+            XmlNode showableNode = node;
+            while (showableNode.NodeType != XmlNodeType.Element) {
+                if (showableNode.NodeType == XmlNodeType.Attribute) {
+                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
+                } else {
+                    showableNode = showableNode.ParentNode;
+                }
+            }
+
+            return showableNode;
+        }
+
+        private bool FindNode(XmlNode nodeToFind, IEnumerable xmlNodes) {
+            foreach (XmlNode node in xmlNodes) {
+                if (SkipElements.Contains(node.Name)) {
+                    continue;
+                }
+
+                if (node == nodeToFind) {
+                    return true;
+                }
+
+                if (FindNode(nodeToFind, node.ChildNodes)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public override void ShowNode(XmlNode node) {
+            LoadData();
+            TreeNode treeNode = FindTreeNode(GetShowableNode(node), treeView.Nodes);
+            if (treeNode != null) {
+                treeView.SelectedNode = null;
+                treeView.SelectedNode = treeNode;
+            }
+        }
+
+        private TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
+            foreach (TreeNode treeNode in treeNodes) {
+                if (treeNode.Tag == node) {
+                    return treeNode;
+                }
+
+                TreeNode foundNode = FindTreeNode(node, treeNode.Nodes);
+                if (foundNode != null) {
+                    return foundNode;
+                }
+            }
+
+            return null;
         }
 
         protected abstract ArrayList GetXmlNodes();
@@ -274,8 +332,17 @@ namespace WixEdit {
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
             propertyGrid.SelectedObject = null;
 
-            // Remove the attribute
-            attAdapter.XmlNode.Attributes.Remove(att);
+            
+            XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), wixFiles.XsdNsmgr);
+//            if (xmlAttributeDefinition == null) {
+                if (xmlAttributeDefinition.Attributes["use"] == null || 
+                    xmlAttributeDefinition.Attributes["use"].Value != "required") {
+                    // Remove the attribute
+                    attAdapter.XmlNode.Attributes.Remove(att);
+                } else {
+                    att.Value = "";
+                }
+//            }
 
             // Update the propertyGrid.
             propertyGrid.SelectedObject = attAdapter;
@@ -326,7 +393,6 @@ namespace WixEdit {
             foreach (XmlNode child in file.ChildNodes) {
                 AddTreeNodesRecursive(child, node.Nodes);
             }
-            
         }
 
         protected string GetDisplayName(XmlNode element) {
@@ -461,7 +527,7 @@ namespace WixEdit {
             XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
             if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
                 treeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
-                treeViewContextMenu.MenuItems.Add(this.infoAboutCurrentElementMenu);
+                treeViewContextMenu.MenuItems.Add(infoAboutCurrentElementMenu);
             }
         }
 

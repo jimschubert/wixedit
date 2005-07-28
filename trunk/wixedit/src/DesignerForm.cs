@@ -50,7 +50,7 @@ namespace WixEdit {
                     selectedNodeId = value.Attributes["Id"].Value;
                 }
 
-                this.Invalidate();
+                Invalidate();
             }
         }
 

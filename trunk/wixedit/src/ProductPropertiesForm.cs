@@ -49,67 +49,67 @@ namespace WixEdit {
 		}
 
         private void InitializeComponent() {
-            this.Text = "Product Properties";
-            this.ShowInTaskbar = false;
-            this.SizeGripStyle = SizeGripStyle.Hide;
+            Text = "Product Properties";
+            ShowInTaskbar = false;
+            SizeGripStyle = SizeGripStyle.Hide;
 
-            this.buttonOk = new Button();
-            this.buttonOk.Text = "Done";
-            this.buttonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-            this.buttonOk.FlatStyle = FlatStyle.System;
-            this.buttonOk.Click += new EventHandler(OnOk);
-            this.Controls.Add(this.buttonOk);
+            buttonOk = new Button();
+            buttonOk.Text = "Done";
+            buttonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            buttonOk.FlatStyle = FlatStyle.System;
+            buttonOk.Click += new EventHandler(OnOk);
+            Controls.Add(buttonOk);
 
-//            this.buttonCancel = new Button();
-//            this.buttonCancel.Text = "Cancel";
-//            this.buttonCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-//            this.buttonCancel.FlatStyle = FlatStyle.System;
-//            this.Controls.Add(this.buttonCancel);
+//            buttonCancel = new Button();
+//            buttonCancel.Text = "Cancel";
+//            buttonCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+//            buttonCancel.FlatStyle = FlatStyle.System;
+//            Controls.Add(buttonCancel);
 
-            this.productPropertyGrid = new CustomPropertyGrid();
-            this.productPropertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.productPropertyGrid.Name = "propertyGrid";
-            this.productPropertyGrid.TabIndex = 1;
-            this.productPropertyGrid.PropertySort = PropertySort.Alphabetical;
-            this.productPropertyGrid.ToolbarVisible = false;
-            this.productPropertyGrid.Dock = DockStyle.Top;
-            this.productPropertyGrid.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
-            this.Controls.Add(this.productPropertyGrid);
+            productPropertyGrid = new CustomPropertyGrid();
+            productPropertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            productPropertyGrid.Name = "propertyGrid";
+            productPropertyGrid.TabIndex = 1;
+            productPropertyGrid.PropertySort = PropertySort.Alphabetical;
+            productPropertyGrid.ToolbarVisible = false;
+            productPropertyGrid.Dock = DockStyle.Top;
+            productPropertyGrid.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
+            Controls.Add(productPropertyGrid);
 
-            this.ClientSize = new Size(384, 256);
+            ClientSize = new Size(384, 256);
 
-            this.productPropertyGrid.Size = new Size(this.ClientSize.Width, this.ClientSize.Height-29);
+            productPropertyGrid.Size = new Size(ClientSize.Width, ClientSize.Height-29);
 
 
-//            this.buttonCancel.Left = this.ClientSize.Width - this.buttonCancel.Width;
-//            this.buttonOk.Left = this.buttonCancel.Left - this.buttonOk.Width - 2;
-            this.buttonOk.Left = this.ClientSize.Width - this.buttonOk.Width - 2;
+//            buttonCancel.Left = ClientSize.Width - buttonCancel.Width;
+//            buttonOk.Left = buttonCancel.Left - buttonOk.Width - 2;
+            buttonOk.Left = ClientSize.Width - buttonOk.Width - 2;
 
-//            this.buttonCancel.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height + 3;
-            this.buttonOk.Top = this.productPropertyGrid.Top + this.productPropertyGrid.Height + 3;
+//            buttonCancel.Top = productPropertyGrid.Top + productPropertyGrid.Height + 3;
+            buttonOk.Top = productPropertyGrid.Top + productPropertyGrid.Height + 3;
 
-            this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
-            this.AcceptButton = buttonOk;
-//            this.CancelButton = buttonCancel;
+            AcceptButton = buttonOk;
+//            CancelButton = buttonCancel;
 
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ControlBox = true; 
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ControlBox = true; 
 
-            this.StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterParent;
 
-            this.Activated += new EventHandler(IsActivated);
+            Activated += new EventHandler(IsActivated);
 
-            this.productPropertyGrid.SelectedObject = new XmlAttributeAdapter(productNode, wixFiles);
+            productPropertyGrid.SelectedObject = new XmlAttributeAdapter(productNode, wixFiles);
         }
 
         private void IsActivated(object sender, EventArgs e) {
-            // this.StringEdit.Focus();
+            // StringEdit.Focus();
         }
 
         private void OnOk(object sender, EventArgs e) {
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
     }
 }

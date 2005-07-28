@@ -41,9 +41,9 @@ namespace WixEdit.Settings {
         ]
         public string Dark {
             get {
-                if (wixEditData.DarkLocation == null) {
-                    if (wixEditData.BinDirectory == null) {
-                        return null;
+                if (wixEditData.DarkLocation == null || wixEditData.DarkLocation.Length == 0) {
+                    if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
+                        return String.Empty;
                     }
                     return Path.Combine(wixEditData.BinDirectory, "dark.exe");
                 } else {
@@ -60,9 +60,9 @@ namespace WixEdit.Settings {
         ]
         public string Candle {
             get {
-                if (wixEditData.CandleLocation == null) {
-                    if (wixEditData.BinDirectory == null) {
-                        return null;
+                if (wixEditData.CandleLocation == null || wixEditData.CandleLocation.Length == 0) {
+                    if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
+                        return String.Empty;
                     }
                     return Path.Combine(wixEditData.BinDirectory, "candle.exe");
                 } else {
@@ -79,9 +79,9 @@ namespace WixEdit.Settings {
         ]
         public string Xsd {
             get {
-                if (wixEditData.XsdLocation == null) {
-                    if (wixEditData.BinDirectory == null) {
-                        return null;
+                if (wixEditData.XsdLocation == null || wixEditData.XsdLocation.Length == 0) {
+                    if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
+                        return String.Empty;
                     }
                     return Path.Combine(wixEditData.BinDirectory, "doc\\wix.xsd");
                 } else {
@@ -126,19 +126,13 @@ namespace WixEdit.Settings {
                 return base.CanConvertTo(context, destinationType);
             }
             
-            public override object ConvertTo(ITypeDescriptorContext context,
-                CultureInfo culture, 
-                object value, 
-                System.Type destinationType) {
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, System.Type destinationType) {
                 if (destinationType == typeof(System.String) && 
                     value is BinDirectoryStructure){             
                     BinDirectoryStructure bd = (BinDirectoryStructure)value;
-                
-                    FileInfo candleInfo = new FileInfo(bd.Candle);
-                    FileInfo darkInfo = new FileInfo(bd.Dark);
-                    FileInfo xsdInfo = new FileInfo(bd.Xsd);
-            
+
                     if (bd.HasSameBinDirectory()) {
+                        bd.BinDirectory = new FileInfo(bd.Candle).Directory.FullName;
                         return bd.BinDirectory;
                     } else {
                         return "...";
@@ -158,9 +152,9 @@ namespace WixEdit.Settings {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
                 WixEditSettings.WixEditData data = WixEditSettings.Instance.GetInternalDataStructure();
                 data.BinDirectory = value as string;
-                data.CandleLocation = null;
-                data.DarkLocation = null;
-                data.XsdLocation = null;
+                data.CandleLocation = String.Empty;
+                data.DarkLocation = String.Empty;
+                data.XsdLocation = String.Empty;
 
                 return new BinDirectoryStructure(data);
             }

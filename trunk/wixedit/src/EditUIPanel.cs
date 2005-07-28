@@ -20,13 +20,14 @@
 
 
 using System;
+using System.Xml;
 using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
     /// Panel to edit install data.
     /// </summary>
-    public class EditUIPanel : BasePanel {
+    public class EditUIPanel : DisplayBasePanel {
         protected TabControl tabControl;
         protected TabPage editDialogTabPage;
         protected EditDialogPanel editDialogPanel;
@@ -39,27 +40,27 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            this.tabControl = new TabControl();
-            this.tabControl.Dock = DockStyle.Fill;
+            tabControl = new TabControl();
+            tabControl.Dock = DockStyle.Fill;
 
-            this.Controls.Add(tabControl);
+            Controls.Add(tabControl);
 
-            this.editDialogPanel = new EditDialogPanel(this.wixFiles);
-            this.editDialogPanel.Dock = DockStyle.Fill;
+            editDialogPanel = new EditDialogPanel(wixFiles);
+            editDialogPanel.Dock = DockStyle.Fill;
 
-            this.editDialogTabPage = new TabPage("Dialogs");
-            this.editDialogTabPage.Controls.Add(this.editDialogPanel);
+            editDialogTabPage = new TabPage("Dialogs");
+            editDialogTabPage.Controls.Add(editDialogPanel);
 
-            this.tabControl.TabPages.Add(this.editDialogTabPage);
+            tabControl.TabPages.Add(editDialogTabPage);
 
 
-            this.editUISequencePanel = new EditUISequencePanel(this.wixFiles);
-            this.editUISequencePanel.Dock = DockStyle.Fill;
+            editUISequencePanel = new EditUISequencePanel(wixFiles);
+            editUISequencePanel.Dock = DockStyle.Fill;
 
-            this.editUISequenceTabPage = new TabPage("UI Sequence");
-            this.editUISequenceTabPage.Controls.Add(this.editUISequencePanel);
+            editUISequenceTabPage = new TabPage("UI Sequence");
+            editUISequenceTabPage.Controls.Add(editUISequencePanel);
 
-            this.tabControl.TabPages.Add(this.editUISequenceTabPage);
+            tabControl.TabPages.Add(editUISequenceTabPage);
 
         }
         #endregion
@@ -70,5 +71,27 @@ namespace WixEdit {
             }
         }
 
+        public override bool IsOwnerOfNode(XmlNode node) {
+            bool ret = (editDialogPanel.IsOwnerOfNode(node) || editUISequencePanel.IsOwnerOfNode(node));
+            if (ret == false) {
+                if (node.Name == "UI") {
+                    ret = true;
+                }
+            }
+
+            return ret;
+        }
+
+        public override void ShowNode(XmlNode node) {
+            if (editDialogPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editDialogTabPage;
+                editDialogPanel.ShowNode(node);
+            } else if (editUISequencePanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editUISequenceTabPage;
+                editUISequencePanel.ShowNode(node);
+            } else {
+                tabControl.SelectedTab = editDialogTabPage;
+            }
+        }
     }
 }

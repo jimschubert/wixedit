@@ -42,59 +42,59 @@ namespace WixEdit {
 		}
 
         private void InitializeComponent() {
-            this.Text = "New Property Name";
-            this.ShowInTaskbar = false;
+            Text = "New Property Name";
+            ShowInTaskbar = false;
 
-            this.ButtonOk = new Button();
-            this.ButtonOk.Text = "Ok";
-            this.ButtonOk.Dock = DockStyle.Left;
-            this.ButtonOk.FlatStyle = FlatStyle.System;
-            this.ButtonOk.Click += new EventHandler(OnOk);
-            this.Controls.Add(this.ButtonOk);
+            ButtonOk = new Button();
+            ButtonOk.Text = "Ok";
+            ButtonOk.Dock = DockStyle.Left;
+            ButtonOk.FlatStyle = FlatStyle.System;
+            ButtonOk.Click += new EventHandler(OnOk);
+            Controls.Add(ButtonOk);
 
-            this.ButtonCancel = new Button();
-            this.ButtonCancel.Text = "Cancel";
-            this.ButtonCancel.Dock = DockStyle.Right;
-            this.ButtonCancel.FlatStyle = FlatStyle.System;
-            this.Controls.Add(this.ButtonCancel);
+            ButtonCancel = new Button();
+            ButtonCancel.Text = "Cancel";
+            ButtonCancel.Dock = DockStyle.Right;
+            ButtonCancel.FlatStyle = FlatStyle.System;
+            Controls.Add(ButtonCancel);
 
-            this.StringEdit = new TextBox();
-            this.StringEdit.Dock = DockStyle.Top;
-            this.Controls.Add(this.StringEdit);
+            StringEdit = new TextBox();
+            StringEdit.Dock = DockStyle.Top;
+            Controls.Add(StringEdit);
 
-            this.StringEdit.Size = new Size(this.ButtonCancel.Width+2+this.ButtonOk.Width, 23);
+            StringEdit.Size = new Size(ButtonCancel.Width+2+ButtonOk.Width, 23);
 
-            this.ClientSize = new Size(this.ButtonCancel.Width+2+this.ButtonOk.Width, 46);
-            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            ClientSize = new Size(ButtonCancel.Width+2+ButtonOk.Width, 46);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-            this.AcceptButton = ButtonOk;
-            this.CancelButton = ButtonCancel;
+            AcceptButton = ButtonOk;
+            CancelButton = ButtonCancel;
 
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ControlBox = false; 
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ControlBox = false; 
 
-            this.StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterParent;
 
-            this.Activated += new EventHandler(IsActivated);
+            Activated += new EventHandler(IsActivated);
         }
 
         private void IsActivated(object sender, EventArgs e) {
-            this.StringEdit.Focus();
+            StringEdit.Focus();
         }
 
         public string SelectedString {
             get {
-                return this.selectedString;
+                return selectedString;
             }
             set {
-                this.selectedString = value;
+                selectedString = value;
             }
         }
 
         private void OnOk(object sender, EventArgs e) {
-            this.selectedString = this.StringEdit.Text;
-            this.DialogResult = DialogResult.OK;
+            selectedString = StringEdit.Text;
+            DialogResult = DialogResult.OK;
         }
     }
 }

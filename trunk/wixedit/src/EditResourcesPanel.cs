@@ -39,7 +39,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditResourcesPanel.
     /// </summary>
-    public class EditResourcesPanel : BasePanel {
+    public class EditResourcesPanel : DisplayBasePanel {
         #region Controls
         private PropertyGrid binaryGrid;
         private ContextMenu binaryGridContextMenu;
@@ -53,32 +53,32 @@ namespace WixEdit {
         private void InitializeComponent() {
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
-            this.binaryGrid = new CustomPropertyGrid();
-            this.binaryGridContextMenu = new ContextMenu();
+            binaryGrid = new CustomPropertyGrid();
+            binaryGridContextMenu = new ContextMenu();
 
             // 
             // binaryGrid
             //
-            this.binaryGrid.Dock = DockStyle.Fill;
-            this.binaryGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.binaryGrid.Location = new Point(140, 0);
-            this.binaryGrid.Name = "binaryGrid";
-            this.binaryGrid.Size = new Size(269, 266);
-            this.binaryGrid.TabIndex = 1;
-            this.binaryGrid.PropertySort = PropertySort.Alphabetical;
-            this.binaryGrid.ToolbarVisible = false;
-            this.binaryGrid.HelpVisible = false;
-            this.binaryGrid.ContextMenu = this.binaryGridContextMenu;
+            binaryGrid.Dock = DockStyle.Fill;
+            binaryGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            binaryGrid.Location = new Point(140, 0);
+            binaryGrid.Name = "binaryGrid";
+            binaryGrid.Size = new Size(269, 266);
+            binaryGrid.TabIndex = 1;
+            binaryGrid.PropertySort = PropertySort.Alphabetical;
+            binaryGrid.ToolbarVisible = false;
+            binaryGrid.HelpVisible = false;
+            binaryGrid.ContextMenu = binaryGridContextMenu;
 
             // 
             // binaryGridContextMenu
             //
-            this.binaryGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            binaryGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            this.binaryGrid.SelectedObject = binAdapter;
+            binaryGrid.SelectedObject = binAdapter;
 
-            this.Controls.Add(this.binaryGrid);
+            Controls.Add(binaryGrid);
         }
         #endregion
 
@@ -126,7 +126,7 @@ namespace WixEdit {
 
                 BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
 
-                this.binaryGrid.SelectedObject = binAdapter;
+                binaryGrid.SelectedObject = binAdapter;
                 binaryGrid.Update();
 
                 foreach (GridItem it in binaryGrid.SelectedGridItem.Parent.GridItems) {
@@ -153,8 +153,40 @@ namespace WixEdit {
 
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
             binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            this.binaryGrid.SelectedObject = binAdapter;
+            binaryGrid.SelectedObject = binAdapter;
             binaryGrid.Update();
+        }
+
+
+        public override bool IsOwnerOfNode(XmlNode node) {
+            XmlNode showable = GetShowableNode(node);
+
+            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr)) {
+                if (showable == xmlNode) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public override void ShowNode(XmlNode node) {
+            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
+            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
+            binaryGrid.SelectedObject = binAdapter;
+        }
+
+        private XmlNode GetShowableNode(XmlNode node) {
+            XmlNode showableNode = node;
+            while (showableNode.NodeType != XmlNodeType.Element) {
+                if (showableNode.NodeType == XmlNodeType.Attribute) {
+                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
+                } else {
+                    showableNode = showableNode.ParentNode;
+                }
+            }
+
+            return showableNode;
         }
     }
 }

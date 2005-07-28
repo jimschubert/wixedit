@@ -52,72 +52,72 @@ namespace WixEdit.Settings {
         #region Initialize Controls
 
         private void InitializeComponent() {
-            this.Text = "WiX Edit Settings";
-            this.Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
-            this.ClientSize = new System.Drawing.Size(360, 256); 
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            this.MinimizeBox = false;
-            this.MaximizeBox = false;
-            this.ShowInTaskbar = false;
-            this.SizeGripStyle = SizeGripStyle.Hide;
+            Text = "WiX Edit Settings";
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
+            ClientSize = new System.Drawing.Size(360, 256); 
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MinimizeBox = false;
+            MaximizeBox = false;
+            ShowInTaskbar = false;
+            SizeGripStyle = SizeGripStyle.Hide;
 
-            this.propertyGrid = new CustomPropertyGrid();
-            this.propertyGridContextMenu = new ContextMenu();
+            propertyGrid = new CustomPropertyGrid();
+            propertyGridContextMenu = new ContextMenu();
 
             // 
             // propertyGrid
             //
-            this.propertyGrid.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            this.propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            this.propertyGrid.Location = new Point(0, 0);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.TabIndex = 1;
-            this.propertyGrid.PropertySort = PropertySort.CategorizedAlphabetical;
-            this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.HelpVisible = true;
-            this.propertyGrid.ContextMenu = this.propertyGridContextMenu;
+            propertyGrid.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            propertyGrid.Location = new Point(0, 0);
+            propertyGrid.Name = "propertyGrid";
+            propertyGrid.TabIndex = 1;
+            propertyGrid.PropertySort = PropertySort.CategorizedAlphabetical;
+            propertyGrid.ToolbarVisible = false;
+            propertyGrid.HelpVisible = true;
+            propertyGrid.ContextMenu = propertyGridContextMenu;
 
             // 
             // propertyGridContextMenu
             //
-            this.propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
+            propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
-            this.propertyGrid.SelectedObject = WixEditSettings.Instance;
+            propertyGrid.SelectedObject = WixEditSettings.Instance;
 
-            this.Controls.Add(this.propertyGrid);
+            Controls.Add(propertyGrid);
 
-            this.ok = new Button();
-            this.ok.Text = "OK";
-            this.ok.FlatStyle = FlatStyle.System;
-            this.ok.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            this.Controls.Add(ok);
-            this.ok.Click += new EventHandler(OnOk);
+            ok = new Button();
+            ok.Text = "OK";
+            ok.FlatStyle = FlatStyle.System;
+            ok.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            Controls.Add(ok);
+            ok.Click += new EventHandler(OnOk);
 
 
-            this.cancel = new Button();
-            this.cancel.Text = "Cancel";
-            this.cancel.FlatStyle = FlatStyle.System;
-            this.cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            this.Controls.Add(cancel);       
-            this.cancel.Click += new EventHandler(OnCancel);
+            cancel = new Button();
+            cancel.Text = "Cancel";
+            cancel.FlatStyle = FlatStyle.System;
+            cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            Controls.Add(cancel);       
+            cancel.Click += new EventHandler(OnCancel);
 
-            this.AcceptButton = ok;
-            this.CancelButton = cancel;     
+            AcceptButton = ok;
+            CancelButton = cancel;     
 
             int padding = 2;
 
-            int w = (this.ClientSize.Width - this.cancel.ClientSize.Width) - padding;
-            int h = (this.ClientSize.Height - this.cancel.ClientSize.Height) - padding;
+            int w = (ClientSize.Width - cancel.ClientSize.Width) - padding;
+            int h = (ClientSize.Height - cancel.ClientSize.Height) - padding;
 
-            this.cancel.Location = new Point(w, h);
+            cancel.Location = new Point(w, h);
 
-            w -= this.ok.ClientSize.Width + padding;
-            this.ok.Location = new Point(w, h);
+            w -= ok.ClientSize.Width + padding;
+            ok.Location = new Point(w, h);
 
-            h -= this.ok.ClientSize.Height + padding;
+            h -= ok.ClientSize.Height + padding;
 
-            this.propertyGrid.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - (padding*2) - this.ok.ClientSize.Height);
+            propertyGrid.Size = new Size(ClientSize.Width, ClientSize.Height - (padding*2) - ok.ClientSize.Height);
         }
 
         #endregion
@@ -127,12 +127,12 @@ namespace WixEdit.Settings {
 
         private void OnOk(object sender, EventArgs e) {
             WixEditSettings.Instance.SaveChanges();
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
        
         private void OnCancel(object sender, EventArgs e) {
             WixEditSettings.Instance.DiscardChanges();
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
         }        
     }
 }

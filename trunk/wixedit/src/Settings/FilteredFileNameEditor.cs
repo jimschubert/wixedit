@@ -69,7 +69,7 @@ namespace WixEdit.Settings {
                     filter = filterAtt.Filter;
                 }
 
-                return this.EditValue(value as string, filter);
+                return EditValue(value as string, filter);
             } else {
                 throw new Exception("Invalid type");
             }
