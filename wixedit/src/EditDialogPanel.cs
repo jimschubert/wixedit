@@ -35,6 +35,7 @@ using System.Resources;
 using System.Reflection;
 
 using WixEdit.PropertyGridExtensions;
+using WixEdit.Settings;
  
 namespace WixEdit {
     /// <summary>
@@ -60,6 +61,8 @@ namespace WixEdit {
         private IconMenuItem Opacity25;
         private IconMenuItem Separator;
         private IconMenuItem AlwaysOnTop;
+        private IconMenuItem SnapToGrid;
+        private IconMenuItem DialogScale;
 
         private IconMenuItem newControlElementMenu;
         private IconMenuItem newControlSubElementsMenu;
@@ -97,6 +100,8 @@ namespace WixEdit {
             Opacity25 = new IconMenuItem();
             Separator = new IconMenuItem("-");
             AlwaysOnTop = new IconMenuItem();
+            SnapToGrid = new IconMenuItem();
+            DialogScale = new IconMenuItem();
             dialogTreeView = new TreeView();
             propertyGrid = new CustomPropertyGrid();
             propertyGridContextMenu = new ContextMenu();
@@ -114,7 +119,9 @@ namespace WixEdit {
                                                               Opacity50,
                                                               Opacity25,
                                                               Separator,
-                                                              AlwaysOnTop});
+                                                              AlwaysOnTop,
+                                                              SnapToGrid,
+                                                              DialogScale});
             viewMenu.Text = "&Dialogs";
             // 
             // Opacity100
@@ -150,6 +157,19 @@ namespace WixEdit {
             AlwaysOnTop.Index = 5;
             AlwaysOnTop.Text = "Always on top";
             AlwaysOnTop.Click += new System.EventHandler(AlwaysOnTop_Click);
+            AlwaysOnTop.Checked = WixEditSettings.Instance.AlwaysOnTop;
+            // 
+            // SnapToGrid
+            // 
+            SnapToGrid.Index = 6;
+            SnapToGrid.Text = "Snap to grid";
+            SnapToGrid.Click += new System.EventHandler(SnapToGrid_Click);
+            // 
+            // Scale
+            // 
+            DialogScale.Index = 6;
+            DialogScale.Text = "Scale Dialog";
+            DialogScale.Click += new System.EventHandler(DialogScale_Click);
             // 
             // dialogTreeView
             // 
@@ -269,7 +289,18 @@ namespace WixEdit {
             panel1.ResumeLayout(false);
             ResumeLayout(false);
            
-            Opacity100.Checked = true;
+            double opacity = WixEditSettings.Instance.Opacity;
+            if (opacity == 1.00) {
+                Opacity100.Checked = true;
+            } else if (opacity == 0.75) {
+                Opacity75.Checked = true;
+            } else if (opacity == 0.50) {
+                Opacity50.Checked = true;
+            } else if (opacity == 0.25) {
+                Opacity25.Checked = true;
+            } else {
+                Opacity100.Checked = true;
+            }
 
             wxsDialogs.Items.Clear();
 
@@ -409,7 +440,8 @@ namespace WixEdit {
 
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
             string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+//            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+            XmlNode dialog = (XmlNode) wxsDialogs.SelectedItems[0].Tag;
             
             ShowWixDialog(dialog);
         }
@@ -599,6 +631,24 @@ namespace WixEdit {
             }
         }
 
+        private void OnDialogItemChanged(XmlNode changedItem) {
+            TreeNode node = FindTreeNode(changedItem, dialogTreeView.Nodes);
+            if (node != null) {
+                dialogTreeView.SelectedNode = node;
+            }
+
+            ShowWixProperties(changedItem);
+        }
+
+        private void OnDialogSelectionChanged(XmlNode selectedItem) {
+            TreeNode node = FindTreeNode(selectedItem, dialogTreeView.Nodes);
+            if (node != null) {
+                dialogTreeView.SelectedNode = node;
+            }
+
+            ShowWixProperties(selectedItem);
+        }
+
         private void ShowWixDialog(XmlNode dialog) {
             DesignerForm prevDialog = null;
             int prevTop = 0;
@@ -614,8 +664,11 @@ namespace WixEdit {
             }
 
             if (dialog != null) {
-                DialogGenerator generator = new DialogGenerator(wixFiles);
+                DialogGenerator generator = new DialogGenerator(wixFiles, TopLevelControl);
                 currentDialog = generator.GenerateDialog(dialog, this);
+
+                currentDialog.ItemChanged += new DesignerFormItemHandler(OnDialogItemChanged);
+                currentDialog.SelectionChanged += new DesignerFormItemHandler(OnDialogSelectionChanged);
     
                 if (currentDialog != null) {
                     currentDialog.Left = prevLeft;
@@ -712,6 +765,7 @@ namespace WixEdit {
                 attAdapter = new XmlAttributeAdapter(xmlNode, wixFiles);
             }
 
+            propertyGrid.SelectedObject = null;
             propertyGrid.SelectedObject = attAdapter;
             propertyGrid.Update();
 
@@ -896,6 +950,9 @@ namespace WixEdit {
                 item.Checked = true;
             }
 
+            WixEditSettings.Instance.Opacity = GetOpacity();
+            WixEditSettings.Instance.SaveChanges();
+
             if (currentDialog != null) {
                 currentDialog.Opacity = GetOpacity();
             }
@@ -904,8 +961,39 @@ namespace WixEdit {
         private void AlwaysOnTop_Click(object sender, System.EventArgs e) {
             AlwaysOnTop.Checked = !AlwaysOnTop.Checked;
 
+            WixEditSettings.Instance.AlwaysOnTop = AlwaysOnTop.Checked;
+            WixEditSettings.Instance.SaveChanges();
+
             if (currentDialog != null) {
                 currentDialog.TopMost = AlwaysOnTop.Checked;
+            }
+        }
+
+        private void SnapToGrid_Click(object sender, System.EventArgs e) {
+            EnterIntegerForm form = new EnterIntegerForm();
+            form.Text = "Enter number of pixels to snap to:";
+            form.SelectedInteger = WixEditSettings.Instance.SnapToGrid;
+
+            if (form.ShowDialog() == DialogResult.OK) {
+                SelectionOverlay.SnapToGrid = form.SelectedInteger;
+                WixEditSettings.Instance.SnapToGrid = form.SelectedInteger;
+                WixEditSettings.Instance.SaveChanges();
+            }
+        }
+
+        private void DialogScale_Click(object sender, System.EventArgs e) {
+            EnterIntegerForm form = new EnterIntegerForm();
+            form.Text = "Enter percentage to scale to:";
+            form.SelectedInteger = (int) (WixEditSettings.Instance.Scale*100);
+
+            if (form.ShowDialog() == DialogResult.OK) {
+                DialogGenerator.Scale = ((double)form.SelectedInteger)/100.00;
+                WixEditSettings.Instance.Scale = ((double)form.SelectedInteger)/100.00;
+                WixEditSettings.Instance.SaveChanges();
+
+                XmlNode dialog = (XmlNode) wxsDialogs.SelectedItems[0].Tag;
+                
+                ShowWixDialog(dialog);
             }
         }
 
@@ -938,6 +1026,7 @@ namespace WixEdit {
                 if (currentDialog != null) {
                     currentDialog.Hide();
                     currentDialog.Dispose();
+                    currentDialog = null;
                 }
             }
 

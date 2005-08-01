@@ -34,9 +34,14 @@ using System.Reflection;
 
 
 namespace WixEdit {
+    public delegate void DesignerFormItemHandler(XmlNode item);
+
     public class DesignerForm : Form {
         Hashtable controlMap;
         string selectedNodeId;
+
+        public event DesignerFormItemHandler ItemChanged;
+        public event DesignerFormItemHandler SelectionChanged;
 
         public DesignerForm() {
             controlMap = new Hashtable();
@@ -44,64 +49,60 @@ namespace WixEdit {
 
         public XmlNode SelectedNode {
             set {
-                if (value == null || value.Attributes["Id"] == null || value.Attributes["Id"].Value == null || value.Attributes["Id"].Value.Trim().Length == 0) {
+                if (value == null) {
                     selectedNodeId = null;
                 } else {
-                    selectedNodeId = value.Attributes["Id"].Value;
+                    string tmpSelectedNodeId = null;
+                    SelectionOverlay ctrl = null;
+
+                    if (value.Attributes["Id"] != null && value.Attributes["Id"].Value != null && value.Attributes["Id"].Value.Trim().Length > 0) {
+                        tmpSelectedNodeId = value.Attributes["Id"].Value;
+                        ctrl = (SelectionOverlay) controlMap[tmpSelectedNodeId];
+                    }
+
+                    if (ctrl != null) {
+                        ctrl.IsSelected = true;
+                        selectedNodeId = tmpSelectedNodeId;
+                    } else {
+                        if (selectedNodeId != null) {
+                            ctrl = (SelectionOverlay) controlMap[selectedNodeId];
+                            ctrl.IsSelected = false;
+                        }
+                        selectedNodeId = null;
+                    }
                 }
 
                 Invalidate();
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e) {
-            base.OnPaint(e);
+        public void AddControl(XmlNode controlDefinition, Control control) {
+            SelectionOverlay overlay = new SelectionOverlay(control, controlDefinition);
+            Controls.Add(overlay);
 
-            if (selectedNodeId != null) {
-                Control ctrl = (Control) controlMap[selectedNodeId];
-                if (ctrl != null) {
-                    DrawSelection(ctrl, e.Graphics);
-                }
+            overlay.ItemChanged += new SelectionOverlayItemHandler(OnItemChanged);
+            overlay.SelectionChanged += new SelectionOverlayItemHandler(OnSelectionChanged);
+
+            String nodeId = controlDefinition.Attributes["Id"].Value;
+            controlMap.Add(nodeId, overlay);
+        }
+
+        /// <summary>
+        /// EventHandler for when a SelectionOverlay object changed
+        /// </summary>
+        private void OnItemChanged(XmlNode item) {
+            if (ItemChanged != null) {
+                ItemChanged(item);
             }
         }
 
-        public void AddControl(XmlNode controlDefinition, Control control) {
-            Controls.Add(control);
-
-            String nodeId = controlDefinition.Attributes["Id"].Value;
-            controlMap.Add(nodeId, control);
-        }
-
-        public void DrawSelection(Control ctrl, Graphics formGraphics) {
-            Brush horBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("hcontrolborder.bmp")));
-            Brush verBorderBrush = new TextureBrush(new Bitmap(WixFiles.GetResourceStream("vcontrolborder.bmp")));
-
-            Rectangle topBorder = new Rectangle(ctrl.Left, ctrl.Top - 7, ctrl.Width, 7);
-            Rectangle bottomBorder = new Rectangle(ctrl.Left, ctrl.Bottom, ctrl.Width, 7);
-
-            formGraphics.FillRectangles(horBorderBrush, new Rectangle[] {topBorder, bottomBorder});
-
-            Rectangle rightBorder = new Rectangle(ctrl.Right, ctrl.Top, 7, ctrl.Height);
-            Rectangle leftBorder = new Rectangle(ctrl.Left - 7, ctrl.Top, 7, ctrl.Height);
-
-            formGraphics.FillRectangles(verBorderBrush, new Rectangle[] {rightBorder, leftBorder});
-
-
-            Rectangle leftTop = new Rectangle(ctrl.Left - 7, ctrl.Top - 7, 7, 7);
-            Rectangle rightTop = new Rectangle(ctrl.Right, ctrl.Top - 7, 7, 7);
-
-            Rectangle leftBottom = new Rectangle(ctrl.Left - 7, ctrl.Bottom, 7, 7);
-            Rectangle rightBottom = new Rectangle(ctrl.Right, ctrl.Bottom, 7, 7);
-
-            Rectangle leftMid = new Rectangle(ctrl.Left - 7, ctrl.Top + (ctrl.Height-7)/2, 7, 7);
-            Rectangle rightMid = new Rectangle(ctrl.Right, ctrl.Top + (ctrl.Height-7)/2, 7, 7);
-
-            Rectangle midBottom = new Rectangle(ctrl.Left + (ctrl.Width-7)/2, ctrl.Bottom, 7, 7);
-            Rectangle midTop = new Rectangle(ctrl.Left + (ctrl.Width-7)/2, ctrl.Top - 7, 7, 7);
-
-
-            formGraphics.FillRectangles(Brushes.White, new Rectangle[] {leftTop, rightTop, leftBottom, rightBottom, leftMid, rightMid, midBottom, midTop});
-            formGraphics.DrawRectangles(Pens.Black, new Rectangle[] {leftTop, rightTop, leftBottom, rightBottom, leftMid, rightMid, midBottom, midTop});
+        /// <summary>
+        /// EventHandler for when a SelectionOverlay object got selection
+        /// </summary>
+        public void OnSelectionChanged(XmlNode item) {
+            if (SelectionChanged != null) {
+                SelectionChanged(item);
+            }
         }
     }
 }

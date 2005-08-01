@@ -61,7 +61,7 @@ namespace WixEdit {
             StringEdit = new TextBox();
             StringEdit.Dock = DockStyle.Top;
             Controls.Add(StringEdit);
-
+            StringEdit.Text = selectedString;
             StringEdit.Size = new Size(ButtonCancel.Width+2+ButtonOk.Width, 23);
 
             ClientSize = new Size(ButtonCancel.Width+2+ButtonOk.Width, 46);
@@ -89,10 +89,11 @@ namespace WixEdit {
             }
             set {
                 selectedString = value;
+                StringEdit.Text = selectedString;
             }
         }
 
-        private void OnOk(object sender, EventArgs e) {
+        protected virtual void OnOk(object sender, EventArgs e) {
             selectedString = StringEdit.Text;
             DialogResult = DialogResult.OK;
         }

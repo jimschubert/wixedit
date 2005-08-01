@@ -70,7 +70,7 @@ namespace WixEdit {
 
         protected bool fileIsDirty;
 
-        protected int oldTabIndex = 0;
+        protected int oldTabIndex = -1;
 
         const int panelCount = 6;
         BasePanel[] panels = new BasePanel[panelCount];
@@ -192,14 +192,14 @@ namespace WixEdit {
 
             Menu = mainMenu;
 
-
+/*
             tabButtonControl = new TabButtonControl();
             tabButtonControl.Dock = DockStyle.Fill;
             Controls.Add(tabButtonControl);
             tabButtonControl.Visible = false;
 
             tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
-
+*/
 
             outputSplitter = new Splitter();
             outputSplitter.Dock = DockStyle.Bottom;
@@ -484,22 +484,32 @@ namespace WixEdit {
         private void LoadWxsFile(string file) {
             wixFiles = new WixFiles(new FileInfo(file));
 
+
+            tabButtonControl = new TabButtonControl();
+            tabButtonControl.Dock = DockStyle.Fill;
+            Controls.Add(tabButtonControl);
+            tabButtonControl.Visible = false;
+
+            tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
+
             tabButtonControl.Visible = true;
 
             // Add Global tab
             editGlobalDataPanel = new EditGlobalDataPanel(wixFiles);
             editGlobalDataPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.global.bmp")));
+            tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.global.png")));
 
             panels[0] = editGlobalDataPanel;
+
+            oldTabIndex = 0;
 
 
             // Add Files tab
             editInstallDataPanel = new EditInstallDataPanel(wixFiles);
             editInstallDataPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Files", editInstallDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.files.bmp")));
+            tabButtonControl.AddTab("Files", editInstallDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.files.png")));
 
             panels[1] = editInstallDataPanel;
 
@@ -511,7 +521,7 @@ namespace WixEdit {
             editPropertiesPanel = new EditPropertiesPanel(wixFiles);
             editPropertiesPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.properties.bmp")));
+            tabButtonControl.AddTab("Properties", editPropertiesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.properties.png")));
 
             panels[2] = editPropertiesPanel;
 
@@ -520,7 +530,7 @@ namespace WixEdit {
             editUIPanel = new EditUIPanel(wixFiles);
             editUIPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Dialogs", editUIPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.dialogs.bmp")));
+            tabButtonControl.AddTab("Dialogs", editUIPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.dialogs.png")));
 
             panels[3] = editUIPanel;
 
@@ -529,7 +539,7 @@ namespace WixEdit {
             editResourcesPanel = new EditResourcesPanel(wixFiles);
             editResourcesPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.resources.bmp")));
+            tabButtonControl.AddTab("Resources", editResourcesPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.resources.png")));
 
             panels[4] = editResourcesPanel;
 
@@ -538,7 +548,7 @@ namespace WixEdit {
             editActionsPanel = new EditActionsPanel(wixFiles);
             editActionsPanel.Dock = DockStyle.Fill;
 
-            tabButtonControl.AddTab("Actions", editActionsPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.tabbutton.actions.bmp")));
+            tabButtonControl.AddTab("Actions", editActionsPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.actions.png")));
 
             panels[5] = editActionsPanel;
 
@@ -554,26 +564,59 @@ namespace WixEdit {
         }
 
         private void CloseWxsFile() {
+            if (oldTabIndex >= 0 && oldTabIndex < panels.Length && panels[oldTabIndex].Menu != null) {
+                mainMenu.MenuItems.RemoveAt(2);
+            }
+
             toolsWixCompile.Enabled = false;
             
-            tabButtonControl.Visible = false;
-            tabButtonControl.ClearTabs();
+            if (tabButtonControl != null) {
+                Controls.Remove(tabButtonControl);
+                tabButtonControl.Visible = false;
+                tabButtonControl.ClearTabs();
+                tabButtonControl.Dispose();
+                tabButtonControl = null;
+            }
+
+            oldTabIndex = -1;
 
             panels = new BasePanel[panelCount];
 
             if (editUIPanel != null) {
-/*
-                if (mainMenu != null) {
-                    mainMenu.MenuItems.Remove(editUIPanel.Menu);
-                }
-*/
+                editUIPanel.Visible = false;
+                editUIPanel.Controls.Clear();
                 editUIPanel.Dispose();
                 editUIPanel = null;
             }
-
             if (editPropertiesPanel != null) {
+                editPropertiesPanel.Visible = false;
+                editPropertiesPanel.Controls.Clear();
                 editPropertiesPanel.Dispose();
                 editPropertiesPanel = null;
+            }
+            if (editResourcesPanel != null) {
+                editResourcesPanel.Visible = false;
+                editResourcesPanel.Controls.Clear();
+                editResourcesPanel.Dispose();
+                editResourcesPanel = null;
+            }
+            if (editInstallDataPanel != null) {
+                editInstallDataPanel.Visible = false;
+                editInstallDataPanel.Controls.Clear();
+                editInstallDataPanel.Dispose();
+                editInstallDataPanel = null;
+            }
+            if (editGlobalDataPanel != null) {
+                editGlobalDataPanel.Visible = false;
+                editGlobalDataPanel.Controls.Clear();
+                editGlobalDataPanel.Dispose();
+                editGlobalDataPanel = null;
+            }
+            if (editActionsPanel != null) {
+                editActionsPanel.Visible = false;
+                editActionsPanel.Controls.Clear();
+                editActionsPanel.Dispose();
+                editActionsPanel = null;
             }
 
             if (wixFiles != null) {

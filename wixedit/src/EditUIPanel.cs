@@ -93,5 +93,22 @@ namespace WixEdit {
                 tabControl.SelectedTab = editDialogTabPage;
             }
         }
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		protected override void Dispose(bool disposing) {
+            if( disposing ) {
+                editDialogPanel.Dispose();
+                editDialogPanel = null;
+                editUISequencePanel.Dispose();
+                editUISequencePanel = null;
+
+                tabControl.TabPages.Clear();
+                tabControl.Dispose();
+                tabControl = null;
+            }
+            base.Dispose( disposing );
+		}
     }
 }

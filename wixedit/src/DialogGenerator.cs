@@ -32,21 +32,30 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 
+using WixEdit.Settings;
+
 namespace WixEdit {
     public class DialogGenerator {
-        private Hashtable _definedFonts;
-        private WixFiles _wixFiles;
-        private Image _bgImage;
+        private Hashtable definedFonts;
+        private WixFiles wixFiles;
+        private Control parent;
 
-        public DialogGenerator(WixFiles wixFiles) {
-            _definedFonts = new Hashtable();
-            _wixFiles = wixFiles;
+        static double scale;
+
+        static DialogGenerator() {
+            scale = WixEditSettings.Instance.Scale;
+        }
+
+        public DialogGenerator(WixFiles wixFiles, Control parent) {
+            this.definedFonts = new Hashtable();
+            this.wixFiles = wixFiles;
+            this.parent = parent;
 
             ReadFonts();
         }
 
         private void ReadFonts() {
-            XmlNodeList fontElements = _wixFiles.WxsDocument.SelectNodes("//wix:UI/wix:TextStyle", _wixFiles.WxsNsmgr);
+            XmlNodeList fontElements = wixFiles.WxsDocument.SelectNodes("//wix:UI/wix:TextStyle", wixFiles.WxsNsmgr);
             foreach (XmlNode fontElement in fontElements) {
 
                 FontStyle style = FontStyle.Regular;
@@ -65,12 +74,12 @@ namespace WixEdit {
 
                 Font font = new Font(
                         fontElement.Attributes["FaceName"].Value,
-                        XmlConvert.ToInt32(fontElement.Attributes["Size"].Value),
+                        (float)(scale*XmlConvert.ToDouble(fontElement.Attributes["Size"].Value)),
                         style,
                         GraphicsUnit.Point
                     );
 
-                _definedFonts.Add(fontElement.Attributes["Id"].Value, font);
+                definedFonts.Add(fontElement.Attributes["Id"].Value, font);
             }
 
 //
@@ -93,13 +102,23 @@ namespace WixEdit {
             //
         }
 
-        int _parentHwnd;
+
+        public static double Scale {
+            get {
+                return scale;
+            }
+            set {
+                scale = value;
+            }
+        }
+
+        int parentHwnd;
         public DesignerForm GenerateDialog(XmlNode dialog, Control parent) {
             DesignerForm newDialog = new DesignerForm();
 
-            _parentHwnd = (int)parent.Handle;
+            parentHwnd = (int)parent.Handle;
 
-            newDialog.Font = new Font("Tahoma", 8.00F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            newDialog.Font = new Font("Tahoma", (float)(scale*8.00F), FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
             newDialog.ShowInTaskbar = false;
             newDialog.TopLevel = true;
             // newDialog.TopMost = true;
@@ -120,68 +139,68 @@ namespace WixEdit {
                 return null;
             }
 
-            newDialog.ClientSize = new Size(dialogUnitToPixelsWidth(XmlConvert.ToInt32(dialog.Attributes["Width"].Value.Trim())), dialogUnitToPixelsHeight(XmlConvert.ToInt32(dialog.Attributes["Height"].Value.Trim())));
+            newDialog.ClientSize = new Size(DialogUnitsToPixelsWidth(XmlConvert.ToInt32(dialog.Attributes["Width"].Value.Trim())), DialogUnitsToPixelsHeight(XmlConvert.ToInt32(dialog.Attributes["Height"].Value.Trim())));
 
             // Background Images should be added first, these controls should be used as parent 
             // to get correct transparancy. For now only 1 bitmap is supported per Dialog.
             // - Is this the correct way to handle the transparancy?
             // - How does MSI handle transparant labels when having 2 bitmaps as background?
 
-            XmlNodeList buttons = dialog.SelectNodes("wix:Control[@Type='PushButton']", _wixFiles.WxsNsmgr);
+            XmlNodeList buttons = dialog.SelectNodes("wix:Control[@Type='PushButton']", wixFiles.WxsNsmgr);
             AddButtons(newDialog, buttons);
 
-            XmlNodeList edits = dialog.SelectNodes("wix:Control[@Type='Edit']", _wixFiles.WxsNsmgr);
+            XmlNodeList edits = dialog.SelectNodes("wix:Control[@Type='Edit']", wixFiles.WxsNsmgr);
             AddEditBoxes(newDialog, edits);
 
-            XmlNodeList pathEdits = dialog.SelectNodes("wix:Control[@Type='PathEdit']", _wixFiles.WxsNsmgr);
+            XmlNodeList pathEdits = dialog.SelectNodes("wix:Control[@Type='PathEdit']", wixFiles.WxsNsmgr);
             AddPathEditBoxes(newDialog, pathEdits);
 
-            XmlNodeList lines = dialog.SelectNodes("wix:Control[@Type='Line']", _wixFiles.WxsNsmgr);
+            XmlNodeList lines = dialog.SelectNodes("wix:Control[@Type='Line']", wixFiles.WxsNsmgr);
             AddLines(newDialog, lines);
 
-            XmlNodeList texts = dialog.SelectNodes("wix:Control[@Type='Text']", _wixFiles.WxsNsmgr);
+            XmlNodeList texts = dialog.SelectNodes("wix:Control[@Type='Text']", wixFiles.WxsNsmgr);
             AddTexts(newDialog, texts);
 
-            XmlNodeList rtfTexts = dialog.SelectNodes("wix:Control[@Type='ScrollableText']", _wixFiles.WxsNsmgr);
+            XmlNodeList rtfTexts = dialog.SelectNodes("wix:Control[@Type='ScrollableText']", wixFiles.WxsNsmgr);
             AddRftTextBoxes(newDialog, rtfTexts);
 
-            XmlNodeList groupBoxes = dialog.SelectNodes("wix:Control[@Type='GroupBox']", _wixFiles.WxsNsmgr);
+            XmlNodeList groupBoxes = dialog.SelectNodes("wix:Control[@Type='GroupBox']", wixFiles.WxsNsmgr);
             AddGroupBoxes(newDialog, groupBoxes);
 
-            XmlNodeList icons = dialog.SelectNodes("wix:Control[@Type='Icon']", _wixFiles.WxsNsmgr);
+            XmlNodeList icons = dialog.SelectNodes("wix:Control[@Type='Icon']", wixFiles.WxsNsmgr);
             AddIcons(newDialog, icons);
 
-            XmlNodeList listBoxes = dialog.SelectNodes("wix:Control[@Type='ListBox']", _wixFiles.WxsNsmgr);
+            XmlNodeList listBoxes = dialog.SelectNodes("wix:Control[@Type='ListBox']", wixFiles.WxsNsmgr);
             AddListBoxes(newDialog, listBoxes);
 
-            XmlNodeList progressBars = dialog.SelectNodes("wix:Control[@Type='ProgressBar']", _wixFiles.WxsNsmgr);
+            XmlNodeList progressBars = dialog.SelectNodes("wix:Control[@Type='ProgressBar']", wixFiles.WxsNsmgr);
             AddProgressBars(newDialog, progressBars);
 
-            XmlNodeList radioButtonGroups = dialog.SelectNodes("wix:Control[@Type='RadioButtonGroup']", _wixFiles.WxsNsmgr);
+            XmlNodeList radioButtonGroups = dialog.SelectNodes("wix:Control[@Type='RadioButtonGroup']", wixFiles.WxsNsmgr);
             AddRadioButtonGroups(newDialog, radioButtonGroups);
 /*
-            XmlNodeList maskedEdits = dialog.SelectNodes("wix:Control[@Type='MaskedEdit']", _wixFiles.WxsNsmgr);
+            XmlNodeList maskedEdits = dialog.SelectNodes("wix:Control[@Type='MaskedEdit']", wixFiles.WxsNsmgr);
             AddMaskedEdits(newDialog, maskedEdits);
 
-            XmlNodeList volumeCostLists = dialog.SelectNodes("wix:Control[@Type='VolumeCostList']", _wixFiles.WxsNsmgr);
+            XmlNodeList volumeCostLists = dialog.SelectNodes("wix:Control[@Type='VolumeCostList']", wixFiles.WxsNsmgr);
             AddVolumeCostLists(newDialog, volumeCostLists);
 
-            XmlNodeList tooltips = dialog.SelectNodes("wix:Control[@Type='Tooltips']", _wixFiles.WxsNsmgr);
+            XmlNodeList tooltips = dialog.SelectNodes("wix:Control[@Type='Tooltips']", wixFiles.WxsNsmgr);
             AddTooltips(newDialog, tooltips);
 */
-            XmlNodeList directoryCombos = dialog.SelectNodes("wix:Control[@Type='DirectoryCombo']", _wixFiles.WxsNsmgr);
+            XmlNodeList directoryCombos = dialog.SelectNodes("wix:Control[@Type='DirectoryCombo']", wixFiles.WxsNsmgr);
             AddDirectoryCombos(newDialog, directoryCombos);
 /*
-            XmlNodeList directoryLists = dialog.SelectNodes("wix:Control[@Type='DirectoryList']", _wixFiles.WxsNsmgr);
+            XmlNodeList directoryLists = dialog.SelectNodes("wix:Control[@Type='DirectoryList']", wixFiles.WxsNsmgr);
             AddDirectoryLists(newDialog, directoryLists);
 
-            XmlNodeList selectionTrees = dialog.SelectNodes("wix:Control[@Type='SelectionTree']", _wixFiles.WxsNsmgr);
+            XmlNodeList selectionTrees = dialog.SelectNodes("wix:Control[@Type='SelectionTree']", wixFiles.WxsNsmgr);
             AddSelectionTrees(newDialog, selectionTrees);
 
 */
 
 
-            XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", _wixFiles.WxsNsmgr);
+            XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", wixFiles.WxsNsmgr);
             AddBackgroundBitmaps(newDialog, bitmaps);
 
             if (dialog.Attributes["Title"] != null) {
@@ -215,21 +234,35 @@ namespace WixEdit {
 // Platform SDK: Windows Installer
 // Installer Units
 
-// A Windows Installer user interface unit is equal to one-twelfth (1/12) the height of the 10-point MS Sans Serif font size.
+// A Windows Installer user interface unit is equal to one-twelfth (1/12) 
+// the height of the 10-point MS Sans Serif font size.
 
-        private int dialogUnitToPixelsWidth(int dlus) {
-            long  DLUs = GetDialogBaseUnits(_parentHwnd);
+        public static int DialogUnitsToPixelsWidth(int dlus) {
+            long  DLUs = GetDialogBaseUnits(0);
             int HorDLUs = (int) DLUs & 0x0000FFFF;
             
-            return (int)Math.Round(((double)dlus*HorDLUs) / 6);
-            //return (int)Math.Round(((double)dlus)*10.63/8);
+            return (int) Math.Round(((double)scale*dlus*HorDLUs) / 6);
         }
-        private int dialogUnitToPixelsHeight(int dlus) {
-            long  DLUs = GetDialogBaseUnits(_parentHwnd);
+
+        public static int DialogUnitsToPixelsHeight(int dlus) {
+            long  DLUs = GetDialogBaseUnits(0);
             int VerDLUs = (int) (DLUs >> 16) & 0xFFFF;
 
-            return (int)Math.Round(((double)dlus*VerDLUs) / 12);
-            //return (int)Math.Round(((double)dlus)*10.66/8);
+            return (int) Math.Round(((double)scale*dlus*VerDLUs) / 12);
+        }
+
+        public static int PixelsToDialogUnitsWidth(int pix) {
+            long  DLUs = GetDialogBaseUnits(0);
+            int HorDLUs = (int) DLUs & 0x0000FFFF;
+            
+            return (int) Math.Round(((double)pix*6)/(scale*HorDLUs));
+        }
+
+        public static int PixelsToDialogUnitsHeight(int pix) {
+            long  DLUs = GetDialogBaseUnits(0);
+            int VerDLUs = (int) (DLUs >> 16) & 0xFFFF;
+
+            return (int) Math.Round(((double)pix*12)/(scale*VerDLUs));
         }
 
         private string ExpandWixProperties(string value) {
@@ -240,7 +273,7 @@ namespace WixEdit {
 
                 string propName = value.Substring(posStart+1, posEnd-posStart-1);
                 
-                XmlNode propertyNode = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Property[@Id='{0}']", propName), _wixFiles.WxsNsmgr);
+                XmlNode propertyNode = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Property[@Id='{0}']", propName), wixFiles.WxsNsmgr);
                 if (propertyNode != null) {
                     value = value.Replace(String.Format("[{0}]", propName), propertyNode.InnerText);
                 } else {
@@ -265,7 +298,7 @@ namespace WixEdit {
         private string GetProductName() {
             string returnValue = String.Empty;
 
-            XmlNode productyNode = _wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", _wixFiles.WxsNsmgr);
+            XmlNode productyNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
             XmlAttribute nameAttribute = productyNode.Attributes["Name"];
             if (nameAttribute != null) {
                 returnValue = nameAttribute.Value;
@@ -335,8 +368,8 @@ namespace WixEdit {
             foreach (XmlNode text in texts) {
                 Label label = new Label();
                 SetControlSizes(label, text);
-                label.ClientSize = new Size(dialogUnitToPixelsWidth(XmlConvert.ToInt32(text.Attributes["Width"].Value)),
-                                            dialogUnitToPixelsHeight(XmlConvert.ToInt32(text.Attributes["Height"].Value)));
+//                label.ClientSize = new Size(DialogUnitsToPixelsWidth(XmlConvert.ToInt32(text.Attributes["Width"].Value)),
+//                                            DialogUnitsToPixelsHeight(XmlConvert.ToInt32(text.Attributes["Height"].Value)));
                 SetText(label, text);
 
                 label.BackColor = Color.Transparent;
@@ -411,9 +444,9 @@ namespace WixEdit {
                 string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
                 string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
 
-                XmlNode radioGroup = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), _wixFiles.WxsNsmgr);
+                XmlNode radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
                 if (radioGroup == null) {
-                    radioGroup = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioButtonGroup[@Property='{0}']", radioGroupName), _wixFiles.WxsNsmgr);
+                    radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioButtonGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
                 }
 
                 Panel panel = new Panel();
@@ -447,43 +480,38 @@ namespace WixEdit {
         }
         
         private void AddBackgroundBitmaps(DesignerForm newDialog, XmlNodeList bitmaps) {
+            PictureControl pictureCtrl = null;
+            ArrayList allPictureControls = new ArrayList();
+
             foreach (XmlNode bitmap in bitmaps) {
-                if (_bgImage == null) {
-                    _bgImage = new Bitmap(newDialog.Width, newDialog.Height);
-                    newDialog.BackgroundImage = _bgImage;
-                }
-
-                Graphics graphic = Graphics.FromImage(_bgImage);
-                graphic.Clear(SystemColors.Control);
-
                 string binaryId = GetTextFromXmlElement(bitmap);
+
+                Bitmap bmp = null;
                 try {
-                    using (Stream imageStream = GetBinaryStream(binaryId)) {
-                        graphic.DrawImage(new Bitmap(imageStream),
-                            dialogUnitToPixelsWidth(XmlConvert.ToInt32(bitmap.Attributes["X"].Value)),
-                            dialogUnitToPixelsHeight(XmlConvert.ToInt32(bitmap.Attributes["Y"].Value)),
-                            dialogUnitToPixelsWidth(XmlConvert.ToInt32(bitmap.Attributes["Width"].Value)),
-                            dialogUnitToPixelsHeight(XmlConvert.ToInt32(bitmap.Attributes["Height"].Value)));
-                    }
+                    bmp = new Bitmap(GetBinaryStream(binaryId));
                 } catch {
-                    // Oke, just make the area nice and picture like :)
-                    Brush brush = new HatchBrush(HatchStyle.OutlinedDiamond, Color.LightGray, Color.GhostWhite);
-                    graphic.FillRectangle(brush,
-                            dialogUnitToPixelsWidth(XmlConvert.ToInt32(bitmap.Attributes["X"].Value)),
-                            dialogUnitToPixelsHeight(XmlConvert.ToInt32(bitmap.Attributes["Y"].Value)),
-                            dialogUnitToPixelsWidth(XmlConvert.ToInt32(bitmap.Attributes["Width"].Value)),
-                            dialogUnitToPixelsHeight(XmlConvert.ToInt32(bitmap.Attributes["Height"].Value)));
                 }
+
+                pictureCtrl = new PictureControl(bmp, allPictureControls);
+                allPictureControls.Add(pictureCtrl);
+
+                SetControlSizes(pictureCtrl, bitmap);
+               
+                newDialog.AddControl(bitmap, pictureCtrl);
+            }
+
+            if (pictureCtrl != null) {
+                pictureCtrl.Draw();
             }
         }
 
         private void SetControlSizes(Control control, XmlNode controlElement) {
-            control.Left = dialogUnitToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["X"].Value));
-            control.Top = dialogUnitToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Y"].Value));
-            control.Width = dialogUnitToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value));
-            control.Height = dialogUnitToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Height"].Value));
+            control.Left = DialogUnitsToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["X"].Value));
+            control.Top = DialogUnitsToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Y"].Value));
+            control.Width = DialogUnitsToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value));
+            control.Height = DialogUnitsToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Height"].Value));
 
-            //control.ClientSize = new Size(dialogUnitToPixels(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value)), dialogUnitToPixels(XmlConvert.ToInt32(button.Attributes["Height"].Value)));
+            //control.ClientSize = new Size(DialogUnitsToPixels(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value)), DialogUnitsToPixels(XmlConvert.ToInt32(button.Attributes["Height"].Value)));
         }
 
         private void SetText(Control textControl, XmlNode textElement) {
@@ -496,7 +524,7 @@ namespace WixEdit {
             if (startFont >= 0) {
                 int endFont = textValue.IndexOf("}", startFont);
 
-                Font font = _definedFonts[textValue.Substring(startFont+2, endFont-startFont-2)] as Font;
+                Font font = definedFonts[textValue.Substring(startFont+2, endFont-startFont-2)] as Font;
                 if (font != null) {
                     textControl.Font = font;
                 }
@@ -524,7 +552,7 @@ namespace WixEdit {
             if (textElement.Attributes[propertyToGet] != null) {
                 textValue = ExpandWixProperties(textElement.Attributes[propertyToGet].Value);
             } else {
-                XmlNode text = textElement.SelectSingleNode("wix:"+propertyToGet, _wixFiles.WxsNsmgr);
+                XmlNode text = textElement.SelectSingleNode("wix:"+propertyToGet, wixFiles.WxsNsmgr);
                 if (text != null) {
                     textValue = ExpandWixProperties(text.InnerText);
                 }
@@ -534,7 +562,7 @@ namespace WixEdit {
         }
 
         private Stream GetBinaryStream(string binaryId) {
-            XmlNode binaryNode = _wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Binary[@Id='{0}']", binaryId), _wixFiles.WxsNsmgr);
+            XmlNode binaryNode = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Binary[@Id='{0}']", binaryId), wixFiles.WxsNsmgr);
             if (binaryNode == null) {
                 throw new Exception(String.Format("Binary with id \"{0}\" not found", binaryId));
             }
@@ -559,7 +587,7 @@ namespace WixEdit {
                 if (File.Exists(src)) {
                     return File.Open(src, FileMode.Open);
                 } else {
-                    FileInfo[] files = _wixFiles.WxsDirectory.GetFiles(src);
+                    FileInfo[] files = wixFiles.WxsDirectory.GetFiles(src);
                     if (files.Length != 1) {
                         throw new FileNotFoundException(String.Format("File of binary with id \"{0}\" is not found.", binaryId), src);
                     }

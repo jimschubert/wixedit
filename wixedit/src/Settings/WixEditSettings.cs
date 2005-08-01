@@ -44,10 +44,18 @@ namespace WixEdit.Settings {
             public string XsdLocation;
             public string TemplateDirectory;
             public string DefaultProjectDirectory;
+
+            public EditDialogData EditDialog;
+        }
+        public class EditDialogData {
+            public int SnapToGrid = 5;
+            public double Scale = 1.00;
+            public double Opacity = 1.00;
+            public bool AlwaysOnTop = false;
         }
 
         private static string filename = "WixEditSettings.xml";
-        private static string defaultXml = "<WixEdit />";
+        private static string defaultXml = "<WixEdit><EditDialog /></WixEdit>";
 
         protected WixEditData data;
 
@@ -211,7 +219,51 @@ namespace WixEdit.Settings {
             set {}
         }
 
+        #region EditDialog properties
+
+        public int SnapToGrid {
+            get {
+                // Default to 5 pixels
+                return Math.Max(5, data.EditDialog.SnapToGrid);
+            }
+            set {
+                data.EditDialog.SnapToGrid = value;
+            }
+        }
+
+        public double Scale {
+            get {
+                return data.EditDialog.Scale;
+            }
+            set {
+                data.EditDialog.Scale = value;
+            }
+        }
+
+        public double Opacity {
+            get {
+                // Default to 5 pixels
+                return Math.Min(1.00, data.EditDialog.Opacity);
+            }
+            set {
+                data.EditDialog.Opacity = value;
+            }
+        }
+
+        public bool AlwaysOnTop {
+            get {
+                return data.EditDialog.AlwaysOnTop;
+            }
+            set {
+                data.EditDialog.AlwaysOnTop = value;
+            }
+        }
+
+
+        #endregion
+
         #region Serialization helpers
+
         static protected void DeserializeUnknownNode(object sender, XmlNodeEventArgs e) {
             MessageBox.Show("Ignoring Unknown Node: " +   e.Name + "='" + e.Text + "'");
         }
@@ -220,9 +272,11 @@ namespace WixEdit.Settings {
             System.Xml.XmlAttribute attr = e.Attr;
             MessageBox.Show("Ignoring Unknown attribute: " + attr.Name + "='" + attr.Value + "'");
         }
+
         #endregion
 
         #region PropertyAdapterBase overrides
+
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList propertyDescriptors = new ArrayList();
             foreach (PropertyInfo propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
@@ -232,7 +286,7 @@ namespace WixEdit.Settings {
 
             return new PropertyDescriptorCollection((PropertyDescriptor[]) propertyDescriptors.ToArray(typeof(PropertyDescriptor)));
         }
-        #endregion
 
+        #endregion
    }
 }
