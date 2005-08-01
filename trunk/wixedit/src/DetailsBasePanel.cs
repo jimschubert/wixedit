@@ -591,5 +591,33 @@ namespace WixEdit {
         public void Reload() {
             LoadData();
         }
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		protected override void Dispose(bool disposing) {
+            if( disposing ) {
+                treeView.Dispose();
+                newSubElementsMenu.Dispose();
+                deleteCurrentElementMenu.Dispose();
+                infoAboutCurrentElementMenu.Dispose();
+                treeViewContextMenu.Dispose();
+                splitter1.Dispose();
+                propertyGrid.Dispose();
+                panel1.Dispose();
+                propertyGridContextMenu.Dispose();
+
+                treeView = null;
+                newSubElementsMenu = null;
+                deleteCurrentElementMenu = null;
+                infoAboutCurrentElementMenu = null;
+                treeViewContextMenu = null;
+                splitter1 = null;
+                propertyGrid = null;
+                panel1 = null;
+                propertyGridContextMenu = null;
+            }
+            base.Dispose( disposing );
+		}
     }
 }

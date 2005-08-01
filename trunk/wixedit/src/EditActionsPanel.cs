@@ -78,5 +78,17 @@ namespace WixEdit {
                 tabControl.SelectedTab = editExecuteSequenceTabPage;
             }
         }
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		protected override void Dispose(bool disposing) {
+            if( disposing ) {
+                tabControl.TabPages.Clear();
+                tabControl.Dispose();
+                tabControl = null;
+            }
+            base.Dispose( disposing );
+		}
     }
 }

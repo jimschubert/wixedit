@@ -28,7 +28,7 @@ using System.Reflection;
 
 namespace WixEdit {
 	/// <summary>
-	/// Summary description for Form1.
+	/// Form to enter strings.
 	/// </summary>
 	public class SelectStringForm : Form {
         protected Button ButtonOk;

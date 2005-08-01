@@ -103,7 +103,6 @@ namespace WixEdit {
             tabBitmaps.Clear();
 
             contentPanel.Controls.Clear();
-
         }
 
         public int SelectedIndex {
