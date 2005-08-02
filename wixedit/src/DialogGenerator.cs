@@ -178,26 +178,26 @@ namespace WixEdit {
 
             XmlNodeList radioButtonGroups = dialog.SelectNodes("wix:Control[@Type='RadioButtonGroup']", wixFiles.WxsNsmgr);
             AddRadioButtonGroups(newDialog, radioButtonGroups);
-/*
+
             XmlNodeList maskedEdits = dialog.SelectNodes("wix:Control[@Type='MaskedEdit']", wixFiles.WxsNsmgr);
             AddMaskedEdits(newDialog, maskedEdits);
 
             XmlNodeList volumeCostLists = dialog.SelectNodes("wix:Control[@Type='VolumeCostList']", wixFiles.WxsNsmgr);
             AddVolumeCostLists(newDialog, volumeCostLists);
 
+// Skipping tooltips
+/*
             XmlNodeList tooltips = dialog.SelectNodes("wix:Control[@Type='Tooltips']", wixFiles.WxsNsmgr);
             AddTooltips(newDialog, tooltips);
 */
             XmlNodeList directoryCombos = dialog.SelectNodes("wix:Control[@Type='DirectoryCombo']", wixFiles.WxsNsmgr);
             AddDirectoryCombos(newDialog, directoryCombos);
-/*
+
             XmlNodeList directoryLists = dialog.SelectNodes("wix:Control[@Type='DirectoryList']", wixFiles.WxsNsmgr);
             AddDirectoryLists(newDialog, directoryLists);
 
             XmlNodeList selectionTrees = dialog.SelectNodes("wix:Control[@Type='SelectionTree']", wixFiles.WxsNsmgr);
             AddSelectionTrees(newDialog, selectionTrees);
-
-*/
 
 
             XmlNodeList bitmaps = dialog.SelectNodes("wix:Control[@Type='Bitmap']", wixFiles.WxsNsmgr);
@@ -368,8 +368,6 @@ namespace WixEdit {
             foreach (XmlNode text in texts) {
                 Label label = new Label();
                 SetControlSizes(label, text);
-//                label.ClientSize = new Size(DialogUnitsToPixelsWidth(XmlConvert.ToInt32(text.Attributes["Width"].Value)),
-//                                            DialogUnitsToPixelsHeight(XmlConvert.ToInt32(text.Attributes["Height"].Value)));
                 SetText(label, text);
 
                 label.BackColor = Color.Transparent;
@@ -391,6 +389,10 @@ namespace WixEdit {
         private void AddGroupBoxes(DesignerForm newDialog, XmlNodeList groupBoxes) {
             foreach (XmlNode group in groupBoxes) {
                 GroupBox groupCtrl = new GroupBox();
+
+                // The FlatStyle.System makes the control look weird.
+                // groupCtrl.FlatStyle = FlatStyle.System;
+
                 SetControlSizes(groupCtrl, group);
                 SetText(groupCtrl, group);
 
@@ -470,12 +472,87 @@ namespace WixEdit {
             }
         }
 
+        private void AddMaskedEdits(DesignerForm newDialog, XmlNodeList maskedEdits) {
+            foreach (XmlNode edit in maskedEdits) {
+                TextBox newEdit = new TextBox();
+                SetControlSizes(newEdit, edit);
+                SetText(newEdit, edit);
+
+                newEdit.BorderStyle = BorderStyle.Fixed3D;
+
+                newDialog.AddControl(edit, newEdit);
+            }
+        }
+
+        private void AddVolumeCostLists(DesignerForm newDialog, XmlNodeList volumeCostLists) {
+            foreach (XmlNode volumeCostList in volumeCostLists) {
+                ListView listView = new ListView();
+                ColumnHeader columnHeader1 = new ColumnHeader();
+                ColumnHeader columnHeader2 = new ColumnHeader();
+                ColumnHeader columnHeader3 = new ColumnHeader();
+                ColumnHeader columnHeader4 = new ColumnHeader();
+                ColumnHeader columnHeader5 = new ColumnHeader();
+                               
+                columnHeader1.Text = "Volume";
+                columnHeader2.Text = "Disk Size";
+                columnHeader3.Text = "Available";
+                columnHeader4.Text = "Required";
+                columnHeader5.Text = "Difference";
+
+                columnHeader1.TextAlign = HorizontalAlignment.Left;
+                columnHeader2.TextAlign = HorizontalAlignment.Right;
+                columnHeader3.TextAlign = HorizontalAlignment.Right;
+                columnHeader4.TextAlign = HorizontalAlignment.Right;
+                columnHeader5.TextAlign = HorizontalAlignment.Right;
+
+                listView.Columns.AddRange(new ColumnHeader[] { columnHeader1,
+                                                               columnHeader2,
+                                                               columnHeader3,
+                                                               columnHeader4,
+                                                               columnHeader5} );
+
+                listView.Items.Add(new ListViewItem(new string[] {"C:", "30GB", "3200MB", "1MB", "3189MB" }));
+                listView.View = System.Windows.Forms.View.Details;
+
+                SetControlSizes(listView, volumeCostList);
+
+                newDialog.AddControl(volumeCostList, listView);
+            }
+        }
+
         private void AddDirectoryCombos(DesignerForm newDialog, XmlNodeList directoryCombos) {
             foreach (XmlNode directoryCombo in directoryCombos) {
                 ComboBox comboCtrl = new ComboBox();
+                comboCtrl.Items.Add("Directories");
+                comboCtrl.SelectedIndex = 0;
+
                 SetControlSizes(comboCtrl, directoryCombo);
 
                 newDialog.AddControl(directoryCombo, comboCtrl);
+            }
+        }
+
+        private void AddDirectoryLists(DesignerForm newDialog, XmlNodeList directoryLists) {
+            foreach (XmlNode directoryList in directoryLists) {
+                ListBox listBox = new ListBox();
+                listBox.Items.Add("Director content");
+                listBox.SelectedIndex = 0;
+
+                SetControlSizes(listBox, directoryList);
+
+                newDialog.AddControl(directoryList, listBox);
+            }
+        }
+
+        private void AddSelectionTrees(DesignerForm newDialog, XmlNodeList selectionTrees) {
+            foreach (XmlNode selectionTree in selectionTrees) {
+                TreeView treeView = new TreeView();
+                treeView.Scrollable = false;
+                treeView.Nodes.Add(new TreeNode("Selection tree"));
+
+                SetControlSizes(treeView, selectionTree);
+
+                newDialog.AddControl(selectionTree, treeView);
             }
         }
         
