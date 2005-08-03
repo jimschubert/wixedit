@@ -382,13 +382,18 @@ namespace WixEdit {
                 throw new Exception("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
+            string extension = "msi";
+            if (wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Module", wixFiles.WxsNsmgr) != null) {
+                extension = "msm";
+            }
+
             ProcessStartInfo psiLight = new ProcessStartInfo();
             psiLight.FileName = lightExe;
             psiLight.CreateNoWindow = true;
             psiLight.UseShellExecute = false;
             psiLight.RedirectStandardOutput = true;
             psiLight.RedirectStandardError = false;            
-            psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi"));
+            psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, extension));
 
             ShowOutputPanel(null, null);
             outputPanel.Clear();
@@ -431,7 +436,7 @@ namespace WixEdit {
         }
 
         protected void ShowProductProperties() {
-            XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Product", wixFiles.WxsNsmgr);
+            XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
             ProductPropertiesForm frm = new ProductPropertiesForm(product, wixFiles);
             frm.ShowDialog();
 
