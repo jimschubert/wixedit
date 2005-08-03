@@ -33,7 +33,7 @@ namespace WixEdit {
 
         protected override ArrayList GetXmlNodes() {
             ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/wix:Product/wix:Directory", wixFiles.WxsNsmgr);
+            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Directory", wixFiles.WxsNsmgr);
             foreach (XmlNode xmlNode in xmlNodes) {
                 nodes.Add(xmlNode);
             }
