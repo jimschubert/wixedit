@@ -380,7 +380,10 @@ namespace WixEdit {
             foreach (XmlNode text in rtfTexts) {
                 RichTextBox rtfCtrl = new RichTextBox();
                 SetControlSizes(rtfCtrl, text);
-                rtfCtrl.Rtf = GetTextFromXmlElement(text);
+
+                string elementText = GetTextFromXmlElement(text);
+
+                rtfCtrl.Rtf = elementText;
 
                 newDialog.AddControl(text, rtfCtrl);
             }
@@ -620,7 +623,51 @@ namespace WixEdit {
 
 
         private string GetTextFromXmlElement(XmlNode textElement) {
-            return GetFromXmlElement(textElement, "Text");
+            string elementText = String.Empty;
+
+            XmlNode text = textElement.SelectSingleNode("wix:Text", wixFiles.WxsNsmgr);
+            if (text != null) {
+                XmlAttribute srcAttrib = text.Attributes["src"];
+
+                if (srcAttrib != null) {
+                    string src = srcAttrib.Value;
+    
+                    if (src != null && src.Length != 0) {
+                        TextReader reader = null;
+    
+                        if (Path.IsPathRooted(src)) {
+                            if (File.Exists(src)) {
+                                reader = File.OpenText(src);
+                            }
+                        } else {
+                            if (File.Exists(src)) {
+                                reader = File.OpenText(src);
+                            } else {
+                                FileInfo[] files = wixFiles.WxsDirectory.GetFiles(src);
+                                if (files.Length == 1) {
+                                    reader = files[0].OpenText();
+                                }
+                            }
+                        }
+    
+                        if (reader != null) {
+                            using (reader) {
+                                elementText = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+
+                if (elementText == null || elementText.Trim().Length == 0) {
+                    elementText = ExpandWixProperties(text.InnerText);
+                }
+            } else {
+                if (textElement.Attributes["Text"] != null) {
+                    elementText = ExpandWixProperties(textElement.Attributes["Text"].Value);
+                } 
+            }
+
+            return elementText;
         }
 
         private string GetFromXmlElement(XmlNode textElement, string propertyToGet) {

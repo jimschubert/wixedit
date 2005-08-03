@@ -777,7 +777,9 @@ namespace WixEdit {
             XmlNode node = e.Node.Tag as XmlNode;
             if (node != null) {
                 ShowWixProperties(node);
-                currentDialog.SelectedNode = node;
+                if (currentDialog.Visible){
+                    currentDialog.SelectedNode = node;
+                }
             }
         }
 
@@ -874,30 +876,18 @@ namespace WixEdit {
                 return;
             }
 
-            // Name should be dialog...
             if (node.Name == "Control") {
-                // Get new name, and add Text element
-                // EnterStringForm frm = new EnterStringForm();
-                // frm.Text = "Enter new Text value";
-                // if (DialogResult.OK == frm.ShowDialog()) {
-                    XmlElement newText = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
-    
-                    // XmlText newValue = node.OwnerDocument.CreateTextNode(frm.SelectedString);
+                XmlElement newText = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
 
-                    // newText.AppendChild(newValue);
+                TreeNode control = new TreeNode(typeName);
+                control.Tag = newText;
+                control.ImageIndex = imageIndex;
+                control.SelectedImageIndex = imageIndex;
 
-                    // node.AppendChild(newText);
+                dialogTreeView.SelectedNode.Nodes.Add(control);
+                dialogTreeView.SelectedNode = control;
 
-                    TreeNode control = new TreeNode(typeName);
-                    control.Tag = newText;
-                    control.ImageIndex = imageIndex;
-                    control.SelectedImageIndex = imageIndex;
-
-                    dialogTreeView.SelectedNode.Nodes.Add(control);
-                    dialogTreeView.SelectedNode = control;
-
-                    ShowWixProperties(newText);
-                //}
+                ShowWixProperties(newText);
             }
         }
 
