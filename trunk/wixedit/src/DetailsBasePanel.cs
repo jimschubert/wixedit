@@ -397,13 +397,16 @@ namespace WixEdit {
 
         protected string GetDisplayName(XmlNode element) {
             string displayName = null;
-
+try {
             switch (element.Name) {
                 case "Directory":
                 case "File":
                     XmlAttribute nameAtt = element.Attributes["LongName"];
                     if (nameAtt == null) {
                         nameAtt = element.Attributes["Name"];
+                    }
+                    if (nameAtt == null) {
+                        nameAtt = element.Attributes["Id"];
                     }
                     displayName = nameAtt.Value;
                     break;
@@ -449,7 +452,9 @@ namespace WixEdit {
                     displayName = element.Name;
                     break;
             }
-
+} catch {
+            displayName = element.Name;
+}
             return displayName;
         }
 
