@@ -442,7 +442,7 @@ namespace WixEdit {
             string currentDialogId = wxsDialogs.SelectedItems[0].Text;
 //            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
             XmlNode dialog = (XmlNode) wxsDialogs.SelectedItems[0].Tag;
-            
+
             ShowWixDialog(dialog);
         }
 
@@ -499,6 +499,21 @@ namespace WixEdit {
                 dialog.Attributes.Append(att);
                 
                 XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);
+                if (ui == null) {
+                    ui = wixFiles.WxsDocument.CreateElement("UI", "http://schemas.microsoft.com/wix/2003/01/wi");
+
+                    XmlNode parent = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
+                    if (parent == null) {
+                        MessageBox.Show("No module or product found!");
+                        return;
+                    }
+
+                    // if (parent.Name != "Module" && parent.Name != "Product") {
+                    //      Whoops!
+                    // }
+
+                    parent.AppendChild(ui);
+                }
                 ui.AppendChild(dialog);
 
                 ListViewItem item = new ListViewItem(frm.SelectedString);
@@ -666,11 +681,11 @@ namespace WixEdit {
             if (dialog != null) {
                 DialogGenerator generator = new DialogGenerator(wixFiles, TopLevelControl);
                 currentDialog = generator.GenerateDialog(dialog, this);
-
-                currentDialog.ItemChanged += new DesignerFormItemHandler(OnDialogItemChanged);
-                currentDialog.SelectionChanged += new DesignerFormItemHandler(OnDialogSelectionChanged);
     
                 if (currentDialog != null) {
+                    currentDialog.ItemChanged += new DesignerFormItemHandler(OnDialogItemChanged);
+                    currentDialog.SelectionChanged += new DesignerFormItemHandler(OnDialogSelectionChanged);
+
                     currentDialog.Left = prevLeft;
                     currentDialog.Top = prevTop;
         
@@ -777,7 +792,7 @@ namespace WixEdit {
             XmlNode node = e.Node.Tag as XmlNode;
             if (node != null) {
                 ShowWixProperties(node);
-                if (currentDialog.Visible){
+                if (currentDialog != null && currentDialog.Visible){
                     currentDialog.SelectedNode = node;
                 }
             }

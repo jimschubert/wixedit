@@ -244,6 +244,7 @@ namespace WixEdit {
             NewProjectForm frm = new NewProjectForm();
             if (frm.ShowDialog() == DialogResult.OK) {
                 CloseWxsFile();
+
                 LoadWxsFile(frm.NewFileName);
 
                 ShowProductProperties();               

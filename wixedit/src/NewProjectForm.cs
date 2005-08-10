@@ -126,7 +126,7 @@ namespace WixEdit {
             wixFileName.Left = padding;
             wixFileName.Width = ClientSize.Width - 2*padding;
             wixFileName.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom;
-            wixFileName.Text = "NewFile.wxs";
+            wixFileName.Text = "NewProjectName";
             wixFileName.TextChanged += new EventHandler(OnCheckEnableOkButton);
             Controls.Add(wixFileName);
 
@@ -239,11 +239,15 @@ namespace WixEdit {
         }
 
         private void OnOk(object sender, EventArgs e) {
-            string wixFile = Path.Combine(directoryName.Text, wixFileName + "\\" + wixFileName + ".wxs");
+            string wixFile = Path.Combine(directoryName.Text, wixFileName.Text + "\\" + wixFileName.Text + ".wxs");
             if (File.Exists(wixFile)) {
                 MessageBox.Show(wixFile + " Does already exist.");
 
                 return;
+            }
+
+            if(Directory.Exists(Path.Combine(directoryName.Text, wixFileName.Text)) == false) {
+                Directory.CreateDirectory(Path.Combine(directoryName.Text, wixFileName.Text));
             }
 
             DialogResult = DialogResult.OK;
