@@ -21,14 +21,21 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
+using System.Drawing;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
     /// Panel for adding and removing files and other installable items.
     /// </summary>
-    public class EditFilesPanel : DetailsBasePanel {
+    public class EditFilesPanel : DetailsBasePanel {        
+        protected ContextMenu globalTreeViewContextMenu;
+
         public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
+            globalTreeViewContextMenu = new ContextMenu();
+            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
         }
 
         protected override ArrayList GetXmlNodes() {
@@ -39,6 +46,46 @@ namespace WixEdit {
             }
 
             return nodes;
+        }
+
+        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
+            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
+
+            globalTreeViewContextMenu.Show(this, spot);
+        }
+
+
+        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
+            globalTreeViewContextMenu.MenuItems.Clear();
+
+            IconMenuItem subMenuItem = new IconMenuItem("New Directory", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+
+            subMenuItem.Click += new EventHandler(NewCustomElement_Click);
+
+            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
+        }
+
+        private void NewCustomElement_Click(object sender, System.EventArgs e) {
+            string elementName = "Directory";
+
+            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
+
+            XmlElement newElement = wixFiles.WxsDocument.CreateElement(elementName, "http://schemas.microsoft.com/wix/2003/01/wi");
+            TreeNode action = new TreeNode(elementName);
+            action.Tag = newElement;
+
+            int imageIndex = ImageListFactory.GetImageIndex(elementName);
+            if (imageIndex >= 0) {
+                action.ImageIndex = imageIndex;
+                action.SelectedImageIndex = imageIndex;
+            }
+
+            xmlNode.AppendChild(newElement);
+
+            treeView.Nodes.Add(action);
+            treeView.SelectedNode = action;
+
+            ShowProperties(newElement); 
         }
     }
 }

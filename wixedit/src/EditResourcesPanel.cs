@@ -106,7 +106,7 @@ namespace WixEdit {
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
             if (DialogResult.OK == frm.ShowDialog()) {
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("wix:Binary", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Binary", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;

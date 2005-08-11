@@ -23,13 +23,19 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Xml;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
     /// Panel to edit Custom Actions.
     /// </summary>
     public class EditExecuteSequencePanel : DetailsBasePanel {
+        protected ContextMenu globalTreeViewContextMenu;
+
         public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles) {
+            globalTreeViewContextMenu = new ContextMenu();
+            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
         }
 
         protected override ArrayList GetXmlNodes() {
@@ -50,6 +56,56 @@ namespace WixEdit {
             }
 
             return nodes;
+        }
+
+        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
+            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
+
+            globalTreeViewContextMenu.Show(this, spot);
+        }
+
+
+        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
+            globalTreeViewContextMenu.MenuItems.Clear();
+
+            IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+
+            IconMenuItem subSubMenuItem1 = new IconMenuItem("InstallExecuteSequence");
+            IconMenuItem subSubMenuItem2 = new IconMenuItem("AdminExecuteSequence");
+            IconMenuItem subSubMenuItem3 = new IconMenuItem("AdvertiseExecuteSequence");
+
+            subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
+            subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);
+            subSubMenuItem3.Click += new EventHandler(NewCustomElement_Click);
+
+            subMenuItem.MenuItems.Add(subSubMenuItem1);
+            subMenuItem.MenuItems.Add(subSubMenuItem2);
+            subMenuItem.MenuItems.Add(subSubMenuItem3);
+
+            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
+        }
+
+        private void NewCustomElement_Click(object sender, System.EventArgs e) {
+            MenuItem item = (MenuItem) sender;
+
+            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
+
+            XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, "http://schemas.microsoft.com/wix/2003/01/wi");
+            TreeNode action = new TreeNode(item.Text);
+            action.Tag = newElement;
+
+            int imageIndex = ImageListFactory.GetImageIndex(item.Text);
+            if (imageIndex >= 0) {
+                action.ImageIndex = imageIndex;
+                action.SelectedImageIndex = imageIndex;
+            }
+
+            xmlNode.AppendChild(newElement);
+
+            treeView.Nodes.Add(action);
+            treeView.SelectedNode = action;
+
+            ShowProperties(newElement); 
         }
     }
 }

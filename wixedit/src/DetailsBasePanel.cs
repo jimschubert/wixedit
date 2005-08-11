@@ -513,7 +513,7 @@ try {
                             continue;
                         }
 
-                        IconMenuItem subMenuItem = new IconMenuItem(refAtt.Value, new Bitmap(WixFiles.GetResourceStream("elements.empty.bmp")));
+                        IconMenuItem subMenuItem = new IconMenuItem(refAtt.Value);
                         subMenuItem.Click += new EventHandler(NewElement_Click);
 
                         newSubElementsMenu.MenuItems.Add(subMenuItem);
