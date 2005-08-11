@@ -309,253 +309,301 @@ namespace WixEdit {
 
         private void AddButtons(DesignerForm newDialog, XmlNodeList buttons) {
             foreach (XmlNode button in buttons) {
-                Button newButton = new Button();
-                SetControlSizes(newButton, button);
+                try {
+                    Button newButton = new Button();
+                    SetControlSizes(newButton, button);
 
-                if (button.Attributes["Icon"] != null &&
-                    button.Attributes["Icon"].Value.ToLower() == "yes") {
-                    string binaryId = GetTextFromXmlElement(button);
-                    try {
-                        Stream imageStream = GetBinaryStream(binaryId);
-                        newButton.Image = new Bitmap(imageStream);
-                    } catch {
+                    if (button.Attributes["Icon"] != null &&
+                        button.Attributes["Icon"].Value.ToLower() == "yes") {
+                        string binaryId = GetTextFromXmlElement(button);
+                        try {
+                            Stream imageStream = GetBinaryStream(binaryId);
+                            newButton.Image = new Bitmap(imageStream);
+                        } catch {
+                            SetText(newButton, button);
+                        }
+                    } else {
+                        newButton.FlatStyle = FlatStyle.System;
                         SetText(newButton, button);
                     }
-                } else {
-                    newButton.FlatStyle = FlatStyle.System;
-                    SetText(newButton, button);
-                }
                 
-                newDialog.AddControl(button, newButton);
+                    newDialog.AddControl(button, newButton);
+                } catch {
+                }
             }
         }
 
         private void AddEditBoxes(DesignerForm newDialog, XmlNodeList editboxes) {
             foreach (XmlNode edit in editboxes) {
-                TextBox newEdit = new TextBox();
-                SetControlSizes(newEdit, edit);
-                SetText(newEdit, edit);
+                try {
+                    TextBox newEdit = new TextBox();
+                    SetControlSizes(newEdit, edit);
+                    SetText(newEdit, edit);
 
-                newEdit.BorderStyle = BorderStyle.Fixed3D;
+                    newEdit.BorderStyle = BorderStyle.Fixed3D;
 
-                newDialog.AddControl(edit, newEdit);
+                    newDialog.AddControl(edit, newEdit);
+                } catch {
+                }
             }
         }
 
         private void AddPathEditBoxes(DesignerForm newDialog, XmlNodeList patheditboxes) {
             foreach (XmlNode pathEdit in patheditboxes) {
-                TextBox newPathEdit = new TextBox();
-                SetControlSizes(newPathEdit, pathEdit);
-                SetText(newPathEdit, pathEdit);
+                try {
+                    TextBox newPathEdit = new TextBox();
+                    SetControlSizes(newPathEdit, pathEdit);
+                    SetText(newPathEdit, pathEdit);
 
-                newDialog.AddControl(pathEdit, newPathEdit);
+                    newDialog.AddControl(pathEdit, newPathEdit);
+                } catch {
+                }
             }
         }
 
         private void AddLines(DesignerForm newDialog, XmlNodeList lines) {
             foreach (XmlNode line in lines) {
-                Label label = new Label();
-                SetControlSizes(label, line);
+                try {
+                    Label label = new Label();
+                    SetControlSizes(label, line);
 
-                label.Height = 2;
-                label.BorderStyle = BorderStyle.Fixed3D;
+                    label.Height = 2;
+                    label.BorderStyle = BorderStyle.Fixed3D;
 
-                newDialog.AddControl(line, label);
+                    newDialog.AddControl(line, label);
+                } catch {
+                }
             }
         }
 
         private void AddTexts(DesignerForm newDialog, XmlNodeList texts) {
             foreach (XmlNode text in texts) {
-                Label label = new Label();
-                SetControlSizes(label, text);
-                SetText(label, text);
+                try {
+                    Label label = new Label();
+                    SetControlSizes(label, text);
+                    SetText(label, text);
 
-                label.BackColor = Color.Transparent;
+                    label.BackColor = Color.Transparent;
 
-                newDialog.AddControl(text, label);
+                    newDialog.AddControl(text, label);
+                } catch {
+                }
             }
         }
 
         private void AddRftTextBoxes(DesignerForm newDialog, XmlNodeList rtfTexts) {
             foreach (XmlNode text in rtfTexts) {
-                RichTextBox rtfCtrl = new RichTextBox();
-                SetControlSizes(rtfCtrl, text);
+                try {
+                    RichTextBox rtfCtrl = new RichTextBox();
+                    SetControlSizes(rtfCtrl, text);
 
-                string elementText = GetTextFromXmlElement(text);
+                    string elementText = GetTextFromXmlElement(text);
 
-                rtfCtrl.Rtf = elementText;
+                    rtfCtrl.Rtf = elementText;
 
-                newDialog.AddControl(text, rtfCtrl);
+                    newDialog.AddControl(text, rtfCtrl);
+                } catch {
+                }
             }
         }
 
         private void AddGroupBoxes(DesignerForm newDialog, XmlNodeList groupBoxes) {
             foreach (XmlNode group in groupBoxes) {
-                GroupBox groupCtrl = new GroupBox();
+                try {
+                    GroupBox groupCtrl = new GroupBox();
 
-                // The FlatStyle.System makes the control look weird.
-                // groupCtrl.FlatStyle = FlatStyle.System;
+                    // The FlatStyle.System makes the control look weird.
+                    // groupCtrl.FlatStyle = FlatStyle.System;
 
-                SetControlSizes(groupCtrl, group);
-                SetText(groupCtrl, group);
+                    SetControlSizes(groupCtrl, group);
+                    SetText(groupCtrl, group);
 
-                newDialog.AddControl(group, groupCtrl);
+                    newDialog.AddControl(group, groupCtrl);
+                } catch {
+                }
             }
         }
 
         private void AddIcons(DesignerForm newDialog, XmlNodeList icons) {
             foreach (XmlNode icon in icons) {
-                PictureBox picCtrl = new PictureBox();
-                SetControlSizes(picCtrl, icon);
-
-                picCtrl.SizeMode = PictureBoxSizeMode.StretchImage;
-
-                string binaryId = GetTextFromXmlElement(icon);
                 try {
-                    Stream imageStream = GetBinaryStream(binaryId);
-                    picCtrl.Image = new Bitmap(imageStream);
+                    PictureBox picCtrl = new PictureBox();
+                    SetControlSizes(picCtrl, icon);
+
+                    picCtrl.SizeMode = PictureBoxSizeMode.StretchImage;
+
+                    string binaryId = GetTextFromXmlElement(icon);
+                    try {
+                        Stream imageStream = GetBinaryStream(binaryId);
+                        picCtrl.Image = new Bitmap(imageStream);
+                    } catch {
+                    }
+
+                    newDialog.AddControl(icon, picCtrl);
                 } catch {
                 }
-
-                newDialog.AddControl(icon, picCtrl);
             }
         }
 
         private void AddListBoxes(DesignerForm newDialog, XmlNodeList listBoxes) {
             foreach (XmlNode list in listBoxes) {
-                ListBox listCtrl = new ListBox();
-                SetControlSizes(listCtrl, list);
+                try {
+                    ListBox listCtrl = new ListBox();
+                    SetControlSizes(listCtrl, list);
 
-                listCtrl.Items.Add(GetFromXmlElement(list, "Property"));
+                    listCtrl.Items.Add(GetFromXmlElement(list, "Property"));
 
-                newDialog.AddControl(list, listCtrl);
+                    newDialog.AddControl(list, listCtrl);
+                } catch {
+                }
             }
         }
 
         private void AddProgressBars(DesignerForm newDialog, XmlNodeList progressBars) {
             foreach (XmlNode progressbar in progressBars) {
-                ProgressBar progressCtrl = new ProgressBar();
-                SetControlSizes(progressCtrl, progressbar);
+                try {
+                    ProgressBar progressCtrl = new ProgressBar();
+                    SetControlSizes(progressCtrl, progressbar);
 
-                progressCtrl.Maximum = 100;
-                progressCtrl.Value = 33;
+                    progressCtrl.Maximum = 100;
+                    progressCtrl.Value = 33;
 
-                newDialog.AddControl(progressbar, progressCtrl);
+                    newDialog.AddControl(progressbar, progressCtrl);
+                } catch {
+                }
             }
         }
 
         private void AddRadioButtonGroups(DesignerForm newDialog, XmlNodeList radioButtonGroups) {
             foreach (XmlNode radioButtonGroup in radioButtonGroups) {
-                string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
-                string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
+                try {
+                    string radioGroupName = radioButtonGroup.Attributes["Property"].Value;
+                    string defaultValue = ExpandWixProperties(String.Format("[{0}]", radioGroupName));
 
-                XmlNode radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
-                if (radioGroup == null) {
-                    radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioButtonGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
-                }
-
-                Panel panel = new Panel();
-                SetControlSizes(panel, radioButtonGroup);
-
-                foreach (XmlNode radioElement in radioGroup.ChildNodes) {
-                    RadioButton radioCtrl = new RadioButton();
-                    SetText(radioCtrl, radioElement);
-                    SetTag(radioCtrl, radioElement);
-
-                    SetControlSizes(radioCtrl, radioElement);
-                    
-                    panel.Controls.Add(radioCtrl);
-
-                    if (((string)radioCtrl.Tag).ToLower() == defaultValue.ToLower()) {
-                        radioCtrl.Checked = true;
+                    XmlNode radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
+                    if (radioGroup == null) {
+                        radioGroup = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:RadioButtonGroup[@Property='{0}']", radioGroupName), wixFiles.WxsNsmgr);
                     }
-                }
 
-                newDialog.AddControl(radioButtonGroup, panel);
+                    Panel panel = new Panel();
+                    SetControlSizes(panel, radioButtonGroup);
+
+                    foreach (XmlNode radioElement in radioGroup.ChildNodes) {
+                        RadioButton radioCtrl = new RadioButton();
+                        SetText(radioCtrl, radioElement);
+                        SetTag(radioCtrl, radioElement);
+
+                        SetControlSizes(radioCtrl, radioElement);
+                    
+                        panel.Controls.Add(radioCtrl);
+
+                        if (((string)radioCtrl.Tag).ToLower() == defaultValue.ToLower()) {
+                            radioCtrl.Checked = true;
+                        }
+                    }
+
+                    newDialog.AddControl(radioButtonGroup, panel);
+                } catch {
+                }
             }
         }
 
         private void AddMaskedEdits(DesignerForm newDialog, XmlNodeList maskedEdits) {
             foreach (XmlNode edit in maskedEdits) {
-                TextBox newEdit = new TextBox();
-                SetControlSizes(newEdit, edit);
-                SetText(newEdit, edit);
+                try {
+                    TextBox newEdit = new TextBox();
+                    SetControlSizes(newEdit, edit);
+                    SetText(newEdit, edit);
 
-                newEdit.BorderStyle = BorderStyle.Fixed3D;
+                    newEdit.BorderStyle = BorderStyle.Fixed3D;
 
-                newDialog.AddControl(edit, newEdit);
+                    newDialog.AddControl(edit, newEdit);
+                } catch {
+                }
             }
         }
 
         private void AddVolumeCostLists(DesignerForm newDialog, XmlNodeList volumeCostLists) {
             foreach (XmlNode volumeCostList in volumeCostLists) {
-                ListView listView = new ListView();
-                ColumnHeader columnHeader1 = new ColumnHeader();
-                ColumnHeader columnHeader2 = new ColumnHeader();
-                ColumnHeader columnHeader3 = new ColumnHeader();
-                ColumnHeader columnHeader4 = new ColumnHeader();
-                ColumnHeader columnHeader5 = new ColumnHeader();
+                try {
+                    ListView listView = new ListView();
+                    ColumnHeader columnHeader1 = new ColumnHeader();
+                    ColumnHeader columnHeader2 = new ColumnHeader();
+                    ColumnHeader columnHeader3 = new ColumnHeader();
+                    ColumnHeader columnHeader4 = new ColumnHeader();
+                    ColumnHeader columnHeader5 = new ColumnHeader();
                                
-                columnHeader1.Text = "Volume";
-                columnHeader2.Text = "Disk Size";
-                columnHeader3.Text = "Available";
-                columnHeader4.Text = "Required";
-                columnHeader5.Text = "Difference";
+                    columnHeader1.Text = "Volume";
+                    columnHeader2.Text = "Disk Size";
+                    columnHeader3.Text = "Available";
+                    columnHeader4.Text = "Required";
+                    columnHeader5.Text = "Difference";
 
-                columnHeader1.TextAlign = HorizontalAlignment.Left;
-                columnHeader2.TextAlign = HorizontalAlignment.Right;
-                columnHeader3.TextAlign = HorizontalAlignment.Right;
-                columnHeader4.TextAlign = HorizontalAlignment.Right;
-                columnHeader5.TextAlign = HorizontalAlignment.Right;
+                    columnHeader1.TextAlign = HorizontalAlignment.Left;
+                    columnHeader2.TextAlign = HorizontalAlignment.Right;
+                    columnHeader3.TextAlign = HorizontalAlignment.Right;
+                    columnHeader4.TextAlign = HorizontalAlignment.Right;
+                    columnHeader5.TextAlign = HorizontalAlignment.Right;
 
-                listView.Columns.AddRange(new ColumnHeader[] { columnHeader1,
-                                                               columnHeader2,
-                                                               columnHeader3,
-                                                               columnHeader4,
-                                                               columnHeader5} );
+                    listView.Columns.AddRange(new ColumnHeader[] { columnHeader1,
+                                                                     columnHeader2,
+                                                                     columnHeader3,
+                                                                     columnHeader4,
+                                                                     columnHeader5} );
 
-                listView.Items.Add(new ListViewItem(new string[] {"C:", "30GB", "3200MB", "1MB", "3189MB" }));
-                listView.View = System.Windows.Forms.View.Details;
+                    listView.Items.Add(new ListViewItem(new string[] {"C:", "30GB", "3200MB", "1MB", "3189MB" }));
+                    listView.View = System.Windows.Forms.View.Details;
 
-                SetControlSizes(listView, volumeCostList);
+                    SetControlSizes(listView, volumeCostList);
 
-                newDialog.AddControl(volumeCostList, listView);
+                    newDialog.AddControl(volumeCostList, listView);
+                } catch {
+                }
             }
         }
 
         private void AddDirectoryCombos(DesignerForm newDialog, XmlNodeList directoryCombos) {
             foreach (XmlNode directoryCombo in directoryCombos) {
-                ComboBox comboCtrl = new ComboBox();
-                comboCtrl.Items.Add("Directories");
-                comboCtrl.SelectedIndex = 0;
+                try {
+                    ComboBox comboCtrl = new ComboBox();
+                    comboCtrl.Items.Add("Directories");
+                    comboCtrl.SelectedIndex = 0;
 
-                SetControlSizes(comboCtrl, directoryCombo);
+                    SetControlSizes(comboCtrl, directoryCombo);
 
-                newDialog.AddControl(directoryCombo, comboCtrl);
+                    newDialog.AddControl(directoryCombo, comboCtrl);
+                } catch {
+                }
             }
         }
 
         private void AddDirectoryLists(DesignerForm newDialog, XmlNodeList directoryLists) {
             foreach (XmlNode directoryList in directoryLists) {
-                ListBox listBox = new ListBox();
-                listBox.Items.Add("Director content");
-                listBox.SelectedIndex = 0;
+                try {
+                    ListBox listBox = new ListBox();
+                    listBox.Items.Add("Director content");
+                    listBox.SelectedIndex = 0;
 
-                SetControlSizes(listBox, directoryList);
+                    SetControlSizes(listBox, directoryList);
 
-                newDialog.AddControl(directoryList, listBox);
+                    newDialog.AddControl(directoryList, listBox);
+                } catch {
+                }
             }
         }
 
         private void AddSelectionTrees(DesignerForm newDialog, XmlNodeList selectionTrees) {
             foreach (XmlNode selectionTree in selectionTrees) {
-                TreeView treeView = new TreeView();
-                treeView.Scrollable = false;
-                treeView.Nodes.Add(new TreeNode("Selection tree"));
+                try {
+                    TreeView treeView = new TreeView();
+                    treeView.Scrollable = false;
+                    treeView.Nodes.Add(new TreeNode("Selection tree"));
 
-                SetControlSizes(treeView, selectionTree);
+                    SetControlSizes(treeView, selectionTree);
 
-                newDialog.AddControl(selectionTree, treeView);
+                    newDialog.AddControl(selectionTree, treeView);
+                } catch {
+                }
             }
         }
         
@@ -564,20 +612,23 @@ namespace WixEdit {
             ArrayList allPictureControls = new ArrayList();
 
             foreach (XmlNode bitmap in bitmaps) {
-                string binaryId = GetTextFromXmlElement(bitmap);
-
-                Bitmap bmp = null;
                 try {
-                    bmp = new Bitmap(GetBinaryStream(binaryId));
+                    string binaryId = GetTextFromXmlElement(bitmap);
+
+                    Bitmap bmp = null;
+                    try {
+                        bmp = new Bitmap(GetBinaryStream(binaryId));
+                    } catch {
+                    }
+
+                    pictureCtrl = new PictureControl(bmp, allPictureControls);
+                    allPictureControls.Add(pictureCtrl);
+
+                    SetControlSizes(pictureCtrl, bitmap);
+               
+                    newDialog.AddControl(bitmap, pictureCtrl);
                 } catch {
                 }
-
-                pictureCtrl = new PictureControl(bmp, allPictureControls);
-                allPictureControls.Add(pictureCtrl);
-
-                SetControlSizes(pictureCtrl, bitmap);
-               
-                newDialog.AddControl(bitmap, pictureCtrl);
             }
 
             if (pictureCtrl != null) {

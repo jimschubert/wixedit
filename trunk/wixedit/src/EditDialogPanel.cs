@@ -439,11 +439,11 @@ namespace WixEdit {
         }
 
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
-            string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-//            XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
-            XmlNode dialog = (XmlNode) wxsDialogs.SelectedItems[0].Tag;
+            if (prevSelectedIndex >= 0 && wxsDialogs.Items.Count > prevSelectedIndex) {
+                XmlNode dialog = (XmlNode) wxsDialogs.Items[prevSelectedIndex].Tag;
 
-            ShowWixDialog(dialog);
+                ShowWixDialog(dialog);
+            }
         }
 
         public void OnWxsDialogsPopupContextMenu(object sender, EventArgs e) {
@@ -517,6 +517,7 @@ namespace WixEdit {
                 ui.AppendChild(dialog);
 
                 ListViewItem item = new ListViewItem(frm.SelectedString);
+                item.Tag = dialog;
                 wxsDialogs.Items.Add(item);
 
                 item.Selected = true;
@@ -635,6 +636,8 @@ namespace WixEdit {
             propertyGrid.Update();
         }
 
+        int prevSelectedIndex = -1;
+
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
@@ -643,6 +646,8 @@ namespace WixEdit {
                 ShowWixDialog(dialog);
                 ShowWixDialogTree(dialog);
                 ShowWixProperties(dialog);
+
+                prevSelectedIndex = wxsDialogs.SelectedItems[0].Index;
             }
         }
 
@@ -996,9 +1001,11 @@ namespace WixEdit {
                 WixEditSettings.Instance.Scale = ((double)form.SelectedInteger)/100.00;
                 WixEditSettings.Instance.SaveChanges();
 
-                XmlNode dialog = (XmlNode) wxsDialogs.SelectedItems[0].Tag;
-                
-                ShowWixDialog(dialog);
+                if (prevSelectedIndex >= 0 && wxsDialogs.Items.Count > prevSelectedIndex) {
+                    XmlNode dialog = (XmlNode) wxsDialogs.Items[prevSelectedIndex].Tag;
+
+                    ShowWixDialog(dialog);
+                }
             }
         }
 
