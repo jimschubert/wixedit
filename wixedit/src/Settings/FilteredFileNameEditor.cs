@@ -85,8 +85,7 @@ namespace WixEdit.Settings {
                 dialog.Filter = filter;
             }
             
-            // Default to the My Documents folder.
-            dialog.RestoreDirectory = true;
+            dialog.FileName = value;
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {

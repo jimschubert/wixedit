@@ -297,12 +297,25 @@ namespace WixEdit {
         }
 
         private void fileExit_Click(object sender, System.EventArgs e) {
-            Application.Exit();
+            this.Close();
         }
 
         private void fileMenu_Popup(object sender, System.EventArgs e) {
             if (wixFiles != null) {
                 fileSave.Enabled = wixFiles.UndoManager.HasChanges();
+            }
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e) {
+            if (wixFiles != null) {
+                if (wixFiles.UndoManager.HasChanges()) {
+                    if (HandlePendingChanges() == false) {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+
+                CloseWxsFile();
             }
         }
 
@@ -358,6 +371,15 @@ namespace WixEdit {
 
         private void toolsWixCompile_Click(object sender, System.EventArgs e) {
             try {
+                if (wixFiles.UndoManager.HasChanges()) {
+                    DialogResult result = MessageBox.Show("You need to save all changes before you can compile.\r\n\r\n Save changes now?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes) {
+                        wixFiles.Save();
+                    } else {
+                        return;
+                    }
+                }
+
                 Compile();
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -378,7 +400,7 @@ namespace WixEdit {
             psiCandle.RedirectStandardError = false;
             psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
 
-            string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
+            string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Light;
             if (File.Exists(lightExe) == false) {
                 throw new Exception("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
@@ -656,6 +678,6 @@ namespace WixEdit {
             Application.DoEvents();
 
 			Application.Run(new EditorForm());
-		}
+        }
     }
 }

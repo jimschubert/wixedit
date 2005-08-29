@@ -52,32 +52,32 @@ namespace WixEdit.Settings {
         /// <returns>the new connection string after editing</returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
             if (value is string) {
-                return EditValue(value as string);
+                return EditValue(value as string, context);
             } else if (value is BinDirectoryStructure) {
-                return EditValue(value as BinDirectoryStructure);
+                return EditValue(value as BinDirectoryStructure, context);
             } else {
                 throw new Exception("Invalid type");
             }
         }
 
-        /// <summary>show the form for the new connection string</summary>
-        /// <returns>the new connection string after editing</returns>
-        public string EditValue() {
-            return EditValue(string.Empty);
-        }
-
         /// <summary>show the form for the new connection string based on an an existing one</summary>
         /// <param name="value">the value prior to editing</param>
         /// <returns>the new connection string after editing</returns>
-        public string EditValue(string value) {
+        public string EditValue(string value, ITypeDescriptorContext context) {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "Select the directory where the WiX binaries reside.";
+            
+            DescriptionAttribute descAtt = (DescriptionAttribute) context.PropertyDescriptor.Attributes[typeof(DescriptionAttribute)];
+            if (descAtt != null) {
+                dialog.Description = descAtt.Description;
+            }
 
             // Allow the user to create new files via the FolderBrowserDialog.
-            dialog.ShowNewFolderButton = true;
+            dialog.ShowNewFolderButton = false;
 
             // Default to the My Documents folder.
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+            dialog.SelectedPath = value;
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {
@@ -87,15 +87,20 @@ namespace WixEdit.Settings {
             return value;
         }
 
-        public BinDirectoryStructure EditValue(BinDirectoryStructure value) {
+        public BinDirectoryStructure EditValue(BinDirectoryStructure value, ITypeDescriptorContext context) {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "Select the directory where the WiX binaries reside.";
+            DescriptionAttribute descAtt = (DescriptionAttribute) context.PropertyDescriptor.Attributes[typeof(DescriptionAttribute)];
+            if (descAtt != null) {
+                dialog.Description = descAtt.Description;
+            }
 
             // Allow the user to create new files via the FolderBrowserDialog.
-            dialog.ShowNewFolderButton = true;
+            dialog.ShowNewFolderButton = false;
 
             // Default to the My Documents folder.
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+            dialog.SelectedPath = value.BinDirectory;
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {
