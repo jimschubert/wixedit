@@ -38,12 +38,38 @@ namespace WixEdit.Settings {
     public class WixEditSettings : PropertyAdapterBase {
         [XmlRoot("WixEdit")]
         public class WixEditData {
+            public WixEditData() {
+                EditDialog = new EditDialogData();
+
+                Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+
+            public WixEditData(WixEditData oldVersion) {
+                BinDirectory = oldVersion.BinDirectory;
+                DarkLocation = oldVersion.DarkLocation;
+                CandleLocation = oldVersion.CandleLocation;
+                LightLocation = oldVersion.LightLocation;
+                XsdLocation = oldVersion.XsdLocation;
+                TemplateDirectory = oldVersion.TemplateDirectory;
+                DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
+                
+                if (oldVersion.EditDialog == null) {
+                    EditDialog = new EditDialogData();
+                } else {
+                    EditDialog = oldVersion.EditDialog;
+                }
+
+                Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+
             public string BinDirectory;
             public string DarkLocation;
             public string CandleLocation;
+            public string LightLocation;
             public string XsdLocation;
             public string TemplateDirectory;
             public string DefaultProjectDirectory;
+            public string Version;
 
             public EditDialogData EditDialog;
         }
@@ -55,7 +81,7 @@ namespace WixEdit.Settings {
         }
 
         private static string filename = "WixEditSettings.xml";
-        private static string defaultXml = "<WixEdit><EditDialog /></WixEdit>";
+        // private static string defaultXml = "<WixEdit><EditDialog /></WixEdit>";
 
         protected WixEditData data;
 
@@ -80,26 +106,62 @@ namespace WixEdit.Settings {
             if (File.Exists(SettingsFilename)) {
                 // A FileStream is needed to read the XML document.
                 xmlStream = new FileStream(SettingsFilename, FileMode.Open);
-            } else {
-                byte[] data = Encoding.ASCII.GetBytes(defaultXml);
-                xmlStream = new MemoryStream(data);
-            }
 
-            using (xmlStream) {
-                // Create an instance of the XmlSerializer class;
-                // specify the type of object to be deserialized.
-                XmlSerializer serializer = new XmlSerializer(typeof(WixEditData));
+                using (xmlStream) {
+                    // Create an instance of the XmlSerializer class;
+                    // specify the type of object to be deserialized.
+                    XmlSerializer serializer = new XmlSerializer(typeof(WixEditData));
     
-                // If the XML document has been altered with unknown 
-                // nodes or attributes, handle them with the 
-                // UnknownNode and UnknownAttribute events.
-                serializer.UnknownNode += new XmlNodeEventHandler(DeserializeUnknownNode);
-                serializer.UnknownAttribute += new XmlAttributeEventHandler(DeserializeUnknownAttribute);
+                    // If the XML document has been altered with unknown 
+                    // nodes or attributes, handle them with the 
+                    // UnknownNode and UnknownAttribute events.
+                    serializer.UnknownNode += new XmlNodeEventHandler(DeserializeUnknownNode);
+                    serializer.UnknownAttribute += new XmlAttributeEventHandler(DeserializeUnknownAttribute);
                 
     
-                // Use the Deserialize method to restore the object's state with
-                // data from the XML document
-                data = (WixEditData) serializer.Deserialize(xmlStream);
+                    // Use the Deserialize method to restore the object's state with
+                    // data from the XML document
+                    data = (WixEditData) serializer.Deserialize(xmlStream);
+                }
+            } else {
+                data = new WixEditData();
+            }
+
+
+            try {
+                if (data.Version == null) {
+                    data = new WixEditData(data);
+                } else {
+                    Version current = GetCurrentVersion();
+                    Version old = new Version(data.Version);
+
+                    if (current.CompareTo(old) != 0) {
+                        // Ok, watch out.
+                        if (current.CompareTo(old) < 0) {
+                            // This is a config file of a future version.
+                            MessageBox.Show("The version of the configuration file is newer than the version of this application, if any problems occur remove the WixEditSettings.xml from the directory where WixEdit.exe is located.", "Configuration file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            data = new WixEditData(data);
+                        } else {
+                            // This is a config file of an old version.
+                            data = new WixEditData(data);
+
+                            if (File.Exists(SettingsFilename)) {
+                                string oldFileName = SettingsFilename + "_v" + old.ToString();
+                                while (File.Exists(oldFileName)) {
+                                    oldFileName = oldFileName + "_";
+                                }
+
+                                File.Copy(SettingsFilename, oldFileName);
+                            }
+                        }
+
+                        SaveChanges();
+                    }
+                }
+            } catch {
+                MessageBox.Show("Failed to convert the existing configuration file to the current version, using a default configuration.", "Configuration file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                data = new WixEditData();
             }
         }
 
@@ -137,7 +199,7 @@ namespace WixEdit.Settings {
         ]
         public BinDirectoryStructure WixBinariesDirectory {
             get {
-                if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.XsdLocation == null) {
+                if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.LightLocation == null && data.XsdLocation == null) {
                     // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
                     // relative to the WixEdit binary.
                     DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
@@ -160,6 +222,7 @@ namespace WixEdit.Settings {
                     data.BinDirectory = new FileInfo(value.Candle).Directory.FullName;
                 } else {
                     data.CandleLocation = value.Candle;
+                    data.LightLocation = value.Light;
                     data.DarkLocation = value.Dark;
                     data.XsdLocation = value.Xsd;
                     data.BinDirectory = value.BinDirectory;
@@ -170,7 +233,7 @@ namespace WixEdit.Settings {
         [
         Category("WixEdit Settings"), 
         Description("The directory where the WixEdit templates are located."), 
-        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
         public string TemplateDirectory {
             get {
@@ -197,8 +260,8 @@ namespace WixEdit.Settings {
 
         [
         Category("WixEdit Settings"), 
-        Description("The default directory where WixEdit create projects."), 
-        Editor(typeof(System.Windows.Forms.Design.FolderNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        Description("The default directory where WixEdit creates projects."), 
+        Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
         public string DefaultProjectDirectory {
             get {
@@ -214,23 +277,35 @@ namespace WixEdit.Settings {
         Description("The version number of the WixEdit application."), 
         ReadOnly(true)
         ]
-        public string AppVersion {
-            get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        public string ApplicationVersion {
+            get { return GetCurrentVersion().ToString(); }
             set {}
+        }
+
+        private Version GetCurrentVersion() {
+            return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         #region EditDialog properties
 
+        [
+        Category("Dialog Editor Settings"),
+        Description("Number of pixels to snap to in the dialog edior. (Mimimal 1 pixel)")
+        ]
         public int SnapToGrid {
             get {
-                // Default to 5 pixels
-                return Math.Max(5, data.EditDialog.SnapToGrid);
+                // Minimum of 1 pixel
+                return Math.Max(1, data.EditDialog.SnapToGrid);
             }
             set {
                 data.EditDialog.SnapToGrid = value;
             }
         }
 
+        [
+        Category("Dialog Editor Settings"),
+        Description("Scale of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)")
+        ]
         public double Scale {
             get {
                 return data.EditDialog.Scale;
@@ -240,6 +315,10 @@ namespace WixEdit.Settings {
             }
         }
 
+        [
+        Category("Dialog Editor Settings"),
+        Description("Opacity of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)")
+        ]
         public double Opacity {
             get {
                 // Default to 5 pixels
@@ -250,6 +329,10 @@ namespace WixEdit.Settings {
             }
         }
 
+        [
+        Category("Dialog Editor Settings"),
+        Description("Keeps the dialog in the dialog designer on top of everything.")
+        ]
         public bool AlwaysOnTop {
             get {
                 return data.EditDialog.AlwaysOnTop;

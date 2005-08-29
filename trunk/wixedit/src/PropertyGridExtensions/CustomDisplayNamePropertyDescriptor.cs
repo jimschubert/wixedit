@@ -30,10 +30,7 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for XmlAttributeBinaryDescriptor.
     /// </summary>
     public class CustomDisplayNamePropertyDescriptor : CustomPropertyDescriptorBase {
-        PropertyInfo propertyInfo;
-
-        public CustomDisplayNamePropertyDescriptor(PropertyInfo propInfo, Attribute[] attrs) : base(Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), attrs) {
-            this.propertyInfo = propInfo;
+        public CustomDisplayNamePropertyDescriptor(PropertyInfo propInfo, Attribute[] attrs) : base(Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
         }
 
 

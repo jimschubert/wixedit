@@ -21,11 +21,19 @@
 
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
     public abstract class CustomPropertyDescriptorBase : PropertyDescriptor {
+        protected PropertyInfo propertyInfo;
+
+        public CustomPropertyDescriptorBase(string name, PropertyInfo propInfo, Attribute[] attrs) : base(name, attrs) {
+            propertyInfo = propInfo;
+        }
+
         public CustomPropertyDescriptorBase(string name, Attribute[] attrs) : base(name, attrs) {
+            propertyInfo = null;
         }
 
         public override Type ComponentType {
@@ -48,7 +56,13 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override Type PropertyType {
-            get { return typeof(string); }
+            get { 
+                if (propertyInfo == null) {
+                    return typeof(string);
+                } else {
+                    return propertyInfo.PropertyType;
+                }
+            }
         }
 
         public override bool CanResetValue(object component) {

@@ -37,7 +37,8 @@ namespace WixEdit.Settings {
         [
         DefaultValueAttribute(true),
         Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
-        FilteredFileNameEditor.Filter("dark.exe |dark.exe")
+        FilteredFileNameEditor.Filter("dark.exe |dark.exe"),
+        Description("The location of the The Windows Installer XML decompiler (dark)")
         ]
         public string Dark {
             get {
@@ -56,7 +57,28 @@ namespace WixEdit.Settings {
         [
         DefaultValueAttribute(true),
         Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
-        FilteredFileNameEditor.Filter("candle.exe |candle.exe")
+        FilteredFileNameEditor.Filter("light.exe |light.exe"),
+        Description("The location of the The Windows Installer XML linker (light)")
+        ]
+        public string Light {
+            get {
+                if (wixEditData.LightLocation == null || wixEditData.LightLocation.Length == 0) {
+                    if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
+                        return String.Empty;
+                    }
+                    return Path.Combine(wixEditData.BinDirectory, "light.exe");
+                } else {
+                    return wixEditData.LightLocation;
+                }
+            }
+            set { wixEditData.LightLocation = value; }
+        }
+
+        [
+        DefaultValueAttribute(true),
+        Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
+        FilteredFileNameEditor.Filter("candle.exe |candle.exe"),
+        Description("The location of the The Windows Installer XML compiler (candle)")
         ]
         public string Candle {
             get {
@@ -75,7 +97,8 @@ namespace WixEdit.Settings {
         [
         DefaultValueAttribute(true),
         Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
-        FilteredFileNameEditor.Filter("wix.xsd |wix.xsd")
+        FilteredFileNameEditor.Filter("wix.xsd |wix.xsd"),
+        Description("The location of the The Windows Installer XML Xml Schema Definition")
         ]
         public string Xsd {
             get {
@@ -92,15 +115,16 @@ namespace WixEdit.Settings {
         }
 
         public bool HasSameBinDirectory() {
-            if (wixEditData.CandleLocation == null && wixEditData.DarkLocation == null && wixEditData.XsdLocation == null) {
+            if (wixEditData.CandleLocation == null && wixEditData.DarkLocation == null && wixEditData.LightLocation == null && wixEditData.XsdLocation == null) {
                 return true;
             }
 
-            if (Candle == null || Dark == null || Xsd == null) {
+            if (Candle == null || Dark == null || Light == null || Xsd == null) {
                 return false;
             }
 
             return (new FileInfo(Candle).Directory.FullName == new FileInfo(Dark).Directory.FullName && 
+                    new FileInfo(Candle).Directory.FullName == new FileInfo(Light).Directory.FullName && 
                 new FileInfo(Xsd).Directory.FullName.StartsWith(new FileInfo(Candle).Directory.FullName));
         }
 
@@ -153,6 +177,7 @@ namespace WixEdit.Settings {
                 WixEditSettings.WixEditData data = WixEditSettings.Instance.GetInternalDataStructure();
                 data.BinDirectory = value as string;
                 data.CandleLocation = String.Empty;
+                data.LightLocation = String.Empty;
                 data.DarkLocation = String.Empty;
                 data.XsdLocation = String.Empty;
 
