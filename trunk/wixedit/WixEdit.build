@@ -111,6 +111,7 @@
                 <includes name="sample/SimpleSample/*" />
                 <includes name="templates/UISample/**/*" />
                 <includes name="*.build" />
+                <includes name="WixEdit.csproj" />
                 <excludes name="**/CVS/" />
             </fileset>
         </zip>
