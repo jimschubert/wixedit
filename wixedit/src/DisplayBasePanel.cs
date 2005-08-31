@@ -29,9 +29,20 @@ namespace WixEdit {
     /// </summary>
     public abstract class DisplayBasePanel : BasePanel{
         public DisplayBasePanel(WixFiles wixFiles) : base(wixFiles) {
+            Reload += new ReloadHandler(ReloadData);
+
+            CreateControl();
         }
 
         public abstract bool IsOwnerOfNode(XmlNode node);
         public abstract void ShowNode(XmlNode node);
+        public abstract void ReloadData();
+
+        private delegate void ReloadHandler();
+        private event ReloadHandler Reload;
+
+        public void DoReload() {
+            Reload();
+        }
     }
 }

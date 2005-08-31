@@ -37,15 +37,15 @@ using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditPropertiesPanel.
+    /// Summary description for EditProgressTextPanel.
     /// </summary>
-    public class EditPropertiesPanel : DisplayBasePanel {
+    public class EditProgressTextPanel : DisplayBasePanel {
         #region Controls
         private PropertyGrid propertyGrid;
         private ContextMenu propertyGridContextMenu;
         #endregion
 
-        public EditPropertiesPanel(WixFiles wixFiles) : base(wixFiles) {
+        public EditProgressTextPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
         }
 
@@ -80,10 +80,10 @@ namespace WixEdit {
         #endregion
 
         protected void LoadData() {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            XmlNodeList progressTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
 
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            ProgressTextElementAdapter progressTextAdapter = new ProgressTextElementAdapter(progressTexts, wixFiles);
+            propertyGrid.SelectedObject = progressTextAdapter;
         }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
@@ -110,20 +110,20 @@ namespace WixEdit {
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
             if (DialogResult.OK == frm.ShowDialog()) {
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("ProgressText", "http://schemas.microsoft.com/wix/2003/01/wi");
 
-                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
+                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Action");
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);                
-                product.AppendChild(newProp);
+                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
+                ui.AppendChild(newProp);
 
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                XmlNodeList progressTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
 
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+                ProgressTextElementAdapter progressTextAdapter = new ProgressTextElementAdapter(progressTexts, wixFiles);
 
-                propertyGrid.SelectedObject = propAdapter;
+                propertyGrid.SelectedObject = progressTextAdapter;
                 propertyGrid.Update();
 
                 foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
@@ -137,25 +137,25 @@ namespace WixEdit {
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.PropertyElement;
+            ProgressTextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ProgressTextElementPropertyDescriptor;
+            XmlNode element = desc.ProgressTextElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
+            ProgressTextElementAdapter progressTextAdapter = propertyGrid.SelectedObject as ProgressTextElementAdapter;
             propertyGrid.SelectedObject = null;
 
             // Remove the attribute
             element.ParentNode.RemoveChild(element);
 
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
+            progressTextAdapter = new ProgressTextElementAdapter(properties, wixFiles);
+            propertyGrid.SelectedObject = progressTextAdapter;
             propertyGrid.Update();
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {
             XmlNode showable = GetShowableNode(node);
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr)) {
+            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr)) {
                 if (showable == xmlNode) {
                     return true;
                 }
@@ -165,10 +165,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
+            ProgressTextElementAdapter progressTextAdapter = new ProgressTextElementAdapter(properties, wixFiles);
     
-            propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.SelectedObject = progressTextAdapter;
             propertyGrid.Update();
         }
 

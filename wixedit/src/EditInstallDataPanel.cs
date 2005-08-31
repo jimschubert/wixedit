@@ -81,6 +81,12 @@ namespace WixEdit {
             }
         }
 
+        public override void ReloadData() {
+            editFilesPanel.ReloadData();
+            editFeaturesPanel.ReloadData();
+        }
+
+
 
 		/// <summary>
 		/// Clean up any resources being used.

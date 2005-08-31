@@ -51,8 +51,6 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
-
             binaryGrid = new CustomPropertyGrid();
             binaryGridContextMenu = new ContextMenu();
 
@@ -75,12 +73,18 @@ namespace WixEdit {
             //
             binaryGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
 
-            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            binaryGrid.SelectedObject = binAdapter;
-
             Controls.Add(binaryGrid);
+
+            LoadData();
         }
         #endregion
+
+        protected void LoadData() {
+            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
+
+            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
+            binaryGrid.SelectedObject = binAdapter;
+        }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
             if (binaryGrid.SelectedObject == null) {
@@ -175,6 +179,13 @@ namespace WixEdit {
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
             binaryGrid.SelectedObject = binAdapter;
         }
+
+        public override void ReloadData() {
+            binaryGrid.SelectedObject = null;
+
+            LoadData();
+        }
+
 
         private XmlNode GetShowableNode(XmlNode node) {
             XmlNode showableNode = node;

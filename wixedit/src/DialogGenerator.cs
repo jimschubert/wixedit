@@ -311,7 +311,7 @@ namespace WixEdit {
             foreach (XmlNode button in buttons) {
                 try {
                     Button newButton = new Button();
-                    SetControlSizes(newButton, button);
+                    SetControlAttributes(newButton, button);
 
                     if (button.Attributes["Icon"] != null &&
                         button.Attributes["Icon"].Value.ToLower() == "yes") {
@@ -337,7 +337,7 @@ namespace WixEdit {
             foreach (XmlNode edit in editboxes) {
                 try {
                     TextBox newEdit = new TextBox();
-                    SetControlSizes(newEdit, edit);
+                    SetControlAttributes(newEdit, edit);
                     SetText(newEdit, edit);
 
                     newEdit.BorderStyle = BorderStyle.Fixed3D;
@@ -352,7 +352,7 @@ namespace WixEdit {
             foreach (XmlNode pathEdit in patheditboxes) {
                 try {
                     TextBox newPathEdit = new TextBox();
-                    SetControlSizes(newPathEdit, pathEdit);
+                    SetControlAttributes(newPathEdit, pathEdit);
                     SetText(newPathEdit, pathEdit);
 
                     newDialog.AddControl(pathEdit, newPathEdit);
@@ -365,7 +365,7 @@ namespace WixEdit {
             foreach (XmlNode line in lines) {
                 try {
                     Label label = new Label();
-                    SetControlSizes(label, line);
+                    SetControlAttributes(label, line);
 
                     label.Height = 2;
                     label.BorderStyle = BorderStyle.Fixed3D;
@@ -380,7 +380,7 @@ namespace WixEdit {
             foreach (XmlNode text in texts) {
                 try {
                     Label label = new Label();
-                    SetControlSizes(label, text);
+                    SetControlAttributes(label, text);
                     SetText(label, text);
 
                     label.BackColor = Color.Transparent;
@@ -395,7 +395,7 @@ namespace WixEdit {
             foreach (XmlNode text in rtfTexts) {
                 try {
                     RichTextBox rtfCtrl = new RichTextBox();
-                    SetControlSizes(rtfCtrl, text);
+                    SetControlAttributes(rtfCtrl, text);
 
                     string elementText = GetTextFromXmlElement(text);
 
@@ -415,7 +415,7 @@ namespace WixEdit {
                     // The FlatStyle.System makes the control look weird.
                     // groupCtrl.FlatStyle = FlatStyle.System;
 
-                    SetControlSizes(groupCtrl, group);
+                    SetControlAttributes(groupCtrl, group);
                     SetText(groupCtrl, group);
 
                     newDialog.AddControl(group, groupCtrl);
@@ -428,7 +428,7 @@ namespace WixEdit {
             foreach (XmlNode icon in icons) {
                 try {
                     PictureBox picCtrl = new PictureBox();
-                    SetControlSizes(picCtrl, icon);
+                    SetControlAttributes(picCtrl, icon);
 
                     picCtrl.SizeMode = PictureBoxSizeMode.StretchImage;
 
@@ -449,7 +449,7 @@ namespace WixEdit {
             foreach (XmlNode list in listBoxes) {
                 try {
                     ListBox listCtrl = new ListBox();
-                    SetControlSizes(listCtrl, list);
+                    SetControlAttributes(listCtrl, list);
 
                     listCtrl.Items.Add(GetFromXmlElement(list, "Property"));
 
@@ -463,7 +463,7 @@ namespace WixEdit {
             foreach (XmlNode progressbar in progressBars) {
                 try {
                     ProgressBar progressCtrl = new ProgressBar();
-                    SetControlSizes(progressCtrl, progressbar);
+                    SetControlAttributes(progressCtrl, progressbar);
 
                     progressCtrl.Maximum = 100;
                     progressCtrl.Value = 33;
@@ -486,14 +486,14 @@ namespace WixEdit {
                     }
 
                     Panel panel = new Panel();
-                    SetControlSizes(panel, radioButtonGroup);
+                    SetControlAttributes(panel, radioButtonGroup);
 
                     foreach (XmlNode radioElement in radioGroup.ChildNodes) {
                         RadioButton radioCtrl = new RadioButton();
                         SetText(radioCtrl, radioElement);
                         SetTag(radioCtrl, radioElement);
 
-                        SetControlSizes(radioCtrl, radioElement);
+                        SetControlAttributes(radioCtrl, radioElement);
                     
                         panel.Controls.Add(radioCtrl);
 
@@ -512,7 +512,7 @@ namespace WixEdit {
             foreach (XmlNode edit in maskedEdits) {
                 try {
                     TextBox newEdit = new TextBox();
-                    SetControlSizes(newEdit, edit);
+                    SetControlAttributes(newEdit, edit);
                     SetText(newEdit, edit);
 
                     newEdit.BorderStyle = BorderStyle.Fixed3D;
@@ -554,7 +554,7 @@ namespace WixEdit {
                     listView.Items.Add(new ListViewItem(new string[] {"C:", "30GB", "3200MB", "1MB", "3189MB" }));
                     listView.View = System.Windows.Forms.View.Details;
 
-                    SetControlSizes(listView, volumeCostList);
+                    SetControlAttributes(listView, volumeCostList);
 
                     newDialog.AddControl(volumeCostList, listView);
                 } catch {
@@ -569,7 +569,7 @@ namespace WixEdit {
                     comboCtrl.Items.Add("Directories");
                     comboCtrl.SelectedIndex = 0;
 
-                    SetControlSizes(comboCtrl, directoryCombo);
+                    SetControlAttributes(comboCtrl, directoryCombo);
 
                     newDialog.AddControl(directoryCombo, comboCtrl);
                 } catch {
@@ -584,7 +584,7 @@ namespace WixEdit {
                     listBox.Items.Add("Director content");
                     listBox.SelectedIndex = 0;
 
-                    SetControlSizes(listBox, directoryList);
+                    SetControlAttributes(listBox, directoryList);
 
                     newDialog.AddControl(directoryList, listBox);
                 } catch {
@@ -599,7 +599,7 @@ namespace WixEdit {
                     treeView.Scrollable = false;
                     treeView.Nodes.Add(new TreeNode("Selection tree"));
 
-                    SetControlSizes(treeView, selectionTree);
+                    SetControlAttributes(treeView, selectionTree);
 
                     newDialog.AddControl(selectionTree, treeView);
                 } catch {
@@ -624,7 +624,7 @@ namespace WixEdit {
                     pictureCtrl = new PictureControl(bmp, allPictureControls);
                     allPictureControls.Add(pictureCtrl);
 
-                    SetControlSizes(pictureCtrl, bitmap);
+                    SetControlAttributes(pictureCtrl, bitmap);
                
                     newDialog.AddControl(bitmap, pictureCtrl);
                 } catch {
@@ -636,11 +636,16 @@ namespace WixEdit {
             }
         }
 
-        private void SetControlSizes(Control control, XmlNode controlElement) {
+        private void SetControlAttributes(Control control, XmlNode controlElement) {
             control.Left = DialogUnitsToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["X"].Value));
             control.Top = DialogUnitsToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Y"].Value));
             control.Width = DialogUnitsToPixelsWidth(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value));
             control.Height = DialogUnitsToPixelsHeight(XmlConvert.ToInt32(controlElement.Attributes["Height"].Value));
+
+            XmlAttribute disabled = controlElement.Attributes["Disabled"];
+            if (disabled != null && disabled.Value == "yes") {
+                control.Enabled = false;
+            }
 
             //control.ClientSize = new Size(DialogUnitsToPixels(XmlConvert.ToInt32(controlElement.Attributes["Width"].Value)), DialogUnitsToPixels(XmlConvert.ToInt32(button.Attributes["Height"].Value)));
         }

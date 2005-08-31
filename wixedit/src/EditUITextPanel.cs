@@ -37,15 +37,15 @@ using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditPropertiesPanel.
+    /// Summary description for EditUITextPanel.
     /// </summary>
-    public class EditPropertiesPanel : DisplayBasePanel {
+    public class EditUITextPanel : DisplayBasePanel {
         #region Controls
         private PropertyGrid propertyGrid;
         private ContextMenu propertyGridContextMenu;
         #endregion
 
-        public EditPropertiesPanel(WixFiles wixFiles) : base(wixFiles) {
+        public EditUITextPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
         }
 
@@ -80,10 +80,10 @@ namespace WixEdit {
         #endregion
 
         protected void LoadData() {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            XmlNodeList uiTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
 
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            UITextElementAdapter uiTextAdapter = new UITextElementAdapter(uiTexts, wixFiles);
+            propertyGrid.SelectedObject = uiTextAdapter;
         }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
@@ -110,20 +110,20 @@ namespace WixEdit {
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
             if (DialogResult.OK == frm.ShowDialog()) {
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("UIText", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);                
-                product.AppendChild(newProp);
+                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
+                ui.AppendChild(newProp);
 
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                XmlNodeList uiTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
 
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+                UITextElementAdapter uiTextAdapter = new UITextElementAdapter(uiTexts, wixFiles);
 
-                propertyGrid.SelectedObject = propAdapter;
+                propertyGrid.SelectedObject = uiTextAdapter;
                 propertyGrid.Update();
 
                 foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
@@ -137,25 +137,25 @@ namespace WixEdit {
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.PropertyElement;
+            UITextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as UITextElementPropertyDescriptor;
+            XmlNode element = desc.UITextElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
+            UITextElementAdapter uiTextAdapter = propertyGrid.SelectedObject as UITextElementAdapter;
             propertyGrid.SelectedObject = null;
 
             // Remove the attribute
             element.ParentNode.RemoveChild(element);
 
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
+            uiTextAdapter = new UITextElementAdapter(properties, wixFiles);
+            propertyGrid.SelectedObject = uiTextAdapter;
             propertyGrid.Update();
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {
             XmlNode showable = GetShowableNode(node);
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr)) {
+            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr)) {
                 if (showable == xmlNode) {
                     return true;
                 }
@@ -165,10 +165,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
+            UITextElementAdapter uiTextAdapter = new UITextElementAdapter(properties, wixFiles);
     
-            propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.SelectedObject = uiTextAdapter;
             propertyGrid.Update();
         }
 

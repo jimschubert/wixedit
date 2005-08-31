@@ -23,6 +23,14 @@ namespace WixEdit {
 	/// Form to enter integers.
 	/// </summary>
 	public class EnterIntegerForm : EnterStringForm {
+        public EnterIntegerForm() : base() {
+            Text = "Enter number";
+
+            StringEdit.KeyPress += new KeyPressEventHandler(StringEdit_KeyPress);
+        }
+
+        
+
         public int SelectedInteger {
             get {
                 return Int32.Parse(SelectedString);
@@ -53,6 +61,16 @@ namespace WixEdit {
 
             if (isOk == false) {
                 DialogResult = DialogResult.None;
+            }
+        }
+
+        private void StringEdit_KeyPress(object sender, KeyPressEventArgs e) {
+            string numbers = "1234567890\b";
+
+            if (numbers.IndexOf(e.KeyChar) >= 0) {
+                e.Handled = false;
+            } else {
+                e.Handled = true;
             }
         }
     }

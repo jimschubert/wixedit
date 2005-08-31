@@ -33,6 +33,12 @@ namespace WixEdit {
         protected EditDialogPanel editDialogPanel;
         protected TabPage editUISequenceTabPage;
         protected EditUISequencePanel editUISequencePanel;
+        protected TabPage editUITextTabPage;
+        protected EditUITextPanel editUITextPanel;
+        protected TabPage editProgressTextTabPage;
+        protected EditProgressTextPanel editProgressTextPanel;
+        protected TabPage editErrorTabPage;
+        protected EditErrorPanel editErrorPanel;
 
         public EditUIPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -47,21 +53,37 @@ namespace WixEdit {
 
             editDialogPanel = new EditDialogPanel(wixFiles);
             editDialogPanel.Dock = DockStyle.Fill;
-
             editDialogTabPage = new TabPage("Dialogs");
             editDialogTabPage.Controls.Add(editDialogPanel);
-
             tabControl.TabPages.Add(editDialogTabPage);
 
 
             editUISequencePanel = new EditUISequencePanel(wixFiles);
             editUISequencePanel.Dock = DockStyle.Fill;
-
             editUISequenceTabPage = new TabPage("UI Sequence");
             editUISequenceTabPage.Controls.Add(editUISequencePanel);
-
             tabControl.TabPages.Add(editUISequenceTabPage);
 
+
+            editUITextPanel = new EditUITextPanel(wixFiles);
+            editUITextPanel.Dock = DockStyle.Fill;
+            editUITextTabPage = new TabPage("UI Text");
+            editUITextTabPage.Controls.Add(editUITextPanel);
+            tabControl.TabPages.Add(editUITextTabPage);
+
+
+            editProgressTextPanel = new EditProgressTextPanel(wixFiles);
+            editProgressTextPanel.Dock = DockStyle.Fill;
+            editProgressTextTabPage = new TabPage("Progress Text");
+            editProgressTextTabPage.Controls.Add(editProgressTextPanel);
+            tabControl.TabPages.Add(editProgressTextTabPage);
+
+
+            editErrorPanel = new EditErrorPanel(wixFiles);
+            editErrorPanel.Dock = DockStyle.Fill;
+            editErrorTabPage = new TabPage("Error Text");
+            editErrorTabPage.Controls.Add(editErrorPanel);
+            tabControl.TabPages.Add(editErrorTabPage);
         }
         #endregion
 
@@ -89,10 +111,20 @@ namespace WixEdit {
             } else if (editUISequencePanel.IsOwnerOfNode(node)) {
                 tabControl.SelectedTab = editUISequenceTabPage;
                 editUISequencePanel.ShowNode(node);
+            } else if (editUITextPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editUITextTabPage;
+                editUITextPanel.ShowNode(node);
             } else {
                 tabControl.SelectedTab = editDialogTabPage;
             }
         }
+
+        public override void ReloadData() {
+            editDialogPanel.ReloadData();
+            editUISequencePanel.ReloadData();
+            editUITextPanel.ReloadData();
+        }
+
 
 		/// <summary>
 		/// Clean up any resources being used.
@@ -103,11 +135,14 @@ namespace WixEdit {
                 editDialogPanel = null;
                 editUISequencePanel.Dispose();
                 editUISequencePanel = null;
+                editUITextPanel.Dispose();
+                editUITextPanel = null;
 
                 tabControl.TabPages.Clear();
                 tabControl.Dispose();
                 tabControl = null;
             }
+
             base.Dispose( disposing );
 		}
     }

@@ -302,6 +302,17 @@ namespace WixEdit {
                 Opacity100.Checked = true;
             }
 
+            wxsDialogs.Columns.Add("Item Column", -2, HorizontalAlignment.Left);
+            wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
+
+            wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
+
+            LoadData();
+        }
+
+        #endregion
+
+        protected void LoadData() {
             wxsDialogs.Items.Clear();
 
             XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
@@ -314,16 +325,18 @@ namespace WixEdit {
                     wxsDialogs.Items.Add(toAdd);
                 }
             }
-
-            wxsDialogs.Columns.Add("Item Column", -2, HorizontalAlignment.Left);
-            wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
-
-            wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
         }
 
-        #endregion
 
         #region DisplayBasePanel overrides and helpers
+        public override void ReloadData() {
+            ShowWixDialog(null);
+            dialogTreeView.Nodes.Clear();
+            propertyGrid.SelectedObject = null;
+
+            LoadData();
+        }
+
         public override bool IsOwnerOfNode(XmlNode node) {
             XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
             return FindNode(GetShowableNode(node), dialogs);
@@ -679,8 +692,10 @@ namespace WixEdit {
                 prevLeft = currentDialog.Left;
                 prevDialog = currentDialog;
             } else {
-                prevTop = TopLevelControl.Top;
-                prevLeft = TopLevelControl.Right;
+                if (TopLevelControl != null) {
+                    prevTop = TopLevelControl.Top;
+                    prevLeft = TopLevelControl.Right;
+                }
             }
 
             if (dialog != null) {
@@ -700,6 +715,7 @@ namespace WixEdit {
                     currentDialog.Show();
                 }
             }
+
             if (prevDialog != null) {
                 prevDialog.Hide();
                 prevDialog.Dispose();

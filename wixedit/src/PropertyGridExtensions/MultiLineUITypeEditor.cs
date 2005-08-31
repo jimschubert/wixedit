@@ -24,22 +24,36 @@ using System.ComponentModel;
 using System.Drawing.Design;
 
 namespace WixEdit.PropertyGridExtensions {
-    /// <summary>A type editor for guids</summary>
-    public class GuidUITypeEditor : UITypeEditor {
-        /// <summary>used to generate the guid</summary>
+
+    /// <summary>A type editor for multi line text</summary>
+    public class MultiLineUITypeEditor : UITypeEditor {
+        /// <summary>display a modal form </summary>
+        /// <param name="context">see documentation on ITypeDescriptorContext</param>
+        /// <returns>the style of the editor</returns>
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        /// <summary>used to multi line text</summary>
         /// <param name="context">see documentation on ITypeDescriptorContext</param>
         /// <param name="provider">see documentation on IServiceProvider</param>
         /// <param name="value">the value prior to editing</param>
-        /// <returns>the new guid string after editing</returns>
+        /// <returns>the new connection string after editing</returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
             return EditValue(value as string);
         }
 
-        /// <summary>Generate the guid</summary>
+        /// <summary>show the form for the multi line text</summary>
         /// <param name="value">the value prior to editing</param>
-        /// <returns>the new connection string after editing</returns>
+        /// <returns>the string after editing</returns>
         public string EditValue(string value) {
-            return Guid.NewGuid().ToString();
+            EnterStringForm dialog = new EnterStringForm();
+
+            dialog.MultiLine = true;
+            dialog.SelectedString = value;
+            dialog.ShowDialog();
+            
+            return dialog.SelectedString;
         }
     }
 }

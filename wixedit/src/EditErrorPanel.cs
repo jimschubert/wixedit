@@ -37,15 +37,15 @@ using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for EditPropertiesPanel.
+    /// Summary description for EditErrorPanel.
     /// </summary>
-    public class EditPropertiesPanel : DisplayBasePanel {
+    public class EditErrorPanel : DisplayBasePanel {
         #region Controls
         private PropertyGrid propertyGrid;
         private ContextMenu propertyGridContextMenu;
         #endregion
 
-        public EditPropertiesPanel(WixFiles wixFiles) : base(wixFiles) {
+        public EditErrorPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
         }
 
@@ -80,10 +80,10 @@ namespace WixEdit {
         #endregion
 
         protected void LoadData() {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+            XmlNodeList errors = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
 
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            ErrorElementAdapter errorAdapter = new ErrorElementAdapter(errors, wixFiles);
+            propertyGrid.SelectedObject = errorAdapter;
         }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
@@ -108,22 +108,22 @@ namespace WixEdit {
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
-            EnterStringForm frm = new EnterStringForm();
+            EnterIntegerForm frm = new EnterIntegerForm();
             if (DialogResult.OK == frm.ShowDialog()) {
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Error", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);                
-                product.AppendChild(newProp);
+                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
+                ui.AppendChild(newProp);
 
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                XmlNodeList errors = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
 
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+                ErrorElementAdapter errorAdapter = new ErrorElementAdapter(errors, wixFiles);
 
-                propertyGrid.SelectedObject = propAdapter;
+                propertyGrid.SelectedObject = errorAdapter;
                 propertyGrid.Update();
 
                 foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
@@ -137,25 +137,25 @@ namespace WixEdit {
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.PropertyElement;
+            ErrorElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
+            XmlNode element = desc.ErrorElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
+            ErrorElementAdapter errorAdapter = propertyGrid.SelectedObject as ErrorElementAdapter;
             propertyGrid.SelectedObject = null;
 
             // Remove the attribute
             element.ParentNode.RemoveChild(element);
 
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
+            errorAdapter = new ErrorElementAdapter(properties, wixFiles);
+            propertyGrid.SelectedObject = errorAdapter;
             propertyGrid.Update();
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {
             XmlNode showable = GetShowableNode(node);
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr)) {
+            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr)) {
                 if (showable == xmlNode) {
                     return true;
                 }
@@ -165,10 +165,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
+            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
+            ErrorElementAdapter errorAdapter = new ErrorElementAdapter(properties, wixFiles);
     
-            propertyGrid.SelectedObject = propAdapter;
+            propertyGrid.SelectedObject = errorAdapter;
             propertyGrid.Update();
         }
 

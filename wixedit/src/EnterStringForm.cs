@@ -34,32 +34,36 @@ namespace WixEdit {
         protected Button ButtonOk;
         protected Button ButtonCancel;
         protected TextBox StringEdit;
+        protected bool multiLine;
 
         protected string selectedString;
 
 		public EnterStringForm() {
+            multiLine = false;
+
 			InitializeComponent();
 		}
 
         private void InitializeComponent() {
-            Text = "New Property Name";
+            Text = "Enter String";
             ShowInTaskbar = false;
 
             ButtonOk = new Button();
             ButtonOk.Text = "Ok";
-            ButtonOk.Dock = DockStyle.Left;
+            ButtonOk.Location = new Point(0, 23);
             ButtonOk.FlatStyle = FlatStyle.System;
             ButtonOk.Click += new EventHandler(OnOk);
             Controls.Add(ButtonOk);
 
             ButtonCancel = new Button();
             ButtonCancel.Text = "Cancel";
-            ButtonCancel.Dock = DockStyle.Right;
+            ButtonCancel.Location = new Point(ButtonOk.Width + 2, 23);
+            
             ButtonCancel.FlatStyle = FlatStyle.System;
             Controls.Add(ButtonCancel);
 
             StringEdit = new TextBox();
-            StringEdit.Dock = DockStyle.Top;
+            StringEdit.Location = new Point(0, 0);
             Controls.Add(StringEdit);
             StringEdit.Text = selectedString;
             StringEdit.Size = new Size(ButtonCancel.Width+2+ButtonOk.Width, 23);
@@ -73,6 +77,10 @@ namespace WixEdit {
             MaximizeBox = false;
             MinimizeBox = false;
             ControlBox = false; 
+
+            ButtonOk.Anchor = AnchorStyles.Bottom;
+            ButtonCancel.Anchor = AnchorStyles.Bottom;
+            StringEdit.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             StartPosition = FormStartPosition.CenterParent;
 
@@ -90,6 +98,41 @@ namespace WixEdit {
             set {
                 selectedString = value;
                 StringEdit.Text = selectedString;
+            }
+        }
+
+        public bool MultiLine {
+            get {
+                return multiLine;
+            }
+            set {
+                if (multiLine != value) {
+                    if (value) {
+                        // Make a multi line text box with scroll bar
+                        StringEdit.Multiline = true;
+                        StringEdit.ScrollBars = ScrollBars.Vertical;
+                        
+                        // Make the dialog larger and resizable
+                        ClientSize = new Size(400, 323);
+                        FormBorderStyle = FormBorderStyle.SizableToolWindow;
+
+                        // Make the enter key not confirm the dialog.
+                        AcceptButton = null;
+                    } else {
+                        // Make a single line text box without scroll bar
+                        StringEdit.Multiline = false;
+                        StringEdit.ScrollBars = ScrollBars.None;
+
+                        // Make the dialog small and not resizable
+                        ClientSize = new Size(ButtonCancel.Width+2+ButtonOk.Width, 46);
+                        FormBorderStyle = FormBorderStyle.FixedToolWindow;
+
+                        // Make the enter key confirm the dialog again.
+                        AcceptButton = ButtonOk;
+                    }
+                }
+
+                multiLine = value;
             }
         }
 
