@@ -1,0 +1,912 @@
+<VisualStudioProject>
+    <CSHARP
+        ProjectType = "Local"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
+        ProjectGuid = "{34D47764-B2F0-4BB6-BD84-C47DD3DCA20F}"
+    >
+        <Build>
+            <Settings
+                ApplicationIcon = "src\App.ico"
+                AssemblyKeyContainerName = ""
+                AssemblyName = "WixEdit"
+                AssemblyOriginatorKeyFile = ""
+                DefaultClientScript = "JScript"
+                DefaultHTMLPageLayout = "Grid"
+                DefaultTargetSchema = "IE50"
+                DelaySign = "false"
+                OutputType = "WinExe"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
+                RootNamespace = "WixEdit"
+                RunPostBuildEvent = "OnBuildSuccess"
+                StartupObject = ""
+            >
+                <Config
+                    Name = "Debug"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "DEBUG;TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "true"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "false"
+                    OutputPath = "bin\Debug\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+                <Config
+                    Name = "Release"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "false"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "true"
+                    OutputPath = "bin\Release\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+            </Settings>
+            <References>
+                <Reference
+                    Name = "AxSHDocVw"
+                    AssemblyName = "AxSHDocVw"
+                    HintPath = "lib\AxSHDocVw.dll"
+                />
+                <Reference
+                    Name = "SHDocVw"
+                    AssemblyName = "SHDocVw"
+                    HintPath = "lib\SHDocVw.dll"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                />
+                <Reference
+                    Name = "System.Design"
+                    AssemblyName = "System.Design"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Design.dll"
+                />
+                <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                />
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
+                />
+                <Reference
+                    Name = "System.Windows.Forms"
+                    AssemblyName = "System.Windows.Forms"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Windows.Forms.dll"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.Xml"
+                    HintPath = "..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
+                />
+            </References>
+        </Build>
+        <Files>
+            <Include>
+                <File
+                    RelPath = "res\About.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\close_8x8.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\hcontrolborder.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\vcontrolborder.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\viewWixXml.xsl"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\wix.xsd"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\arc.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\back.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\bld.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\button.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\camera.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\cnt.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\copy.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\ctr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\cut.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\dblundr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\delete.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\discnet.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\drawing.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\ellipse.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\exit.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\find.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\freeform.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\front.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\group.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\help.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\help2.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\info.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\itl.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\jst.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\lft.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\line.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\linestyl.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\mapnet.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\mcr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\new.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\open.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\options.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\paste.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\print.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\prop.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\rectangl.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\redo.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\rt.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\save.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\smallcap.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\sortasc.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\sortdes.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\spelling.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\strikthr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\sum.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\tab-cntr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\tab-dec.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\tab-left.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\tab-rht.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\undo.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\undrln.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\ungroup.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\up1lvl.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\vw-dtls.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\vw-list.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\vw-lrgic.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\vw-smlic.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\wordundr.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\compile\compile.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\compile\decompile.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\dialog\main.ico"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\dialog\msi.ico"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\dialog\source.ico"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\directory\folder.closed.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\directory\folder.open.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\adminuisequence.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\component.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\componentref.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\condition.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\control.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\createfolder.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\custom.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\customaction.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\dialog.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\directory.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\empty.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\feature.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\featureref.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\file.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\inifile.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\installuisequence.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\media.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\merge.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\package.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\product.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\publish.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\registry.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\removefolder.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\servicecontrol.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\serviceinstall.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\shortcut.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\show.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\subscribe.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\text.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\unknown.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\user.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\webdir.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\website.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\webvirtualdir.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\actions.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\dialogs.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\files.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\global.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\properties.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\tabbuttons\resources.png"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "src\App.ico"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "src\AssemblyInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\AssemblyVersionInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\BasePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DesignerForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DetailsBasePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DialogGenerator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DisplayBasePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditActionsPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditCustomActionsPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditDialogPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditErrorPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditExecuteSequencePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditFeaturesPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditFilesPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditGlobalDataPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditInstallDataPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditorForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditProgressTextPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditPropertiesPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditResourcesPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditUIPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditUISequencePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditUITextPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EnterIntegerForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EnterStringForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\FileIconFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\IconMenuItem.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\ImageListFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\NewProjectForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\OutputPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\OutputTextbox.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PictureControl.cs"
+                    SubType = "UserControl"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\ProductPropertiesForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\SelectionOverlay.cs"
+                    SubType = "UserControl"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\SelectStringForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\TabButtonControl.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\UndoManager.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\WixEdit.exe.manifest"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "src\WixFiles.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\XmlDisplayForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\XmlDocumentationManager.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\About\AboutForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\BinaryElementAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\BinaryElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\CustomDisplayNamePropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\CustomPropertyDescriptorBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\CustomPropertyGrid.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\CustomPropertyGrid.resx"
+                    DependentUpon = "CustomPropertyGrid.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\ErrorElementAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\ErrorElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\GuidUITypeEditor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\InnerTextPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\IntegerConverter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\MultiLineUITypeEditor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\ProgressTextElementAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\ProgressTextElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\PropertyAdapterBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\PropertyElementAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\PropertyElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\ReferenceConverter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\SimpleTypeConverter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\UITextElementAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\UITextElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\XmlAttributeAdapter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\XmlAttributePropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Settings\BinDirectoryStructure.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Settings\BinDirectoryStructureEditor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Settings\FilteredFileNameEditor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Settings\SettingsForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Settings\WixEditSettings.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+            </Include>
+        </Files>
+    </CSHARP>
+</VisualStudioProject>
+

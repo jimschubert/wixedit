@@ -19,6 +19,9 @@
     <Directory Id="ProgramFilesFolder" Name="SourceDir">
       <Directory Id="WixEdit" Name="WixEdit">
         <Directory Id="TARGETDIR" Name=".">
+          <Component Id="CsprojFile" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0000">
+            <File Id="WixEdit.csproj" Name="WixEdit.csp" LongName="WixEdit.csproj" src="..\WixEdit.csproj" />
+          </Component>
           <Component Id="BuildFile" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0001">
             <File Id="WixEdit.build" Name="WixEdit.bld" LongName="WixEdit.build" src="..\WixEdit.build" />
           </Component>
@@ -141,6 +144,7 @@
     <Feature Id="SourcesFeature" Level="1" Title="Sources" ConfigurableDirectory="TARGETDIR"
              Description="The WixEdit sources in C#, which can be build with NAnt.">
       <!-- Generated with tallow.exe -->
+      <ComponentRef Id="CsprojFile" />
       <ComponentRef Id="BuildFile" />
       <ComponentRef Id="component0" />
       <ComponentRef Id="component1" />
