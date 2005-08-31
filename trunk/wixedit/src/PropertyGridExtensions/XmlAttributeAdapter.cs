@@ -160,7 +160,7 @@ namespace WixEdit.PropertyGridExtensions {
                 // Add default attributes Category, TypeConverter and Description
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
                 attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
-
+                attrs.Add(new EditorAttribute(typeof(MultiLineUITypeEditor), typeof(UITypeEditor)));
                 attrs.Add(new DescriptionAttribute("InnerText of the element."));
 
 

@@ -68,6 +68,7 @@ namespace WixEdit.Settings {
             public string LightLocation;
             public string XsdLocation;
             public string TemplateDirectory;
+            public string ExternalXmlEditor;
             public string DefaultProjectDirectory;
             public string Version;
 
@@ -192,7 +193,7 @@ namespace WixEdit.Settings {
         }
 
         [
-        Category("WixEdit Settings"), 
+        Category("Locations"), 
         Description("The directory where the WiX binaries are located. The wix.xsd is also being located by this path."), 
         Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor)),
         TypeConverter(typeof(BinDirectoryStructure.BinDirectoryExpandableObjectConverter))
@@ -231,7 +232,7 @@ namespace WixEdit.Settings {
         }
 
         [
-        Category("WixEdit Settings"), 
+        Category("Locations"), 
         Description("The directory where the WixEdit templates are located."), 
         Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
@@ -251,7 +252,7 @@ namespace WixEdit.Settings {
                     }
                 }
 
-                return null;
+                return String.Empty;
             }
             set {
                 data.TemplateDirectory = value;
@@ -259,7 +260,26 @@ namespace WixEdit.Settings {
         }
 
         [
-        Category("WixEdit Settings"), 
+        Category("Locations"), 
+        Description("The location of your favourite xml editor."), 
+        Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
+        FilteredFileNameEditor.Filter("*.exe |*.exe")
+        ]
+        public string ExternalXmlEditor {
+            get {
+                if (data.ExternalXmlEditor != null && data.ExternalXmlEditor.Length > 0) {
+                    return data.ExternalXmlEditor;
+                }
+
+                return String.Empty;
+            }
+            set {
+                data.ExternalXmlEditor = value;
+            }
+        }
+
+        [
+        Category("Locations"), 
         Description("The default directory where WixEdit creates projects."), 
         Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
@@ -348,12 +368,12 @@ namespace WixEdit.Settings {
         #region Serialization helpers
 
         static protected void DeserializeUnknownNode(object sender, XmlNodeEventArgs e) {
-            MessageBox.Show("Ignoring Unknown Node: " +   e.Name + "='" + e.Text + "'");
+            MessageBox.Show("Ignoring Unknown Node from settings file: " +   e.Name);
         }
         
         static protected void DeserializeUnknownAttribute(object sender, XmlAttributeEventArgs e) {
             System.Xml.XmlAttribute attr = e.Attr;
-            MessageBox.Show("Ignoring Unknown attribute: " + attr.Name + "='" + attr.Value + "'");
+            MessageBox.Show("Ignoring Unknown Attribute from settings file: " + attr.Name + " = '" + attr.Value + "'");
         }
 
         #endregion

@@ -24,31 +24,34 @@ using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// Summary description for InnerTextPropertyDescriptor.
+    /// Summary description for XmlAttributePropertyDescriptor.
     /// </summary>
-    public class InnerTextPropertyDescriptor : CustomPropertyDescriptorBase {
-        XmlNode node;
+    public class ProgressTextElementPropertyDescriptor : CustomPropertyDescriptorBase {
+        XmlNode progressTextElement;
 
-        public InnerTextPropertyDescriptor(XmlNode node, Attribute[] attrs) :
-            base("InnerText", attrs) {
-            this.node = node;
+        public ProgressTextElementPropertyDescriptor(XmlNode progressTextElement, string name, Attribute[] attrs) :
+            base(name, attrs) {
+            this.progressTextElement = progressTextElement;
         }
 
-        public XmlNode Node {
-            get { return node; }
+        public XmlNode ProgressTextElement {
+            get {
+                return progressTextElement;
+            }
         }
 
         public override object GetValue(object component) {
-            return node.InnerText;
+            return progressTextElement.InnerText;
         }
 
         public override void SetValue(object component, object value) {
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                node.InnerText = String.Empty;
+                progressTextElement.InnerText = String.Empty;
             } else {
-                node.InnerText = value.ToString();
+                progressTextElement.InnerText = value.ToString();
             }
         }
+
     }
 }

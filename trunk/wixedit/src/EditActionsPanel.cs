@@ -79,6 +79,12 @@ namespace WixEdit {
             }
         }
 
+        public override void ReloadData() {
+            editCustomActionsPanel.ReloadData();
+            editExecuteSequencePanel.ReloadData();
+        }
+
+
 		/// <summary>
 		/// Clean up any resources being used.
 		/// </summary>

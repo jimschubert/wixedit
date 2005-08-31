@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Xml;
+using System.Windows.Forms;
 
 using WixEdit.Settings;
 
@@ -34,6 +35,9 @@ namespace WixEdit {
 
         XmlDocument wxsDocument;
         XmlNamespaceManager wxsNsmgr;
+
+        FileSystemWatcher wxsWatcher;
+        public event EventHandler wxsChanged;
 
         static XmlDocument xsdDocument;
         static XmlNamespaceManager xsdNsmgr;
@@ -52,6 +56,10 @@ namespace WixEdit {
             wxsNsmgr.AddNamespace("wix", wxsDocument.DocumentElement.NamespaceURI);
 
             undoManager = new UndoManager(wxsDocument);
+
+            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
+            wxsWatcher.Changed += new FileSystemEventHandler(wxsWatcher_Changed);
+            wxsWatcher.EnableRaisingEvents = true;
         }
 
         public UndoManager UndoManager {
@@ -133,6 +141,28 @@ namespace WixEdit {
             wxsDocument.Save(wxsFile.FullName);
 
             undoManager.Clear();
+        }
+
+        private void wxsWatcher_Changed(object sender, FileSystemEventArgs e) {
+            wxsWatcher.EnableRaisingEvents = false;
+
+            DialogResult result = DialogResult.None;
+            if (undoManager.HasChanges()) {
+                result = MessageBox.Show(String.Format("An external program changed \"{0}\", do you want to load the changes from disk and ignore the changes in memory?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            } else {
+                result = MessageBox.Show(String.Format("An external program changed \"{0}\", do you want to load the changes from disk?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            }
+
+            if (result == DialogResult.Yes) {
+                wxsDocument.Load(wxsFile.FullName);
+                UndoManager.Clear();
+
+                if (wxsChanged != null) {
+                    wxsChanged(this, new EventArgs());
+                }
+            }
+
+            wxsWatcher.EnableRaisingEvents = true;
         }
     }
 }

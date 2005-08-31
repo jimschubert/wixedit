@@ -146,7 +146,6 @@ namespace WixEdit {
                 AddTreeNodesRecursive(file, treeView.Nodes);
             }
 
-
             treeView.ExpandAll();
             if (treeView.Nodes.Count > 0) {
                 treeView.SelectedNode = treeView.Nodes[0];
@@ -334,15 +333,14 @@ namespace WixEdit {
 
             
             XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), wixFiles.XsdNsmgr);
-//            if (xmlAttributeDefinition == null) {
-                if (xmlAttributeDefinition.Attributes["use"] == null || 
-                    xmlAttributeDefinition.Attributes["use"].Value != "required") {
-                    // Remove the attribute
-                    attAdapter.XmlNode.Attributes.Remove(att);
-                } else {
-                    att.Value = "";
-                }
-//            }
+
+            if (xmlAttributeDefinition.Attributes["use"] == null || 
+                xmlAttributeDefinition.Attributes["use"].Value != "required") {
+                // Remove the attribute
+                attAdapter.XmlNode.Attributes.Remove(att);
+            } else {
+                att.Value = "";
+            }
 
             // Update the propertyGrid.
             propertyGrid.SelectedObject = attAdapter;
@@ -397,64 +395,65 @@ namespace WixEdit {
 
         protected string GetDisplayName(XmlNode element) {
             string displayName = null;
-try {
-            switch (element.Name) {
-                case "Directory":
-                case "File":
-                    XmlAttribute nameAtt = element.Attributes["LongName"];
-                    if (nameAtt == null) {
-                        nameAtt = element.Attributes["Name"];
-                    }
-                    if (nameAtt == null) {
-                        nameAtt = element.Attributes["Id"];
-                    }
-                    displayName = nameAtt.Value;
-                    break;
-                case "Registry":
-                    string root = element.Attributes["Root"].Value;
-                    string key = element.Attributes["Key"].Value;
-                    XmlAttribute name = element.Attributes["Name"];
-                    if (name != null) {
-                        if (key.EndsWith("\\") == false) {
-                            key = key + "\\";
+            try {
+                switch (element.Name) {
+                    case "Directory":
+                    case "File":
+                        XmlAttribute nameAtt = element.Attributes["LongName"];
+                        if (nameAtt == null) {
+                            nameAtt = element.Attributes["Name"];
                         }
-                        key = key + name.Value;
-                    }
+                        if (nameAtt == null) {
+                            nameAtt = element.Attributes["Id"];
+                        }
+                        displayName = nameAtt.Value;
+                        break;
+                    case "Registry":
+                        string root = element.Attributes["Root"].Value;
+                        string key = element.Attributes["Key"].Value;
+                        XmlAttribute name = element.Attributes["Name"];
+                        if (name != null) {
+                            if (key.EndsWith("\\") == false) {
+                                key = key + "\\";
+                            }
+                            key = key + name.Value;
+                        }
 
-                    displayName = root + "\\" + key;
-                    break;
-                case "Component":
-                case "CustomAction":
-                    XmlAttribute idAtt = element.Attributes["Id"];
-                    if (idAtt != null) {
-                        displayName = idAtt.Value;
-                    } else {
+                        displayName = root + "\\" + key;
+                        break;
+                    case "Component":
+                    case "CustomAction":
+                        XmlAttribute idAtt = element.Attributes["Id"];
+                        if (idAtt != null) {
+                            displayName = idAtt.Value;
+                        } else {
+                            displayName = element.Name;
+                        }
+                        break;
+                    case "Show":
+                        XmlAttribute dlgAtt = element.Attributes["Dialog"];
+                        if (dlgAtt != null) {
+                            displayName = dlgAtt.Value;
+                        } else {
+                            displayName = element.Name;
+                        }
+                        break;
+                    case "Custom":
+                        XmlAttribute actionAtt = element.Attributes["Action"];
+                        if (actionAtt != null) {
+                            displayName = actionAtt.Value;
+                        } else {
+                            displayName = element.Name;
+                        }
+                        break;
+                    default:
                         displayName = element.Name;
-                    }
-                    break;
-                case "Show":
-                    XmlAttribute dlgAtt = element.Attributes["Dialog"];
-                    if (dlgAtt != null) {
-                        displayName = dlgAtt.Value;
-                    } else {
-                        displayName = element.Name;
-                    }
-                    break;
-                case "Custom":
-                    XmlAttribute actionAtt = element.Attributes["Action"];
-                    if (actionAtt != null) {
-                        displayName = actionAtt.Value;
-                    } else {
-                        displayName = element.Name;
-                    }
-                    break;
-                default:
-                    displayName = element.Name;
-                    break;
+                        break;
+                }
+            } catch {
+                displayName = element.Name;
             }
-} catch {
-            displayName = element.Name;
-}
+
             return displayName;
         }
 
@@ -593,7 +592,10 @@ try {
             ShowProperties(newElement);       
         }
 
-        public void Reload() {
+        public override void ReloadData() {
+            propertyGrid.SelectedObject = null;
+            treeView.Nodes.Clear();
+
             LoadData();
         }
 

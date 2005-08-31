@@ -59,6 +59,7 @@ namespace WixEdit {
         protected MenuItem editMenu;
         protected MenuItem editUndo;
         protected MenuItem editRedo;
+        protected MenuItem editExternal;
         protected MenuItem toolsMenu;
         protected MenuItem toolsOptions;
         protected MenuItem toolsWixCompile;
@@ -140,6 +141,7 @@ namespace WixEdit {
             editMenu = new IconMenuItem();
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
+            editExternal = new IconMenuItem();
 
             editUndo.Text = "&Undo";
             editUndo.Click += new System.EventHandler(editUndo_Click);
@@ -151,6 +153,10 @@ namespace WixEdit {
             editRedo.Shortcut = Shortcut.CtrlR;
             editRedo.ShowShortcut = true;
 
+            editExternal.Text = "Launch &External Editor";
+            editExternal.Click += new System.EventHandler(editExternal_Click);
+            editExternal.Shortcut = Shortcut.CtrlE;
+            editExternal.ShowShortcut = true;
 
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
@@ -342,6 +348,16 @@ namespace WixEdit {
 
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
+
+            editMenu.MenuItems.Add(2, new IconMenuItem("-"));
+
+            if (wixFiles == null ||
+                WixEditSettings.Instance.ExternalXmlEditor == null ||
+                File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
+                editExternal.Enabled = false;
+            }
+
+            editMenu.MenuItems.Add(3, editExternal);
         }
 
         private void editUndo_Click(object sender, System.EventArgs e) {
@@ -355,6 +371,20 @@ namespace WixEdit {
             XmlNode node = wixFiles.UndoManager.Redo();
 
             ShowNode(node);
+        }
+
+        private void editExternal_Click(object sender, System.EventArgs e) {
+            if (wixFiles == null ||
+                WixEditSettings.Instance.ExternalXmlEditor == null ||
+                File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
+                return;
+            }
+
+            ProcessStartInfo psiExternal = new ProcessStartInfo();
+            psiExternal.FileName = WixEditSettings.Instance.ExternalXmlEditor;
+            psiExternal.Arguments = wixFiles.WxsFile.FullName;
+
+            Process.Start(psiExternal);
         }
 
         private void ShowNode(XmlNode node) {
@@ -463,7 +493,7 @@ namespace WixEdit {
             ProductPropertiesForm frm = new ProductPropertiesForm(product, wixFiles);
             frm.ShowDialog();
 
-            editGlobalDataPanel.Reload();
+            editGlobalDataPanel.ReloadData();
         }
 
         private void toolsOptions_Click(object sender, System.EventArgs e) {
@@ -511,6 +541,7 @@ namespace WixEdit {
 
         private void LoadWxsFile(string file) {
             wixFiles = new WixFiles(new FileInfo(file));
+            wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
 
 
             tabButtonControl = new TabButtonControl();
@@ -673,11 +704,24 @@ namespace WixEdit {
 		/// </summary>
 		[STAThread]
 		static void Main() {
-            
             Application.EnableVisualStyles();
             Application.DoEvents();
 
 			Application.Run(new EditorForm());
+        }
+
+    
+        private delegate void InvokeDelegate();
+        private void wixFiles_wxsChanged(object sender, EventArgs e) {
+            try {
+                foreach (DisplayBasePanel panel in panels) {
+                    //panel.CreateControl();
+                    panel.BeginInvoke(new InvokeDelegate(panel.ReloadData));
+                    // panel.DoReload();
+                }
+            } catch (Exception ex) {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
