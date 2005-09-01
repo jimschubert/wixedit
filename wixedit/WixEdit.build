@@ -38,7 +38,7 @@
 
     <property name="project.output" value="${project.build}\${nant.project.name}.exe"/>
 
-    <property name="project.wix" value="${nant.project.basedir}\wix-2.0.3116.0"/>
+    <property name="project.wix" value="${nant.project.basedir}\wix-2.0.3220.0"/>
 
     <target name="all" depends="clean,build" />
 

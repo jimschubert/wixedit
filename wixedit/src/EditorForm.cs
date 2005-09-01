@@ -49,22 +49,22 @@ namespace WixEdit {
         protected EditActionsPanel editActionsPanel;
 
         protected MainMenu mainMenu;
-        protected MenuItem fileMenu;
-        protected MenuItem fileNew;
-        protected MenuItem fileLoad;
-        protected MenuItem fileSave;
-        protected MenuItem fileClose;
-        protected MenuItem fileSeparator;
-        protected MenuItem fileExit;
-        protected MenuItem editMenu;
-        protected MenuItem editUndo;
-        protected MenuItem editRedo;
-        protected MenuItem editExternal;
-        protected MenuItem toolsMenu;
-        protected MenuItem toolsOptions;
-        protected MenuItem toolsWixCompile;
-        protected MenuItem helpMenu;
-        protected MenuItem helpAbout;
+        protected IconMenuItem fileMenu;
+        protected IconMenuItem fileNew;
+        protected IconMenuItem fileLoad;
+        protected IconMenuItem fileSave;
+        protected IconMenuItem fileClose;
+        protected IconMenuItem fileSeparator;
+        protected IconMenuItem fileExit;
+        protected IconMenuItem editMenu;
+        protected IconMenuItem editUndo;
+        protected IconMenuItem editRedo;
+        protected IconMenuItem editExternal;
+        protected IconMenuItem toolsMenu;
+        protected IconMenuItem toolsOptions;
+        protected IconMenuItem toolsWixCompile;
+        protected IconMenuItem helpMenu;
+        protected IconMenuItem helpAbout;
 
         protected OutputPanel outputPanel;
         protected Splitter outputSplitter;
@@ -141,7 +141,15 @@ namespace WixEdit {
             editMenu = new IconMenuItem();
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
-            editExternal = new IconMenuItem();
+
+            if (wixFiles == null ||
+                WixEditSettings.Instance.ExternalXmlEditor == null ||
+                File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
+                editExternal = new IconMenuItem();
+            } else {
+                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor, false);
+                editExternal = new IconMenuItem(ico);
+            }
 
             editUndo.Text = "&Undo";
             editUndo.Click += new System.EventHandler(editUndo_Click);
@@ -351,10 +359,21 @@ namespace WixEdit {
 
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
 
-            if (wixFiles == null ||
-                WixEditSettings.Instance.ExternalXmlEditor == null ||
-                File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
+
+            bool hasExternalEditor = (WixEditSettings.Instance.ExternalXmlEditor != null && File.Exists(WixEditSettings.Instance.ExternalXmlEditor));
+
+            if (wixFiles == null || hasExternalEditor == false) {
                 editExternal.Enabled = false;
+            } else {
+                editExternal.Enabled = true;
+            }
+
+            if (editExternal.HasIcon() == false && hasExternalEditor) {
+                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor, false);
+                editExternal.Bitmap = ico.ToBitmap();
+            }
+            if (editExternal.HasIcon() == true && hasExternalEditor == false) {
+                editExternal.Bitmap = null;
             }
 
             editMenu.MenuItems.Add(3, editExternal);
