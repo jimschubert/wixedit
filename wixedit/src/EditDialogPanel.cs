@@ -913,17 +913,18 @@ namespace WixEdit {
             }
 
             if (node.Name == "Control") {
-                XmlElement newText = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
+                node.AppendChild(newElement);
 
                 TreeNode control = new TreeNode(typeName);
-                control.Tag = newText;
+                control.Tag = newElement;
                 control.ImageIndex = imageIndex;
                 control.SelectedImageIndex = imageIndex;
 
                 dialogTreeView.SelectedNode.Nodes.Add(control);
                 dialogTreeView.SelectedNode = control;
 
-                ShowWixProperties(newText);
+                ShowWixProperties(newElement);
             }
         }
 

@@ -26,6 +26,12 @@ using System.Drawing.Design;
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>A type editor for guids</summary>
     public class GuidUITypeEditor : UITypeEditor {
+        /// <summary>display a modal form </summary>
+        /// <param name="context">see documentation on ITypeDescriptorContext</param>
+        /// <returns>the style of the editor</returns>
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) {
+            return UITypeEditorEditStyle.Modal;
+        }
         /// <summary>used to generate the guid</summary>
         /// <param name="context">see documentation on ITypeDescriptorContext</param>
         /// <param name="provider">see documentation on IServiceProvider</param>
