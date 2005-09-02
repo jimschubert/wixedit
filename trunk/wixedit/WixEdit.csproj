@@ -776,6 +776,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\PropertyGridExtensions\ControlTypeTypeConverter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\PropertyGridExtensions\CustomDisplayNamePropertyDescriptor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

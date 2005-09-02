@@ -204,6 +204,13 @@ namespace WixEdit.PropertyGridExtensions {
                 return typeof(ReferenceConverter);
             }
 
+            if (xmlAttributeDefinition.Attributes["name"] != null &&
+                xmlAttributeDefinition.Attributes["name"].Value == "Type" &&
+                XmlNodeElement.Attributes["name"] != null &&
+                XmlNodeElement.Attributes["name"].Value == "Control") {
+                return typeof(ControlTypeTypeConverter);
+            }
+
             string name = xmlAttributeDefinition.Attributes["type"].Value;
 
             XmlNode xmlDefinitionRestriction = xmlNodeDefinition.SelectSingleNode(String.Format("//xs:simpleType[@name='{0}']/xs:restriction", name), wixFiles.XsdNsmgr);
