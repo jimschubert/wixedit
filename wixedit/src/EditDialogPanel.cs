@@ -527,7 +527,13 @@ namespace WixEdit {
 
                     parent.AppendChild(ui);
                 }
-                ui.AppendChild(dialog);
+                
+                XmlNodeList sameNodes = ui.SelectNodes("wix:Dialog", wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    ui.InsertAfter(dialog, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    ui.AppendChild(dialog);
+                }
 
                 ListViewItem item = new ListViewItem(frm.SelectedString);
                 item.Tag = dialog;
@@ -856,8 +862,9 @@ namespace WixEdit {
                     break;
             }
 
-            dialogTreeViewContextMenu.MenuItems.Add(deleteCurrentElementMenu);
-
+            if (node.Name != "Dialog") {
+                dialogTreeViewContextMenu.MenuItems.Add(deleteCurrentElementMenu);
+            }
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
@@ -891,7 +898,12 @@ namespace WixEdit {
 
                     newControl.Attributes.Append(newAttr);
 
-                    node.AppendChild(newControl);
+                    XmlNodeList sameNodes = node.SelectNodes("wix:Control", wixFiles.WxsNsmgr);
+                    if (sameNodes.Count > 0) {
+                        node.InsertAfter(newControl, sameNodes[sameNodes.Count - 1]);
+                    } else {
+                        node.AppendChild(newControl);
+                    }
 
                     TreeNode control = new TreeNode(frm.SelectedString);
                     control.Tag = newControl;
@@ -914,7 +926,13 @@ namespace WixEdit {
 
             if (node.Name == "Control") {
                 XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
-                node.AppendChild(newElement);
+
+                XmlNodeList sameNodes = node.SelectNodes("wix:" + typeName, wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    node.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    node.AppendChild(newElement);
+                }
 
                 TreeNode control = new TreeNode(typeName);
                 control.Tag = newElement;

@@ -23,6 +23,8 @@ using System;
 using System.IO;
 using System.Xml;
 
+using WixEdit.Settings;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// PropertyDescriptor for BinaryElements.
@@ -48,33 +50,53 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
-            // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 binaryElement.Attributes["src"].Value = String.Empty;
             } else {
                 string sepCharString = Path.DirectorySeparatorChar.ToString();
                 string path = value.ToString();
-                Uri newBinaryPath = new Uri(path);
+                if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
+                    if (File.Exists(Path.GetFullPath(path)) == false) {
+                        throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
+                    }
 
-                string binaries = wixFiles.WxsDirectory.FullName;
-                if (binaries.EndsWith(sepCharString) == false) {
-                    binaries = binaries + sepCharString;
+                    binaryElement.Attributes["src"].Value = Path.GetFullPath(path);
+                } else {
+                    Uri newBinaryPath = new Uri(path);
+
+                    string binaries = wixFiles.WxsDirectory.FullName;
+                    if (binaries.EndsWith(sepCharString) == false) {
+                        binaries = binaries + sepCharString;
+                    }
+
+                    Uri binariesPath = new Uri(binaries);
+                
+                    string relativeValue = binariesPath.MakeRelative(newBinaryPath);
+                    relativeValue = relativeValue.Replace("/", sepCharString);
+                
+
+                    FileInfo testRelativeValue = null;
+
+                    if (Path.IsPathRooted(relativeValue)) {
+                        testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
+                    } else {
+                        if (relativeValue.StartsWith("file:")) {
+                            relativeValue.Remove(0, 5);
+                        }
+
+                        testRelativeValue = new FileInfo(relativeValue);
+                    }
+
+                    if (testRelativeValue.Exists == false) {
+                        throw new FileNotFoundException(String.Format("{0} could not be located", relativeValue), path);
+                    }
+                
+                    if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
+                        throw new Exception(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
+                    }
+
+                    binaryElement.Attributes["src"].Value = relativeValue;
                 }
-
-                Uri binariesPath = new Uri(binaries);
-                string relativeValue = binariesPath.MakeRelative(newBinaryPath);
-                relativeValue = relativeValue.Replace("/", sepCharString);
-
-                FileInfo testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
-                if (testRelativeValue.Exists == false) {
-                    throw new FileNotFoundException(String.Format("{0} could not be located", relativeValue), path);
-                } else if (Path.IsPathRooted(relativeValue) == true) {
-                    throw new Exception(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
-                } else if (relativeValue.StartsWith("..")) {
-                    throw new Exception(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
-                }
-
-                binaryElement.Attributes["src"].Value = relativeValue;
             }
         }
 

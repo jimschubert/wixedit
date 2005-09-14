@@ -117,7 +117,12 @@ namespace WixEdit {
                 newProp.Attributes.Append(newAttr);
 
                 XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
-                ui.AppendChild(newProp);
+                XmlNodeList sameNodes = ui.SelectNodes("wix:Error", wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    ui.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    ui.AppendChild(newProp);
+                }
 
                 XmlNodeList errors = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
 

@@ -116,8 +116,14 @@ namespace WixEdit {
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);                
-                product.AppendChild(newProp);
+                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
+                
+                XmlNodeList sameNodes = product.SelectNodes("wix:Property", wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    product.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    product.AppendChild(newProp);
+                }
 
                 XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 

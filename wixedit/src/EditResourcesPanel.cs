@@ -125,7 +125,13 @@ namespace WixEdit {
 
                 XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
-                product.AppendChild(newProp);
+                XmlNodeList sameNodes = product.SelectNodes("wix:Binary", wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    product.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    product.AppendChild(newProp);
+                }
+
                 binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
 
                 BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);

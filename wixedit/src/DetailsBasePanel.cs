@@ -364,8 +364,7 @@ namespace WixEdit {
             if (file.Name == "File" && file.Attributes["src"] != null) {
                 string filePath = Path.Combine(wixFiles.WxsDirectory.FullName, file.Attributes["src"].Value);
 
-                FileInfo fileInfo = new FileInfo(filePath);
-                if (fileInfo.Exists) {
+                if (File.Exists(filePath)) {
                     Icon ico = FileIconFactory.GetFileIcon(filePath, false);
                     treeView.ImageList.Images.Add(ico);
     
@@ -584,7 +583,12 @@ namespace WixEdit {
                 control.SelectedImageIndex = imageIndex;
             }
 
-            node.AppendChild(newElement);
+            XmlNodeList sameNodes = node.SelectNodes("wix:" + typeName, wixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                node.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                node.AppendChild(newElement);
+            }
 
             treeView.SelectedNode.Nodes.Add(control);
             treeView.SelectedNode = control;

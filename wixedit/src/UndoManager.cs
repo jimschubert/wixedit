@@ -178,6 +178,7 @@ namespace WixEdit {
     public class InsertCommand : IReversibleCommand {
         XmlNode parentNode;
         XmlNode insertedNode;
+        XmlNode previousSiblingNode;
 
         public InsertCommand(XmlNode parentNode, XmlNode insertedNode) {
             this.parentNode = parentNode;
@@ -185,13 +186,18 @@ namespace WixEdit {
         }
 
         public XmlNode Undo() {
+            previousSiblingNode = insertedNode.PreviousSibling;
             parentNode.RemoveChild(insertedNode);
 
             return parentNode;
         }
 
         public XmlNode Redo() {
-            parentNode.AppendChild(insertedNode);
+            if (previousSiblingNode != null) {
+                parentNode.InsertAfter(insertedNode, previousSiblingNode);
+            } else {
+                parentNode.InsertBefore(insertedNode, parentNode.FirstChild);
+            }
 
             return insertedNode;
         }

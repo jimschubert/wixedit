@@ -62,6 +62,7 @@ namespace WixEdit {
         protected IconMenuItem editExternal;
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsOptions;
+        protected IconMenuItem toolsProjectSettings;
         protected IconMenuItem toolsWixCompile;
         protected IconMenuItem helpMenu;
         protected IconMenuItem helpAbout;
@@ -176,19 +177,25 @@ namespace WixEdit {
 
             toolsMenu = new IconMenuItem();
             toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
+            toolsProjectSettings = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.projectsettings.bmp")));
             toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
 
             toolsWixCompile.Text = "Wix Compile";
             toolsWixCompile.Click += new System.EventHandler(toolsWixCompile_Click);
             toolsWixCompile.Enabled = false;
 
+            toolsProjectSettings.Text = "Project Settings";
+            toolsProjectSettings.Click += new EventHandler(toolsProjectSettings_Click);
+            toolsProjectSettings.Enabled = false;
+
             toolsOptions.Text = "&Options";
             toolsOptions.Click += new System.EventHandler(toolsOptions_Click);
 
             toolsMenu.Text = "&Tools";
             toolsMenu.MenuItems.Add(0, toolsWixCompile);
-            toolsMenu.MenuItems.Add(1, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(2, toolsOptions);
+            toolsMenu.MenuItems.Add(1, toolsProjectSettings);
+            toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(3, toolsOptions);
 
             mainMenu.MenuItems.Add(2, toolsMenu);
 
@@ -281,19 +288,23 @@ namespace WixEdit {
                 CloseWxsFile();
 
                 string fileToOpen = openWxsFileDialog.FileName;
-                if (fileToOpen.ToLower().EndsWith("msi") || fileToOpen.ToLower().EndsWith("msm")) {
-                    try {
-                        // Either the wxs file doesn't exist or the user gives permission to overwrite the wxs file
-                        if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
-                            MessageBox.Show("The existing wxs file will be overwritten.\r\n\r\nAre you sure you want to continue?", "Overwrite?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                            Decompile(fileToOpen);
-                            LoadWxsFile(Path.ChangeExtension(fileToOpen, "wxs"));
+                try {
+                    if (fileToOpen.ToLower().EndsWith("msi") || fileToOpen.ToLower().EndsWith("msm")) {
+                        try {
+                            // Either the wxs file doesn't exist or the user gives permission to overwrite the wxs file
+                            if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
+                                MessageBox.Show("The existing wxs file will be overwritten.\r\n\r\nAre you sure you want to continue?", "Overwrite?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                                Decompile(fileToOpen);
+                                LoadWxsFile(Path.ChangeExtension(fileToOpen, "wxs"));
+                            }
+                        } catch (Exception ex) {
+                            MessageBox.Show(ex.Message, "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                    } catch (Exception ex) {
-                        MessageBox.Show(ex.Message, "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    } else {
+                        LoadWxsFile(openWxsFileDialog.FileName);
                     }
-                } else {
-                    LoadWxsFile(openWxsFileDialog.FileName);
+                } catch (Exception ex) {
+                    MessageBox.Show(String.Format("Failed to open {0}.\r\n({1}\r\n{2})", fileToOpen, ex.Message, ex.StackTrace)); 
                 }
             }
         }
@@ -316,13 +327,13 @@ namespace WixEdit {
 
         private void fileMenu_Popup(object sender, System.EventArgs e) {
             if (wixFiles != null) {
-                fileSave.Enabled = wixFiles.UndoManager.HasChanges();
+                fileSave.Enabled = wixFiles.HasChanges();
             }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e) {
             if (wixFiles != null) {
-                if (wixFiles.UndoManager.HasChanges()) {
+                if (wixFiles.HasChanges()) {
                     if (HandlePendingChanges() == false) {
                         e.Cancel = true;
                         return;
@@ -401,7 +412,7 @@ namespace WixEdit {
 
             ProcessStartInfo psiExternal = new ProcessStartInfo();
             psiExternal.FileName = WixEditSettings.Instance.ExternalXmlEditor;
-            psiExternal.Arguments = wixFiles.WxsFile.FullName;
+            psiExternal.Arguments = String.Format("\"{0}\"", wixFiles.WxsFile.FullName);
 
             Process.Start(psiExternal);
         }
@@ -420,7 +431,7 @@ namespace WixEdit {
 
         private void toolsWixCompile_Click(object sender, System.EventArgs e) {
             try {
-                if (wixFiles.UndoManager.HasChanges()) {
+                if (wixFiles.HasChanges()) {
                     DialogResult result = MessageBox.Show("You need to save all changes before you can compile.\r\n\r\n Save changes now?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes) {
                         wixFiles.Save();
@@ -435,6 +446,12 @@ namespace WixEdit {
             }
         }
 
+        
+        private void toolsProjectSettings_Click(object sender, EventArgs e) {
+            ProjectSettingsForm frm = new ProjectSettingsForm(wixFiles);
+            frm.ShowDialog();
+        }
+
         private void Compile() {
             string candleExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(candleExe) == false) {
@@ -443,11 +460,20 @@ namespace WixEdit {
 
             ProcessStartInfo psiCandle = new ProcessStartInfo();
             psiCandle.FileName = candleExe;
+            psiCandle.WorkingDirectory = wixFiles.WxsFile.Directory.FullName;
             psiCandle.CreateNoWindow = true;
             psiCandle.UseShellExecute = false;
             psiCandle.RedirectStandardOutput = true;
             psiCandle.RedirectStandardError = false;
-            psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
+            if (wixFiles.ProjectSettings.CandleArgs != null && wixFiles.ProjectSettings.CandleArgs.Trim().Length > 0) {
+                string candleArgs = wixFiles.ProjectSettings.CandleArgs;
+                candleArgs = candleArgs.Replace("<projectfile>", wixFiles.WxsFile.FullName);
+                candleArgs = candleArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wixFiles.WxsFile.Name));
+
+                psiCandle.Arguments = candleArgs;
+            } else {
+                psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
+            }
 
             string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Light;
             if (File.Exists(lightExe) == false) {
@@ -461,11 +487,20 @@ namespace WixEdit {
 
             ProcessStartInfo psiLight = new ProcessStartInfo();
             psiLight.FileName = lightExe;
+            psiLight.WorkingDirectory = wixFiles.WxsFile.Directory.FullName;
             psiLight.CreateNoWindow = true;
             psiLight.UseShellExecute = false;
             psiLight.RedirectStandardOutput = true;
-            psiLight.RedirectStandardError = false;            
-            psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, extension));
+            psiLight.RedirectStandardError = false;
+            if (wixFiles.ProjectSettings.CandleArgs != null && wixFiles.ProjectSettings.CandleArgs.Trim().Length > 0) {
+                string lightArgs = wixFiles.ProjectSettings.LightArgs;
+                lightArgs = lightArgs.Replace("<projectfile>", wixFiles.WxsFile.FullName);
+                lightArgs = lightArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wixFiles.WxsFile.Name));
+
+                psiLight.Arguments = lightArgs;
+            } else {
+                psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, extension));
+            }
 
             ShowOutputPanel(null, null);
             outputPanel.Clear();
@@ -546,7 +581,7 @@ namespace WixEdit {
         }
 
         private bool HandlePendingChanges() {
-            if (wixFiles != null && wixFiles.UndoManager.HasChanges() == true) {
+            if (wixFiles != null && wixFiles.HasChanges() == true) {
                 DialogResult result = MessageBox.Show("Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes) {
                     wixFiles.Save();
@@ -561,6 +596,8 @@ namespace WixEdit {
         private void LoadWxsFile(string file) {
             wixFiles = new WixFiles(new FileInfo(file));
             wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
+
+            Environment.CurrentDirectory = wixFiles.WxsDirectory.FullName;
 
 
             tabButtonControl = new TabButtonControl();
@@ -639,6 +676,7 @@ namespace WixEdit {
             fileSave.Enabled = true;
 
             toolsWixCompile.Enabled = true;
+            toolsProjectSettings.Enabled = true;
         }
 
         private void CloseWxsFile() {
@@ -646,7 +684,10 @@ namespace WixEdit {
                 mainMenu.MenuItems.RemoveAt(2);
             }
 
+            Environment.CurrentDirectory = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
+
             toolsWixCompile.Enabled = false;
+            toolsProjectSettings.Enabled = false;
             
             if (tabButtonControl != null) {
                 Controls.Remove(tabButtonControl);
@@ -726,7 +767,16 @@ namespace WixEdit {
             Application.EnableVisualStyles();
             Application.DoEvents();
 
-			Application.Run(new EditorForm());
+            Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
+            try {
+                Application.Run(new EditorForm());
+            } catch (Exception ex) {
+                string message = "Caught unhandled exception! This error will be reported to the WixEdit website.";
+                if (MessageBox.Show(message, "Error: Caught unhandled exception!", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK) {
+                    ErrorReporter reporter = new ErrorReporter();
+                    reporter.Report(ex);
+                }
+            }
         }
 
     
@@ -734,12 +784,18 @@ namespace WixEdit {
         private void wixFiles_wxsChanged(object sender, EventArgs e) {
             try {
                 foreach (DisplayBasePanel panel in panels) {
-                    //panel.CreateControl();
                     panel.BeginInvoke(new InvokeDelegate(panel.ReloadData));
-                    // panel.DoReload();
                 }
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
+            string message = "Unable to perform your action, an error occured! This error will be reported to the WixEdit website.";
+            if (MessageBox.Show(message, "Error: Unable to perform your action.", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK) {
+                ErrorReporter reporter = new ErrorReporter();
+                reporter.Report(e.Exception);
             }
         }
     }

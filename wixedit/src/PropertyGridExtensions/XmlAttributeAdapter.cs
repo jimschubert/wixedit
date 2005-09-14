@@ -24,8 +24,9 @@ using System.Collections;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Xml;
-
 using System.Windows.Forms;
+
+using WixEdit.Settings;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
@@ -136,23 +137,37 @@ namespace WixEdit.PropertyGridExtensions {
                     attrs.Add(new DescriptionAttribute(docuString));
                 }
 
-                // We could add an UITypeEditor if desired
-                // attrs.Add(new EditorAttribute(?property.EditorTypeName?, typeof(UITypeEditor)));
-                attrs.Add(new EditorAttribute(GetAttributeEditor(xmlAttributeDefinition), typeof(UITypeEditor)));
+                if (xmlAttributeDefinition.Attributes["name"] != null &&
+                    xmlAttributeDefinition.Attributes["name"].Value == "src" &&
+                    xmlNodeElement.Attributes["name"].Value == "File") {
+                    
+                    // We could add an UITypeEditor if desired
+                    attrs.Add(new EditorAttribute(typeof(FilteredFileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
                 
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
-                // Make Attribute array
-                Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+                    // BinaryElementPropertyDescriptor also uses the src attribute, and a possibility to use relative paths.
+                    BinaryElementPropertyDescriptor pd = new BinaryElementPropertyDescriptor(xmlNode, wixFiles, xmlAttributeDefinition.Attributes["name"].Value, attrArray);
 
-
-
-                // Create and add PropertyDescriptor
-                XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(xmlAttribute, xmlAttributeDefinition,
-                                                                           xmlAttributeDefinition.Attributes["name"].Value, attrArray);
+                    props.Add(pd);
+                } else {
+                    // We could add an UITypeEditor if desired
+                    // attrs.Add(new EditorAttribute(?property.EditorTypeName?, typeof(UITypeEditor)));
+                    attrs.Add(new EditorAttribute(GetAttributeEditor(xmlAttributeDefinition), typeof(UITypeEditor)));
                 
-                props.Add(pd);
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+
+                    // Create and add PropertyDescriptor
+                    XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(xmlAttribute, xmlAttributeDefinition,
+                        xmlAttributeDefinition.Attributes["name"].Value, attrArray);
+
+                    props.Add(pd);
+                }
             }
 
+            // Add InnerText if required or present.
             if (XmlNodeDefinition.Name == "xs:extension" &&
                 ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) {
                 ArrayList attrs = new ArrayList();

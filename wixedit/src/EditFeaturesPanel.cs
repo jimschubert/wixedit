@@ -80,7 +80,12 @@ namespace WixEdit {
                 action.SelectedImageIndex = imageIndex;
             }
 
-            xmlNode.AppendChild(newElement);
+            XmlNodeList sameNodes = xmlNode.SelectNodes("wix:" + elementName, wixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                xmlNode.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                xmlNode.AppendChild(newElement);
+            }
 
             treeView.Nodes.Add(action);
             treeView.SelectedNode = action;

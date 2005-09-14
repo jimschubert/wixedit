@@ -25,6 +25,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 
+using WixEdit.Settings;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for BinaryElementAdapter.
@@ -55,7 +57,7 @@ namespace WixEdit.PropertyGridExtensions {
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
 
                 // Show file name editor
-                attrs.Add(new EditorAttribute(typeof(System.Windows.Forms.Design.FileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
+                attrs.Add(new EditorAttribute(typeof(FilteredFileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
 
                 // Make Attribute array
                 Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
