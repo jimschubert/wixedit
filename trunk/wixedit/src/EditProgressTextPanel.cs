@@ -116,8 +116,14 @@ namespace WixEdit {
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
-                ui.AppendChild(newProp);
+                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);
+                
+                XmlNodeList sameNodes = ui.SelectNodes("wix:ProgressText", wixFiles.WxsNsmgr);
+                if (sameNodes.Count > 0) {
+                    ui.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
+                } else {
+                    ui.AppendChild(newProp);
+                }
 
                 XmlNodeList progressTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
 

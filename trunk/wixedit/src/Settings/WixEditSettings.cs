@@ -34,11 +34,20 @@ using System.Windows.Forms;
 using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit.Settings {
+    public enum PathHandling {
+        UseRelativePathsWhenPossible = 0,
+        ForceRelativePaths = 1,
+        ForceAbolutePaths = 2
+    }
+
     [DefaultPropertyAttribute("BinDirectory")]
     public class WixEditSettings : PropertyAdapterBase {
         [XmlRoot("WixEdit")]
         public class WixEditData {
             public WixEditData() {
+                UseRelativeOrAbsolutePaths = PathHandling.UseRelativePathsWhenPossible;
+                ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+
                 EditDialog = new EditDialogData();
 
                 Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -52,6 +61,11 @@ namespace WixEdit.Settings {
                 XsdLocation = oldVersion.XsdLocation;
                 TemplateDirectory = oldVersion.TemplateDirectory;
                 DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
+                UseRelativeOrAbsolutePaths = oldVersion.UseRelativeOrAbsolutePaths;
+                ExternalXmlEditor = oldVersion.ExternalXmlEditor;
+                if (ExternalXmlEditor == null || ExternalXmlEditor.Length == 0) {
+                    ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+                }
                 
                 if (oldVersion.EditDialog == null) {
                     EditDialog = new EditDialogData();
@@ -71,6 +85,7 @@ namespace WixEdit.Settings {
             public string ExternalXmlEditor;
             public string DefaultProjectDirectory;
             public string Version;
+            public PathHandling UseRelativeOrAbsolutePaths;
 
             public EditDialogData EditDialog;
         }
@@ -293,6 +308,19 @@ namespace WixEdit.Settings {
         }
 
         [
+        Category("Miscellaneous"), 
+        Description("Use relative or absolute paths.")
+        ]
+        public PathHandling UseRelativeOrAbsolutePaths {
+            get {
+                return data.UseRelativeOrAbsolutePaths;
+            }
+            set {
+                data.UseRelativeOrAbsolutePaths = value;
+            }
+        }
+
+        [
         Category("Version"), 
         Description("The version number of the WixEdit application."), 
         ReadOnly(true)
@@ -310,7 +338,8 @@ namespace WixEdit.Settings {
 
         [
         Category("Dialog Editor Settings"),
-        Description("Number of pixels to snap to in the dialog edior. (Mimimal 1 pixel)")
+        Description("Number of pixels to snap to in the dialog edior. (Mimimal 1 pixel)"),
+        Browsable(false)
         ]
         public int SnapToGrid {
             get {
@@ -324,7 +353,8 @@ namespace WixEdit.Settings {
 
         [
         Category("Dialog Editor Settings"),
-        Description("Scale of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)")
+        Description("Scale of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)"),
+        Browsable(false)
         ]
         public double Scale {
             get {
@@ -337,7 +367,8 @@ namespace WixEdit.Settings {
 
         [
         Category("Dialog Editor Settings"),
-        Description("Opacity of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)")
+        Description("Opacity of the dialog in the dialog designer. (For example: 0.50 or 0,50 depending on your regional settings.)"),
+        Browsable(false)
         ]
         public double Opacity {
             get {
@@ -351,7 +382,8 @@ namespace WixEdit.Settings {
 
         [
         Category("Dialog Editor Settings"),
-        Description("Keeps the dialog in the dialog designer on top of everything.")
+        Description("Keeps the dialog in the dialog designer on top of everything."),
+        Browsable(false)
         ]
         public bool AlwaysOnTop {
             get {

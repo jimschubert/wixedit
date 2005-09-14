@@ -23,6 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms;
+using System.IO;
 
 namespace WixEdit.Settings {
     /// <summary>
@@ -85,7 +86,8 @@ namespace WixEdit.Settings {
                 dialog.Filter = filter;
             }
             
-            dialog.FileName = value;
+            dialog.InitialDirectory = Path.GetFullPath(value);
+            dialog.FileName = Path.GetFullPath(value);
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {

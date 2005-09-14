@@ -269,6 +269,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\bmp\projectsettings.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\bmp\prop.bmp"
                     BuildAction = "EmbeddedResource"
                 />
@@ -722,6 +726,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\ProjectSettingsForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\SelectionOverlay.cs"
                     SubType = "UserControl"
                     BuildAction = "Compile"
@@ -882,6 +891,11 @@
                 />
                 <File
                     RelPath = "src\PropertyGridExtensions\XmlAttributePropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Server\ErrorReporter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

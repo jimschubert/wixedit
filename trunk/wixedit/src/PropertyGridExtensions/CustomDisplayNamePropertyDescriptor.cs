@@ -33,7 +33,6 @@ namespace WixEdit.PropertyGridExtensions {
         public CustomDisplayNamePropertyDescriptor(PropertyInfo propInfo, Attribute[] attrs) : base(Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
         }
 
-
         public override object GetValue(object component) {
             return propertyInfo.GetValue(component, new object[] {});
         }
