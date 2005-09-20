@@ -317,8 +317,9 @@ namespace WixEdit {
                         button.Attributes["Icon"].Value.ToLower() == "yes") {
                         string binaryId = GetTextFromXmlElement(button);
                         try {
-                            Stream imageStream = GetBinaryStream(binaryId);
-                            newButton.Image = new Bitmap(imageStream);
+                            using (Stream imageStream = GetBinaryStream(binaryId)) {
+                                newButton.Image = new Bitmap(imageStream);
+                            }
                         } catch {
                             SetText(newButton, button);
                         }
@@ -434,8 +435,9 @@ namespace WixEdit {
 
                     string binaryId = GetTextFromXmlElement(icon);
                     try {
-                        Stream imageStream = GetBinaryStream(binaryId);
-                        picCtrl.Image = new Bitmap(imageStream);
+                        using (Stream imageStream = GetBinaryStream(binaryId)) {
+                            picCtrl.Image = new Bitmap(imageStream);
+                        }
                     } catch {
                     }
 
@@ -617,7 +619,9 @@ namespace WixEdit {
 
                     Bitmap bmp = null;
                     try {
-                        bmp = new Bitmap(GetBinaryStream(binaryId));
+                        using (Stream imageStream = GetBinaryStream(binaryId)) {
+                            bmp = new Bitmap(imageStream);
+                        }
                     } catch {
                     }
 
