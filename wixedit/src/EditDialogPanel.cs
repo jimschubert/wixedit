@@ -65,6 +65,7 @@ namespace WixEdit {
         private IconMenuItem DialogScale;
 
         private IconMenuItem newControlElementMenu;
+        private MenuItem otherMenuItem;
         private IconMenuItem newControlSubElementsMenu;
         private IconMenuItem newTextElementMenu;
         private IconMenuItem newPublishElementMenu;
@@ -74,6 +75,29 @@ namespace WixEdit {
 
         private IconMenuItem infoAboutCurrentElementMenu;
         #endregion
+
+        string[] controlTypes = new string[] {   "Billboard",
+                                                 "Bitmap",
+                                                 "CheckBox",
+                                                 "ComboBox",
+                                                 "DirectoryCombo",
+                                                 "DirectoryList",
+                                                 "Edit",
+                                                 "GroupBox",
+                                                 "Icon",
+                                                 "Line",
+                                                 "ListBox",
+                                                 "ListView",
+                                                 "MaskedEdit",
+                                                 "PathEdit",
+                                                 "ProgressBar",
+                                                 "PushButton",
+                                                 "RadioButtonGroup",
+                                                 "ScrollableText",
+                                                 "SelectionTree",
+                                                 "Text",
+                                                 "VolumeCostList",
+                                                 "VolumeSelectCombo" };
 
         public EditDialogPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -188,7 +212,19 @@ namespace WixEdit {
             dialogTreeView.ImageList = GetDialogTreeViewImageList();
 
             newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("elements.control.bmp")));
-            newControlElementMenu.Click += new System.EventHandler(NewControlElement_Click);
+
+            foreach (string controlType in controlTypes) {
+                MenuItem menuItem = new MenuItem(controlType);
+                menuItem.Click += new System.EventHandler(NewControlElement_Click);
+                newControlElementMenu.MenuItems.Add(menuItem);
+            }
+
+            MenuItem dashMenuItem = new MenuItem("-");
+            newControlElementMenu.MenuItems.Add(dashMenuItem);
+
+            otherMenuItem = new MenuItem("Other...");
+            otherMenuItem.Click += new System.EventHandler(NewControlElement_Click);
+            newControlElementMenu.MenuItems.Add(otherMenuItem);
 
 
             newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
@@ -502,11 +538,100 @@ namespace WixEdit {
             propertyGridContextMenu.MenuItems.Add(menuItem3);
         }
 
+        public void SetDefaultValues(XmlNode node) {
+            if (node.Name.ToLower() == "dialog") {
+                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Width");
+                att.Value = "370";
+                node.Attributes.Append(att);
+
+                att = wixFiles.WxsDocument.CreateAttribute("Height");
+                att.Value = "270";
+                node.Attributes.Append(att);
+            } else if (node.Name.ToLower() == "control") {
+                int left = 0;
+                int top = 0;
+                int width = 50;
+                int height = 17;
+
+                XmlAttribute typeAtt = node.Attributes["Type"];
+                if (typeAtt != null && typeAtt.Value.Length > 0) {
+                    switch (typeAtt.Value.ToLower()) {
+                        case "Billboard":
+                            break;
+                        case "Bitmap":
+                            break;
+                        case "CheckBox":
+                            break;
+                        case "ComboBox":
+                            break;
+                        case "DirectoryCombo":
+                            break;
+                        case "DirectoryList":
+                            break;
+                        case "Edit":
+                            break;
+                        case "GroupBox":
+                            break;
+                        case "Icon":
+                            break;
+                        case "Line":
+                            break;
+                        case "ListBox":
+                            break;
+                        case "ListView":
+                            break;
+                        case "MaskedEdit":
+                            break;
+                        case "PathEdit":
+                            break;
+                        case "ProgressBar":
+                            break;
+                        case "PushButton":
+                            width = 56;
+                            height = 17;
+                            break;
+                        case "RadioButtonGroup":
+                            break;
+                        case "ScrollableText":
+                            break;
+                        case "SelectionTree":
+                            break;
+                        case "Text":
+                            break;
+                        case "VolumeCostList":
+                            break;
+                        case "VolumeSelectCombo":
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Width");
+                att.Value = width.ToString();
+                node.Attributes.Append(att);
+
+                att = wixFiles.WxsDocument.CreateAttribute("Height");
+                att.Value = height.ToString();
+                node.Attributes.Append(att);
+
+                att = wixFiles.WxsDocument.CreateAttribute("X");
+                att.Value = left.ToString();
+                node.Attributes.Append(att);
+
+                att = wixFiles.WxsDocument.CreateAttribute("Y");
+                att.Value = top.ToString();
+                node.Attributes.Append(att);
+            }
+        }
+
         public void OnNewWxsDialogsItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
             frm.Text = "Enter new Dialog name";
             if (DialogResult.OK == frm.ShowDialog()) {
                 XmlNode dialog = wixFiles.WxsDocument.CreateElement("Dialog", "http://schemas.microsoft.com/wix/2003/01/wi");
+                SetDefaultValues(dialog);
+
                 XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Id");
                 att.Value = frm.SelectedString;
                 dialog.Attributes.Append(att);
@@ -892,11 +1017,19 @@ namespace WixEdit {
                 frm.Text = "Enter new Control name";
                 if (DialogResult.OK == frm.ShowDialog()) {
                     XmlElement newControl = node.OwnerDocument.CreateElement("Control", "http://schemas.microsoft.com/wix/2003/01/wi");
-    
-                    XmlAttribute newAttr = node.OwnerDocument.CreateAttribute("Id");
-                    newAttr.Value = frm.SelectedString;
 
-                    newControl.Attributes.Append(newAttr);
+                    MenuItem item = sender as MenuItem;
+                    if (item != otherMenuItem) {
+                        XmlAttribute newAttr = node.OwnerDocument.CreateAttribute("Type");
+                        newAttr.Value = item.Text;
+                        newControl.Attributes.Append(newAttr);
+                    }
+
+                    SetDefaultValues(newControl);
+
+                    XmlAttribute idAttr = node.OwnerDocument.CreateAttribute("Id");
+                    idAttr.Value = frm.SelectedString;
+                    newControl.Attributes.Append(idAttr);
 
                     XmlNodeList sameNodes = node.SelectNodes("wix:Control", wixFiles.WxsNsmgr);
                     if (sameNodes.Count > 0) {
@@ -913,6 +1046,7 @@ namespace WixEdit {
                     dialogTreeView.TopNode.Nodes.Add(control);
                     dialogTreeView.SelectedNode = control;
 
+                    ShowWixDialog(node);
                     ShowWixProperties(newControl);
                 }
             }
