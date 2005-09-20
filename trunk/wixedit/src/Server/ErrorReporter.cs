@@ -32,6 +32,8 @@ using WixEdit.Settings;
 namespace WixEdit {
     public class ErrorReporter {
         protected readonly string formFieldName = "message";
+
+        // Reports of today can be viewed at: http://wixedit.sourceforge.net/server/viewreport.php
         protected readonly string reportingUrl = "http://wixedit.sourceforge.net/server/report.php";
 
         public void Report(Exception exception) {
@@ -44,6 +46,7 @@ namespace WixEdit {
                 buffer.Append("--").Append(boundary).Append("\r\n");
                 buffer.Append("Content-Disposition: form-data; name=\"");
                 buffer.Append(formFieldName).Append("\"\r\n\r\n");
+                buffer.Append("Version ").Append(WixEditSettings.Instance.ApplicationVersion).Append("\r\n\r\n");
                 buffer.Append(exception.ToString()).Append("\r\n");
             
                 buffer.Append("\r\n--").Append(boundary).Append("--\r\n");
