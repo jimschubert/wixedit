@@ -39,7 +39,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditPropertiesPanel.
     /// </summary>
-    public abstract class BasePanel : Panel{
+    public abstract class BasePanel : Panel {
         protected WixFiles wixFiles;
 
         public BasePanel(WixFiles wixFiles) {

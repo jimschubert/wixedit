@@ -40,6 +40,7 @@ namespace WixEdit {
 	public class EditorForm : Form 	{
         protected OpenFileDialog openWxsFileDialog;
 
+        protected Panel mainPanel;
         protected TabButtonControl tabButtonControl;
         protected EditUIPanel editUIPanel;
         protected EditPropertiesPanel editPropertiesPanel;
@@ -222,12 +223,16 @@ namespace WixEdit {
             tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
 */
 
+            mainPanel = new Panel();
+            mainPanel.Dock = DockStyle.Fill;
+            Controls.Add(mainPanel);
+
             outputSplitter = new Splitter();
             outputSplitter.Dock = DockStyle.Bottom;
             outputSplitter.Height = 2;
             Controls.Add(outputSplitter);
 
-            outputPanel = new OutputPanel(wixFiles);
+            outputPanel = new OutputPanel();
             outputPanel.Dock = DockStyle.Bottom;
             outputPanel.Height = 100;
             outputPanel.Size = new Size(200, 150);
@@ -602,7 +607,8 @@ namespace WixEdit {
 
             tabButtonControl = new TabButtonControl();
             tabButtonControl.Dock = DockStyle.Fill;
-            Controls.Add(tabButtonControl);
+
+            mainPanel.Controls.Add(tabButtonControl);
             tabButtonControl.Visible = false;
 
             tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
@@ -668,7 +674,6 @@ namespace WixEdit {
             panels[5] = editActionsPanel;
 
 
-
             // Update menu
             fileClose.Enabled = true;
             Text = "WiX Edit - " + wixFiles.WxsFile.Name;
@@ -690,7 +695,7 @@ namespace WixEdit {
             toolsProjectSettings.Enabled = false;
             
             if (tabButtonControl != null) {
-                Controls.Remove(tabButtonControl);
+                mainPanel.Controls.Remove(tabButtonControl);
                 tabButtonControl.Visible = false;
                 tabButtonControl.ClearTabs();
                 tabButtonControl.Dispose();

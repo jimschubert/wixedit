@@ -40,7 +40,7 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for OutputPanel.
     /// </summary>
-    public class OutputPanel : BasePanel{
+    public class OutputPanel : Panel {
         protected OutputTextbox outputTextBox;
         protected Process activeProcess;
         Button closeButton;
@@ -52,7 +52,7 @@ namespace WixEdit {
 
         XmlDisplayForm xmlDisplayForm = new XmlDisplayForm();
 
-        public OutputPanel(WixFiles wixFiles) : base(wixFiles) {
+        public OutputPanel() {
             InitializeComponent();
         }
 
