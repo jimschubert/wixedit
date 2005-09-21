@@ -178,7 +178,7 @@ namespace WixEdit {
 
             toolsMenu = new IconMenuItem();
             toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
-            toolsProjectSettings = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.projectsettings.bmp")));
+            toolsProjectSettings = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.settings.bmp")));
             toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
 
             toolsWixCompile.Text = "Wix Compile";
