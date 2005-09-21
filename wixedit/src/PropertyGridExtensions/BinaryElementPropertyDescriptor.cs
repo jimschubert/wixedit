@@ -62,7 +62,11 @@ namespace WixEdit.PropertyGridExtensions {
 
                     binaryElement.Attributes["src"].Value = Path.GetFullPath(path);
                 } else {
-                    Uri newBinaryPath = new Uri(path);
+                    if (File.Exists(Path.GetFullPath(path)) == false) {
+                        throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
+                    }
+
+                    Uri newBinaryPath = new Uri(Path.GetFullPath(path));
 
                     string binaries = wixFiles.WxsDirectory.FullName;
                     if (binaries.EndsWith(sepCharString) == false) {
@@ -85,10 +89,6 @@ namespace WixEdit.PropertyGridExtensions {
                         }
 
                         testRelativeValue = new FileInfo(relativeValue);
-                    }
-
-                    if (testRelativeValue.Exists == false) {
-                        throw new FileNotFoundException(String.Format("{0} could not be located", relativeValue), path);
                     }
                 
                     if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
