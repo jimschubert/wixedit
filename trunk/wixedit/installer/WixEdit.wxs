@@ -28,7 +28,7 @@
           <Directory Id="Binaries" Name="binaries">
             <Component Id="Binaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0002">
               <File Id="manifest" Name="WIXEDI_1.MAN" LongName="WixEdit.exe.manifest" src="..\build\WixEdit.exe.manifest" />
-              <File Id="exe" Name="WIXEDI_1.EXE" LongName="WixEdit.exe" src="..\build\WixEdit.exe" />
+              <File Id="WixEditExe" Name="WIXEDI_1.EXE" LongName="WixEdit.exe" src="..\build\WixEdit.exe" />
               <!-- Include pdb so error reporting shows line numbers. -->
               <File Id="pdb" Name="WIXEDI_1.PDB" LongName="WixEdit.pdb" src="..\build\WixEdit.pdb" />
               <File Id="AxSHDocVw.dll" Name="AXSHDO_1.DLL" LongName="AxSHDocVw.dll" src="..\build\AxSHDocVw.dll" />
@@ -220,6 +220,8 @@
     <!-- Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
       <UpgradeVersion Minimum="$(var.VERSION)" Property="VERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
     </Upgrade -->
+
+    <CustomAction Id='LaunchFile' FileKey='WixEditExe' ExeCommand='' Return='asyncNoWait' />
 
     <Media Id="1" EmbedCab="yes" Cabinet="Files.cab" />
 

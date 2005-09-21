@@ -152,6 +152,10 @@ namespace WixEdit {
             XmlNodeList edits = dialog.SelectNodes("wix:Control[@Type='Edit']", wixFiles.WxsNsmgr);
             AddEditBoxes(newDialog, edits);
 
+
+            XmlNodeList checks = dialog.SelectNodes("wix:Control[@Type='CheckBox']", wixFiles.WxsNsmgr);
+            AddCheckBoxes(newDialog, checks);
+
             XmlNodeList pathEdits = dialog.SelectNodes("wix:Control[@Type='PathEdit']", wixFiles.WxsNsmgr);
             AddPathEditBoxes(newDialog, pathEdits);
 
@@ -344,6 +348,19 @@ namespace WixEdit {
                     newEdit.BorderStyle = BorderStyle.Fixed3D;
 
                     newDialog.AddControl(edit, newEdit);
+                } catch {
+                }
+            }
+        }
+
+        private void AddCheckBoxes(DesignerForm newDialog, XmlNodeList checkboxes) {
+            foreach (XmlNode check in checkboxes) {
+                try {
+                    CheckBox checkBox = new CheckBox();
+                    SetControlAttributes(checkBox, check);
+                    SetText(checkBox, check);
+
+                    newDialog.AddControl(check, checkBox);
                 } catch {
                 }
             }

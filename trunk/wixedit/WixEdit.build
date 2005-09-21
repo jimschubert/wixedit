@@ -97,7 +97,6 @@
                 <includes name="sample/SimpleSample/*" />
                 <includes name="templates/UISample/**/*" />
                 <excludes name="**/CVS/" />
-                <excludes name="**/*.pdb" />
             </fileset>
         </zip>
         <zip zipfile="${project.release}\wixedit${project.version.string}-src.zip">

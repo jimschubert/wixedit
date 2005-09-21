@@ -23,6 +23,7 @@
     <Dialog Id="ExitDialog" Width="370" Height="270" Title="[ProductName] [Setup]" NoMinimize="yes">
       <Control Id="Finish" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="[ButtonText_Finish]">
         <Publish Event="EndDialog" Value="Return"><![CDATA[1]]></Publish>
+        <Publish Event='DoAction' Value='LaunchFile'>(NOT Installed) AND (LaunchApp = 1)</Publish>
       </Control>
       <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Disabled="yes" Text="[ButtonText_Cancel]" />
       <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="[DialogBitmap]" />
@@ -30,6 +31,12 @@
       <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="374" Height="0" />
       <Control Id="Description" Type="Text" X="135" Y="70" Width="220" Height="20" Transparent="yes" NoPrefix="yes">
         <Text>Click the Finish button to exit the [Wizard].</Text>
+      </Control>
+      <Control Id="Launch" Type="CheckBox" X="135" Y="200" Width="10" Height="10" Property="LaunchApp" CheckBoxValue="1">
+        <Condition Action="hide"><![CDATA[Installed]]></Condition>
+      </Control>
+      <Control Id="LaunchDescription" Type="Text" X="150" Y="200" Width="200" Height="20" Transparent="yes" NoPrefix="yes" Text="Launch [ProductName]">
+        <Condition Action="hide"><![CDATA[Installed]]></Condition>
       </Control>
       <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes">
         <Text>{\VerdanaBold13}Completing the [ProductName] [Wizard]</Text>
@@ -1074,13 +1081,16 @@
   <Property Id="ComponentDownload"><![CDATA[ftp://anonymous@microsoft.com/components/]]></Property>
   <Property Id="BannerBitmap"><![CDATA[bannrbmp]]></Property>
   <Property Id="DialogBitmap"><![CDATA[dlgbmp]]></Property>
+  <Property Id="LaunchApp">1</Property>
 
   <!-- Property Id="ARPHELPLINK"><![CDATA[http://www.microsoft.com/management]]></Property -->
 
   <AdminExecuteSequence />
+
   <InstallExecuteSequence>
     <RemoveExistingProducts After="InstallFinalize" />
   </InstallExecuteSequence>
+
   <Binary Id="bannrbmp" src="Binary\bannrbmp.bmp" />
   <Binary Id="completi" src="Binary\completi.ico" />
   <Binary Id="custicon" src="Binary\custicon.ico" />
