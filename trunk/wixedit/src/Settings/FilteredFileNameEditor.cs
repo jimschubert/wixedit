@@ -86,8 +86,10 @@ namespace WixEdit.Settings {
                 dialog.Filter = filter;
             }
             
-            dialog.InitialDirectory = Path.GetFullPath(value);
-            dialog.FileName = Path.GetFullPath(value);
+            if (value != null && value.Length > 0) {
+                dialog.InitialDirectory = Path.GetFullPath(value);
+                dialog.FileName = Path.GetFullPath(value);
+            }
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {

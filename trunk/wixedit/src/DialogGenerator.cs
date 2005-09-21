@@ -436,7 +436,7 @@ namespace WixEdit {
                     string binaryId = GetTextFromXmlElement(icon);
                     try {
                         using (Stream imageStream = GetBinaryStream(binaryId)) {
-                            picCtrl.Image = new Bitmap(imageStream);
+                            picCtrl.Image = new Icon(imageStream).ToBitmap();
                         }
                     } catch {
                     }

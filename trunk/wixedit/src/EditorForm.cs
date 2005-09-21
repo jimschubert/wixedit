@@ -777,7 +777,8 @@ namespace WixEdit {
                 Application.Run(new EditorForm());
             } catch (Exception ex) {
                 string message = "Caught unhandled exception! This error will be reported to the WixEdit website.";
-                if (MessageBox.Show(message, "Error: Caught unhandled exception!", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK) {
+                ExceptionForm form = new ExceptionForm(message, ex);
+                if (form.ShowDialog() == DialogResult.OK) {
                     ErrorReporter reporter = new ErrorReporter();
                     reporter.Report(ex);
                 }
@@ -798,7 +799,8 @@ namespace WixEdit {
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
             string message = "Unable to perform your action, an error occured! This error will be reported to the WixEdit website.";
-            if (MessageBox.Show(message, "Error: Unable to perform your action.", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK) {
+            ExceptionForm form = new ExceptionForm(message, e.Exception);
+            if (form.ShowDialog() == DialogResult.OK) {
                 ErrorReporter reporter = new ErrorReporter();
                 reporter.Report(e.Exception);
             }
