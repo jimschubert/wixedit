@@ -119,8 +119,7 @@ namespace WixEdit {
             parentHwnd = (int)parent.Handle;
 
             newDialog.Font = new Font("Tahoma", (float)(scale*8.00F), FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            newDialog.ShowInTaskbar = false;
-            newDialog.TopLevel = true;
+            newDialog.ShowInTaskbar = true;
             // newDialog.TopMost = true;
             // newDialog.Opacity = 0.75;
 
@@ -322,7 +321,21 @@ namespace WixEdit {
                         string binaryId = GetTextFromXmlElement(button);
                         try {
                             using (Stream imageStream = GetBinaryStream(binaryId)) {
-                                newButton.Image = new Bitmap(imageStream);
+                                Bitmap bmp = new Icon(imageStream).ToBitmap();
+                                Bitmap dest = new Bitmap((int) Math.Round(bmp.Width*scale), (int) Math.Round(bmp.Height*scale));
+
+                                Graphics g = Graphics.FromImage(dest);
+                                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                                g.DrawImage(bmp,
+                                    new Rectangle(0,0,dest.Width,dest.Height),
+                                    new Rectangle(0,0,bmp.Width,bmp.Height),
+                                    GraphicsUnit.Pixel);
+
+                                g.Dispose();
+                                bmp.Dispose();
+
+                                newButton.Image = dest;
                             }
                         } catch {
                             SetText(newButton, button);

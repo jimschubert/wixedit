@@ -273,10 +273,6 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
-                    RelPath = "res\bmp\projectsettings.bmp"
-                    BuildAction = "EmbeddedResource"
-                />
-                <File
                     RelPath = "res\bmp\prop.bmp"
                     BuildAction = "EmbeddedResource"
                 />
@@ -295,6 +291,10 @@
                 <File
                     RelPath = "res\bmp\save.bmp"
                     BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\settings.bmp"
+                    BuildAction = "Content"
                 />
                 <File
                     RelPath = "res\bmp\smallcap.bmp"
@@ -377,8 +377,8 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
-                    RelPath = "res\compile\decompile.bmp"
-                    BuildAction = "EmbeddedResource"
+                    RelPath = "res\compile\dcompile.bmp"
+                    BuildAction = "Content"
                 />
                 <File
                     RelPath = "res\dialog\main.ico"
@@ -393,12 +393,12 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
-                    RelPath = "res\directory\folder.closed.bmp"
-                    BuildAction = "EmbeddedResource"
+                    RelPath = "res\directory\closed.bmp"
+                    BuildAction = "Content"
                 />
                 <File
-                    RelPath = "res\directory\folder.open.bmp"
-                    BuildAction = "EmbeddedResource"
+                    RelPath = "res\directory\open.bmp"
+                    BuildAction = "Content"
                 />
                 <File
                     RelPath = "res\elements\adminuisequence.bmp"
