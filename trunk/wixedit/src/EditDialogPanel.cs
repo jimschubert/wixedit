@@ -340,7 +340,6 @@ namespace WixEdit {
 
             wxsDialogs.Columns.Add("Item Column", -2, HorizontalAlignment.Left);
             wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
-
             wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
 
             LoadData();
@@ -417,13 +416,13 @@ namespace WixEdit {
                 if (dialog == item.Tag) {
                     item.Selected = true;
 
-                    ShowWixDialog(null);  
                     ShowWixDialogTree(null);
                     ShowWixProperties(null);
+                    ShowWixDialog(null);  
           
-                    ShowWixDialog(dialog);
                     ShowWixDialogTree(dialog);
                     ShowWixProperties(dialog);
+                    ShowWixDialog(dialog);
 
 
                     break;
@@ -787,9 +786,9 @@ namespace WixEdit {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
                 XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
                 
-                ShowWixDialog(dialog);
                 ShowWixDialogTree(dialog);
                 ShowWixProperties(dialog);
+                ShowWixDialog(dialog);
 
                 prevSelectedIndex = wxsDialogs.SelectedItems[0].Index;
             }
@@ -826,6 +825,13 @@ namespace WixEdit {
                 if (TopLevelControl != null) {
                     prevTop = TopLevelControl.Top;
                     prevLeft = TopLevelControl.Right;
+
+                    if (prevLeft >= Screen.PrimaryScreen.WorkingArea.Width) {
+                        prevLeft = prevLeft / 3;
+                    }
+                    if (prevTop >= Screen.PrimaryScreen.WorkingArea.Height) {
+                        prevTop = prevTop / 3;
+                    }
                 }
             }
 
@@ -852,7 +858,7 @@ namespace WixEdit {
                 prevDialog.Dispose();
             }
 
-            Focus();
+            wxsDialogs.Focus();
         }
 
         private void ShowWixDialogTree(XmlNode dialog) {
@@ -1046,8 +1052,8 @@ namespace WixEdit {
                     dialogTreeView.TopNode.Nodes.Add(control);
                     dialogTreeView.SelectedNode = control;
 
-                    ShowWixDialog(node);
                     ShowWixProperties(newControl);
+                    ShowWixDialog(node);
                 }
             }
         }
