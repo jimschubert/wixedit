@@ -31,8 +31,8 @@ namespace WixEdit.PropertyGridExtensions {
         XmlAttribute attribute;
         XmlNode description;
 
-        public XmlAttributePropertyDescriptor(XmlAttribute attribute, XmlNode description, string name, Attribute[] attrs) :
-            base(name, attrs) {
+        public XmlAttributePropertyDescriptor(WixFiles wixFiles, XmlAttribute attribute, XmlNode description, string name, Attribute[] attrs) :
+            base(wixFiles, name, attrs) {
             this.attribute = attribute;
             this.description = description;
         }
@@ -50,6 +50,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 attribute.Value = String.Empty;

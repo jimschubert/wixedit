@@ -62,7 +62,7 @@ namespace WixEdit.PropertyGridExtensions {
 
 
                 // Create and add PropertyDescriptor
-                ProgressTextElementPropertyDescriptor pd = new ProgressTextElementPropertyDescriptor(progressTextNode, progressTextNode.Attributes["Action"].Value, attrArray);
+                ProgressTextElementPropertyDescriptor pd = new ProgressTextElementPropertyDescriptor(wixFiles, progressTextNode, progressTextNode.Attributes["Action"].Value, attrArray);
                 
                 props.Add(pd);
             }

@@ -425,7 +425,9 @@ namespace WixEdit {
         private void ShowNode(XmlNode node) {
             if (node != null) {
                 foreach (DisplayBasePanel panel in panels) {
-                    if (panel.IsOwnerOfNode(node)) {
+                    if (node.Name == "Product") {
+                        panel.ReloadData();
+                    } else if (panel.IsOwnerOfNode(node)) {
                         tabButtonControl.SelectedPanel = panel;
                         panel.ShowNode(node);
                         break;

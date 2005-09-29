@@ -108,6 +108,8 @@ namespace WixEdit.PropertyGridExtensions {
 
                     // If there is no attibute present, create one.
                     if (xmlAttribute == null) {
+                        wixFiles.UndoManager.BeginNewCommandRange();
+
                         xmlAttribute = xmlNode.OwnerDocument.CreateAttribute(xmlAttributeDefinition.Attributes["name"].Value);
                         xmlNode.Attributes.Append(xmlAttribute);
                     }                    
@@ -160,7 +162,7 @@ namespace WixEdit.PropertyGridExtensions {
                     Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
                     // Create and add PropertyDescriptor
-                    XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(xmlAttribute, xmlAttributeDefinition,
+                    XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(wixFiles, xmlAttribute, xmlAttributeDefinition,
                         xmlAttributeDefinition.Attributes["name"].Value, attrArray);
 
                     props.Add(pd);
@@ -183,7 +185,7 @@ namespace WixEdit.PropertyGridExtensions {
                 Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
                 // Create and add PropertyDescriptor
-                InnerTextPropertyDescriptor pd = new InnerTextPropertyDescriptor(xmlNode, attrArray);
+                InnerTextPropertyDescriptor pd = new InnerTextPropertyDescriptor(wixFiles, xmlNode, attrArray);
                 
                 props.Add(pd);
             }

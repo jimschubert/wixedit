@@ -261,6 +261,8 @@ namespace WixEdit {
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Temporarily store the XmlAttributeAdapter
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
@@ -535,13 +537,19 @@ namespace WixEdit {
         }
 
         private void NewElement_Click(object sender, System.EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             MenuItem menuItem = sender as MenuItem;
             if (menuItem != null) {
-                CreateNewSubElement(menuItem.Text);
+                TreeNode newNode = CreateNewSubElement(menuItem.Text);
+                ShowNode(newNode.Tag as XmlElement);
+                ShowProperties(newNode.Tag as XmlElement);
             }
         }
 
         private void DeleteElement_Click(object sender, System.EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             XmlNode node = treeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -567,11 +575,13 @@ namespace WixEdit {
         }
 
 
-        protected void CreateNewSubElement(string typeName) {
+        protected TreeNode CreateNewSubElement(string typeName) {
             XmlNode node = treeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
-                return;
+                return null;
             }
+
+            wixFiles.UndoManager.BeginNewCommandRange();
 
             XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
             TreeNode control = new TreeNode(typeName);
@@ -591,9 +601,9 @@ namespace WixEdit {
             }
 
             treeView.SelectedNode.Nodes.Add(control);
-            treeView.SelectedNode = control;
-
-            ShowProperties(newElement);       
+            // treeView.SelectedNode = control;
+      
+            return control;
         }
 
         public override void ReloadData() {
@@ -629,6 +639,6 @@ namespace WixEdit {
                 propertyGridContextMenu = null;
             }
             base.Dispose( disposing );
-		}
+        }
     }
 }

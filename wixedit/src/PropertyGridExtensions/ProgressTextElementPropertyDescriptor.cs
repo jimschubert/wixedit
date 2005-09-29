@@ -29,8 +29,8 @@ namespace WixEdit.PropertyGridExtensions {
     public class ProgressTextElementPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode progressTextElement;
 
-        public ProgressTextElementPropertyDescriptor(XmlNode progressTextElement, string name, Attribute[] attrs) :
-            base(name, attrs) {
+        public ProgressTextElementPropertyDescriptor(WixFiles wixFiles, XmlNode progressTextElement, string name, Attribute[] attrs) :
+            base(wixFiles, name, attrs) {
             this.progressTextElement = progressTextElement;
         }
 
@@ -45,6 +45,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 progressTextElement.InnerText = String.Empty;

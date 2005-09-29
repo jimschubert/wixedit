@@ -394,11 +394,11 @@
                 />
                 <File
                     RelPath = "res\directory\closed.bmp"
-                    BuildAction = "Content"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "res\directory\open.bmp"
-                    BuildAction = "Content"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "res\elements\adminuisequence.bmp"
@@ -737,6 +737,11 @@
                 <File
                     RelPath = "src\ProjectSettingsForm.cs"
                     SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\RelativePathHelper.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

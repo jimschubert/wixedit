@@ -30,6 +30,8 @@ namespace WixEdit {
         ArrayList undoCommands;
         ArrayList redoCommands;
 
+        bool beginNewCommandRange;
+        
         XmlDocument wxsDocument;
 
         XmlNodeChangedEventHandler nodeChangedHandler;
@@ -37,10 +39,13 @@ namespace WixEdit {
         XmlNodeChangedEventHandler nodeInsertedHandler;
         XmlNodeChangedEventHandler nodeRemovingHandler;
 
+        DateTime timeCheck;
+
         public UndoManager(XmlDocument wxsDocument) {
             undoCommands = new ArrayList();
             redoCommands = new ArrayList();
 
+            beginNewCommandRange = true;
 
             this.wxsDocument = wxsDocument;
 
@@ -53,6 +58,8 @@ namespace WixEdit {
             this.wxsDocument.NodeChanging += nodeChangingHandler; 
             this.wxsDocument.NodeInserted += nodeInsertedHandler;
             this.wxsDocument.NodeRemoving += nodeRemovingHandler;
+
+            timeCheck = DateTime.Now;
         }
 
         private void RegisterHandlers() {
@@ -69,11 +76,33 @@ namespace WixEdit {
             wxsDocument.NodeRemoving -= nodeRemovingHandler;
         }
 
+        public void BeginNewCommandRange() {
+            timeCheck = DateTime.Now;
+
+            beginNewCommandRange = true;
+        }
+
+        /// <summary>
+        /// Every action needs to start with a call to BeginNewCommandRange(), because there can 
+        /// be multiple commands following right after each other in one action. If it's longer 
+        /// ago than 250 ms, somewhere the call to BeginNewCommandRange() might be forgotten.
+        /// </summary>
+        /// <remarks>Disable for releases, but in develop time it could be handy.</remarks>
+        public void CheckTime() {
+            TimeSpan diff = DateTime.Now.Subtract(timeCheck);
+            if (diff.TotalMilliseconds > 250) {
+                // System.Windows.Forms.MessageBox.Show("Warning, the undo-system might be corrupted.");
+            }
+        }
+
         public void OnNodeChanged(Object src, XmlNodeChangedEventArgs args) {
             // Get new value and node
             redoCommands.Clear();
 
-            undoCommands.Add(new ChangeCommand(args.Node, oldNodeValue, args.Node.Value));
+            CheckTime();
+            undoCommands.Add(new ChangeCommand(args.Node, oldNodeValue, args.Node.Value, beginNewCommandRange));
+
+            beginNewCommandRange = false;
         }
 
         string oldNodeValue;
@@ -89,14 +118,20 @@ namespace WixEdit {
 
             redoCommands.Clear();
 
-            undoCommands.Add(new InsertCommand(args.NewParent, args.Node));
+            CheckTime();
+            undoCommands.Add(new InsertCommand(args.NewParent, args.Node, beginNewCommandRange));
+
+            beginNewCommandRange = false;
         }
 
         public void OnNodeRemoving(Object src, XmlNodeChangedEventArgs args) {
             // Get parent node and node
             redoCommands.Clear();
 
-            undoCommands.Add(new RemoveCommand(args.OldParent, args.Node));
+            CheckTime();
+            undoCommands.Add(new RemoveCommand(args.OldParent, args.Node, beginNewCommandRange));
+
+            beginNewCommandRange = false;
         }
 
 
@@ -119,16 +154,45 @@ namespace WixEdit {
 
         public XmlNode Redo() {
             XmlNode affectedNode = null;
+            ArrayList affectedNodes = new ArrayList();
+
             if (redoCommands.Count > 0) {
                 DeregisterHandlers();
 
                 IReversibleCommand command = (IReversibleCommand) redoCommands[redoCommands.Count-1];
-                affectedNode = command.Redo();
+                do {
+                    affectedNodes.Add(command.Redo());
+                    
+                    redoCommands.Remove(command);
+                    undoCommands.Add(command);
+
+                    if (redoCommands.Count > 0) {
+                        command = (IReversibleCommand) redoCommands[redoCommands.Count-1];
+                    }
+                } while (redoCommands.Count > 0 && command.BeginCommandRange == false);
 
                 RegisterHandlers();
+            }
 
-                redoCommands.Remove(command);
-                undoCommands.Add(command);
+            foreach (XmlNode node in affectedNodes) {
+                if (node is XmlText) {
+                    if (node.ParentNode is XmlAttribute) {
+                        XmlAttribute att = node.ParentNode as XmlAttribute;
+                        if (att.OwnerElement != null) {
+                            affectedNode = att.OwnerElement;
+                            break;
+                        }
+                    }
+                } else if (node.ParentNode != null) {
+                    affectedNode = node;
+                    break;
+                } else if (node is XmlAttribute) {
+                    XmlAttribute att = node as XmlAttribute;
+                    if (att.OwnerElement != null) {
+                        affectedNode = att.OwnerElement;
+                        break;
+                    }
+                }
             }
 
             return affectedNode;
@@ -136,16 +200,35 @@ namespace WixEdit {
 
         public XmlNode Undo() {
             XmlNode affectedNode = null;
+            ArrayList affectedNodes = new ArrayList();
+            
             if (undoCommands.Count > 0) {
                 DeregisterHandlers();
 
-                IReversibleCommand command = (IReversibleCommand) undoCommands[undoCommands.Count-1];
-                affectedNode = command.Undo();
+                IReversibleCommand command;
+                do {
+                    command = (IReversibleCommand) undoCommands[undoCommands.Count-1];
+
+                    affectedNodes.Add(command.Undo());
+
+                    undoCommands.Remove(command);
+                    redoCommands.Add(command);
+                } while (undoCommands.Count > 0 && command.BeginCommandRange == false);
 
                 RegisterHandlers();
 
-                undoCommands.Remove(command);
-                redoCommands.Add(command);
+                foreach (XmlNode node in affectedNodes) {
+                    if (node.ParentNode != null) {
+                        affectedNode = node;
+                        break;
+                    } else if (node is XmlAttribute) {
+                        XmlAttribute att = node as XmlAttribute;
+                        if (att.OwnerElement != null) {
+                            affectedNode = att.OwnerElement;
+                            break;
+                        }
+                    }
+                }
             }
 
             return affectedNode;
@@ -156,6 +239,14 @@ namespace WixEdit {
                 return String.Empty;
             }
 
+            for (int i = undoCommands.Count-1; i >= 0; i--) {
+                IReversibleCommand cmd = (IReversibleCommand) undoCommands[i];
+                if (cmd.BeginCommandRange) {
+                    return cmd.GetDisplayActionString();
+                }
+            }
+
+            // If the command starting the CommandRange is not found, return the first...
             return ((IReversibleCommand) undoCommands[undoCommands.Count-1]).GetDisplayActionString();
         }
 
@@ -169,6 +260,11 @@ namespace WixEdit {
     }
 
     public interface IReversibleCommand {
+        bool BeginCommandRange {
+            get;
+            set;
+        }
+
         XmlNode Undo();
         XmlNode Redo();
 
@@ -180,23 +276,47 @@ namespace WixEdit {
         XmlNode insertedNode;
         XmlNode previousSiblingNode;
 
-        public InsertCommand(XmlNode parentNode, XmlNode insertedNode) {
+        bool beginCommandRange;
+
+        public InsertCommand(XmlNode parentNode, XmlNode insertedNode, bool beginCommandRange) {
             this.parentNode = parentNode;
             this.insertedNode = insertedNode;
+            this.beginCommandRange = beginCommandRange;
+        }
+
+        public bool BeginCommandRange {
+            get {
+                return beginCommandRange;
+            }
+            set {
+                beginCommandRange = value;
+            }
         }
 
         public XmlNode Undo() {
             previousSiblingNode = insertedNode.PreviousSibling;
-            parentNode.RemoveChild(insertedNode);
+            if (insertedNode is XmlAttribute) {
+                parentNode.Attributes.Remove(insertedNode as XmlAttribute);
+            } else {
+                parentNode.RemoveChild(insertedNode);
+            }
 
             return parentNode;
         }
 
         public XmlNode Redo() {
             if (previousSiblingNode != null) {
-                parentNode.InsertAfter(insertedNode, previousSiblingNode);
+                if (insertedNode is XmlAttribute) {
+                    parentNode.Attributes.InsertAfter(insertedNode as XmlAttribute, previousSiblingNode as XmlAttribute);
+                } else {
+                    parentNode.InsertAfter(insertedNode, previousSiblingNode);
+                }
             } else {
-                parentNode.InsertBefore(insertedNode, parentNode.FirstChild);
+                if (insertedNode is XmlAttribute) {
+                    parentNode.Attributes.Append(insertedNode as XmlAttribute);
+                } else {
+                    parentNode.InsertBefore(insertedNode, parentNode.FirstChild);
+                }
             }
 
             return insertedNode;
@@ -210,20 +330,50 @@ namespace WixEdit {
     public class RemoveCommand : IReversibleCommand {
         XmlNode parentNode;
         XmlNode removedNode;
+        XmlNode previousSiblingNode;
+        
+        bool beginCommandRange;
 
-        public RemoveCommand(XmlNode parentNode, XmlNode removedNode) {
+        public RemoveCommand(XmlNode parentNode, XmlNode removedNode, bool beginCommandRange) {
             this.parentNode = parentNode;
             this.removedNode = removedNode;
+            previousSiblingNode = removedNode.PreviousSibling;
+            this.beginCommandRange = beginCommandRange;
+        }
+
+        public bool BeginCommandRange {
+            get {
+                return beginCommandRange;
+            }
+            set {
+                beginCommandRange = value;
+            }
         }
 
         public XmlNode Undo() {
-            parentNode.AppendChild(removedNode);
+            if (previousSiblingNode != null) {
+                if (removedNode is XmlAttribute) {
+                    parentNode.Attributes.InsertAfter(removedNode as XmlAttribute, previousSiblingNode as XmlAttribute);
+                } else {
+                    parentNode.InsertAfter(removedNode, previousSiblingNode);
+                }
+            } else {
+                if (removedNode is XmlAttribute) {
+                    parentNode.Attributes.Append(removedNode as XmlAttribute);
+                } else {
+                    parentNode.InsertBefore(removedNode, parentNode.FirstChild);
+                }
+            }
 
             return removedNode;
         }
 
         public XmlNode Redo() {
-            parentNode.RemoveChild(removedNode);
+            if (removedNode is XmlAttribute) {
+                parentNode.Attributes.Remove(removedNode as XmlAttribute);
+            } else {
+                parentNode.RemoveChild(removedNode);
+            }
 
             return parentNode;
         }
@@ -238,10 +388,22 @@ namespace WixEdit {
         string oldValue;
         string newValue;
 
-        public ChangeCommand(XmlNode changedNode, string oldValue, string newValue) {
+        bool beginCommandRange;
+
+        public ChangeCommand(XmlNode changedNode, string oldValue, string newValue, bool beginCommandRange) {
             this.changedNode = changedNode;
             this.oldValue = oldValue;
             this.newValue = newValue;
+            this.beginCommandRange = beginCommandRange;
+        }
+
+        public bool BeginCommandRange {
+            get {
+                return beginCommandRange;
+            }
+            set {
+                beginCommandRange = value;
+            }
         }
 
         public XmlNode Undo() {

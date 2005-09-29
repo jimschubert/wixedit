@@ -78,6 +78,7 @@ namespace WixEdit {
                 editFeaturesPanel.ShowNode(node);
             } else {
                 tabControl.SelectedTab = editFilesTabPage;
+                editFilesPanel.ReloadData();
             }
         }
 

@@ -73,9 +73,12 @@ namespace WixEdit {
             if (editCustomActionsPanel.IsOwnerOfNode(node)) {
                 tabControl.SelectedTab = editCustomActionsTabPage;
                 editCustomActionsPanel.ShowNode(node);
-            } else {
+            } else if (editExecuteSequencePanel.IsOwnerOfNode(node)) {
                 editExecuteSequencePanel.ShowNode(node);
                 tabControl.SelectedTab = editExecuteSequenceTabPage;
+            } else {
+                tabControl.SelectedTab = editCustomActionsTabPage;
+                editCustomActionsPanel.ReloadData();
             }
         }
 

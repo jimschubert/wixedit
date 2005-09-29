@@ -26,14 +26,17 @@ using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
     public abstract class CustomPropertyDescriptorBase : PropertyDescriptor {
+        protected WixFiles wixFiles;
         protected PropertyInfo propertyInfo;
 
-        public CustomPropertyDescriptorBase(string name, PropertyInfo propInfo, Attribute[] attrs) : base(name, attrs) {
+        public CustomPropertyDescriptorBase(WixFiles wixFiles, string name, PropertyInfo propInfo, Attribute[] attrs) : base(name, attrs) {
             propertyInfo = propInfo;
+            this.wixFiles = wixFiles;
         }
 
-        public CustomPropertyDescriptorBase(string name, Attribute[] attrs) : base(name, attrs) {
+        public CustomPropertyDescriptorBase(WixFiles wixFiles, string name, Attribute[] attrs) : base(name, attrs) {
             propertyInfo = null;
+            this.wixFiles = wixFiles;
         }
 
         public override Type ComponentType {
