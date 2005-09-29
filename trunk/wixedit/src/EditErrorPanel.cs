@@ -110,6 +110,8 @@ namespace WixEdit {
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterIntegerForm frm = new EnterIntegerForm();
             if (DialogResult.OK == frm.ShowDialog()) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+
                 XmlElement newProp = wixFiles.WxsDocument.CreateElement("Error", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");

@@ -54,6 +54,8 @@ namespace WixEdit {
         }
 
         private void NewCustomElement_Click(object sender, System.EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
 
             XmlElement newElement = wixFiles.WxsDocument.CreateElement("CustomAction", "http://schemas.microsoft.com/wix/2003/01/wi");

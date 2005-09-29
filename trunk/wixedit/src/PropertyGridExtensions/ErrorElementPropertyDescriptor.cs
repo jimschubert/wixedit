@@ -29,8 +29,8 @@ namespace WixEdit.PropertyGridExtensions {
     public class ErrorElementPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode errorElement;
 
-        public ErrorElementPropertyDescriptor(XmlNode errorElement, string name, Attribute[] attrs) :
-            base(name, attrs) {
+        public ErrorElementPropertyDescriptor(WixFiles wixFiles, XmlNode errorElement, string name, Attribute[] attrs) :
+            base(wixFiles, name, attrs) {
             this.errorElement = errorElement;
         }
 
@@ -45,6 +45,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 errorElement.InnerText = String.Empty;

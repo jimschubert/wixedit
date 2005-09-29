@@ -116,6 +116,7 @@ namespace WixEdit {
                 editUITextPanel.ShowNode(node);
             } else {
                 tabControl.SelectedTab = editDialogTabPage;
+                editDialogPanel.ReloadData();
             }
         }
 

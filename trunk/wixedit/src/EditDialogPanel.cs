@@ -405,6 +405,8 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            LoadData();
+
             XmlNode showable = GetShowableNode(node);
 
             XmlNode dialog = showable;
@@ -628,6 +630,8 @@ namespace WixEdit {
             EnterStringForm frm = new EnterStringForm();
             frm.Text = "Enter new Dialog name";
             if (DialogResult.OK == frm.ShowDialog()) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+
                 XmlNode dialog = wixFiles.WxsDocument.CreateElement("Dialog", "http://schemas.microsoft.com/wix/2003/01/wi");
                 SetDefaultValues(dialog);
 
@@ -735,6 +739,8 @@ namespace WixEdit {
             if (newAttributeName == "InnerText") {
                 attAdapter.ShowInnerTextIfEmpty = true;
             } else {
+                wixFiles.UndoManager.BeginNewCommandRange();
+
                 // Get the XmlAttribute from the PropertyDescriptor
                 XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
                 XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
@@ -1022,6 +1028,8 @@ namespace WixEdit {
                 EnterStringForm frm = new EnterStringForm();
                 frm.Text = "Enter new Control name";
                 if (DialogResult.OK == frm.ShowDialog()) {
+                    wixFiles.UndoManager.BeginNewCommandRange();
+
                     XmlElement newControl = node.OwnerDocument.CreateElement("Control", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                     MenuItem item = sender as MenuItem;
@@ -1065,6 +1073,8 @@ namespace WixEdit {
             }
 
             if (node.Name == "Control") {
+                wixFiles.UndoManager.BeginNewCommandRange();
+
                 XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlNodeList sameNodes = node.SelectNodes("wix:" + typeName, wixFiles.WxsNsmgr);

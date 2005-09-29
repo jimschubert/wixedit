@@ -86,6 +86,8 @@ namespace WixEdit {
         }
 
         private void NewCustomElement_Click(object sender, System.EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             MenuItem item = (MenuItem) sender;
 
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);

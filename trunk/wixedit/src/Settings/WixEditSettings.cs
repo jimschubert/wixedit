@@ -416,7 +416,7 @@ namespace WixEdit.Settings {
             ArrayList propertyDescriptors = new ArrayList();
             foreach (PropertyInfo propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
                 ArrayList atts = new ArrayList(propInfo.GetCustomAttributes(false));
-                propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(propInfo, (Attribute[]) atts.ToArray(typeof(Attribute))));
+                propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(wixFiles, propInfo, (Attribute[]) atts.ToArray(typeof(Attribute))));
             }
 
             return new PropertyDescriptorCollection((PropertyDescriptor[]) propertyDescriptors.ToArray(typeof(PropertyDescriptor)));

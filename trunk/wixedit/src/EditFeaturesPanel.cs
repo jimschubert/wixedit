@@ -66,6 +66,8 @@ namespace WixEdit {
         }
 
         private void NewCustomElement_Click(object sender, System.EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             string elementName = "Feature";
 
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);

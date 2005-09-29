@@ -62,7 +62,7 @@ namespace WixEdit.PropertyGridExtensions {
 
 
                 // Create and add PropertyDescriptor
-                UITextElementPropertyDescriptor pd = new UITextElementPropertyDescriptor(uiTextNode, uiTextNode.Attributes["Id"].Value, attrArray);
+                UITextElementPropertyDescriptor pd = new UITextElementPropertyDescriptor(wixFiles, uiTextNode, uiTextNode.Attributes["Id"].Value, attrArray);
                 
                 props.Add(pd);
             }

@@ -29,8 +29,8 @@ namespace WixEdit.PropertyGridExtensions {
     public class InnerTextPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode node;
 
-        public InnerTextPropertyDescriptor(XmlNode node, Attribute[] attrs) :
-            base("InnerText", attrs) {
+        public InnerTextPropertyDescriptor(WixFiles wixFiles, XmlNode node, Attribute[] attrs) :
+            base(wixFiles, "InnerText", attrs) {
             this.node = node;
         }
 
@@ -43,6 +43,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 node.InnerText = String.Empty;

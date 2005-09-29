@@ -29,8 +29,8 @@ namespace WixEdit.PropertyGridExtensions {
     public class PropertyElementPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode propertyElement;
 
-        public PropertyElementPropertyDescriptor(XmlNode propertyElement, string name, Attribute[] attrs) :
-            base(name, attrs) {
+        public PropertyElementPropertyDescriptor(WixFiles wixFiles, XmlNode propertyElement, string name, Attribute[] attrs) :
+            base(wixFiles, name, attrs) {
             this.propertyElement = propertyElement;
         }
 
@@ -45,6 +45,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 propertyElement.InnerText = String.Empty;

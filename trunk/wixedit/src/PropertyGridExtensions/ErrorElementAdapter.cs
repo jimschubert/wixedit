@@ -62,7 +62,7 @@ namespace WixEdit.PropertyGridExtensions {
 
 
                 // Create and add PropertyDescriptor
-                ErrorElementPropertyDescriptor pd = new ErrorElementPropertyDescriptor(errorNode, errorNode.Attributes["Id"].Value, attrArray);
+                ErrorElementPropertyDescriptor pd = new ErrorElementPropertyDescriptor(wixFiles, errorNode, errorNode.Attributes["Id"].Value, attrArray);
                 
                 props.Add(pd);
             }

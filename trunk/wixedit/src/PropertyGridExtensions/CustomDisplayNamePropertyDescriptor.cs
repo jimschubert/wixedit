@@ -30,7 +30,8 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for XmlAttributeBinaryDescriptor.
     /// </summary>
     public class CustomDisplayNamePropertyDescriptor : CustomPropertyDescriptorBase {
-        public CustomDisplayNamePropertyDescriptor(PropertyInfo propInfo, Attribute[] attrs) : base(Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
+        public CustomDisplayNamePropertyDescriptor(WixFiles wixFiles, PropertyInfo propInfo, Attribute[] attrs) 
+            : base(wixFiles, Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
         }
 
         public override object GetValue(object component) {
@@ -38,6 +39,8 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             propertyInfo.SetValue(component, value, null);
         }
     }
