@@ -129,7 +129,7 @@ namespace WixEdit {
         }
 
         private void lightArgsCheck_CheckedChanged(object sender, EventArgs e) {
-            candleArgs.Enabled = lightArgsCheck.Checked;
+            lightArgs.Enabled = lightArgsCheck.Checked;
         }
 
         private void okButton_Click(object sender, EventArgs e) {
@@ -154,6 +154,8 @@ namespace WixEdit {
                     wixFiles.ProjectSettings.LightArgs = String.Empty;
                 }
             }
+
+            this.DialogResult = DialogResult.OK;
         }
     }
 }

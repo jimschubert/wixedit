@@ -294,7 +294,7 @@
                 />
                 <File
                     RelPath = "res\bmp\settings.bmp"
-                    BuildAction = "Content"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "res\bmp\smallcap.bmp"
@@ -378,7 +378,7 @@
                 />
                 <File
                     RelPath = "res\compile\dcompile.bmp"
-                    BuildAction = "Content"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "res\dialog\main.ico"
