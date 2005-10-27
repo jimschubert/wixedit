@@ -80,6 +80,7 @@ namespace WixEdit {
             treeViewContextMenu = new ContextMenu();
             treeViewContextMenu.Popup += new EventHandler(PopupTreeViewContextMenu);
             treeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
+            treeView.KeyDown += new KeyEventHandler(TreeViewKeyDown);
 
             newSubElementsMenu = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
@@ -194,8 +195,11 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
-            LoadData();
             TreeNode treeNode = FindTreeNode(GetShowableNode(node), treeView.Nodes);
+            if (treeNode == null) {
+                LoadData();
+                treeNode = FindTreeNode(GetShowableNode(node), treeView.Nodes);
+            }
             if (treeNode != null) {
                 treeView.SelectedNode = null;
                 treeView.SelectedNode = treeNode;
@@ -472,6 +476,23 @@ namespace WixEdit {
 
                 Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
                 treeViewContextMenu.Show(this, spot);
+            }
+        }
+
+        private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) {
+            if(e.KeyCode == Keys.Delete) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+      
+                XmlNode node = treeView.SelectedNode.Tag as XmlNode;
+                if (node == null) {
+                    return;
+                }
+      
+                node.ParentNode.RemoveChild(node);
+      
+                treeView.Nodes.Remove(treeView.SelectedNode);
+      
+                ShowProperties(treeView.SelectedNode.Tag as XmlNode);
             }
         }
 

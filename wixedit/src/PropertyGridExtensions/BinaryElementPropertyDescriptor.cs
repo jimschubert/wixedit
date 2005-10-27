@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Windows.Forms;
 using System.Xml;
 
 using WixEdit.Settings;
@@ -56,14 +57,16 @@ namespace WixEdit.PropertyGridExtensions {
 
                 string sepCharString = Path.DirectorySeparatorChar.ToString();
                 string path = value.ToString();
-                if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
-                    if (File.Exists(Path.GetFullPath(path)) == false) {
-                        throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
-                    }
 
-                    binaryElement.Attributes["src"].Value = Path.GetFullPath(path);
+                if (File.Exists(Path.GetFullPath(path)) == false) {
+                    MessageBox.Show(String.Format("{0} could not be located", path), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    binaryElement.Attributes["src"].Value = path;
                 } else {
-                    binaryElement.Attributes["src"].Value = RelativePathHelper.GetRelativePath(value as string, wixFiles);
+                  if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
+                      binaryElement.Attributes["src"].Value = Path.GetFullPath(path);
+                  } else {
+                      binaryElement.Attributes["src"].Value = RelativePathHelper.GetRelativePath(value as string, wixFiles);
+                  }
                 }
             }
         }
