@@ -39,7 +39,9 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void SetValue(object component, object value) {
-            wixFiles.UndoManager.BeginNewCommandRange();
+            if (wixFiles != null) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+            }
 
             propertyInfo.SetValue(component, value, null);
         }
