@@ -242,11 +242,31 @@ namespace WixEdit {
                 return;
             }
 
+            // Change "Delete" to "Clear" for required items.
+            bool isRequired = false;
+            // Get the XmlAttribute from the PropertyDescriptor
+            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            XmlAttribute att = desc.Attribute;
+
+            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;          
+            XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), wixFiles.XsdNsmgr);
+
+            if (xmlAttributeDefinition.Attributes["use"] != null &&
+                xmlAttributeDefinition.Attributes["use"].Value == "required") {
+                isRequired = true;
+            }
+
             MenuItem menuItemSeparator = new IconMenuItem("-");
 
             // Define the MenuItem objects to display for the TextBox.
             MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            MenuItem menuItem2 = null;
+            if (isRequired) {
+                menuItem2 = new IconMenuItem("&Clear", new Bitmap(WixFiles.GetResourceStream("bmp.clear.bmp")));
+            } else {
+                menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            }
             MenuItem menuItem3 = new IconMenuItem("Description");
             
             menuItem3.Checked = propertyGrid.HelpVisible;
@@ -345,6 +365,7 @@ namespace WixEdit {
                 // Remove the attribute
                 attAdapter.XmlNode.Attributes.Remove(att);
             } else {
+                // Clear the item.
                 att.Value = "";
             }
 

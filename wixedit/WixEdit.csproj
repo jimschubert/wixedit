@@ -157,6 +157,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\bmp\clear.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\bmp\cnt.bmp"
                     BuildAction = "EmbeddedResource"
                 />
