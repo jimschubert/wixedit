@@ -51,7 +51,9 @@ namespace WixEdit.Settings {
         /// <param name="value">the value prior to editing</param>
         /// <returns>the new connection string after editing</returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
-            if (value is string) {
+            if (value == null) {
+                return EditValue("", context);
+            } else if (value is string) {
                 return EditValue(value as string, context);
             } else if (value is BinDirectoryStructure) {
                 return EditValue(value as BinDirectoryStructure, context);
@@ -77,7 +79,9 @@ namespace WixEdit.Settings {
             // Default to the My Documents folder.
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
-            dialog.SelectedPath = value;
+            if (value != null) {
+                dialog.SelectedPath = value;
+            }
 
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK) {
