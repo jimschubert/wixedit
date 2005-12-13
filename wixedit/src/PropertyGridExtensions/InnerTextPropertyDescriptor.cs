@@ -26,6 +26,8 @@ namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for InnerTextPropertyDescriptor.
     /// </summary>
+    /// <remarks>Do not use CustomXmlPropertyDescriptorBase as base class, because this is no XmlAttribute or XmlNode, 
+    /// but the innerText.</remarks>
     public class InnerTextPropertyDescriptor : CustomPropertyDescriptorBase {
         XmlNode node;
 

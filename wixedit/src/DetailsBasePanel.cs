@@ -238,49 +238,59 @@ namespace WixEdit {
         }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
+            // Clear all previously added MenuItems.
+            propertyGridContextMenu.MenuItems.Clear();
+
             if (propertyGrid.SelectedObject == null) {
                 return;
             }
 
-            // Change "Delete" to "Clear" for required items.
-            bool isRequired = false;
-            // Get the XmlAttribute from the PropertyDescriptor
-            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            XmlAttribute att = desc.Attribute;
+            PropertyAdapterBase adaptorBase = propertyGrid.SelectedObject as PropertyAdapterBase;
+            if (adaptorBase.GetProperties(new Attribute[] {}).Count > 0) {
+                // Change "Delete" to "Clear" for required items.
+                bool isRequired = false;
+                // Get the XmlAttribute from the PropertyDescriptor
+                XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+                if (desc == null) {
+                    isRequired = true;
+                } else {
+                    XmlAttribute att = desc.Attribute;
 
-            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;          
-            XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), wixFiles.XsdNsmgr);
+                    // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+                    XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;          
+                    XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), wixFiles.XsdNsmgr);
 
-            if (xmlAttributeDefinition.Attributes["use"] != null &&
-                xmlAttributeDefinition.Attributes["use"].Value == "required") {
-                isRequired = true;
+                    if (xmlAttributeDefinition.Attributes["use"] != null &&
+                        xmlAttributeDefinition.Attributes["use"].Value == "required") {
+                        isRequired = true;
+                    }
+                }
+
+                MenuItem menuItemSeparator = new IconMenuItem("-");
+
+                // Define the MenuItem objects to display for the TextBox.
+                MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
+                propertyGridContextMenu.MenuItems.Add(menuItem1);
+
+                MenuItem menuItem2 = null;
+                if (!(propertyGrid.SelectedGridItem.PropertyDescriptor is InnerTextPropertyDescriptor)) {
+                    if (isRequired) {
+                        menuItem2 = new IconMenuItem("&Clear", new Bitmap(WixFiles.GetResourceStream("bmp.clear.bmp")));
+                    } else {
+                        menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+                    }
+                    menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+                    propertyGridContextMenu.MenuItems.Add(menuItem2);
+                }
+
+                propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
             }
 
-            MenuItem menuItemSeparator = new IconMenuItem("-");
-
-            // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = null;
-            if (isRequired) {
-                menuItem2 = new IconMenuItem("&Clear", new Bitmap(WixFiles.GetResourceStream("bmp.clear.bmp")));
-            } else {
-                menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            }
             MenuItem menuItem3 = new IconMenuItem("Description");
-            
+            menuItem3.Click += new EventHandler(OnToggleDescriptionPropertyGrid);
             menuItem3.Checked = propertyGrid.HelpVisible;
 
-            menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
-            menuItem3.Click += new EventHandler(OnToggleDescriptionPropertyGrid);
-        
-            // Clear all previously added MenuItems.
-            propertyGridContextMenu.MenuItems.Clear();
-
-            propertyGridContextMenu.MenuItems.Add(menuItem1);
-            propertyGridContextMenu.MenuItems.Add(menuItem2);
-            propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
             propertyGridContextMenu.MenuItems.Add(menuItem3);
         }
 

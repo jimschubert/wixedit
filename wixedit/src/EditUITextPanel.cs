@@ -146,7 +146,7 @@ namespace WixEdit {
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             UITextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as UITextElementPropertyDescriptor;
-            XmlNode element = desc.UITextElement;
+            XmlNode element = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
             UITextElementAdapter uiTextAdapter = propertyGrid.SelectedObject as UITextElementAdapter;

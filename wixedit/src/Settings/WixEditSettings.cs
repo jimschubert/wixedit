@@ -117,6 +117,11 @@ namespace WixEdit.Settings {
             }
         }
 
+        public override void RemoveProperty(XmlNode xmlElement) {
+            xmlElement.InnerText = "";
+        }
+
+
         void LoadFromDisk() {
             Stream xmlStream = null;
             if (File.Exists(SettingsFilename)) {

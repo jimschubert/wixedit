@@ -30,13 +30,15 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for ProgressTextElementAdapter.
     /// </summary>
     public class ProgressTextElementAdapter : PropertyAdapterBase {
-        protected XmlNodeList progressTextNodes;
+        protected ArrayList progressTextNodes = new ArrayList();
 
         public ProgressTextElementAdapter(XmlNodeList progressTextNodes, WixFiles wixFiles) : base(wixFiles) {
-            this.progressTextNodes = progressTextNodes;
+            foreach (object o in progressTextNodes) {
+                this.progressTextNodes.Add(o);
+            }
         }
 
-        public XmlNodeList ProgressTextNodes {
+        public ArrayList ProgressTextNodes {
             get {
                 return progressTextNodes;
             }
@@ -44,6 +46,12 @@ namespace WixEdit.PropertyGridExtensions {
                 progressTextNodes = value;
             }
         }
+
+        public override void RemoveProperty(XmlNode xmlElement) {
+            progressTextNodes.Remove(xmlElement);
+            xmlElement.ParentNode.RemoveChild(xmlElement);
+        }
+
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();

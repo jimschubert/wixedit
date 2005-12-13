@@ -26,22 +26,13 @@ namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for UITextElementPropertyDescriptor.
     /// </summary>
-    public class UITextElementPropertyDescriptor : CustomPropertyDescriptorBase {
-        XmlNode uiTextElement;
-
+    public class UITextElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
         public UITextElementPropertyDescriptor(WixFiles wixFiles, XmlNode uiTextElement, string name, Attribute[] attrs) :
-            base(wixFiles, name, attrs) {
-            this.uiTextElement = uiTextElement;
-        }
-
-        public XmlNode UITextElement {
-            get {
-                return uiTextElement;
-            }
+            base(wixFiles, uiTextElement, name, attrs) {
         }
 
         public override object GetValue(object component) {
-            return uiTextElement.InnerText;
+            return XmlElement.InnerText;
         }
 
         public override void SetValue(object component, object value) {
@@ -49,9 +40,9 @@ namespace WixEdit.PropertyGridExtensions {
 
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                uiTextElement.InnerText = String.Empty;
+                XmlElement.InnerText = String.Empty;
             } else {
-                uiTextElement.InnerText = value.ToString();
+                XmlElement.InnerText = value.ToString();
             }
         }
 

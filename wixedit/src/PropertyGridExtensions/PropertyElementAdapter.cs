@@ -29,13 +29,15 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for PropertyElementAdapter.
     /// </summary>
     public class PropertyElementAdapter : PropertyAdapterBase {
-        protected XmlNodeList propertyNodes;
+        protected ArrayList propertyNodes = new ArrayList();
 
         public PropertyElementAdapter(XmlNodeList propertyNodes, WixFiles wixFiles) : base(wixFiles) {
-            this.propertyNodes = propertyNodes;
+            foreach (object o in propertyNodes) {
+                this.propertyNodes.Add(o);
+            }
         }
 
-        public XmlNodeList PropertyNodes {
+        public ArrayList PropertyNodes {
             get {
                 return propertyNodes;
             }
@@ -43,6 +45,12 @@ namespace WixEdit.PropertyGridExtensions {
                 propertyNodes = value;
             }
         }
+
+        public override void RemoveProperty(XmlNode xmlElement) {
+            propertyNodes.Remove(xmlElement);
+            xmlElement.ParentNode.RemoveChild(xmlElement);
+        }
+
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();

@@ -20,6 +20,7 @@
 
 
 using System;
+using System.Xml;
 using System.Windows.Forms;
 
 namespace WixEdit.PropertyGridExtensions {
@@ -27,6 +28,67 @@ namespace WixEdit.PropertyGridExtensions {
     /// A customized PropertyGrid control.
     /// </summary>
     public class CustomPropertyGrid : PropertyGrid {
+        public CustomPropertyGrid() {
+            this.KeyDown += new KeyEventHandler(CustomPropertyGrid_KeyDown);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) {
+            base.OnKeyDown (e);
+        }
+
+        protected override void OnKeyPress(KeyPressEventArgs e) {
+            base.OnKeyPress (e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e) {
+            base.OnKeyUp (e);
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+            return base.ProcessCmdKey (ref msg, keyData);
+        }
+
+        protected override bool ProcessDialogChar(char charCode) {
+            return base.ProcessDialogChar (charCode);
+        }
+
+        protected override bool ProcessDialogKey(Keys keyData) {
+            if (SelectedGridItem != null) {               
+                if (ActiveControl.GetType().ToString() == "System.Windows.Forms.PropertyGridInternal.PropertyGridView") {
+                    if(keyData == Keys.Delete) {
+                        PropertyAdapterBase adapter = this.SelectedObject as PropertyAdapterBase;
+
+                        if (adapter.WixFiles != null) {
+                            adapter.WixFiles.UndoManager.BeginNewCommandRange();
+                        }
+
+                        CustomXmlPropertyDescriptorBase descriptor = this.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+                        if (descriptor != null && descriptor.XmlElement != null) {
+                            this.SelectedObject = null;
+                            adapter.RemoveProperty(descriptor.XmlElement);
+                            this.SelectedObject = adapter;
+
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return base.ProcessDialogKey (keyData);
+        }
+
+        protected override bool ProcessKeyEventArgs(ref Message m) {
+            return base.ProcessKeyEventArgs (ref m);
+        }
+
+        protected override bool ProcessKeyPreview(ref Message m) {
+            return base.ProcessKeyPreview (ref m);
+        }
+
+        protected void CustomPropertyGrid_KeyDown(object sender, KeyEventArgs e) {
+
+        }
+
         protected override bool ProcessTabKey(bool forward) {
             bool foundItem = false;
             bool done = false;
@@ -48,6 +110,7 @@ namespace WixEdit.PropertyGridExtensions {
                     done = true;
                 }
             }
+
             return done;
         }
     }

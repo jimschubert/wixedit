@@ -153,7 +153,7 @@ namespace WixEdit {
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             BinaryElementPropertyDescriptor desc = binaryGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
-            XmlNode element = desc.BinaryElement;
+            XmlNode element = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the binaryGrid.
             BinaryElementAdapter binAdapter = binaryGrid.SelectedObject as BinaryElementAdapter;

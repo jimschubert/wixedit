@@ -32,19 +32,26 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for BinaryElementAdapter.
     /// </summary>
     public class BinaryElementAdapter : PropertyAdapterBase {
-        protected XmlNodeList binaryNodes;
+        protected ArrayList binaryNodes = new ArrayList();
 
         public BinaryElementAdapter(XmlNodeList binaryNodes, WixFiles wixFiles) : base(wixFiles) {
-            this.binaryNodes = binaryNodes;
+            foreach (object o in binaryNodes) {
+                this.binaryNodes.Add(o);
+            }
         }
 
-        public XmlNodeList BinaryNodes {
+        public ArrayList BinaryNodes {
             get {
                 return binaryNodes;
             }
             set {
                 binaryNodes = value;
             }
+        }
+
+        public override void RemoveProperty(XmlNode xmlElement) {
+            binaryNodes.Remove(xmlElement);
+            xmlElement.ParentNode.RemoveChild(xmlElement);
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {

@@ -26,22 +26,13 @@ namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for PropertyElementPropertyDescriptor.
     /// </summary>
-    public class PropertyElementPropertyDescriptor : CustomPropertyDescriptorBase {
-        XmlNode propertyElement;
-
+    public class PropertyElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
         public PropertyElementPropertyDescriptor(WixFiles wixFiles, XmlNode propertyElement, string name, Attribute[] attrs) :
-            base(wixFiles, name, attrs) {
-            this.propertyElement = propertyElement;
-        }
-
-        public XmlNode PropertyElement {
-            get {
-                return propertyElement;
-            }
+            base(wixFiles, propertyElement, name, attrs) {
         }
 
         public override object GetValue(object component) {
-            return propertyElement.InnerText;
+            return XmlElement.InnerText;
         }
 
         public override void SetValue(object component, object value) {
@@ -49,9 +40,9 @@ namespace WixEdit.PropertyGridExtensions {
 
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                propertyElement.InnerText = String.Empty;
+                XmlElement.InnerText = String.Empty;
             } else {
-                propertyElement.InnerText = value.ToString();
+                XmlElement.InnerText = value.ToString();
             }
         }
 

@@ -30,13 +30,15 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for ErrorElementAdapter.
     /// </summary>
     public class ErrorElementAdapter : PropertyAdapterBase {
-        protected XmlNodeList errorNodes;
+        protected ArrayList errorNodes = new ArrayList();
 
         public ErrorElementAdapter(XmlNodeList errorNodes, WixFiles wixFiles) : base(wixFiles) {
-            this.errorNodes = errorNodes;
+            foreach (object o in errorNodes) {
+                this.errorNodes.Add(o);
+            }
         }
 
-        public XmlNodeList ErrorNodes {
+        public ArrayList ErrorNodes {
             get {
                 return errorNodes;
             }
@@ -44,6 +46,12 @@ namespace WixEdit.PropertyGridExtensions {
                 errorNodes = value;
             }
         }
+
+        public override void RemoveProperty(XmlNode xmlElement) {
+            errorNodes.Remove(xmlElement);
+            xmlElement.ParentNode.RemoveChild(xmlElement);
+        }
+
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
