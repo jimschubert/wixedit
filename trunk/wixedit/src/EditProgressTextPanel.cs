@@ -146,7 +146,7 @@ namespace WixEdit {
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             ProgressTextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ProgressTextElementPropertyDescriptor;
-            XmlNode element = desc.ProgressTextElement;
+            XmlNode element = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
             ProgressTextElementAdapter progressTextAdapter = propertyGrid.SelectedObject as ProgressTextElementAdapter;

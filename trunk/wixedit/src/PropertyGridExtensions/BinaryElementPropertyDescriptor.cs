@@ -30,29 +30,20 @@ namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// PropertyDescriptor for BinaryElements.
     /// </summary>
-    public class BinaryElementPropertyDescriptor : CustomPropertyDescriptorBase {
-        XmlNode binaryElement;
-
+    public class BinaryElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
         public BinaryElementPropertyDescriptor(XmlNode binaryElement, WixFiles wixFiles, string name, Attribute[] attrs) :
-            base(wixFiles, name, attrs) {
-            this.binaryElement = binaryElement;
-        }
-
-        public XmlNode BinaryElement {
-            get {
-                return binaryElement;
-            }
+            base(wixFiles, binaryElement, name, attrs) {
         }
 
         public override object GetValue(object component) {
-            return binaryElement.Attributes["src"].Value;
+            return XmlElement.Attributes["src"].Value;
         }
 
         public override void SetValue(object component, object value) {
             wixFiles.UndoManager.BeginNewCommandRange();
 
             if (value == null) {
-                binaryElement.Attributes["src"].Value = String.Empty;
+                XmlElement.Attributes["src"].Value = String.Empty;
             } else {
 
                 string sepCharString = Path.DirectorySeparatorChar.ToString();
@@ -60,12 +51,12 @@ namespace WixEdit.PropertyGridExtensions {
 
                 if (File.Exists(Path.GetFullPath(path)) == false) {
                     MessageBox.Show(String.Format("{0} could not be located", path), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    binaryElement.Attributes["src"].Value = path;
+                    XmlElement.Attributes["src"].Value = path;
                 } else {
                   if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
-                      binaryElement.Attributes["src"].Value = Path.GetFullPath(path);
+                      XmlElement.Attributes["src"].Value = Path.GetFullPath(path);
                   } else {
-                      binaryElement.Attributes["src"].Value = RelativePathHelper.GetRelativePath(value as string, wixFiles);
+                      XmlElement.Attributes["src"].Value = RelativePathHelper.GetRelativePath(value as string, wixFiles);
                   }
                 }
             }

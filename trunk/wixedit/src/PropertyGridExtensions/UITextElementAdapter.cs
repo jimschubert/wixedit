@@ -30,13 +30,15 @@ namespace WixEdit.PropertyGridExtensions {
     /// Summary description for UITextElementAdapter.
     /// </summary>
     public class UITextElementAdapter : PropertyAdapterBase {
-        protected XmlNodeList uiTextNodes;
+        protected ArrayList uiTextNodes = new ArrayList();
 
         public UITextElementAdapter(XmlNodeList uiTextNodes, WixFiles wixFiles) : base(wixFiles) {
-            this.uiTextNodes = uiTextNodes;
+            foreach (object o in uiTextNodes) {
+                this.uiTextNodes.Add(o);
+            }
         }
 
-        public XmlNodeList UITextNodes {
+        public ArrayList UITextNodes {
             get {
                 return uiTextNodes;
             }
@@ -44,6 +46,12 @@ namespace WixEdit.PropertyGridExtensions {
                 uiTextNodes = value;
             }
         }
+
+        public override void RemoveProperty(XmlNode xmlElement) {
+            uiTextNodes.Remove(xmlElement);
+            xmlElement.ParentNode.RemoveChild(xmlElement);
+        }
+
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();

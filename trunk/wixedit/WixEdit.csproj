@@ -823,9 +823,9 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "src\PropertyGridExtensions\CustomPropertyGrid.resx"
-                    DependentUpon = "CustomPropertyGrid.cs"
-                    BuildAction = "EmbeddedResource"
+                    RelPath = "src\PropertyGridExtensions\CustomXmlPropertyDescriptorBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "src\PropertyGridExtensions\ErrorElementAdapter.cs"

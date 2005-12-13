@@ -145,7 +145,7 @@ namespace WixEdit {
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             ErrorElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
-            XmlNode element = desc.ErrorElement;
+            XmlNode element = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
             ErrorElementAdapter errorAdapter = propertyGrid.SelectedObject as ErrorElementAdapter;

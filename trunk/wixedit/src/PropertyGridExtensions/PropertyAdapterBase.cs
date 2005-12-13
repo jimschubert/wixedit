@@ -31,6 +31,8 @@ namespace WixEdit.PropertyGridExtensions {
     public abstract class PropertyAdapterBase : ICustomTypeDescriptor {
         protected WixFiles wixFiles;
 
+        public abstract void RemoveProperty(XmlNode xmlElement);
+
         public PropertyAdapterBase(WixFiles wixFiles) {
             this.wixFiles = wixFiles;
         }

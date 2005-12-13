@@ -20,32 +20,26 @@
 
 
 using System;
+using System.ComponentModel;
+using System.Reflection;
 using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
-    /// <summary>
-    /// Summary description for ProgressTextElementPropertyDescriptor.
-    /// </summary>
-    public class ProgressTextElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
+    public abstract class CustomXmlPropertyDescriptorBase : CustomPropertyDescriptorBase {
+        protected XmlNode xmlElement;
 
-        public ProgressTextElementPropertyDescriptor(WixFiles wixFiles, XmlNode progressTextElement, string name, Attribute[] attrs) :
-            base(wixFiles, progressTextElement, name, attrs) {
+        public CustomXmlPropertyDescriptorBase(WixFiles wixFiles, XmlNode xmlElement, string name, PropertyInfo propInfo, Attribute[] attrs) : base(wixFiles, name, propInfo, attrs) {
+            this.xmlElement = xmlElement;
         }
 
-        public override object GetValue(object component) {
-            return XmlElement.InnerText;
+        public CustomXmlPropertyDescriptorBase(WixFiles wixFiles, XmlNode xmlElement, string name, Attribute[] attrs) : base(wixFiles, name, attrs) {
+            this.xmlElement = xmlElement;
         }
 
-        public override void SetValue(object component, object value) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
-            // Object can be a Int or DateTime or String. Etc.
-            if (value == null) {
-                XmlElement.InnerText = String.Empty;
-            } else {
-                XmlElement.InnerText = value.ToString();
+        public XmlNode XmlElement {
+            get {
+                return this.xmlElement;
             }
         }
-
     }
 }
