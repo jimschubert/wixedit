@@ -323,6 +323,8 @@ namespace WixEdit {
                 }
             }
 
+            attributes.Sort();
+
             SelectStringForm frm = new SelectStringForm();
             frm.PossibleStrings = attributes.ToArray(typeof(String)) as String[];
             if (DialogResult.OK != frm.ShowDialog()) {
@@ -556,6 +558,8 @@ namespace WixEdit {
 
             newSubElementsMenu.MenuItems.Clear();
 
+            ArrayList newElementStrings = new ArrayList();
+
             XmlNodeList xmlSubElements = wixFiles.XsdDocument.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType//xs:element", node.Name), wixFiles.XsdNsmgr);
             foreach (XmlNode xmlSubElement in xmlSubElements) {
                 XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
@@ -565,12 +569,18 @@ namespace WixEdit {
                             continue;
                         }
 
-                        IconMenuItem subMenuItem = new IconMenuItem(refAtt.Value);
-                        subMenuItem.Click += new EventHandler(NewElement_Click);
-
-                        newSubElementsMenu.MenuItems.Add(subMenuItem);
+                        newElementStrings.Add(refAtt.Value);
                     }
                 }
+            }
+
+            newElementStrings.Sort();
+
+            foreach (string newElementString in newElementStrings) {
+                IconMenuItem subMenuItem = new IconMenuItem(newElementString);
+                subMenuItem.Click += new EventHandler(NewElement_Click);
+
+                newSubElementsMenu.MenuItems.Add(subMenuItem);
             }
 
             if (newSubElementsMenu.MenuItems.Count > 0) {
