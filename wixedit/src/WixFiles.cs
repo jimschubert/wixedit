@@ -40,6 +40,7 @@ namespace WixEdit {
         ProjectSettings projectSettings;
 
         FileSystemWatcher wxsWatcher;
+        FileSystemEventHandler wxsWatcher_ChangedHandler;
         public event EventHandler wxsChanged;
 
         static XmlDocument xsdDocument;
@@ -60,7 +61,8 @@ namespace WixEdit {
             undoManager = new UndoManager(wxsDocument);
 
             wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
-            wxsWatcher.Changed += new FileSystemEventHandler(wxsWatcher_Changed);
+            wxsWatcher_ChangedHandler = new FileSystemEventHandler(wxsWatcher_Changed);
+            wxsWatcher.Changed += wxsWatcher_ChangedHandler;
             wxsWatcher.EnableRaisingEvents = true;
         }
 
@@ -71,7 +73,9 @@ namespace WixEdit {
         }
 
         public void LoadWxsFile() {
-            wxsDocument = new XmlDocument();
+            if (wxsDocument == null) {
+                wxsDocument = new XmlDocument();
+            }
             wxsDocument.Load(wxsFile.FullName);
 
             XmlNode possibleComment = wxsDocument.FirstChild.NextSibling;
@@ -179,6 +183,11 @@ namespace WixEdit {
         #region IDisposable Members
 
         public void Dispose() {
+            wxsWatcher.EnableRaisingEvents = false;
+            wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
+            wxsWatcher.Dispose();
+            wxsWatcher = null;
+
             wxsDocument = null;
             wxsNsmgr = null;
         }
