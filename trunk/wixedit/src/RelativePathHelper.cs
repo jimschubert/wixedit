@@ -39,14 +39,14 @@ namespace WixEdit {
                     throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
                 }
 
-                Uri newBinaryPath = new Uri(Path.GetFullPath(path));
+                Uri newBinaryPath = new Uri(Path.GetFullPath(path), true);
 
                 string binaries = wixFiles.WxsDirectory.FullName;
                 if (binaries.EndsWith(sepCharString) == false) {
                     binaries = binaries + sepCharString;
                 }
 
-                Uri binariesPath = new Uri(binaries);
+                Uri binariesPath = new Uri(binaries, true);
                 
                 string relativeValue = binariesPath.MakeRelative(newBinaryPath);
                 relativeValue = relativeValue.Replace("/", sepCharString);
