@@ -43,6 +43,7 @@ namespace WixEdit {
                     skipElements.Add("Binary");
                     skipElements.Add("Feature");
                     skipElements.Add("Directory");
+                    skipElements.Add("DirectoryRef");
                     skipElements.Add("InstallExecuteSequence");
                     skipElements.Add("InstallUISequence");
                     skipElements.Add("AdminExecuteSequence");

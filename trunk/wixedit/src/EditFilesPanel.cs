@@ -67,17 +67,26 @@ namespace WixEdit {
         protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
             globalTreeViewContextMenu.MenuItems.Clear();
 
-            IconMenuItem subMenuItem = new IconMenuItem("New Directory", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            IconMenuItem subMenuItem1 = new IconMenuItem("New Directory", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            IconMenuItem subMenuItem2 = new IconMenuItem("New DirectoryRef", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
-            subMenuItem.Click += new EventHandler(NewCustomElement_Click);
+            subMenuItem1.Click += new EventHandler(NewDirectoryElement_Click);
+            subMenuItem2.Click += new EventHandler(NewDirectoryRefElement_Click);
 
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
+            globalTreeViewContextMenu.MenuItems.Add(subMenuItem1);
+            globalTreeViewContextMenu.MenuItems.Add(subMenuItem2);
         }
 
-        private void NewCustomElement_Click(object sender, System.EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
+        private void NewDirectoryElement_Click(object sender, System.EventArgs e) {
+            NewCustomElement("Directory");
+        }
 
-            string elementName = "Directory";
+        private void NewDirectoryRefElement_Click(object sender, System.EventArgs e) {
+            NewCustomElement("DirectoryRef");
+        }
+
+        private void NewCustomElement(string elementName) {
+            wixFiles.UndoManager.BeginNewCommandRange();           
 
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
 

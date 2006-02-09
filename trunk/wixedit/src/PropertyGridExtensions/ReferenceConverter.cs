@@ -52,7 +52,7 @@ namespace WixEdit.PropertyGridExtensions {
         } 
         
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
-            return true;
+            return false;
         }
     }
 }
