@@ -153,7 +153,8 @@ namespace WixEdit.PropertyGridExtensions {
 
                 if (xmlAttributeDefinition.Attributes["name"] != null &&
                     xmlAttributeDefinition.Attributes["name"].Value == "src" &&
-                    xmlNodeElement.Attributes["name"].Value == "File") {
+                    (xmlNodeElement.Attributes["name"].Value == "File" || 
+                    xmlNodeElement.Attributes["name"].Value == "Icon")) {
                     
                     // We could add an UITypeEditor if desired
                     attrs.Add(new EditorAttribute(typeof(FilteredFileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
