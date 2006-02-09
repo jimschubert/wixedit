@@ -450,6 +450,7 @@ namespace WixEdit {
             try {
                 switch (element.Name) {
                     case "Directory":
+                    case "DirectoryRef":
                     case "File":
                         XmlAttribute nameAtt = element.Attributes["LongName"];
                         if (nameAtt == null) {
