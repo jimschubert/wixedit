@@ -109,6 +109,7 @@ namespace WixEdit {
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter Resource Name";
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
