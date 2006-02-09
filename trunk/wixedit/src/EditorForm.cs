@@ -499,7 +499,7 @@ namespace WixEdit {
             psiLight.UseShellExecute = false;
             psiLight.RedirectStandardOutput = true;
             psiLight.RedirectStandardError = false;
-            if (wixFiles.ProjectSettings.CandleArgs != null && wixFiles.ProjectSettings.CandleArgs.Trim().Length > 0) {
+            if (wixFiles.ProjectSettings.LightArgs != null && wixFiles.ProjectSettings.LightArgs.Trim().Length > 0) {
                 string lightArgs = wixFiles.ProjectSettings.LightArgs;
                 lightArgs = lightArgs.Replace("<projectfile>", wixFiles.WxsFile.FullName);
                 lightArgs = lightArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wixFiles.WxsFile.Name));
