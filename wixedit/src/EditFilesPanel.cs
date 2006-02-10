@@ -54,6 +54,11 @@ namespace WixEdit {
                 nodes.Add(xmlNode);
             }
 
+            xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:DirectoryRef", wixFiles.WxsNsmgr);
+            foreach (XmlNode xmlNode in xmlNodes) {
+                nodes.Add(xmlNode);
+            }
+
             return nodes;
         }
 
