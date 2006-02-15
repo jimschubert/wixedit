@@ -476,6 +476,8 @@ namespace WixEdit {
                         break;
                     case "Component":
                     case "CustomAction":
+                    case "Feature":
+                    case "ComponentRef":
                         XmlAttribute idAtt = element.Attributes["Id"];
                         if (idAtt != null) {
                             displayName = idAtt.Value;
@@ -495,6 +497,14 @@ namespace WixEdit {
                         XmlAttribute actionAtt = element.Attributes["Action"];
                         if (actionAtt != null) {
                             displayName = actionAtt.Value;
+                        } else {
+                            displayName = element.Name;
+                        }
+                        break;
+                    case "Condition":
+                        string innerText = element.InnerText;
+                        if (innerText != null && innerText.Length > 1) {
+                            displayName = String.Format("({0})", innerText);
                         } else {
                             displayName = element.Name;
                         }

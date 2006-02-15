@@ -405,7 +405,15 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\elements\adminexecutesequence.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\elements\adminuisequence.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\advertiseexecutesequence.bmp"
                     BuildAction = "EmbeddedResource"
                 />
                 <File
@@ -473,6 +481,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\elements\installexecutesequence.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\elements\installuisequence.bmp"
                     BuildAction = "EmbeddedResource"
                 />
@@ -530,6 +542,10 @@
                 />
                 <File
                     RelPath = "res\elements\unknown.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\elements\upsupported.bmp"
                     BuildAction = "EmbeddedResource"
                 />
                 <File

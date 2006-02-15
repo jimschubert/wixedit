@@ -77,6 +77,11 @@ namespace WixEdit {
                 images.Images.Add(typeBmp);
             }
 
+            Bitmap unsupportedBmp = new Bitmap(WixFiles.GetResourceStream("elements.unsupported.bmp"));
+            unsupportedBmp.MakeTransparent();
+
+            images.Images.Add(unsupportedBmp);
+
             return images;
         }
 
@@ -85,7 +90,12 @@ namespace WixEdit {
         }
 
         public static int GetImageIndex(string imageName) {
-            return imageTypes.IndexOf(imageName);
+            int ret = imageTypes.IndexOf(imageName);
+            if (ret < 0) {
+                ret = imageTypes.Count;
+            }
+
+            return ret;
         }
     }
 }
