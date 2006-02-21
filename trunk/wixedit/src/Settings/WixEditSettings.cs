@@ -47,6 +47,8 @@ namespace WixEdit.Settings {
             public WixEditData() {
                 UseRelativeOrAbsolutePaths = PathHandling.UseRelativePathsWhenPossible;
                 ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+                
+                DisplayFullPathInTitlebar = false;
 
                 EditDialog = new EditDialogData();
 
@@ -66,6 +68,8 @@ namespace WixEdit.Settings {
                 if (ExternalXmlEditor == null || ExternalXmlEditor.Length == 0) {
                     ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
                 }
+
+                DisplayFullPathInTitlebar = oldVersion.DisplayFullPathInTitlebar;
                 
                 if (oldVersion.EditDialog == null) {
                     EditDialog = new EditDialogData();
@@ -86,6 +90,8 @@ namespace WixEdit.Settings {
             public string DefaultProjectDirectory;
             public string Version;
             public PathHandling UseRelativeOrAbsolutePaths;
+
+            public bool DisplayFullPathInTitlebar;
 
             public EditDialogData EditDialog;
         }
@@ -312,6 +318,20 @@ namespace WixEdit.Settings {
             }
         }
 
+        
+        [
+        Category("View Options"), 
+        Description("Display full path in title bar.")
+        ]
+        public bool DisplayFullPathInTitlebar{
+            get {
+                return data.DisplayFullPathInTitlebar;
+            }
+            set {
+                data.DisplayFullPathInTitlebar = value;
+            }
+        }
+
         [
         Category("Miscellaneous"), 
         Description("Use relative or absolute paths.")
@@ -421,7 +441,7 @@ namespace WixEdit.Settings {
             ArrayList propertyDescriptors = new ArrayList();
             foreach (PropertyInfo propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)) {
                 ArrayList atts = new ArrayList(propInfo.GetCustomAttributes(false));
-                propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(null, propInfo, (Attribute[]) atts.ToArray(typeof(Attribute))));
+                propertyDescriptors.Add(new CustomDisplayNamePropertyDescriptor(null, propInfo, (Attribute[]) atts.ToArray(typeof(Attribute)), true));
             }
 
             return new PropertyDescriptorCollection((PropertyDescriptor[]) propertyDescriptors.ToArray(typeof(PropertyDescriptor)));
