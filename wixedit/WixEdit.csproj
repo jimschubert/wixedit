@@ -545,8 +545,8 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
-                    RelPath = "res\elements\upsupported.bmp"
-                    BuildAction = "EmbeddedResource"
+                    RelPath = "res\elements\unsupported.bmp"
+                    BuildAction = "Content"
                 />
                 <File
                     RelPath = "res\elements\user.bmp"
