@@ -34,6 +34,18 @@ namespace WixEdit.PropertyGridExtensions {
             : base(wixFiles, Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
         }
 
+        private static string MakeUppercaseFirstLetter(bool useUppercaseFirstLetter, string input) {
+            if (useUppercaseFirstLetter) {
+                return String.Format("{0}{1}", input.Substring(0, 1).ToUpper(), input.Substring(1).ToLower());
+            } else {
+                return input;
+            }
+        }
+
+        public CustomDisplayNamePropertyDescriptor(WixFiles wixFiles, PropertyInfo propInfo, Attribute[] attrs, bool useUppercaseFirstLetter) 
+            : base(wixFiles, MakeUppercaseFirstLetter(useUppercaseFirstLetter, Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2")), propInfo, attrs) {
+        }
+
         public override object GetValue(object component) {
             return propertyInfo.GetValue(component, new object[] {});
         }

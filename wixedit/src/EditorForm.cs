@@ -678,7 +678,11 @@ namespace WixEdit {
 
             // Update menu
             fileClose.Enabled = true;
-            Text = "WiX Edit - " + wixFiles.WxsFile.Name;
+            if (WixEditSettings.Instance.DisplayFullPathInTitlebar) {
+                Text = "WiX Edit - " + wixFiles.WxsFile.FullName;
+            } else {
+                Text = "WiX Edit - " + wixFiles.WxsFile.Name;
+            }
 
             fileSave.Enabled = true;
 
