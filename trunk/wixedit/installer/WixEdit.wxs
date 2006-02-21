@@ -16,9 +16,9 @@
     <Property Id="ARPCONTACT">Jasper Keuper (jkeuper@gmail.com)</Property>
     <Property Id="ARPURLINFOABOUT">http://wixedit.sourceforge.net</Property>
 
-    <Directory Id="ProgramFilesFolder" Name="SourceDir">
-      <Directory Id="WixEdit" Name="WixEdit">
-        <Directory Id="TARGETDIR" Name=".">
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="WixEdit" Name="WixEdit">
           <Component Id="CsprojFile" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0000">
             <File Id="WixEdit.csproj" Name="WixEdit.csp" LongName="WixEdit.csproj" src="..\WixEdit.csproj" />
           </Component>
@@ -68,59 +68,73 @@
               </Component>
             </Directory>
           </Directory>
-          <Directory Id="WixBinaries" Name="WIX-2~1" LongName="wix-2.0.3220.0">
+          <Directory Id="WixBinaries" Name="WIX-2~1" LongName="wix-2.0.3719.0">
             <Component Id="WixBinaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0007">
-              <File Id="candle.exe" Name="candle.exe" src="..\wix-2.0.3220.0\candle.exe" />
-              <File Id="CPL.TXT" Name="CPL.TXT" src="..\wix-2.0.3220.0\CPL.TXT" />
-              <File Id="dark.exe" Name="dark.exe" src="..\wix-2.0.3220.0\dark.exe" />
-              <File Id="light.exe" Name="light.exe" src="..\wix-2.0.3220.0\light.exe" />
-              <File Id="lit.exe" Name="lit.exe" src="..\wix-2.0.3220.0\lit.exe" />
-              <File Id="pcaext.dll" Name="pcaext.dll" src="..\wix-2.0.3220.0\pcaext.dll" />
-              <File Id="tallow.exe" Name="tallow.exe" src="..\wix-2.0.3220.0\tallow.exe" />
-              <File Id="winterop.dll" Name="winterop.dll" src="..\wix-2.0.3220.0\winterop.dll" />
-              <File Id="wix.dll" Name="wix.dll" src="..\wix-2.0.3220.0\wix.dll" />
+              <File Id="CPL.TXT" Name="CPL.TXT" src="..\wix-2.0.3719.0\CPL.TXT" />
+
+              <File Id="candle.exe" Name="candle.exe" src="..\wix-2.0.3719.0\candle.exe" />
+              <File Id="candle.exe.config" Name="candle.cfg" LongName="candle.exe.config" src="..\wix-2.0.3719.0\candle.exe.config" />
+              <File Id="dark.exe" Name="dark.exe" src="..\wix-2.0.3719.0\dark.exe" />
+              <File Id="dark.exe.config" Name="dark.cfg" LongName="dark.exe.config" src="..\wix-2.0.3719.0\dark.exe.config" />
+              <File Id="light.exe" Name="light.exe" src="..\wix-2.0.3719.0\light.exe" />
+              <File Id="light.exe.config" Name="light.cfg" LongName="light.exe.config" src="..\wix-2.0.3719.0\light.exe.config" />
+              <File Id="lit.exe" Name="lit.exe" src="..\wix-2.0.3719.0\lit.exe" />
+              <File Id="lit.exe.config" Name="lit.cfg" LongName="lit.exe.config" src="..\wix-2.0.3719.0\lit.exe.config" />
+              <File Id="tallow.exe" Name="tallow.exe" src="..\wix-2.0.3719.0\tallow.exe" />
+              <File Id="tallow.exe.config" Name="tallow.cfg" LongName="tallow.exe.config" src="..\wix-2.0.3719.0\tallow.exe.config" />
+
+              <File Id="mergemod.dll" Name="mergemod.dll" src="..\wix-2.0.3719.0\mergemod.dll" />
+              <File Id="Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" Name="Micro123.dll" LongName="Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" src="..\wix-2.0.3719.0\Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" />
+              <File Id="winterop.dll" Name="winterop.dll" src="..\wix-2.0.3719.0\winterop.dll" />
+              <File Id="wix.dll" Name="wix.dll" src="..\wix-2.0.3719.0\wix.dll" />
+              <File Id="WixTasks.dll" Name="WixTasks.dll" src="..\wix-2.0.3719.0\WixTasks.dll" />
+
+              <File Id="wix.targets" Name="wix.tgt" LongName="wix.targets" src="..\wix-2.0.3719.0\wix.targets" />
             </Component>
             <Directory Id="WixBinaries.ca" Name="ca">
               <Component Id="WixBinaries.ca" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0008">
-                <File Id="pcaexec.dll" Name="pcaexec.dll" src="..\wix-2.0.3220.0\ca\pcaexec.dll" />
-                <File Id="pcasched.dll" Name="pcasched.dll" src="..\wix-2.0.3220.0\ca\pcasched.dll" />
-                <File Id="PUBCA_1.WIX" Name="PUBCA_1.WIX" LongName="pubca.wixlib" src="..\wix-2.0.3220.0\ca\pubca.wixlib" />
-                <File Id="SCA_1.WIX" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-2.0.3220.0\ca\sca.wixlib" />
-                <File Id="scaexec.dll" Name="scaexec.dll" src="..\wix-2.0.3220.0\ca\scaexec.dll" />
-                <File Id="scasched.dll" Name="scasched.dll" src="..\wix-2.0.3220.0\ca\scasched.dll" />
-                <File Id="wixca.dll" Name="wixca.dll" src="..\wix-2.0.3220.0\ca\wixca.dll" />
-                <File Id="WIXCA_1.WIX" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-2.0.3220.0\ca\wixca.wixlib" />
+                <File Id="scaexec.dll" Name="scaexec.dll" src="..\wix-2.0.3719.0\ca\scaexec.dll" />
+                <File Id="scasched.dll" Name="scasched.dll" src="..\wix-2.0.3719.0\ca\scasched.dll" />
+                <File Id="wixca.dll" Name="wixca.dll" src="..\wix-2.0.3719.0\ca\wixca.dll" />
+
+                <File Id="sca.wixlib" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-2.0.3719.0\ca\sca.wixlib" />
+                <File Id="wixca.wixlib" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-2.0.3719.0\ca\wixca.wixlib" />
               </Component>
             </Directory>
             <Directory Id="WixBinaries.doc" Name="doc">
               <Component Id="WixBinaries.doc" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0009">
-                <File Id="WiX.chm" Name="WiX.chm" src="..\wix-2.0.3220.0\doc\WiX.chm" />
-                <File Id="wix.xsd" Name="wix.xsd" src="..\wix-2.0.3220.0\doc\wix.xsd" />
-                <File Id="wixloc.xsd" Name="wixloc.xsd" src="..\wix-2.0.3220.0\doc\wixloc.xsd" />
+                <File Id="WiX.chm" Name="WiX.chm" src="..\wix-2.0.3719.0\doc\WiX.chm" />
+                <File Id="wix.xsd" Name="wix.xsd" src="..\wix-2.0.3719.0\doc\wix.xsd" />
+                <File Id="wixloc.xsd" Name="wixloc.xsd" src="..\wix-2.0.3719.0\doc\wixloc.xsd" />
               </Component>
             </Directory>
             <Directory Id="WixBinaries.lib" Name="lib">
               <Component Id="WixBinaries.lib" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0010">
-                <File Id="dutil.lib" Name="dutil.lib" src="..\wix-2.0.3220.0\lib\dutil.lib" />
-                <File Id="wcautil.lib" Name="wcautil.lib" src="..\wix-2.0.3220.0\lib\wcautil.lib" />
+                <File Id="dutil.lib" Name="dutil.lib" src="..\wix-2.0.3719.0\lib\dutil.lib" />
               </Component>
-            </Directory>
 
-            <Directory Id="WixBinaries.ui" Name="ui">
               <Component Id="WixBinaries.ui" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0011">
-                <File Id="wixui_featuretree.wixlib" Name="WIXUI_FT.WIX" LongName="wixui_featuretree.wixlib" src="..\wix-2.0.3220.0\ui\wixui_featuretree.wixlib" />
-                <File Id="wixui_minimal.wixlib" Name="WIXUI_MI.WIX" LongName="wixui_minimal.wixlib" src="..\wix-2.0.3220.0\ui\wixui_minimal.wixlib" />
-                <File Id="wixui_mondo.wixlib" Name="WIXUI_MO.WIX" LongName="wixui_mondo.wixlib" src="..\wix-2.0.3220.0\ui\wixui_mondo.wixlib" />
+                <File Id="wixui_featuretree.wixlib" Name="WIXUI_FT.WIX" LongName="wixui_featuretree.wixlib" src="..\wix-2.0.3719.0\lib\wixui_featuretree.wixlib" />
+                <File Id="wixui_minimal.wixlib" Name="WIXUI_MI.WIX" LongName="wixui_minimal.wixlib" src="..\wix-2.0.3719.0\lib\wixui_minimal.wixlib" />
+                <File Id="wixui_mondo.wixlib" Name="WIXUI_MO.WIX" LongName="wixui_mondo.wixlib" src="..\wix-2.0.3719.0\lib\wixui_mondo.wixlib" />
               </Component>
+              <Component Id="WixBinaries.ui.bitmaps" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0012">
+                <File Id="bannrbmp.bmp" Name="bannrbmp.bmp" src="..\wix-2.0.3719.0\lib\bannrbmp.bmp" />
+                <File Id="dlgbmp.bmp" Name="dlgbmp.bmp" src="..\wix-2.0.3719.0\lib\dlgbmp.bmp" />
+                <File Id="exclamic.ico" Name="exclamic.ico" src="..\wix-2.0.3719.0\lib\exclamic.ico" />
+                <File Id="info.ico" Name="info.ico" src="..\wix-2.0.3719.0\lib\info.ico" />
+                <File Id="New.ico" Name="New.ico" src="..\wix-2.0.3719.0\lib\New.ico" />
+                <File Id="Up.ico" Name="Up.ico" src="..\wix-2.0.3719.0\lib\Up.ico" />
+              </Component>
+
+              <Component Id="WixBinaries.ui.Language" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0015">
+                <File Id="WixUI_en_us.wxl" Name="WIXUI_1.wxl" LongName="WixUI_en-us.wxl" src="..\wix-2.0.3719.0\lib\WixUI_en-us.wxl" />
+              </Component>
+              <Component Id="WixBinaries.ui.License" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0016">
+                <File Id="License.rtf" Name="License.rtf" src="..\wix-2.0.3719.0\lib\License.rtf" />
+              </Component>
+
               <Directory Id="WixBinaries.ui.bitmaps" Name="Bitmaps">
-                <Component Id="WixBinaries.ui.bitmaps" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0012">
-                  <File Id="bannrbmp.bmp" Name="bannrbmp.bmp" src="..\wix-2.0.3220.0\ui\Bitmaps\bannrbmp.bmp" />
-                  <File Id="dlgbmp.bmp" Name="dlgbmp.bmp" src="..\wix-2.0.3220.0\ui\Bitmaps\dlgbmp.bmp" />
-                  <File Id="exclamic.ico" Name="exclamic.ico" src="..\wix-2.0.3220.0\ui\Bitmaps\exclamic.ico" />
-                  <File Id="info.ico" Name="info.ico" src="..\wix-2.0.3220.0\ui\Bitmaps\info.ico" />
-                  <File Id="New.ico" Name="New.ico" src="..\wix-2.0.3220.0\ui\Bitmaps\New.ico" />
-                  <File Id="Up.ico" Name="Up.ico" src="..\wix-2.0.3220.0\ui\Bitmaps\Up.ico" />
-                </Component>
               </Directory>
             </Directory>
           </Directory>
@@ -214,6 +228,8 @@
       <ComponentRef Id="WixBinaries.lib" />
       <ComponentRef Id="WixBinaries.ui" />
       <ComponentRef Id="WixBinaries.ui.bitmaps" />
+      <ComponentRef Id="WixBinaries.ui.Language" />
+      <ComponentRef Id="WixBinaries.ui.License" />
     </Feature>
 
     <!-- Upgrading is a pain, skipping it. -->
