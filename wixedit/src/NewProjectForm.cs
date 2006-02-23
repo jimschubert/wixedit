@@ -253,6 +253,7 @@ namespace WixEdit {
             DialogResult = DialogResult.OK;
 
             XmlDocument wixXmlDoc = new XmlDocument();
+            wixXmlDoc.AppendChild(wixXmlDoc.CreateXmlDeclaration("1.0", "utf-8", null));
             XmlNamespaceManager wxsNsmgr = new XmlNamespaceManager(wixXmlDoc.NameTable);
             wxsNsmgr.AddNamespace("wix", "http://schemas.microsoft.com/wix/2003/01/wi");
 
