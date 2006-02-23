@@ -65,5 +65,17 @@ namespace WixEdit {
 
             return nodes;
         }
+
+        protected override void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
+            if (newElement.Name == "Package") {
+                if (parentElement.FirstChild != null) {
+                    parentElement.InsertBefore(newElement, parentElement.FirstChild);
+                } else {
+                    parentElement.AppendChild(newElement);
+                }
+            } else {
+                base.InsertNewXmlNode (parentElement, newElement);
+            }
+        }
     }
 }

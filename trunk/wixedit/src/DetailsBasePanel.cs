@@ -661,6 +661,14 @@ namespace WixEdit {
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        protected virtual void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
+            XmlNodeList sameNodes = parentElement.SelectNodes("wix:" + newElement.Name, wixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                parentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                parentElement.AppendChild(newElement);
+            }
+        }
 
         protected TreeNode CreateNewSubElement(string typeName) {
             XmlNode node = treeView.SelectedNode.Tag as XmlNode;
@@ -680,12 +688,7 @@ namespace WixEdit {
                 control.SelectedImageIndex = imageIndex;
             }
 
-            XmlNodeList sameNodes = node.SelectNodes("wix:" + typeName, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                node.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                node.AppendChild(newElement);
-            }
+            InsertNewXmlNode(node, newElement);
 
             treeView.SelectedNode.Nodes.Add(control);
             // treeView.SelectedNode = control;
