@@ -632,6 +632,13 @@ namespace WixEdit {
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
+                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                if (ui == null) {
+                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+
+                    return;
+                }
+
                 XmlNode dialog = wixFiles.WxsDocument.CreateElement("Dialog", "http://schemas.microsoft.com/wix/2003/01/wi");
                 SetDefaultValues(dialog);
 
@@ -639,29 +646,7 @@ namespace WixEdit {
                 att.Value = frm.SelectedString;
                 dialog.Attributes.Append(att);
                 
-                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);
-                if (ui == null) {
-                    ui = wixFiles.WxsDocument.CreateElement("UI", "http://schemas.microsoft.com/wix/2003/01/wi");
-
-                    XmlNode parent = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-                    if (parent == null) {
-                        MessageBox.Show("No module or product found!");
-                        return;
-                    }
-
-                    // if (parent.Name != "Module" && parent.Name != "Product") {
-                    //      Whoops!
-                    // }
-
-                    parent.AppendChild(ui);
-                }
-                
-                XmlNodeList sameNodes = ui.SelectNodes("wix:Dialog", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
-                    ui.InsertAfter(dialog, sameNodes[sameNodes.Count - 1]);
-                } else {
-                    ui.AppendChild(dialog);
-                }
+                InsertNewXmlNode(ui, dialog);
 
                 ListViewItem item = new ListViewItem(frm.SelectedString);
                 item.Tag = dialog;
@@ -1045,12 +1030,7 @@ namespace WixEdit {
                     idAttr.Value = frm.SelectedString;
                     newControl.Attributes.Append(idAttr);
 
-                    XmlNodeList sameNodes = node.SelectNodes("wix:Control", wixFiles.WxsNsmgr);
-                    if (sameNodes.Count > 0) {
-                        node.InsertAfter(newControl, sameNodes[sameNodes.Count - 1]);
-                    } else {
-                        node.AppendChild(newControl);
-                    }
+                    InsertNewXmlNode(node, newControl);
 
                     TreeNode control = new TreeNode(frm.SelectedString);
                     control.Tag = newControl;
@@ -1077,12 +1057,7 @@ namespace WixEdit {
 
                 XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
 
-                XmlNodeList sameNodes = node.SelectNodes("wix:" + typeName, wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
-                    node.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-                } else {
-                    node.AppendChild(newElement);
-                }
+                InsertNewXmlNode(node, newElement);
 
                 TreeNode control = new TreeNode(typeName);
                 control.Tag = newElement;

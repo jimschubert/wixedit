@@ -788,6 +788,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\ElementLocator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\UndoManager.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
