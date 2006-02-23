@@ -782,7 +782,7 @@ namespace WixEdit {
             try {
                 Application.Run(new EditorForm());
             } catch (Exception ex) {
-                string message = "Caught unhandled exception! This error will be reported to the WixEdit website.";
+                string message = "Caught unhandled exception! Please press OK to report this error to the WixEdit website, so this error can be fixed.";
                 ExceptionForm form = new ExceptionForm(message, ex);
                 if (form.ShowDialog() == DialogResult.OK) {
                     ErrorReporter reporter = new ErrorReporter();
@@ -804,7 +804,7 @@ namespace WixEdit {
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
-            string message = "Unable to perform your action, an error occured! This error will be reported to the WixEdit website.";
+            string message = "Unable to perform your action, an error occured! Please press OK to report this error to the WixEdit website, so this error can be fixed.";
             ExceptionForm form = new ExceptionForm(message, e.Exception);
             if (form.ShowDialog() == DialogResult.OK) {
                 ErrorReporter reporter = new ErrorReporter();
