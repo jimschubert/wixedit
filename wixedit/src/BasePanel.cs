@@ -46,6 +46,16 @@ namespace WixEdit {
             this.wixFiles = wixFiles;
         }
 
+
+        protected virtual void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
+            XmlNodeList sameNodes = parentElement.SelectNodes("wix:" + newElement.Name, wixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                parentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                parentElement.AppendChild(newElement);
+            }
+        }
+
         public virtual MenuItem Menu {
             get { return null; }
         }

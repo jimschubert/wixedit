@@ -82,7 +82,12 @@ namespace WixEdit {
 
             MenuItem item = (MenuItem) sender;
 
-            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);
+            XmlNode xmlNode = ElementLocator.GetUIElement(wixFiles);
+            if (xmlNode == null) {
+                MessageBox.Show("No location found to add UI element, need element like module or product!");
+
+                return;
+            }
 
             XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, "http://schemas.microsoft.com/wix/2003/01/wi");
             TreeNode action = new TreeNode(item.Text);
@@ -94,12 +99,7 @@ namespace WixEdit {
                 action.SelectedImageIndex = imageIndex;
             }
 
-            XmlNodeList sameNodes = xmlNode.SelectNodes("wix:" + item.Text, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                xmlNode.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                xmlNode.AppendChild(newElement);
-            }
+            InsertNewXmlNode(xmlNode, newElement);
 
             treeView.Nodes.Add(action);
             treeView.SelectedNode = action;

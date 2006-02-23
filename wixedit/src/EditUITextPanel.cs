@@ -112,20 +112,20 @@ namespace WixEdit {
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
+                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                if (ui == null) {
+                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+
+                    return;
+                }
+
                 XmlElement newProp = wixFiles.WxsDocument.CreateElement("UIText", "http://schemas.microsoft.com/wix/2003/01/wi");
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
-
-                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);                
                 
-                XmlNodeList sameNodes = ui.SelectNodes("wix:UIText", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
-                    ui.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
-                } else {
-                    ui.AppendChild(newProp);
-                }
+                InsertNewXmlNode(ui, newProp);
 
                 XmlNodeList uiTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
 
