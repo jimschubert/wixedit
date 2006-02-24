@@ -176,6 +176,9 @@ namespace WixEdit {
             XmlNodeList listBoxes = dialog.SelectNodes("wix:Control[@Type='ListBox']", wixFiles.WxsNsmgr);
             AddListBoxes(newDialog, listBoxes);
 
+            XmlNodeList comboBoxes = dialog.SelectNodes( "wix:Control[@Type='ComboBox']", wixFiles.WxsNsmgr );
+            AddComboBoxes(newDialog, comboBoxes);
+
             XmlNodeList progressBars = dialog.SelectNodes("wix:Control[@Type='ProgressBar']", wixFiles.WxsNsmgr);
             AddProgressBars(newDialog, progressBars);
 
@@ -490,6 +493,22 @@ namespace WixEdit {
                 }
             }
         }
+
+        private void AddComboBoxes(DesignerForm newDialog, XmlNodeList comboBoxes) {
+            foreach (XmlNode comboBox in comboBoxes) {
+                try {
+                    ComboBox comboCtrl = new ComboBox();
+                    SetControlAttributes(comboCtrl, comboBox);
+
+                    comboCtrl.Items.Add( "ComboBox" );
+                    comboCtrl.SelectedIndex = 0;
+
+                    newDialog.AddControl(comboBox, comboCtrl);
+                } catch {
+                }
+            }
+        }
+
 
         private void AddProgressBars(DesignerForm newDialog, XmlNodeList progressBars) {
             foreach (XmlNode progressbar in progressBars) {
