@@ -217,6 +217,7 @@ namespace WixEdit.PropertyGridExtensions {
                 case "uuid":
                 case "autogenuuid":
                 case "uuidorexample":
+                case "componentguid":
                     return typeof(GuidUITypeEditor);
                 default:
                     return typeof(UITypeEditor);
