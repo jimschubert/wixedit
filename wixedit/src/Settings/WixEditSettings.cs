@@ -53,6 +53,8 @@ namespace WixEdit.Settings {
 
                 DisplayFullPathInTitlebar = false;
 
+                XmlIndentation = 4;
+
                 EditDialog = new EditDialogData();
 
                 Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -75,6 +77,8 @@ namespace WixEdit.Settings {
                 RecentOpenedFiles = oldVersion.RecentOpenedFiles;
 
                 DisplayFullPathInTitlebar = oldVersion.DisplayFullPathInTitlebar;
+
+                XmlIndentation = oldVersion.XmlIndentation;
                 
                 if (oldVersion.EditDialog == null) {
                     EditDialog = new EditDialogData();
@@ -101,6 +105,8 @@ namespace WixEdit.Settings {
             public bool DisplayFullPathInTitlebar;
 
             public EditDialogData EditDialog;
+
+            public int XmlIndentation;
         }
         public class EditDialogData {
             public int SnapToGrid = 5;
@@ -351,6 +357,21 @@ namespace WixEdit.Settings {
                 data.UseRelativeOrAbsolutePaths = value;
             }
         }
+
+        [
+        Category("Miscellaneous"), 
+        Description("How many spaces to use for the indentation of the xml files.")
+        ]
+        public int XmlIndentation {
+            get {
+                // Minimum of 0
+                return Math.Max(0, data.XmlIndentation);
+            }
+            set {
+                data.XmlIndentation = Math.Max(0, value);
+            }
+        }
+
 
         [
         Category("Version"), 

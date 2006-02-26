@@ -76,7 +76,14 @@ namespace WixEdit {
             if (wxsDocument == null) {
                 wxsDocument = new XmlDocument();
             }
-            wxsDocument.Load(wxsFile.FullName);
+//            wxsDocument.Load(wxsFile.FullName);
+
+            FileMode mode = FileMode.Open;
+            using(FileStream fs = new FileStream(wxsFile.FullName, mode)) {
+                wxsDocument.Load(fs);
+                fs.Close();
+            }
+
 
             XmlNode possibleComment = wxsDocument.FirstChild.NextSibling;
             if (possibleComment != null && possibleComment.Name == "#comment") {
@@ -214,7 +221,21 @@ namespace WixEdit {
                 wxsDocument.InsertBefore(commentElement, wxsDocument.DocumentElement);
             }
 
-            wxsDocument.Save(wxsFile.FullName);
+            FileMode mode = FileMode.OpenOrCreate;
+            if (File.Exists(wxsFile.FullName)) {
+                mode = mode|FileMode.Truncate;
+            }
+
+            using(FileStream fs = new FileStream(wxsFile.FullName, mode)) {
+                XmlTextWriter writer = new XmlTextWriter(fs, new System.Text.UTF8Encoding());
+                writer.Formatting = Formatting.Indented;
+                writer.Indentation = WixEditSettings.Instance.XmlIndentation;
+    
+                wxsDocument.Save(writer);
+    
+                writer.Close();
+                fs.Close();
+            }
 
             projectSettings.ChangesHasBeenSaved();
 
