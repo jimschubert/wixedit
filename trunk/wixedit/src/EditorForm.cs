@@ -53,6 +53,10 @@ namespace WixEdit {
         protected IconMenuItem fileMenu;
         protected IconMenuItem fileNew;
         protected IconMenuItem fileLoad;
+        protected IconMenuItem fileRecent;
+        protected IconMenuItem fileRecentEmpty;
+        protected IconMenuItem fileRecentClean;
+        protected IconMenuItem fileRecentClear;
         protected IconMenuItem fileSave;
         protected IconMenuItem fileClose;
         protected IconMenuItem fileSeparator;
@@ -80,9 +84,9 @@ namespace WixEdit {
 
         protected WixFiles wixFiles;
 
-		public EditorForm() {
-            InitializeComponent();
-		}
+        public EditorForm() {
+                InitializeComponent();
+        }
 
         private void InitializeComponent() {
             Text = "WiX Edit";
@@ -95,23 +99,44 @@ namespace WixEdit {
             fileMenu = new IconMenuItem();
             fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.open.bmp")));
+            fileRecent = new IconMenuItem();
+            fileRecentEmpty = new IconMenuItem();
+            fileRecentClean = new IconMenuItem();
+            fileRecentClear = new IconMenuItem();
             fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.save.bmp")));
             fileClose = new IconMenuItem();
             fileSeparator = new IconMenuItem("-");
             fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.exit.bmp")));
 
             fileNew.Text = "New";
-            fileNew.Click += new System.EventHandler(fileNew_Click);
+            fileNew.Click += new EventHandler(fileNew_Click);
             fileNew.Shortcut = Shortcut.CtrlN;
             fileNew.ShowShortcut = true;
 
             fileLoad.Text = "Open";
-            fileLoad.Click += new System.EventHandler(fileLoad_Click);
+            fileLoad.Click += new EventHandler(fileLoad_Click);
             fileLoad.Shortcut = Shortcut.CtrlO;
             fileLoad.ShowShortcut = true;
 
+            fileRecentEmpty.Text = "Empty";
+            fileRecentEmpty.Enabled = false;
+            fileRecentEmpty.ShowShortcut = true;
+
+            fileRecent.Text = "Reopen";
+            fileRecent.Popup += new EventHandler(fileRecent_Popup);
+            fileRecent.ShowShortcut = true;
+            fileRecent.MenuItems.Add(0, fileRecentEmpty);
+
+            fileRecentClean.Text = "Remove obsolete";
+            fileRecentClean.Click += new EventHandler(recentFileClean_Click);
+            fileRecentClean.ShowShortcut = true;
+
+            fileRecentClear.Text = "Remove all";
+            fileRecentClear.Click += new EventHandler(recentFileClear_Click);
+            fileRecentClear.ShowShortcut = true;
+
             fileSave.Text = "Save";
-            fileSave.Click += new System.EventHandler(fileSave_Click);
+            fileSave.Click += new EventHandler(fileSave_Click);
             fileSave.Enabled = false;
             fileSave.Shortcut = Shortcut.CtrlS;
             fileSave.ShowShortcut = true;
@@ -119,23 +144,24 @@ namespace WixEdit {
             fileIsDirty = false;
 
             fileClose.Text = "Close";
-            fileClose.Click += new System.EventHandler(fileClose_Click);
+            fileClose.Click += new EventHandler(fileClose_Click);
             fileClose.Enabled = false;
             fileClose.Shortcut = Shortcut.CtrlW;
             fileClose.ShowShortcut = true;
 
             fileExit.Text = "Exit";
-            fileExit.Click += new System.EventHandler(fileExit_Click);
+            fileExit.Click += new EventHandler(fileExit_Click);
             fileExit.ShowShortcut = true;
 
             fileMenu.Text = "&File";
             fileMenu.Popup += new EventHandler(fileMenu_Popup);
             fileMenu.MenuItems.Add(0, fileNew);
             fileMenu.MenuItems.Add(1, fileLoad);
-            fileMenu.MenuItems.Add(2, fileSave);
-            fileMenu.MenuItems.Add(3, fileClose);
-            fileMenu.MenuItems.Add(4, fileSeparator);
-            fileMenu.MenuItems.Add(5, fileExit);
+            fileMenu.MenuItems.Add(2, fileRecent);
+            fileMenu.MenuItems.Add(3, fileSave);
+            fileMenu.MenuItems.Add(4, fileClose);
+            fileMenu.MenuItems.Add(5, fileSeparator);
+            fileMenu.MenuItems.Add(6, fileExit);
             
             mainMenu.MenuItems.Add(0, fileMenu);
 
@@ -154,17 +180,17 @@ namespace WixEdit {
             }
 
             editUndo.Text = "&Undo";
-            editUndo.Click += new System.EventHandler(editUndo_Click);
+            editUndo.Click += new EventHandler(editUndo_Click);
             editUndo.Shortcut = Shortcut.CtrlZ;
             editUndo.ShowShortcut = true;
 
             editRedo.Text = "&Redo";
-            editRedo.Click += new System.EventHandler(editRedo_Click);
+            editRedo.Click += new EventHandler(editRedo_Click);
             editRedo.Shortcut = Shortcut.CtrlR;
             editRedo.ShowShortcut = true;
 
             editExternal.Text = "Launch &External Editor";
-            editExternal.Click += new System.EventHandler(editExternal_Click);
+            editExternal.Click += new EventHandler(editExternal_Click);
             editExternal.Shortcut = Shortcut.CtrlE;
             editExternal.ShowShortcut = true;
 
@@ -182,7 +208,7 @@ namespace WixEdit {
             toolsWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
 
             toolsWixCompile.Text = "Wix Compile";
-            toolsWixCompile.Click += new System.EventHandler(toolsWixCompile_Click);
+            toolsWixCompile.Click += new EventHandler(toolsWixCompile_Click);
             toolsWixCompile.Enabled = false;
 
             toolsProjectSettings.Text = "Project Settings";
@@ -190,7 +216,7 @@ namespace WixEdit {
             toolsProjectSettings.Enabled = false;
 
             toolsOptions.Text = "&Options";
-            toolsOptions.Click += new System.EventHandler(toolsOptions_Click);
+            toolsOptions.Click += new EventHandler(toolsOptions_Click);
 
             toolsMenu.Text = "&Tools";
             toolsMenu.MenuItems.Add(0, toolsWixCompile);
@@ -205,7 +231,7 @@ namespace WixEdit {
             helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.main.ico"), 16, 16));
 
             helpAbout.Text = "About";
-            helpAbout.Click += new System.EventHandler(helpAbout_Click);
+            helpAbout.Click += new EventHandler(helpAbout_Click);
 
             helpMenu.Text = "&Help";
             helpMenu.MenuItems.Add(0, helpAbout);
@@ -213,15 +239,6 @@ namespace WixEdit {
             mainMenu.MenuItems.Add(3, helpMenu);
 
             Menu = mainMenu;
-
-/*
-            tabButtonControl = new TabButtonControl();
-            tabButtonControl.Dock = DockStyle.Fill;
-            Controls.Add(tabButtonControl);
-            tabButtonControl.Visible = false;
-
-            tabButtonControl.TabChange += new EventHandler(OnTabChanged) ;
-*/
 
             mainPanel = new Panel();
             mainPanel.Dock = DockStyle.Fill;
@@ -252,7 +269,7 @@ namespace WixEdit {
                    (xmlFile.ToLower().EndsWith(".xml") || xmlFile.ToLower().EndsWith(".wxs"))) {
                     FileInfo xmlFileInfo = new FileInfo(xmlFile);
                     if (xmlFileInfo.Exists) {
-                        LoadWxsFile(xmlFileInfo.FullName);
+                        LoadWxsFile(xmlFileInfo);
                     }
                 }
             }
@@ -327,7 +344,15 @@ namespace WixEdit {
         }
 
         private void fileExit_Click(object sender, System.EventArgs e) {
-            this.Close();
+            if (wixFiles != null) {
+                if (HandlePendingChanges() == false) {
+                    return;
+                }
+
+                CloseWxsFile();
+            }
+
+            Application.Exit();
         }
 
         private void fileMenu_Popup(object sender, System.EventArgs e) {
@@ -346,6 +371,38 @@ namespace WixEdit {
                 }
 
                 CloseWxsFile();
+            }
+        }
+
+        private void fileRecent_Popup(object sender, System.EventArgs e) {
+            // Clear the menu
+            fileRecent.MenuItems.Clear();
+
+            string[] recentFiles = WixEditSettings.Instance.GetRecentlyUsedFiles();
+            if (recentFiles.Length == 0) {
+                fileRecent.MenuItems.Add(0, fileRecentEmpty);
+            } else {
+                int i = 0;
+                foreach (string recentFile in recentFiles) {
+                    IconMenuItem recentFileMenuItem = new IconMenuItem();
+                    recentFileMenuItem.Text = recentFile;
+                    recentFileMenuItem.Click += new EventHandler(recentFile_Click);
+
+                    if (File.Exists(recentFile)) {
+                        Icon ico = FileIconFactory.GetFileIcon(recentFile, false);
+                        recentFileMenuItem.Bitmap = ico.ToBitmap();
+                    } else {
+                        recentFileMenuItem.Enabled = false;
+                    }
+
+                    fileRecent.MenuItems.Add(i, recentFileMenuItem);
+
+                    i++;
+                }
+
+                fileRecent.MenuItems.Add(i, new IconMenuItem("-"));
+                fileRecent.MenuItems.Add(i+1, fileRecentClean);
+                fileRecent.MenuItems.Add(i+2, fileRecentClear);
             }
         }
 
@@ -393,6 +450,30 @@ namespace WixEdit {
             }
 
             editMenu.MenuItems.Add(3, editExternal);
+        }
+
+        private void recentFileClear_Click(object sender, System.EventArgs e) {
+            WixEditSettings.Instance.ClearRecentlyUsedFiles();
+            WixEditSettings.Instance.SaveChanges();
+        }
+
+        private void recentFileClean_Click(object sender, System.EventArgs e) {
+            WixEditSettings.Instance.CleanRecentlyUsedFiles();
+            WixEditSettings.Instance.SaveChanges();
+        }
+
+        private void recentFile_Click(object sender, System.EventArgs e) {
+            MenuItem item = sender as MenuItem;
+            if (item == null) {
+                return;
+            }
+
+            string[] recentFiles = WixEditSettings.Instance.GetRecentlyUsedFiles();
+            if (File.Exists(recentFiles[item.Index])) {
+                LoadWxsFile(recentFiles[item.Index]);
+            } else {
+                MessageBox.Show("File could not be found."); 
+            }
         }
 
         private void editUndo_Click(object sender, System.EventArgs e) {
@@ -600,9 +681,16 @@ namespace WixEdit {
             return true;
         }
 
-        private void LoadWxsFile(string file) {
-            wixFiles = new WixFiles(new FileInfo(file));
+        private void LoadWxsFile(string filename) {
+            LoadWxsFile(new FileInfo(filename));
+        }
+
+        private void LoadWxsFile(FileInfo file) {
+            wixFiles = new WixFiles(file);
             wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
+
+            WixEditSettings.Instance.AddRecentlyUsedFile(file);
+            WixEditSettings.Instance.SaveChanges();
 
             Environment.CurrentDirectory = wixFiles.WxsDirectory.FullName;
 

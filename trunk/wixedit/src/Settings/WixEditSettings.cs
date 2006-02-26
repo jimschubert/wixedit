@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -47,7 +48,9 @@ namespace WixEdit.Settings {
             public WixEditData() {
                 UseRelativeOrAbsolutePaths = PathHandling.UseRelativePathsWhenPossible;
                 ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
-                
+
+                RecentOpenedFiles = new string[] {};
+
                 DisplayFullPathInTitlebar = false;
 
                 EditDialog = new EditDialogData();
@@ -68,6 +71,8 @@ namespace WixEdit.Settings {
                 if (ExternalXmlEditor == null || ExternalXmlEditor.Length == 0) {
                     ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
                 }
+
+                RecentOpenedFiles = oldVersion.RecentOpenedFiles;
 
                 DisplayFullPathInTitlebar = oldVersion.DisplayFullPathInTitlebar;
                 
@@ -90,6 +95,8 @@ namespace WixEdit.Settings {
             public string DefaultProjectDirectory;
             public string Version;
             public PathHandling UseRelativeOrAbsolutePaths;
+
+            public string[] RecentOpenedFiles;
 
             public bool DisplayFullPathInTitlebar;
 
@@ -358,6 +365,52 @@ namespace WixEdit.Settings {
         private Version GetCurrentVersion() {
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
+        
+        public string[] GetRecentlyUsedFiles() {
+            return data.RecentOpenedFiles;
+        }
+
+        public void ClearRecentlyUsedFiles() {
+            data.RecentOpenedFiles = new string[] {};
+        }
+
+        public void CleanRecentlyUsedFiles() {
+            StringCollection recent = new StringCollection();
+            recent.AddRange(data.RecentOpenedFiles);
+
+            int i = 0;
+
+            while (recent.Count > i) {
+                if (File.Exists(recent[i])) {
+                    i++;
+                } else {
+                    recent.RemoveAt(i);
+                }
+            }
+
+            string[] result = new string[recent.Count];
+            recent.CopyTo(result, 0);
+            data.RecentOpenedFiles = result;
+        }
+
+        public void AddRecentlyUsedFile(FileInfo newFile) {
+            StringCollection recent = new StringCollection();
+            recent.AddRange(data.RecentOpenedFiles);
+
+            while(recent.IndexOf(newFile.FullName) >= 0) {
+                recent.Remove(newFile.FullName);
+            }
+
+            recent.Insert(0, newFile.FullName);
+
+            while (recent.Count > 16) {
+                recent.RemoveAt(16);
+            }
+
+            string[] result = new string[recent.Count];
+            recent.CopyTo(result, 0);
+            data.RecentOpenedFiles = result;
+        }
 
         #region EditDialog properties
 
@@ -418,7 +471,6 @@ namespace WixEdit.Settings {
                 data.EditDialog.AlwaysOnTop = value;
             }
         }
-
 
         #endregion
 
