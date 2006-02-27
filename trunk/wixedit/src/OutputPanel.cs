@@ -223,7 +223,12 @@ namespace WixEdit {
 
             string fileName = text.Substring(0, bracketStart);
 
-            int lineNumber = Int32.Parse(text.Substring(bracketStart + 1, bracketEnd - bracketStart - 1));
+            int lineNumber = 0;
+            try {
+                lineNumber = Int32.Parse(text.Substring(bracketStart + 1, bracketEnd - bracketStart - 1));
+            } catch (Exception) {
+                return;
+            }
 
             string message = text.Substring(bracketEnd+1);
 
@@ -359,7 +364,41 @@ namespace WixEdit {
 
             return activeProcess.ExitCode;
         }
-        
+
+        public int RunWithLogFile(ProcessStartInfo processStartInfo, string logFile) {
+            DateTime start = DateTime.Now;
+
+            OutputStart(processStartInfo, start);
+            
+            activeProcess = Process.Start(processStartInfo);
+            
+            activeProcess.WaitForExit();
+
+            ReadLogFile(logFile);
+
+            OutputDone(activeProcess, start);
+
+            return activeProcess.ExitCode;
+        }
+
+        private void ReadLogFile(string logFile) {
+            FileInfo log = new FileInfo(logFile);
+
+            if (log.Exists) {
+                using(FileStream fs = log.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                    StreamReader sr = new StreamReader(fs);
+                    string line = sr.ReadLine();
+                    while (line != null) {
+                        Output(line, false);
+                        
+                        line = sr.ReadLine();
+                    }
+
+                    sr.Close();
+                }
+            }
+        }
+
        
         private void ReadStandardOut() {
             if ( activeProcess != null ) {
