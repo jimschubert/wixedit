@@ -138,6 +138,7 @@ namespace WixEdit {
         
             xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
             xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+            xsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
         }
 
         public static XmlDocument GetXsdDocument() {

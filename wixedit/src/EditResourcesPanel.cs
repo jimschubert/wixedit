@@ -119,7 +119,7 @@ namespace WixEdit {
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                newAttr = wixFiles.WxsDocument.CreateAttribute("src");
+                newAttr = wixFiles.WxsDocument.CreateAttribute("SourceFile");
                 newAttr.Value = "";
                 newProp.Attributes.Append(newAttr);
 

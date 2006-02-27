@@ -736,7 +736,7 @@ namespace WixEdit {
 
             XmlNode text = textElement.SelectSingleNode("wix:Text", wixFiles.WxsNsmgr);
             if (text != null) {
-                XmlAttribute srcAttrib = text.Attributes["src"];
+                XmlAttribute srcAttrib = text.Attributes["SourceFile"];
 
                 if (srcAttrib != null) {
                     string src = srcAttrib.Value;
@@ -800,7 +800,7 @@ namespace WixEdit {
                 throw new Exception(String.Format("Binary with id \"{0}\" not found", binaryId));
             }
             
-            XmlAttribute srcAttrib = binaryNode.Attributes["src"];
+            XmlAttribute srcAttrib = binaryNode.Attributes["SourceFile"];
             if (srcAttrib == null) {
                 throw new Exception(String.Format("src Attribute of binary with id \"{0}\" not found", binaryId));
             }

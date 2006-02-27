@@ -220,7 +220,7 @@ namespace WixEdit {
                     
             fileElement.Attributes.Append(nameAttr);
 
-            XmlAttribute srcAttr = wixFiles.WxsDocument.CreateAttribute("src");
+            XmlAttribute srcAttr = wixFiles.WxsDocument.CreateAttribute("Source");
             srcAttr.Value = RelativePathHelper.GetRelativePath(fileInfo.FullName, wixFiles);
             fileElement.Attributes.Append(srcAttr);
         }

@@ -133,11 +133,19 @@ namespace WixEdit.PropertyGridExtensions {
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
                 attrs.Add(new TypeConverterAttribute(GetAttributeTypeConverter(xmlAttributeDefinition)));
 
+                XmlNode deprecated = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:appinfo/xse:deprecated", wixFiles.XsdNsmgr);
                 XmlNode documentation = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
-                if(documentation != null) {
-                    string docuString = documentation.InnerText;
-                    docuString = docuString.Replace("\t", " ");
-                    docuString = docuString.Replace("\r\n", " ");
+                if(deprecated != null || documentation != null) {
+                    string docuString = "";
+                    if(deprecated != null) {
+                        docuString = "<< DEPRECATED >>\r\n";
+                    }
+
+                    if (documentation != null) {
+                        docuString = documentation.InnerText;
+                        docuString = docuString.Replace("\t", " ");
+                        docuString = docuString.Replace("\r\n", " ");
+                    }
     
                     string tmpDocuString = docuString;
                     do {
@@ -151,11 +159,37 @@ namespace WixEdit.PropertyGridExtensions {
                     attrs.Add(new DescriptionAttribute(docuString));
                 }
 
-                if (xmlAttributeDefinition.Attributes["name"] != null &&
-                    xmlAttributeDefinition.Attributes["name"].Value == "src" &&
-                    (xmlNodeElement.Attributes["name"].Value == "File" || 
-                    xmlNodeElement.Attributes["name"].Value == "Icon")) {
-                    
+                bool needsBrowse = false;
+                if (xmlAttributeDefinition.Attributes["name"] != null) {
+                    string attName = xmlNodeElement.Attributes["name"].Value;
+
+                    if (xmlAttributeDefinition.Attributes["name"].Value == "SourceFile") {
+                        if (attName == "UpgradeImage" ||
+                            attName == "TargetImage" ||
+                            attName == "Merge" ||
+                            attName == "Binary" ||
+                            attName == "Icon" ||
+                            attName == "Text") {
+                            needsBrowse = true;
+                        }
+                    } else if (xmlAttributeDefinition.Attributes["name"].Value == "Source") {
+                        if (attName == "ExternalFile" ||
+                            attName == "File") {
+                            needsBrowse = true;
+                        }
+                    } else if (xmlAttributeDefinition.Attributes["name"].Value == "FileSource") {
+                        if (attName == "Directory" ||
+                            attName == "DirectoryRef") {
+                            needsBrowse = true;
+                        }
+                    } else if (xmlAttributeDefinition.Attributes["name"].Value == "Layout") {
+                        if (attName == "Media") {
+                            needsBrowse = true;
+                        }
+                    }
+                }
+
+                if (needsBrowse) {
                     // We could add an UITypeEditor if desired
                     attrs.Add(new EditorAttribute(typeof(FilteredFileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
                 
