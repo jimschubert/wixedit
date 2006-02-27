@@ -385,6 +385,14 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\compile\install.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\compile\uninstall.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\dialog\main.ico"
                     BuildAction = "EmbeddedResource"
                 />
@@ -708,6 +716,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\ElementLocator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\EnterIntegerForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
@@ -785,11 +798,6 @@
                 <File
                     RelPath = "src\TabButtonControl.cs"
                     SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "src\ElementLocator.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

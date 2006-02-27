@@ -384,9 +384,7 @@ namespace WixEdit {
                 
                 Keys k = (Keys)s;
                 text = text + Convert.ToChar(9) + TypeDescriptor.GetConverter(typeof(Keys)).ConvertToString(k);
-            } else {
-                text = text.Replace("&", "");
-            }          
+            }
 
             return text;
         }
