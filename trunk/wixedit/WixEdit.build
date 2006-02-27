@@ -52,7 +52,7 @@
 		<mkdir dir="${project.build}" />
 		<csc    target="winexe" 
                 output="${project.output}"
-                win32icon="${project.source}\App.ico"
+                win32icon="${project.resource}\dialog\source.ico"
                 debug="true">
             <sources basedir="${project.source}">
                 <includes name="**/*.cs" />

@@ -93,7 +93,7 @@ namespace WixEdit {
 
         private void InitializeComponent() {
             Text = "WiX Edit";
-            Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
             ClientSize = new System.Drawing.Size(630, 480);
 
             openWxsFileDialog = new OpenFileDialog();
@@ -251,7 +251,7 @@ namespace WixEdit {
 
 
             helpMenu = new IconMenuItem();
-            helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.main.ico"), 16, 16));
+            helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.source.ico"), 16, 16));
 
             helpAbout.Text = "&About";
             helpAbout.Click += new EventHandler(helpAbout_Click);

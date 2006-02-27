@@ -372,9 +372,13 @@ namespace WixEdit {
             
             activeProcess = Process.Start(processStartInfo);
             
-            activeProcess.WaitForExit();
-
-            ReadLogFile(logFile);
+            while(activeProcess.WaitForExit(100) == false) {
+                if (File.Exists(logFile)) {
+                    ReadLogFile(logFile);
+                    break;
+                }
+                Application.DoEvents();
+            }
 
             OutputDone(activeProcess, start);
 
@@ -387,11 +391,27 @@ namespace WixEdit {
             if (log.Exists) {
                 using(FileStream fs = log.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
                     StreamReader sr = new StreamReader(fs);
+/*
                     string line = sr.ReadLine();
                     while (line != null) {
                         Output(line, false);
                         
                         line = sr.ReadLine();
+                    }
+*/
+                    string line = null;
+                    while (sr.Peek() >= 0 || activeProcess.WaitForExit(200) == false) {
+                        if (sr.Peek() >= 0) {
+                            try {
+                                line = sr.ReadLine();
+                            } catch {}
+    
+                            if (line != null) {
+                                Output(line, false);
+                            }
+                        }
+
+                        Application.DoEvents();
                     }
 
                     sr.Close();

@@ -52,7 +52,7 @@ namespace WixEdit {
             ClientSize = new Size(400, 200);
 
             Text = "Edit Project Settings";
-            Icon = new Icon(WixFiles.GetResourceStream("dialog.main.ico"));
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MinimizeBox = false;
