@@ -115,7 +115,7 @@ namespace WixEdit {
                     wxsDocument.RemoveChild(possibleComment);
                 }
 
-                projectSettings = new ProjectSettings(candleArgs, lightArgs);
+                projectSettings = new ProjectSettings(candleArgs.Trim(), lightArgs.Trim());
             } else {
                 projectSettings = new ProjectSettings(String.Empty, String.Empty);
             }

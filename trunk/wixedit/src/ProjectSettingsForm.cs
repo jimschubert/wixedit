@@ -51,7 +51,7 @@ namespace WixEdit {
             int indent = 16;
             ClientSize = new Size(400, 200);
 
-            Text = "Edit Project Settings";
+            Text = "Edit Settings";
             Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
