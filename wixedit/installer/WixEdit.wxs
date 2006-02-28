@@ -24,6 +24,13 @@
           <Component Id="BuildFile" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0001">
             <File Id="WixEdit.build" Name="WixEdit.bld" LongName="WixEdit.build" src="..\WixEdit.build" />
           </Component>
+          <Component Id="WxsFileAssociation" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0017">
+              <ProgId Id="WixEditFile.Association" Description="WixEdit Source File" Icon="[WixEditExe],0">
+                <Extension Id="wxs" ContentType="text/xml">
+                  <Verb Id="open" Sequence="10" Command="Open" Target="[!WixEditExe]" Argument="&quot;%1&quot;" />
+                </Extension>
+              </ProgId>
+          </Component>
           <Directory Id="Binaries" Name="binaries">
             <Component Id="Binaries" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0002">
               <File Id="manifest" Name="WIXEDI_1.MAN" LongName="WixEdit.exe.manifest" src="..\build\WixEdit.exe.manifest" />
@@ -32,11 +39,6 @@
               <File Id="pdb" Name="WIXEDI_1.PDB" LongName="WixEdit.pdb" src="..\build\WixEdit.pdb" />
               <File Id="AxSHDocVw.dll" Name="AXSHDO_1.DLL" LongName="AxSHDocVw.dll" src="..\build\AxSHDocVw.dll" />
               <File Id="SHDocVw.dll" Name="SHDOCV_1.DLL" LongName="SHDocVw.dll" src="..\build\SHDocVw.dll" />
-              <ProgId Id="WixEditFile.Association" Description="WixEdit Source File" Icon="[WixEditExe],0">
-                <Extension Id="wxs" ContentType="text/xml">
-                  <Verb Id="open" Sequence="10" Command="Open" Target="[!WixEditExe]" Argument="&quot;%1&quot;" />
-                </Extension>
-              </ProgId>
             </Component>
           </Directory>
           <Directory Id="Samples" Name="sample">
@@ -163,11 +165,14 @@
     <Feature Id="BinariesFeature" Level="1" Title="Binaries" ConfigurableDirectory="TARGETDIR" Absent="disallow" Description="The WixEdit binaries.">
       <ComponentRef Id="Binaries" />
     </Feature>
+    <Feature Id="WxsAssociationFeature" Level="1" Title="File Association" Description="Associate .wxs files to WixEdit"><!-- ConfigurableDirectory="TARGETDIR" -->
+      <ComponentRef Id="WxsFileAssociation" />
+    </Feature>
     <Feature Id="TemplatesFeature" Level="1" Title="Templates" ConfigurableDirectory="TARGETDIR" Absent="disallow" Description="The WixEdit Templates to create new WiX files.">
       <ComponentRef Id="Templates.UISample" />
       <ComponentRef Id="Templates.UISample.Binary" />
     </Feature>
-    <Feature Id="SourcesFeature" Level="1" Title="Sources" ConfigurableDirectory="TARGETDIR" Description="The WixEdit sources in C#, which can be build with NAnt.">
+    <Feature Id="SourcesFeature" Level="1" Title="Sources" ConfigurableDirectory="TARGETDIR" Description="The WixEdit sources in C#, which can be build with NAnt or Visual Studio 2003.">
       <!-- Generated with tallow.exe -->
       <ComponentRef Id="CsprojFile" />
       <ComponentRef Id="BuildFile" />

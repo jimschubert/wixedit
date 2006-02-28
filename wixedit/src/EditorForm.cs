@@ -67,7 +67,7 @@ namespace WixEdit {
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsExternal;
         protected IconMenuItem toolsOptions;
-        protected IconMenuItem toolsProjectSettings;
+        protected IconMenuItem buildProjectSettings;
         protected IconMenuItem buildWixCompile;
         protected IconMenuItem buildWixInstall;
         protected IconMenuItem buildWixUninstall;
@@ -202,35 +202,44 @@ namespace WixEdit {
 
             toolsMenu = new IconMenuItem();
             toolsOptions = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.options.bmp")));
-            toolsProjectSettings = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.settings.bmp")));
+            buildProjectSettings = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.settings.bmp")));
             buildWixCompile = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.compile.bmp")));
             buildWixInstall = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.uninstall.bmp")));
             buildWixUninstall = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("compile.install.bmp")));
             buildMenu = new IconMenuItem();
 
-            buildWixCompile.Text = "Compile MSI setup package";
+            buildWixCompile.Text = "&Build MSI setup package";
             buildWixCompile.Click += new EventHandler(buildWixCompile_Click);
             buildWixCompile.Enabled = false;
+            buildWixCompile.Shortcut = Shortcut.CtrlB;
+            buildWixCompile.ShowShortcut = true;
 
-            buildWixInstall.Text = "Install MSI setup package";
+            buildWixInstall.Text = "&Install MSI setup package";
             buildWixInstall.Click += new EventHandler(buildWixInstall_Click);
             buildWixInstall.Enabled = false;
+            buildWixInstall.Shortcut = Shortcut.F5;
+            buildWixInstall.ShowShortcut = true;
 
-            buildWixUninstall.Text = "Uninstall MSI setup package";
+            buildWixUninstall.Text = "&Uninstall MSI setup package";
             buildWixUninstall.Click += new EventHandler(buildWixUninstall_Click);
             buildWixUninstall.Enabled = false;
+            buildWixUninstall.Shortcut = Shortcut.ShiftF5;
+            buildWixUninstall.ShowShortcut = true;
+
+            buildProjectSettings.Text = "&Build Settings";
+            buildProjectSettings.Click += new EventHandler(buildProjectSettings_Click);
+            buildProjectSettings.Enabled = false;
 
             buildMenu.Text = "&Build";
+            buildMenu.Popup += new EventHandler(buildMenu_Popup);
             buildMenu.MenuItems.Add(0, buildWixCompile);
             buildMenu.MenuItems.Add(1, new IconMenuItem("-"));
             buildMenu.MenuItems.Add(2, buildWixInstall);
             buildMenu.MenuItems.Add(3, buildWixUninstall);
+            buildMenu.MenuItems.Add(4, new IconMenuItem("-"));
+            buildMenu.MenuItems.Add(5, buildProjectSettings);
 
             mainMenu.MenuItems.Add(2, buildMenu);
-
-            toolsProjectSettings.Text = "Project Settings";
-            toolsProjectSettings.Click += new EventHandler(toolsProjectSettings_Click);
-            toolsProjectSettings.Enabled = false;
 
             toolsOptions.Text = "&Options";
             toolsOptions.Click += new EventHandler(toolsOptions_Click);
@@ -243,9 +252,8 @@ namespace WixEdit {
             toolsMenu.Text = "&Tools";
             toolsMenu.Popup += new EventHandler(toolsMenu_Popup);
             toolsMenu.MenuItems.Add(0, toolsExternal);
-            toolsMenu.MenuItems.Add(1, toolsProjectSettings);
-            toolsMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            toolsMenu.MenuItems.Add(3, toolsOptions);
+            toolsMenu.MenuItems.Add(1, new IconMenuItem("-"));
+            toolsMenu.MenuItems.Add(2, toolsOptions);
 
             mainMenu.MenuItems.Add(3, toolsMenu);
 
@@ -407,8 +415,13 @@ namespace WixEdit {
             } else {
                 int i = 0;
                 foreach (string recentFile in recentFiles) {
+                    string recentFileText = recentFile;
+                    if (recentFile.Length > 100) {
+                        recentFileText = "..." + recentFile.Substring(recentFile.Length - 98, 98);
+                    }
+
                     IconMenuItem recentFileMenuItem = new IconMenuItem();
-                    recentFileMenuItem.Text = recentFile;
+                    recentFileMenuItem.Text = String.Format("&{0} {1}", i+1, recentFileText);
                     recentFileMenuItem.Click += new EventHandler(recentFile_Click);
 
                     if (File.Exists(recentFile)) {
@@ -436,18 +449,18 @@ namespace WixEdit {
 
             if (wixFiles == null || wixFiles.UndoManager.CanUndo() == false) {
                 editUndo.Enabled = false;
-                editUndo.Text = "Undo";
+                editUndo.Text = "&Undo";
             } else {
                 editUndo.Enabled = true;
-                editUndo.Text = "Undo " + wixFiles.UndoManager.GetNextUndoActionString();
+                editUndo.Text = "&Undo " + wixFiles.UndoManager.GetNextUndoActionString();
             } 
 
             if (wixFiles == null || wixFiles.UndoManager.CanRedo() == false) {
                 editRedo.Enabled = false;
-                editRedo.Text = "Redo";
+                editRedo.Text = "&Redo";
             } else {
                 editRedo.Enabled = true;
-                editRedo.Text = "Redo " + wixFiles.UndoManager.GetNextRedoActionString();
+                editRedo.Text = "&Redo " + wixFiles.UndoManager.GetNextRedoActionString();
             }
 
             editMenu.MenuItems.Add(0, editUndo);
@@ -470,6 +483,19 @@ namespace WixEdit {
             if (toolsExternal.HasIcon() == true && hasExternalEditor == false) {
                 toolsExternal.Bitmap = null;
             }
+        }
+
+        private void buildMenu_Popup(object sender, EventArgs e) {
+            bool isEnabled = false;
+            if (wixFiles != null) {
+                string msiPath = Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi");
+                if (File.Exists(msiPath)) {
+                    isEnabled = true;
+                }
+            }
+
+            buildWixInstall.Enabled = isEnabled;
+            buildWixUninstall.Enabled = isEnabled;
         }
 
         private void recentFileClear_Click(object sender, System.EventArgs e) {
@@ -596,7 +622,7 @@ namespace WixEdit {
             }
         }
         
-        private void toolsProjectSettings_Click(object sender, EventArgs e) {
+        private void buildProjectSettings_Click(object sender, EventArgs e) {
             ProjectSettingsForm frm = new ProjectSettingsForm(wixFiles);
             frm.ShowDialog();
         }
@@ -897,7 +923,7 @@ namespace WixEdit {
             buildWixCompile.Enabled = true;
             buildWixInstall.Enabled = true;
             buildWixUninstall.Enabled = true;
-            toolsProjectSettings.Enabled = true;
+            buildProjectSettings.Enabled = true;
         }
 
         private void CloseWxsFile() {
@@ -910,7 +936,7 @@ namespace WixEdit {
             buildWixCompile.Enabled = false;
             buildWixInstall.Enabled = false;
             buildWixUninstall.Enabled = false;
-            toolsProjectSettings.Enabled = false;
+            buildProjectSettings.Enabled = false;
             
             if (tabButtonControl != null) {
                 mainPanel.Controls.Remove(tabButtonControl);
