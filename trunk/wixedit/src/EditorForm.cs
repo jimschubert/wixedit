@@ -40,6 +40,10 @@ namespace WixEdit {
 	public class EditorForm : Form 	{
         protected OpenFileDialog openWxsFileDialog;
 
+        protected AboutForm splash;
+        protected bool splashIsDone = false;
+        protected EventHandler splashScreenHandler;
+
         protected Panel mainPanel;
         protected TabButtonControl tabButtonControl;
         protected EditUIPanel editUIPanel;
@@ -292,6 +296,8 @@ namespace WixEdit {
             outputPanel.Visible = false;
             outputSplitter.Visible = false;
 
+            splashScreenHandler = new EventHandler(EditorForm_Activated);
+            this.Activated += splashScreenHandler;
 
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length == 2) {
@@ -301,6 +307,40 @@ namespace WixEdit {
                     FileInfo xmlFileInfo = new FileInfo(xmlFile);
                     if (xmlFileInfo.Exists) {
                         LoadWxsFile(xmlFileInfo);
+                    }
+                }
+            }
+        }
+
+        private void EditorForm_Activated(object sender, System.EventArgs e) {
+            if (splashIsDone) {
+                this.Activated -= splashScreenHandler;
+
+                if (splash != null) {
+                    splash.Hide();
+                    splash.Dispose();
+                    splash = null;
+                }
+            } else {
+                splash = new AboutForm();
+                splash.StartPosition = FormStartPosition.Manual;
+                splash.Left = this.Left + (this.Width/2) - (splash.Width/2);
+                splash.Top = this.Top + (this.Height/2) - (splash.Height/2);
+                splash.Show();
+
+                splashIsDone = true;
+
+                // Hide splash after 1.5 second when wxs file is already loaded.
+                if (wixFiles != null) {
+                    this.Activated -= splashScreenHandler;
+
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(1500);
+    
+                    if (splash != null) {
+                        splash.Hide();
+                        splash.Dispose();
+                        splash = null;
                     }
                 }
             }
