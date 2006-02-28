@@ -76,7 +76,7 @@ namespace WixEdit.About {
 
             versionLabel = new Label();
             versionLabel.Text = String.Format(versionFormatString, Assembly.GetExecutingAssembly().GetName().Version.ToString());
-            versionLabel.Left = 10;
+            versionLabel.Left = 70;
             versionLabel.Top = 86;
             versionLabel.Width = 300;
             versionLabel.Height = labelHeight;
@@ -87,7 +87,7 @@ namespace WixEdit.About {
 
             copyrightLabel = new Label();
             copyrightLabel.Text = copyright;
-            copyrightLabel.Left = 10;
+            copyrightLabel.Left = 70;
             copyrightLabel.Top = versionLabel.Top+versionLabel.Height;
             copyrightLabel.Width = 300;
             copyrightLabel.Height = labelHeight;
@@ -98,7 +98,7 @@ namespace WixEdit.About {
 
             urlLabel = new LinkLabel();
             urlLabel.Text = url;
-            urlLabel.Left = 10;
+            urlLabel.Left = 70;
             urlLabel.Top = copyrightLabel.Top+copyrightLabel.Height;
             urlLabel.Width = 160;
             urlLabel.Height = labelHeight;
