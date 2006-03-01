@@ -55,6 +55,15 @@ namespace WixEdit.PropertyGridExtensions {
                 }
 
                 return new StandardValuesCollection(strings.ToArray(typeof(string)));
+            } else if (xmlNode.Attributes["FileKey"] != null) {
+                XmlNodeList referencedNodes = xmlNode.OwnerDocument.SelectNodes("//wix:File", adapter.WixFiles.WxsNsmgr);
+
+                ArrayList strings = new ArrayList();
+                foreach (XmlNode node in referencedNodes) {
+                    strings.Add(node.Attributes["Id"].Value);
+                }
+
+                return new StandardValuesCollection(strings.ToArray(typeof(string)));
             } else {
                 throw new Exception(nodeNameRef + " should be a reference to another nodes. (Should end on \"Ref\")");
             }
