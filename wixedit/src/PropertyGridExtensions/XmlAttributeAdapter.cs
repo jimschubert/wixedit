@@ -270,7 +270,8 @@ namespace WixEdit.PropertyGridExtensions {
             }
 
             if (xmlAttributeDefinition.Attributes["name"] != null &&
-                xmlAttributeDefinition.Attributes["name"].Value == "BinaryKey") {
+                (xmlAttributeDefinition.Attributes["name"].Value == "BinaryKey" ||
+                xmlAttributeDefinition.Attributes["name"].Value == "FileKey")) {
                 return typeof(ReferenceConverter);
             }
                 
