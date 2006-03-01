@@ -138,7 +138,7 @@ namespace WixEdit.PropertyGridExtensions {
                 if(deprecated != null || documentation != null) {
                     string docuString = "";
                     if(deprecated != null) {
-                        docuString = "<< DEPRECATED >>\r\n";
+                        docuString = "** DEPRECATED **\r\n";
                     }
 
                     if (documentation != null) {
