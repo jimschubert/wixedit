@@ -43,6 +43,16 @@ namespace WixEdit {
 
 			InitializeComponent();
 		}
+		
+		public EnterStringForm(string stringEditValue) {
+			multiLine = false;
+			
+			InitializeComponent();
+			
+			if (stringEditValue != null) {
+				StringEdit.Text = stringEditValue;
+			}
+		}
 
         private void InitializeComponent() {
             Text = "Enter String";
