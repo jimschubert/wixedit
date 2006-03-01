@@ -35,20 +35,29 @@ namespace WixEdit.PropertyGridExtensions {
             XmlNode xmlNode = adapter.XmlNode;
 
             string nodeNameRef = xmlNode.Name;
-            if (nodeNameRef.EndsWith("Ref") == false) {
+            if (nodeNameRef.EndsWith("Ref")) {
+                string nodeName = nodeNameRef.Remove(nodeNameRef.Length-3, 3);
+                XmlNodeList referencedNodes = xmlNode.OwnerDocument.SelectNodes(String.Format("//wix:{0}", nodeName), adapter.WixFiles.WxsNsmgr);
+
+
+                ArrayList strings = new ArrayList();
+                foreach (XmlNode node in referencedNodes) {
+                    strings.Add(node.Attributes["Id"].Value);
+                }
+
+                return new StandardValuesCollection(strings.ToArray(typeof(string)));
+            } else if (xmlNode.Attributes["BinaryKey"] != null) {
+                XmlNodeList referencedNodes = xmlNode.OwnerDocument.SelectNodes("//wix:Binary", adapter.WixFiles.WxsNsmgr);
+
+                ArrayList strings = new ArrayList();
+                foreach (XmlNode node in referencedNodes) {
+                    strings.Add(node.Attributes["Id"].Value);
+                }
+
+                return new StandardValuesCollection(strings.ToArray(typeof(string)));
+            } else {
                 throw new Exception(nodeNameRef + " should be a reference to another nodes. (Should end on \"Ref\")");
             }
-
-            string nodeName = nodeNameRef.Remove(nodeNameRef.Length-3, 3);
-            XmlNodeList referencedNodes = xmlNode.OwnerDocument.SelectNodes(String.Format("//wix:{0}", nodeName), adapter.WixFiles.WxsNsmgr);
-
-
-            ArrayList strings = new ArrayList();
-            foreach (XmlNode node in referencedNodes) {
-                strings.Add(node.Attributes["Id"].Value);
-            }
-
-            return new StandardValuesCollection(strings.ToArray(typeof(string)));
         } 
         
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
