@@ -694,10 +694,10 @@ namespace WixEdit {
             LoadData();
         }
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing) {
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing) {
             if( disposing ) {
                 treeView.Dispose();
                 newSubElementsMenu.Dispose();

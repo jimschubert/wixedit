@@ -1,4 +1,3 @@
-
 // Copyright (c) 2005 J.Keuper (j.keuper@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -94,17 +93,20 @@ namespace WixEdit {
             MenuItem menuItemSeparator = new IconMenuItem("-");
 
             // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            MenuItem menuItem1 = new IconMenuItem("Add &New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            MenuItem menuItem2 = new IconMenuItem("Add &File", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            MenuItem menuItem3 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+            menuItem2.Click += new EventHandler(OnAddFilePropertyGridItem);
+            menuItem3.Click += new EventHandler(OnDeletePropertyGridItem);
         
             // Clear all previously added MenuItems.
             binaryGridContextMenu.MenuItems.Clear();
 
             binaryGridContextMenu.MenuItems.Add(menuItem1);
             binaryGridContextMenu.MenuItems.Add(menuItem2);
+            binaryGridContextMenu.MenuItems.Add(menuItem3);
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
@@ -125,20 +127,10 @@ namespace WixEdit {
 
                 XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
                 
+                InsertNewXmlNode(product, newProp);
 
                 XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
-
-                XmlNodeList sameNodes = product.SelectNodes("wix:Binary", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
-                    product.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
-                } else {
-                    product.AppendChild(newProp);
-                }
-
-                binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
-
                 BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-
                 binaryGrid.SelectedObject = binAdapter;
                 binaryGrid.Update();
 
@@ -151,6 +143,57 @@ namespace WixEdit {
             }
         }
 
+        public void OnAddFilePropertyGridItem(object sender, EventArgs e) {
+            string filePath = string.Empty;
+
+            OpenFileDialog openDialog = new OpenFileDialog();
+            openDialog.InitialDirectory = wixFiles.WxsDirectory.FullName;
+            
+            if(openDialog.ShowDialog() == DialogResult.OK) {
+                filePath = openDialog.FileName;
+
+                EnterStringForm frm;
+                if (filePath != string.Empty & File.Exists(filePath)) {
+                    frm = new EnterStringForm(Path.GetFileName(filePath));
+                } else {
+                    frm = new EnterStringForm();
+                }
+            
+                frm.Text = "Enter Resource Name";
+                if (DialogResult.OK == frm.ShowDialog()) {
+                    wixFiles.UndoManager.BeginNewCommandRange();
+
+                    XmlElement newProp = wixFiles.WxsDocument.CreateElement("Binary", "http://schemas.microsoft.com/wix/2003/01/wi");
+
+                    XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
+                    newAttr.Value = frm.SelectedString;
+                    newProp.Attributes.Append(newAttr);
+
+                    newAttr = wixFiles.WxsDocument.CreateAttribute("SourceFile");
+                    newAttr.Value = filePath;
+                    newProp.Attributes.Append(newAttr);
+
+                    XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
+
+                    InsertNewXmlNode(product, newProp);
+
+                    XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
+                    BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
+                    binaryGrid.SelectedObject = binAdapter;
+                    binaryGrid.Update();
+
+                    foreach (GridItem it in binaryGrid.SelectedGridItem.Parent.GridItems) {
+                        if (it.Label == frm.SelectedString) {
+                            binaryGrid.SelectedGridItem = it;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            openDialog.Dispose();
+        }
+
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             BinaryElementPropertyDescriptor desc = binaryGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
@@ -161,7 +204,6 @@ namespace WixEdit {
             binaryGrid.SelectedObject = null;
 
             // Remove the attribute
-//            binAdapter.PropertyNodes.Remove(element);
             element.ParentNode.RemoveChild(element);
 
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
@@ -169,7 +211,6 @@ namespace WixEdit {
             binaryGrid.SelectedObject = binAdapter;
             binaryGrid.Update();
         }
-
 
         public override bool IsOwnerOfNode(XmlNode node) {
             XmlNode showable = GetShowableNode(node);
@@ -210,10 +251,10 @@ namespace WixEdit {
         }
 
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing) {
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing) {
             if( disposing ) {
                 binaryGrid.Dispose();
                 binaryGrid = null;
@@ -221,6 +262,6 @@ namespace WixEdit {
                 binaryGridContextMenu = null;
             }
             base.Dispose( disposing );
-		}
+        }
     }
 }
