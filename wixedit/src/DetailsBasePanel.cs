@@ -418,7 +418,7 @@ namespace WixEdit {
                 string filePath = Path.Combine(wixFiles.WxsDirectory.FullName, file.Attributes["Source"].Value);
 
                 if (File.Exists(filePath)) {
-                    Icon ico = FileIconFactory.GetFileIcon(filePath, false);
+                    Icon ico = FileIconFactory.GetFileIcon(filePath);
                     treeView.ImageList.Images.Add(ico);
     
                     node.ImageIndex = treeView.ImageList.Images.Count - 1;
