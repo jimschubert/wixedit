@@ -42,6 +42,7 @@ namespace WixEdit {
 
         protected AboutForm splash;
         protected bool splashIsDone = false;
+        bool hidingSplashIsDone = false;
         protected EventHandler splashScreenHandler;
 
         protected Panel mainPanel;
@@ -314,13 +315,7 @@ namespace WixEdit {
 
         private void EditorForm_Activated(object sender, System.EventArgs e) {
             if (splashIsDone) {
-                this.Activated -= splashScreenHandler;
-
-                if (splash != null) {
-                    splash.Hide();
-                    splash.Dispose();
-                    splash = null;
-                }
+                HideSplash();
             } else {
                 splash = new AboutForm();
                 splash.StartPosition = FormStartPosition.Manual;
@@ -330,18 +325,35 @@ namespace WixEdit {
 
                 splashIsDone = true;
 
-                // Hide splash after 1.5 second when wxs file is already loaded.
-                if (wixFiles != null) {
+                Timer t = new Timer();
+                t.Interval = 1500;
+                t.Tick += new EventHandler(t_Tick);
+                t.Start();
+            }
+        }
+
+        private void t_Tick(object sender, EventArgs e) {
+            Timer t = sender as Timer;
+            t.Stop();
+            t.Enabled = false;
+
+            HideSplash();
+        }
+
+        private void HideSplash() {
+            if (hidingSplashIsDone) {
+                return;
+            }
+
+            lock (splash) {
+                if (hidingSplashIsDone == false) {
+
                     this.Activated -= splashScreenHandler;
 
-                    Application.DoEvents();
-                    System.Threading.Thread.Sleep(1500);
-    
-                    if (splash != null) {
-                        splash.Hide();
-                        splash.Dispose();
-                        splash = null;
-                    }
+                    splash.Hide();
+                    splash.Dispose();
+
+                    hidingSplashIsDone = true;
                 }
             }
         }

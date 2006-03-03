@@ -24,6 +24,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Windows.Forms;
 
@@ -36,21 +37,32 @@ namespace WixEdit {
         // Reports of today can be viewed at: http://wixedit.sourceforge.net/server/viewreport.php
         protected readonly string reportingUrl = "http://wixedit.sourceforge.net/server/report.php";
 
+        protected string stringBuffer;
+        protected string boundary;
+
         public void Report(Exception exception) {
+            // Start building http POST.
+            StringBuilder buffer = new StringBuilder();
+
+            boundary = "----------" + Guid.NewGuid().ToString("N");
+            
+            buffer.Append("--").Append(boundary).Append("\r\n");
+            buffer.Append("Content-Disposition: form-data; name=\"");
+            buffer.Append(formFieldName).Append("\"\r\n\r\n");
+            buffer.Append("Version ").Append(WixEditSettings.Instance.ApplicationVersion).Append("\r\n");
+            buffer.Append("DateTime ").Append(DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")).Append("\r\n\r\n");
+            buffer.Append(exception.ToString()).Append("\r\n");
+            
+            buffer.Append("\r\n--").Append(boundary).Append("--\r\n");
+
+            stringBuffer = buffer.ToString();
+
+            Thread reportThread = new Thread(new ThreadStart(DoReport));
+            reportThread.Start();
+        }
+
+        protected void DoReport() {
             try {
-                // Start building http POST.
-                StringBuilder buffer = new StringBuilder();
-
-                string boundary = "----------" + Guid.NewGuid().ToString("N");
-            
-                buffer.Append("--").Append(boundary).Append("\r\n");
-                buffer.Append("Content-Disposition: form-data; name=\"");
-                buffer.Append(formFieldName).Append("\"\r\n\r\n");
-                buffer.Append("Version ").Append(WixEditSettings.Instance.ApplicationVersion).Append("\r\n\r\n");
-                buffer.Append(exception.ToString()).Append("\r\n");
-            
-                buffer.Append("\r\n--").Append(boundary).Append("--\r\n");
-
                 // Create a request.
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(reportingUrl);
 
@@ -58,9 +70,7 @@ namespace WixEdit {
 
                 request.ContentType = "multipart/form-data; boundary=" + boundary;
                 request.Method = "POST";
-                request.ContentLength = buffer.Length;
-
-                string stringBuffer = buffer.ToString();
+                request.ContentLength = stringBuffer.Length;
 
                 request.ContentLength = Encoding.ASCII.GetByteCount(stringBuffer);
 
@@ -74,6 +84,7 @@ namespace WixEdit {
                 }
             } catch (Exception) {
                 MessageBox.Show("Error occured while reporting an error.");
+                // This happens in a separate thread, don't bother the user with this...
             }
         }
     }

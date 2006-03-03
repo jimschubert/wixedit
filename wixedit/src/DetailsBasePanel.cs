@@ -646,7 +646,11 @@ namespace WixEdit {
 
             treeView.Nodes.Remove(treeView.SelectedNode);
 
-            ShowProperties(treeView.SelectedNode.Tag as XmlNode);
+            if (treeView.SelectedNode == null) {
+                ShowProperties(null);
+            } else {
+                ShowProperties(treeView.SelectedNode.Tag as XmlNode);
+            }
         }
 
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
@@ -682,7 +686,6 @@ namespace WixEdit {
             InsertNewXmlNode(node, newElement);
 
             treeView.SelectedNode.Nodes.Add(control);
-            // treeView.SelectedNode = control;
       
             return control;
         }
