@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -79,7 +80,9 @@ namespace WixEdit {
         protected IconMenuItem buildMenu;
         protected IconMenuItem helpMenu;
         protected IconMenuItem helpAbout;
-
+        protected IconMenuItem helpTutorial;
+        protected IconMenuItem helpMSIReference;
+        
         protected OutputPanel outputPanel;
         protected Splitter outputSplitter;
 
@@ -183,7 +186,7 @@ namespace WixEdit {
                 File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
                 toolsExternal = new IconMenuItem();
             } else {
-                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor, false);
+                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor);
                 toolsExternal = new IconMenuItem(ico);
             }
 
@@ -264,13 +267,24 @@ namespace WixEdit {
 
 
             helpMenu = new IconMenuItem();
+            helpTutorial = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
+            helpMSIReference = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
             helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.source.ico"), 16, 16));
+
+            helpTutorial.Text = "WiX Tutorial";
+            helpTutorial.Click += new EventHandler(helpTutorial_Click);
+
+            helpMSIReference.Text = "Windows Installer Reference";
+            helpMSIReference.Click += new EventHandler(helpMSIReference_Click);
 
             helpAbout.Text = "&About";
             helpAbout.Click += new EventHandler(helpAbout_Click);
 
             helpMenu.Text = "&Help";
-            helpMenu.MenuItems.Add(0, helpAbout);
+            helpMenu.MenuItems.Add(0, helpTutorial);
+            helpMenu.MenuItems.Add(1, helpMSIReference);
+            helpMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            helpMenu.MenuItems.Add(3, helpAbout);
 
             mainMenu.MenuItems.Add(4, helpMenu);
 
@@ -477,7 +491,7 @@ namespace WixEdit {
                     recentFileMenuItem.Click += new EventHandler(recentFile_Click);
 
                     if (File.Exists(recentFile)) {
-                        Icon ico = FileIconFactory.GetFileIcon(recentFile, false);
+                        Icon ico = FileIconFactory.GetFileIcon(recentFile);
                         recentFileMenuItem.Bitmap = ico.ToBitmap();
                     } else {
                         recentFileMenuItem.Enabled = false;
@@ -529,7 +543,7 @@ namespace WixEdit {
             }
 
             if (toolsExternal.HasIcon() == false && hasExternalEditor) {
-                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor, false);
+                Icon ico = FileIconFactory.GetFileIcon(WixEditSettings.Instance.ExternalXmlEditor);
                 toolsExternal.Bitmap = ico.ToBitmap();
             }
             if (toolsExternal.HasIcon() == true && hasExternalEditor == false) {
@@ -831,6 +845,42 @@ namespace WixEdit {
         private void toolsOptions_Click(object sender, System.EventArgs e) {
             SettingsForm frm = new SettingsForm();
             frm.ShowDialog();
+        }
+
+        private void helpTutorial_Click(object sender, System.EventArgs e) {
+            string target = "http://www.tramontana.co.hu/wix/";
+
+            // Navigate to it.
+            try {
+                Process.Start(target);
+            } catch (Win32Exception) {
+                // Workaround for:
+                // "Win32Exception: The requested lookup key was not found in any active activation context"   
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe"; // Win2K+
+                process.StartInfo.Arguments = "/c start " + target;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.Start();
+            }
+        }
+
+        private void helpMSIReference_Click(object sender, System.EventArgs e) {
+            string target = "http://msdn.microsoft.com/library/en-us/msi/setup/windows_installer_reference.asp";
+
+            // Navigate to it.
+            try {
+                Process.Start(target);
+            } catch (Win32Exception) {
+                // Workaround for:
+                // "Win32Exception: The requested lookup key was not found in any active activation context"   
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe"; // Win2K+
+                process.StartInfo.Arguments = "/c start " + target;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.Start();
+            }
         }
 
         private void helpAbout_Click(object sender, System.EventArgs e) {

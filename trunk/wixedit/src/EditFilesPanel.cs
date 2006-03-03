@@ -199,7 +199,7 @@ namespace WixEdit {
             fileNode.Text = fileInfo.Name;
 
             if (fileInfo.Exists) {
-                Icon ico = FileIconFactory.GetFileIcon(fileInfo.FullName, false);
+                Icon ico = FileIconFactory.GetFileIcon(fileInfo.FullName);
                 treeView.ImageList.Images.Add(ico);
     
                 fileNode.ImageIndex = treeView.ImageList.Images.Count - 1;

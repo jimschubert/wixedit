@@ -49,6 +49,10 @@ namespace WixEdit {
         [DllImport("Shell32.dll")]
         private static extern System.IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref ShFileInfo psfi, uint cbFileInfo, uint uFlags);
     
+        public static Icon GetFileIcon(string filePath) {
+            return GetFileIcon(filePath, false);
+        }
+
         public static Icon GetFileIcon(string filePath, bool isLink) {
             uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | SHGFI_SMALLICON;
             if (isLink) {

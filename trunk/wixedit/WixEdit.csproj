@@ -373,6 +373,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\bmp\web.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\bmp\wordundr.bmp"
                     BuildAction = "EmbeddedResource"
                 />
