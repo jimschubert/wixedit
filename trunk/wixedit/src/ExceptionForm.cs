@@ -68,6 +68,7 @@ namespace WixEdit {
             okButton.Name = "okButton";
             okButton.TabIndex = 0;
             okButton.Text = "OK";
+            okButton.Click += new EventHandler(okButton_Click);
             AcceptButton = okButton;
             // 
             // cancelButton
@@ -131,5 +132,9 @@ namespace WixEdit {
         private void detailsButton_Click(object sender, EventArgs e) {
             MessageBox.Show(exception.ToString(), "Exception Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        private void okButton_Click(object sender, EventArgs e) {
+            DialogResult = DialogResult.OK;
+        }       
     }
 }
