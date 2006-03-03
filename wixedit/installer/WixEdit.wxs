@@ -45,7 +45,7 @@
           <Directory Id="Samples" Name="sample">
             <Directory Id="UISample" Name="uisample" LongName="UISample">
               <Component Id="Sample.UISample" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0003">
-                <File Id="UISample.xml" Name="UISAMPLE.XML" LongName="UISample.xml" src="..\sample\UISample\UISample.xml" />
+                <File Id="UISample.wxs" Name="UISAMPLE.WXS" LongName="UISample.wxs" src="..\sample\UISample\UISample.wxs" />
               </Component>
               <Directory Id="Binary" Name="Binary">
                 <Component Id="Sample.UISample.Binary" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD0004">
