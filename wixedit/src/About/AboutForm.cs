@@ -31,7 +31,7 @@ namespace WixEdit.About {
 	/// Summary description for AboutForm.
 	/// </summary>
 	public class AboutForm : Form 	{
-        Image splashScreen;
+        Image backgroundImage;
         double imageScale = 0.5;
 
         Label versionLabel;
@@ -70,7 +70,7 @@ namespace WixEdit.About {
             Width = 320;
             Height = 160;
 
-            splashScreen = Image.FromStream(WixFiles.GetResourceStream("About.png"));
+            backgroundImage = Image.FromStream(WixFiles.GetResourceStream("About.png"));
 
             int labelHeight = 16;
 
@@ -147,13 +147,30 @@ namespace WixEdit.About {
         }
 
         protected override void OnPaintBackground(PaintEventArgs args) {
-            Graphics gfx = args.Graphics;
-            if (useRealTransparency) {
-                gfx.Clear(realTransparencyColor);
+            if (backgroundImage != null) {
+                Graphics gfx = args.Graphics;
+                if (useRealTransparency) {
+                    gfx.Clear(realTransparencyColor);
+                }
+                gfx.DrawImage(backgroundImage, new Rectangle(0, 0, 
+                    (int) Math.Round(backgroundImage.Width*imageScale), 
+                    (int) Math.Round(backgroundImage.Height*imageScale)));
             }
-            gfx.DrawImage(splashScreen, new Rectangle(0, 0, 
-                                        (int) Math.Round(splashScreen.Width*imageScale), 
-                                        (int) Math.Round(splashScreen.Height*imageScale)));
+        }
+
+        
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing) {
+            if( disposing ) {
+                if (backgroundImage != null) {
+                    backgroundImage.Dispose();
+                    backgroundImage = null;
+                }
+            }
+
+            base.Dispose( disposing );
         }
     }
 }

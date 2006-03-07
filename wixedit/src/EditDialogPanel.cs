@@ -845,7 +845,7 @@ namespace WixEdit {
             }
 
             if (prevDialog != null) {
-                prevDialog.Hide();
+                prevDialog.Close();
                 prevDialog.Dispose();
             }
 
@@ -1196,7 +1196,7 @@ namespace WixEdit {
         protected override void Dispose( bool disposing ) {
             if( disposing ) {
                 if (currentDialog != null) {
-                    currentDialog.Hide();
+                    currentDialog.Close();
                     currentDialog.Dispose();
                     currentDialog = null;
                 }

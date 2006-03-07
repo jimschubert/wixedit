@@ -86,19 +86,5 @@ namespace WixEdit {
             editFilesPanel.ReloadData();
             editFeaturesPanel.ReloadData();
         }
-
-
-
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing) {
-            if( disposing ) {
-                tabControl.TabPages.Clear();
-                tabControl.Dispose();
-                tabControl = null;
-            }
-            base.Dispose( disposing );
-		}
     }
 }

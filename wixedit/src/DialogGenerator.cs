@@ -81,25 +81,6 @@ namespace WixEdit {
 
                 definedFonts.Add(fontElement.Attributes["Id"].Value, font);
             }
-
-//
-//Name Type Description Usage 
-//Id xs:string   required 
-//FaceName xs:string   required 
-//
-//Blue xs:integer 0 to 255   
-//Green xs:integer 0 to 255  
-//Red xs:integer 0 to 255   
-//
-//Size xs:integer   required 
-//
-//Bold YesNoType     
-//Italic YesNoType     
-//Strike YesNoType     
-//Underline YesNoType   
-
-
-            //
         }
 
 
@@ -190,6 +171,9 @@ namespace WixEdit {
 
             XmlNodeList volumeCostLists = dialog.SelectNodes("wix:Control[@Type='VolumeCostList']", wixFiles.WxsNsmgr);
             AddVolumeCostLists(newDialog, volumeCostLists);
+
+            XmlNodeList volumeComboBoxes = dialog.SelectNodes( "wix:Control[@Type='VolumeSelectCombo']", wixFiles.WxsNsmgr );
+            AddVolumeComboBoxes(newDialog, volumeComboBoxes);
 
 // Skipping tooltips
 /*
@@ -608,6 +592,21 @@ namespace WixEdit {
                     SetControlAttributes(listView, volumeCostList);
 
                     newDialog.AddControl(volumeCostList, listView);
+                } catch {
+                }
+            }
+        }
+
+        private void AddVolumeComboBoxes(DesignerForm newDialog, XmlNodeList volumeCombos) {
+            foreach (XmlNode volumeCombo in volumeCombos) {
+                try {
+                    ComboBox comboCtrl = new ComboBox();
+                    comboCtrl.Items.Add("VolumeCombo");
+                    comboCtrl.SelectedIndex = 0;
+
+                    SetControlAttributes(comboCtrl, volumeCombo);
+
+                    newDialog.AddControl(volumeCombo, comboCtrl);
                 } catch {
                 }
             }
