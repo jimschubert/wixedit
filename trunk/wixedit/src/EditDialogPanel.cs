@@ -499,13 +499,18 @@ namespace WixEdit {
         public void OnWxsDialogsPopupContextMenu(object sender, EventArgs e) {
             MenuItem menuItem1 = new IconMenuItem("&New Dialog", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            MenuItem menuItem3 = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+
             
             menuItem1.Click += new EventHandler(OnNewWxsDialogsItem);
             menuItem2.Click += new EventHandler(OnDeleteWxsDialogsItem);
+            menuItem3.Click += new EventHandler(OnImportWxsDialogsItem);
 
             wxsDialogsContextMenu.MenuItems.Clear();
 
             wxsDialogsContextMenu.MenuItems.Add(menuItem1);
+            wxsDialogsContextMenu.MenuItems.Add(menuItem3);
+
 
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 wxsDialogsContextMenu.MenuItems.Add(menuItem2);
@@ -655,8 +660,60 @@ namespace WixEdit {
                 item.Selected = true;
                 item.Focused = true;
                 item.EnsureVisible();
-
+    
                 wxsDialogs.Focus();
+            }
+        }
+
+        public void OnImportWxsDialogsItem(object sender, EventArgs e) {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            ofd.InitialDirectory = wixFiles.WxsDirectory.FullName;
+
+            if (ofd.ShowDialog() != DialogResult.OK) {
+                return;
+            }
+
+            XmlDocument importXml = new XmlDocument();
+            importXml.Load(ofd.FileName);
+
+            XmlNodeList dialogList =  importXml.SelectNodes("//wix:Dialog", wixFiles.WxsNsmgr);
+            if (dialogList.Count > 0) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                if (ui == null) {
+                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+
+                    return;
+                }
+
+                ListViewItem firstItem = null;
+                foreach (XmlNode importDialog in dialogList) {
+                    if (importDialog.Attributes["Id"] == null) {
+                        continue;
+                    }
+                    
+                    string itemName = importDialog.Attributes["Id"].Value;
+
+                    XmlNode importedDialog = wixFiles.WxsDocument.ImportNode(importDialog, true);
+                    InsertNewXmlNode(ui, importedDialog);
+    
+                    ListViewItem item = new ListViewItem(itemName);
+                    item.Tag = importedDialog;
+                    wxsDialogs.Items.Add(item);
+
+                    if (firstItem == null) {
+                        firstItem = item;
+                    }
+                }
+
+                if (firstItem != null) {
+                    firstItem.Selected = true;
+                    firstItem.Focused = true;
+                    firstItem.EnsureVisible();
+        
+                    wxsDialogs.Focus();
+                }
             }
         }
 
