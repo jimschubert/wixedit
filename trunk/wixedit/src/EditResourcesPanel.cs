@@ -249,19 +249,5 @@ namespace WixEdit {
 
             return showableNode;
         }
-
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        protected override void Dispose(bool disposing) {
-            if( disposing ) {
-                binaryGrid.Dispose();
-                binaryGrid = null;
-                binaryGridContextMenu.Dispose();
-                binaryGridContextMenu = null;
-            }
-            base.Dispose( disposing );
-        }
     }
 }

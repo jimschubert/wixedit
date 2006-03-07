@@ -620,6 +620,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\CopyDataMessenger.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\DesignerForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"

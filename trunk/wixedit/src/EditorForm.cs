@@ -30,20 +30,21 @@ using System.Xml;
 using System.IO;
 using System.Resources;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 using WixEdit.About;
 using WixEdit.Settings;
 
 namespace WixEdit {
-	/// <summary>
-	/// The main dialog.
-	/// </summary>
-	public class EditorForm : Form 	{
+    /// <summary>
+    /// The main dialog.
+    /// </summary>
+    public class EditorForm : Form {
         protected OpenFileDialog openWxsFileDialog;
 
         protected AboutForm splash;
         protected bool splashIsDone = false;
-        bool hidingSplashIsDone = false;
         protected EventHandler splashScreenHandler;
 
         protected Panel mainPanel;
@@ -95,15 +96,29 @@ namespace WixEdit {
 
         protected WixFiles wixFiles;
 
+        protected static ArrayList formInstances = new ArrayList();
+
         public EditorForm() {
-                InitializeComponent();
+            InitializeComponent();
+        }
+
+        public EditorForm(string fileToOpen) {
+            InitializeComponent();
+
+            FileInfo xmlFileInfo = new FileInfo(fileToOpen);
+            if (xmlFileInfo.Exists) {
+                LoadWxsFile(xmlFileInfo);
+            }
         }
 
         private void InitializeComponent() {
+            formInstances.Add(this);
+
             Text = "WiX Edit";
             Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
-            ClientSize = new System.Drawing.Size(630, 480);
-
+            ClientSize = new Size(630, 480);
+            MinimumSize = new Size(250, 200);
+            
             openWxsFileDialog = new OpenFileDialog();
 
             mainMenu = new MainMenu();
@@ -313,17 +328,8 @@ namespace WixEdit {
 
             splashScreenHandler = new EventHandler(EditorForm_Activated);
             this.Activated += splashScreenHandler;
-
-            string[] args = Environment.GetCommandLineArgs();
-            if (args.Length == 2) {
-                string xmlFile = args[1];
-                if (xmlFile != null && xmlFile.Length > 0 && 
-                   (xmlFile.ToLower().EndsWith(".xml") || xmlFile.ToLower().EndsWith(".wxs"))) {
-                    FileInfo xmlFileInfo = new FileInfo(xmlFile);
-                    if (xmlFileInfo.Exists) {
-                        LoadWxsFile(xmlFileInfo);
-                    }
-                }
+            if (formInstances.Count > 1) {
+                splashIsDone = true;
             }
         }
 
@@ -331,23 +337,27 @@ namespace WixEdit {
             if (splashIsDone) {
                 HideSplash();
             } else {
-                splash = new AboutForm();
-                splash.StartPosition = FormStartPosition.Manual;
-                splash.Left = this.Left + (this.Width/2) - (splash.Width/2);
-                splash.Top = this.Top + (this.Height/2) - (splash.Height/2);
-                splash.Show();
+                ShowSplash();
 
-                splashIsDone = true;
-
-                Timer t = new Timer();
+                System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
                 t.Interval = 1500;
                 t.Tick += new EventHandler(t_Tick);
                 t.Start();
             }
         }
 
+        private void ShowSplash() {
+            splash = new AboutForm();
+            splash.StartPosition = FormStartPosition.Manual;
+            splash.Left = this.Left + (this.Width/2) - (splash.Width/2);
+            splash.Top = this.Top + (this.Height/2) - (splash.Height/2);
+            splash.Show();
+
+            splashIsDone = true;
+        }
+
         private void t_Tick(object sender, EventArgs e) {
-            Timer t = sender as Timer;
+            System.Windows.Forms.Timer t = sender as System.Windows.Forms.Timer;
             t.Stop();
             t.Enabled = false;
 
@@ -355,23 +365,15 @@ namespace WixEdit {
         }
 
         private void HideSplash() {
-            if (hidingSplashIsDone) {
-                return;
-            }
-
-            lock (splash) {
-                if (hidingSplashIsDone == false) {
-
-                    this.Activated -= splashScreenHandler;
-
-                    splash.Hide();
-                    splash.Dispose();
-
-                    hidingSplashIsDone = true;
+            // Need to lock for threading.
+            // Cannot lock splash because that can be null.
+            lock (splashScreenHandler) {
+                if (splash != null) {
+                    splash.Close();
+                    splash = null;
                 }
             }
         }
-
         private void fileNew_Click(object sender, System.EventArgs e) {
             NewFile();
         }
@@ -438,18 +440,29 @@ namespace WixEdit {
             }
 
             CloseWxsFile();
+
+            if (formInstances.Count > 1) {
+                this.Close();
+            }
         }
 
+        public delegate void VoidDelegate();
+
         private void fileExit_Click(object sender, System.EventArgs e) {
-            if (wixFiles != null) {
-                if (HandlePendingChanges() == false) {
-                    return;
+            EditorForm[] constEditorArray = new EditorForm[formInstances.Count];
+            formInstances.CopyTo(constEditorArray);
+            for (int i = 0; i < constEditorArray.Length; i++) {
+
+                EditorForm edit = constEditorArray[i];
+
+                if (edit == this) {
+                    continue;
                 }
 
-                CloseWxsFile();
+                edit.Invoke(new VoidDelegate(edit.Close));
             }
 
-            Application.Exit();
+            this.Close();
         }
 
         private void fileMenu_Popup(object sender, System.EventArgs e) {
@@ -468,6 +481,16 @@ namespace WixEdit {
                 }
 
                 CloseWxsFile();
+            }
+
+            this.Hide();
+
+            if (formInstances.Contains(this)) {
+                formInstances.Remove(this);
+            }
+
+            if (formInstances.Count == 0) {
+                Application.Exit();
             }
         }
 
@@ -884,8 +907,7 @@ namespace WixEdit {
         }
 
         private void helpAbout_Click(object sender, System.EventArgs e) {
-            AboutForm frm = new AboutForm();
-            frm.ShowDialog();
+            ShowSplash();
         }
 
         private void OnTabChanged(object sender, EventArgs e) {
@@ -1043,8 +1065,6 @@ namespace WixEdit {
             if (tabButtonControl != null) {
                 mainPanel.Controls.Remove(tabButtonControl);
                 tabButtonControl.Visible = false;
-                tabButtonControl.ClearTabs();
-                tabButtonControl.Dispose();
                 tabButtonControl = null;
             }
 
@@ -1054,43 +1074,30 @@ namespace WixEdit {
 
             if (editUIPanel != null) {
                 editUIPanel.Visible = false;
-                editUIPanel.Controls.Clear();
-                editUIPanel.Dispose();
                 editUIPanel = null;
             }
             if (editPropertiesPanel != null) {
                 editPropertiesPanel.Visible = false;
-                editPropertiesPanel.Controls.Clear();
-                editPropertiesPanel.Dispose();
                 editPropertiesPanel = null;
             }
             if (editResourcesPanel != null) {
                 editResourcesPanel.Visible = false;
-                editResourcesPanel.Controls.Clear();
-                editResourcesPanel.Dispose();
                 editResourcesPanel = null;
             }
             if (editInstallDataPanel != null) {
                 editInstallDataPanel.Visible = false;
-                editInstallDataPanel.Controls.Clear();
-                editInstallDataPanel.Dispose();
                 editInstallDataPanel = null;
             }
             if (editGlobalDataPanel != null) {
                 editGlobalDataPanel.Visible = false;
-                editGlobalDataPanel.Controls.Clear();
-                editGlobalDataPanel.Dispose();
                 editGlobalDataPanel = null;
             }
             if (editActionsPanel != null) {
                 editActionsPanel.Visible = false;
-                editActionsPanel.Controls.Clear();
-                editActionsPanel.Dispose();
                 editActionsPanel = null;
             }
 
             if (wixFiles != null) {
-                wixFiles.Dispose(); 
                 wixFiles = null;
             }
 
@@ -1100,27 +1107,59 @@ namespace WixEdit {
             fileSave.Enabled = false;
         }
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing) {
-            // if( disposing ) {
-            // }
-            base.Dispose( disposing );
-		}
+        [DllImport("User32")] 
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("User32")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+        [DllImport("User32")] 
+        private static extern bool IsIconic(IntPtr hWnd);
 
-		
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-		static void Main() {
+        private const int SW_RESTORE = 9;
+
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main() {
+            string fileToOpen = null;
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length == 2) {
+                string xmlFile = args[1];
+                if (xmlFile != null && xmlFile.Length > 0 && File.Exists(xmlFile)) {
+                    fileToOpen = xmlFile;
+                }
+            }
+
+            Process otherProcess = FindOtherProcess();
+            if (otherProcess != null) {
+                IntPtr hWnd = otherProcess.MainWindowHandle;
+
+                if (fileToOpen == null) {
+                    if (IsIconic(hWnd)) {
+                        ShowWindowAsync(hWnd, SW_RESTORE);
+                    }
+    
+                    SetForegroundWindow(hWnd);
+                } else {
+                    CopyDataMessenger.SendMessage(hWnd, "open|"+fileToOpen);
+                }
+
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.DoEvents();
 
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             try {
-                Application.Run(new EditorForm());
+                EditorForm editorForm = null;
+                if (fileToOpen == null) {
+                    editorForm = new EditorForm();
+                } else {
+                    editorForm = new EditorForm(fileToOpen);
+                }
+
+                Application.Run(editorForm);
             } catch (Exception ex) {
                 string message = "Caught unhandled exception! Please press OK to report this error to the WixEdit website, so this error can be fixed.";
                 ExceptionForm form = new ExceptionForm(message, ex);
@@ -1131,7 +1170,74 @@ namespace WixEdit {
             }
         }
 
+        private static Process FindOtherProcess() {
+            Process otherProcess = null;
+            Process thisProcess = Process.GetCurrentProcess();
+            
+            string processName = thisProcess.ProcessName;
+            Process[] processes = Process.GetProcessesByName(processName);
+            
+            if (processes.Length > 1) {
+                for (int i = 0; i < processes.Length; i++) {
+                    Process aProcess = processes[i];
+                    if (aProcess != null && aProcess.MainWindowHandle != IntPtr.Zero) {
+                        otherProcess = aProcess;
+                    }
+                }
+
+                return otherProcess;
+            }
+
+            return null;
+        }
+
+        protected override void WndProc(ref Message message) {
+            //filter the WM_COPYDATA
+            if (message.Msg == CopyDataMessenger.WM_COPYDATA) {
+                string messageText = CopyDataMessenger.DecodeMessage(ref message);
+                
+                string[] messageItems = messageText.Split('|');
+                DoAction(messageItems[0], messageItems[1]);
+            } else {
+                //be sure to pass along all messages to the base also
+                base.WndProc(ref message);
+            }
+        }
+
+        private void DoAction(string action, string argument) {
+            switch (action) {
+                case "open":
+                    EditorForm foundForm = null;
+                    foreach (EditorForm edit in formInstances) {
+                        // Hmmm, how can you compare 2 paths?!
+                        if (edit.wixFiles != null && edit.wixFiles.WxsFile.FullName.ToLower() == new FileInfo(argument).FullName.ToLower()) {
+                            foundForm = edit;
+                        }
+                    }
+
+                    if (foundForm != null) {
+                        if (IsIconic(foundForm.Handle)) {
+                            ShowWindowAsync(foundForm.Handle, SW_RESTORE);
+                        }
+                        SetForegroundWindow(foundForm.Handle);
+                    } else {
+                        if (wixFiles == null) {
+                            LoadWxsFile(argument);
+                        } else {
+                            EditorForm newForm = new EditorForm(argument);
     
+                            Thread t = new Thread(new ThreadStart(newForm.StartMessageLoop));
+                            t.Start();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        protected void StartMessageLoop() {
+            Application.Run(this);
+        }
+
         private delegate void InvokeDelegate();
         private void wixFiles_wxsChanged(object sender, EventArgs e) {
             try {

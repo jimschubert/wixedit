@@ -125,26 +125,5 @@ namespace WixEdit {
             editUISequencePanel.ReloadData();
             editUITextPanel.ReloadData();
         }
-
-
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing) {
-            if( disposing ) {
-                editDialogPanel.Dispose();
-                editDialogPanel = null;
-                editUISequencePanel.Dispose();
-                editUISequencePanel = null;
-                editUITextPanel.Dispose();
-                editUITextPanel = null;
-
-                tabControl.TabPages.Clear();
-                tabControl.Dispose();
-                tabControl = null;
-            }
-
-            base.Dispose( disposing );
-		}
     }
 }
