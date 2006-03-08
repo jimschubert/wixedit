@@ -38,6 +38,19 @@ namespace WixEdit {
         public abstract void ShowNode(XmlNode node);
         public abstract void ReloadData();
 
+        protected virtual XmlNode GetShowableNode(XmlNode node) {
+            XmlNode showableNode = node;
+            while (showableNode.NodeType != XmlNodeType.Element) {
+                if (showableNode.NodeType == XmlNodeType.Attribute) {
+                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
+                } else {
+                    showableNode = showableNode.ParentNode;
+                }
+            }
+
+            return showableNode;
+        }
+
         private delegate void ReloadHandler();
         private event ReloadHandler Reload;
 

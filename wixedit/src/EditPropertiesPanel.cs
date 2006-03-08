@@ -185,19 +185,5 @@ namespace WixEdit {
 
             LoadData();
         }
-
-
-        private XmlNode GetShowableNode(XmlNode node) {
-            XmlNode showableNode = node;
-            while (showableNode.NodeType != XmlNodeType.Element) {
-                if (showableNode.NodeType == XmlNodeType.Attribute) {
-                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
-                } else {
-                    showableNode = showableNode.ParentNode;
-                }
-            }
-
-            return showableNode;
-        }
     }
 }
