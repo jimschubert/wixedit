@@ -7,7 +7,7 @@
     lightArgs:     "<projectname>.wixobj" Sources.wixobj -out "<projectname>.msi"
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
-  <Product Name="WixEdit" Id="DEADBEEF-0CDA-4c4b-A0C6-3A56017C9CE6" Version="$(var.VERSION)" UpgradeCode="5D5D3F6C-20FE-487e-9836-542950FD7921" Manufacturer="Jasper Keuper (jkeuper@gmail.com)" Language="1033">
+  <Product Name="WixEdit" Id="????????-????-????-????-????????????" Version="$(var.VERSION)" UpgradeCode="5D5D3F6C-20FE-487e-9836-542950FD7921" Manufacturer="Jasper Keuper (jkeuper@gmail.com)" Language="1033">
     <Package Compressed="yes" Id="????????-????-????-????-????????????" />
     <Condition Message="You must install the Microsoft .NET Framework SDK 1.1.4322 before running [ProductName] [Setup].">MsiNetAssemblySupport&gt;="1.1.4322"</Condition>
     <?include Dialogs.wxi?>
@@ -15,7 +15,7 @@
     <Property Id="ARPHELPLINK">http://wixedit.sourceforge.net</Property>
     <Property Id="ARPCONTACT">Jasper Keuper (jkeuper@gmail.com)</Property>
     <Property Id="ARPURLINFOABOUT">http://wixedit.sourceforge.net</Property>
-    <Property Id='ARPPRODUCTICON'>WixEdit.Application.Icon</Property>
+    <Property Id="ARPPRODUCTICON">WixEdit.Application.Icon</Property>
     <Directory Id="myTARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder" Name="PFiles">
         <Directory Id="TARGETDIR" Name="WixEdit">
@@ -218,11 +218,14 @@
       <ComponentRef Id="WixBinaries.ui.Language" />
       <ComponentRef Id="WixBinaries.ui.License" />
     </Feature>
-    <!-- Upgrading is a pain, skipping it. -->
-    <!-- Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
-      <UpgradeVersion Minimum="$(var.VERSION)" Property="VERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
-    </Upgrade -->
+    <Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
+      <!-- Upgrading everything before this version. -->
+      <UpgradeVersion Maximum="$(var.VERSION)" Property="OLDERVERSIONFOUND" OnlyDetect="no" IncludeMaximum="no" />
+      <!-- Denying everything from this version (with changed product Id) and up, because that would conflict with the component rules! -->
+      <UpgradeVersion Minimum="$(var.VERSION)" Property="NEWERVERSIONFOUND" OnlyDetect="yes" IncludeMinimum="yes" />
+    </Upgrade>
     <CustomAction Id="LaunchFile" FileKey="WixEditExe" ExeCommand="" Return="asyncNoWait" />
+    <CustomAction Id="NewVersionError" Error="A newer version of [ProductName] is already installed! Cannot continue installation." />
     <Media Id="1" EmbedCab="yes" Cabinet="Files.cab" />
     <Icon Id="WixEdit.Application.Icon" SourceFile="..\res\dialog\source.ico" />
   </Product>

@@ -377,19 +377,6 @@ namespace WixEdit {
             return FindNode(GetShowableNode(node), dialogs);
         }
 
-        private XmlNode GetShowableNode(XmlNode node) {
-            XmlNode showableNode = node;
-            while (showableNode.NodeType != XmlNodeType.Element) {
-                if (showableNode.NodeType == XmlNodeType.Attribute) {
-                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
-                } else {
-                    showableNode = showableNode.ParentNode;
-                }
-            }
-
-            return showableNode;
-        }
-
         private bool FindNode(XmlNode nodeToFind, IEnumerable xmlNodes) {
             foreach (XmlNode node in xmlNodes) {
                 if (node == nodeToFind) {

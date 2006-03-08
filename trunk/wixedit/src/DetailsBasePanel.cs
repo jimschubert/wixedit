@@ -163,19 +163,6 @@ namespace WixEdit {
             return FindNode(GetShowableNode(node), GetXmlNodes());
         }
 
-        private XmlNode GetShowableNode(XmlNode node) {
-            XmlNode showableNode = node;
-            while (showableNode.NodeType != XmlNodeType.Element) {
-                if (showableNode.NodeType == XmlNodeType.Attribute) {
-                    showableNode = ((XmlAttribute) showableNode).OwnerElement;
-                } else {
-                    showableNode = showableNode.ParentNode;
-                }
-            }
-
-            return showableNode;
-        }
-
         private bool FindNode(XmlNode nodeToFind, IEnumerable xmlNodes) {
             foreach (XmlNode node in xmlNodes) {
                 if (SkipElements.Contains(node.Name)) {
@@ -206,7 +193,7 @@ namespace WixEdit {
             }
         }
 
-        private TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
+        protected virtual TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
             foreach (TreeNode treeNode in treeNodes) {
                 if (treeNode.Tag == node) {
                     return treeNode;
