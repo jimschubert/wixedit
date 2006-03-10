@@ -132,7 +132,15 @@ namespace WixEdit.Settings {
 
         private string SettingsFile {
             get {
-                return Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName, filename);
+                string wixEditDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WixEdit");
+                return Path.Combine(wixEditDataFolder, filename);
+            }
+        }
+
+        // The location of where the SettingFile once used to be.
+        private string OldSettingsFile {
+            get {
+                return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             }
         }
 
@@ -143,9 +151,9 @@ namespace WixEdit.Settings {
 
         void LoadFromDisk() {
             Stream xmlStream = null;
-            if (File.Exists(SettingsFilename)) {
+            if (File.Exists(SettingsFile)) {
                 // A FileStream is needed to read the XML document.
-                xmlStream = new FileStream(SettingsFilename, FileMode.Open);
+                xmlStream = new FileStream(SettingsFile, FileMode.Open);
 
                 using (xmlStream) {
                     // Create an instance of the XmlSerializer class;
@@ -164,6 +172,25 @@ namespace WixEdit.Settings {
                     data = (WixEditData) serializer.Deserialize(xmlStream);
                 }
             } else {
+                // Support the previous situation gracefully.
+                if (File.Exists(OldSettingsFile)) {
+                    // Try to move to new location
+                    try {
+                        File.Move(OldSettingsFile, SettingsFile);
+                    } catch {
+                        // Move didn't work, delete the file
+                        try {
+                            File.Delete(OldSettingsFile);
+                        } catch {}
+                    }
+
+                    // If we got rid of the old file, then load again, otherwise just continue...
+                    if (File.Exists(OldSettingsFile) == false) {
+                        LoadFromDisk();
+                        return;
+                    }
+                }
+
                 data = new WixEditData();
             }
 
@@ -185,13 +212,13 @@ namespace WixEdit.Settings {
                             // This is a config file of an old version.
                             data = new WixEditData(data);
 
-                            if (File.Exists(SettingsFilename)) {
-                                string oldFileName = SettingsFilename + "_v" + old.ToString();
+                            if (File.Exists(SettingsFile)) {
+                                string oldFileName = SettingsFile + "_v" + old.ToString();
                                 while (File.Exists(oldFileName)) {
                                     oldFileName = oldFileName + "_";
                                 }
 
-                                File.Copy(SettingsFilename, oldFileName);
+                                File.Copy(SettingsFile, oldFileName);
                             }
                         }
 
@@ -208,12 +235,6 @@ namespace WixEdit.Settings {
 
         public void DiscardChanges() {
             LoadFromDisk();
-        }
-
-        private string SettingsFilename {
-            get {
-                return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
-            }
         }
 
         public void SaveChanges() {
