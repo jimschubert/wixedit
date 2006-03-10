@@ -1,4 +1,3 @@
-
 // Copyright (c) 2005 J.Keuper (j.keuper@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
