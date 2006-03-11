@@ -244,6 +244,11 @@ namespace WixEdit.Settings {
             FileMode mode = FileMode.OpenOrCreate;
             if (File.Exists(SettingsFile)) {
                 mode = mode|FileMode.Truncate;
+            } else {
+                string wixEditDataFolder = Path.GetDirectoryName(SettingsFile);
+                if (Directory.Exists(wixEditDataFolder) == false) {
+                    Directory.CreateDirectory(wixEditDataFolder);
+                }
             }
 
             FileStream fs = new FileStream(SettingsFile, mode);
