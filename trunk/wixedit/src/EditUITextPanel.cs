@@ -96,19 +96,25 @@ namespace WixEdit {
             // Define the MenuItem objects to display for the TextBox.
             MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            MenuItem menuItem3 = new IconMenuItem("&Rename");
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
             menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+            menuItem3.Click += new EventHandler(OnRenamePropertyGridItem);
         
             // Clear all previously added MenuItems.
             propertyGridContextMenu.MenuItems.Clear();
 
             propertyGridContextMenu.MenuItems.Add(menuItem1);
-            propertyGridContextMenu.MenuItems.Add(menuItem2);
+            if (propertyGrid.SelectedGridItem.PropertyDescriptor is UITextElementPropertyDescriptor) {
+                propertyGridContextMenu.MenuItems.Add(menuItem2);
+                propertyGridContextMenu.MenuItems.Add(menuItem3);
+            }
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter UI Text Name";
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
@@ -159,6 +165,27 @@ namespace WixEdit {
             uiTextAdapter = new UITextElementAdapter(properties, wixFiles);
             propertyGrid.SelectedObject = uiTextAdapter;
             propertyGrid.Update();
+        }
+
+        public void OnRenamePropertyGridItem(object sender, EventArgs e) {
+            // Get the XmlAttribute from the PropertyDescriptor
+            UITextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as UITextElementPropertyDescriptor;
+            XmlNode element = desc.XmlElement;
+
+            EnterStringForm frm = new EnterStringForm(element.Attributes["Id"].Value);
+            frm.Text = "Enter UI Text Name";
+            if (DialogResult.OK == frm.ShowDialog()) {    
+                wixFiles.UndoManager.BeginNewCommandRange();
+
+                element.Attributes["Id"].Value = frm.SelectedString;
+
+                // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+                UITextElementAdapter uiTextAdapter = propertyGrid.SelectedObject as UITextElementAdapter;
+                propertyGrid.SelectedObject = null;
+    
+                propertyGrid.SelectedObject = uiTextAdapter;
+                propertyGrid.Update();
+            }
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {

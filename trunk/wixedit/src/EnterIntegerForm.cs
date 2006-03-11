@@ -29,7 +29,15 @@ namespace WixEdit {
             StringEdit.KeyPress += new KeyPressEventHandler(StringEdit_KeyPress);
         }
 
-        
+		public EnterIntegerForm(string stringIntValue) {
+            Text = "Enter number";
+
+            StringEdit.KeyPress += new KeyPressEventHandler(StringEdit_KeyPress);
+
+			if (stringIntValue != null) {
+				StringEdit.Text = stringIntValue;
+			}
+		}
 
         public int SelectedInteger {
             get {
