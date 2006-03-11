@@ -96,21 +96,34 @@ namespace WixEdit {
             // Define the MenuItem objects to display for the TextBox.
             MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            MenuItem menuItem3 = new IconMenuItem("&Rename");
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
             menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+            menuItem3.Click += new EventHandler(OnRenamePropertyGridItem);
         
             // Clear all previously added MenuItems.
             propertyGridContextMenu.MenuItems.Clear();
 
             propertyGridContextMenu.MenuItems.Add(menuItem1);
-            propertyGridContextMenu.MenuItems.Add(menuItem2);
+            if (propertyGrid.SelectedGridItem.PropertyDescriptor is ProgressTextElementPropertyDescriptor) {
+                propertyGridContextMenu.MenuItems.Add(menuItem2);
+                propertyGridContextMenu.MenuItems.Add(menuItem3);
+            }
         }
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter ProgressText Name";
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
+
+                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                if (ui == null) {
+                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+
+                    return;
+                }
 
                 XmlElement newProp = wixFiles.WxsDocument.CreateElement("ProgressText", "http://schemas.microsoft.com/wix/2003/01/wi");
 
@@ -118,14 +131,7 @@ namespace WixEdit {
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                XmlNode ui = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*/wix:UI", wixFiles.WxsNsmgr);
-                
-                XmlNodeList sameNodes = ui.SelectNodes("wix:ProgressText", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
-                    ui.InsertAfter(newProp, sameNodes[sameNodes.Count - 1]);
-                } else {
-                    ui.AppendChild(newProp);
-                }
+                InsertNewXmlNode(ui, newProp);
 
                 XmlNodeList progressTexts = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
 
@@ -159,6 +165,27 @@ namespace WixEdit {
             progressTextAdapter = new ProgressTextElementAdapter(properties, wixFiles);
             propertyGrid.SelectedObject = progressTextAdapter;
             propertyGrid.Update();
+        }
+
+        public void OnRenamePropertyGridItem(object sender, EventArgs e) {
+            // Get the XmlAttribute from the PropertyDescriptor
+            ProgressTextElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ProgressTextElementPropertyDescriptor;
+            XmlNode element = desc.XmlElement;
+
+            EnterStringForm frm = new EnterStringForm(element.Attributes["Action"].Value);
+            frm.Text = "Enter ProgressText Name";
+            if (DialogResult.OK == frm.ShowDialog()) {    
+                wixFiles.UndoManager.BeginNewCommandRange();
+
+                element.Attributes["Action"].Value = frm.SelectedString;
+
+                // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
+                ProgressTextElementAdapter progressTextAdapter = propertyGrid.SelectedObject as ProgressTextElementAdapter;
+                propertyGrid.SelectedObject = null;
+
+                propertyGrid.SelectedObject = progressTextAdapter;
+                propertyGrid.Update();
+            }
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {

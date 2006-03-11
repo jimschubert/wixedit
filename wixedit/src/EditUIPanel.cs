@@ -114,6 +114,12 @@ namespace WixEdit {
             } else if (editUITextPanel.IsOwnerOfNode(node)) {
                 tabControl.SelectedTab = editUITextTabPage;
                 editUITextPanel.ShowNode(node);
+            } else if (editProgressTextPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editProgressTextTabPage;
+                editProgressTextPanel.ShowNode(node);
+            } else if (editErrorPanel.IsOwnerOfNode(node)) {
+                tabControl.SelectedTab = editErrorTabPage;
+                editErrorPanel.ShowNode(node);
             } else {
                 tabControl.SelectedTab = editDialogTabPage;
                 editDialogPanel.ReloadData();
@@ -124,6 +130,8 @@ namespace WixEdit {
             editDialogPanel.ReloadData();
             editUISequencePanel.ReloadData();
             editUITextPanel.ReloadData();
+            editProgressTextPanel.ReloadData();
+            editErrorPanel.ReloadData();
         }
     }
 }
