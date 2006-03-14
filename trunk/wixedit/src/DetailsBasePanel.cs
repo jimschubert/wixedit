@@ -286,7 +286,9 @@ namespace WixEdit {
                 propertyGridContextMenu.MenuItems.Add(menuItem2);
             }
 
-            propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
+            if (propertyGridContextMenu.MenuItems.Count > 0) {
+                propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
+            }
 
             MenuItem menuItem3 = new IconMenuItem("Description");
             menuItem3.Click += new EventHandler(OnToggleDescriptionPropertyGrid);
