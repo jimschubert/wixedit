@@ -650,6 +650,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\EditBinariesPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\EditCustomActionsPanel.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
@@ -681,6 +686,11 @@
                 />
                 <File
                     RelPath = "src\EditGlobalDataPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\EditIconsPanel.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />
