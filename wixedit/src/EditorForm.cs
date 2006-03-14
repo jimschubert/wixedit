@@ -65,6 +65,7 @@ namespace WixEdit {
         protected IconMenuItem fileRecentClean;
         protected IconMenuItem fileRecentClear;
         protected IconMenuItem fileSave;
+        protected IconMenuItem fileSaveAs;
         protected IconMenuItem fileClose;
         protected IconMenuItem fileSeparator;
         protected IconMenuItem fileExit;
@@ -130,6 +131,7 @@ namespace WixEdit {
             fileRecentClean = new IconMenuItem();
             fileRecentClear = new IconMenuItem();
             fileSave = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.save.bmp")));
+            fileSaveAs = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.saveas.bmp")));
             fileClose = new IconMenuItem();
             fileSeparator = new IconMenuItem("-");
             fileExit = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.exit.bmp")));
@@ -167,6 +169,11 @@ namespace WixEdit {
             fileSave.Shortcut = Shortcut.CtrlS;
             fileSave.ShowShortcut = true;
 
+            fileSaveAs.Text = "Save &As";
+            fileSaveAs.Click += new EventHandler(fileSaveAs_Click);
+            fileSaveAs.Enabled = false;
+            fileSaveAs.ShowShortcut = false;
+
             fileIsDirty = false;
 
             fileClose.Text = "&Close";
@@ -185,9 +192,10 @@ namespace WixEdit {
             fileMenu.MenuItems.Add(1, fileLoad);
             fileMenu.MenuItems.Add(2, fileRecent);
             fileMenu.MenuItems.Add(3, fileSave);
-            fileMenu.MenuItems.Add(4, fileClose);
-            fileMenu.MenuItems.Add(5, fileSeparator);
-            fileMenu.MenuItems.Add(6, fileExit);
+            fileMenu.MenuItems.Add(4, fileSaveAs);
+            fileMenu.MenuItems.Add(5, fileClose);
+            fileMenu.MenuItems.Add(6, fileSeparator);
+            fileMenu.MenuItems.Add(7, fileExit);
             
             mainMenu.MenuItems.Add(0, fileMenu);
 
@@ -432,6 +440,18 @@ namespace WixEdit {
 
         private void fileSave_Click(object sender, System.EventArgs e) {
             wixFiles.Save();
+        }
+
+        private void fileSaveAs_Click(object sender, System.EventArgs e) {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.OverwritePrompt = true;
+            dlg.FileName = wixFiles.WxsFile.FullName;
+            dlg.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            dlg.AddExtension = true;
+            dlg.DefaultExt = "wxs";
+            if (dlg.ShowDialog(this) == DialogResult.OK) {
+                wixFiles.SaveAs(dlg.FileName);
+            }
         }
 
         private void fileClose_Click(object sender, System.EventArgs e) {
@@ -1043,6 +1063,7 @@ namespace WixEdit {
             }
 
             fileSave.Enabled = true;
+            fileSaveAs.Enabled = true;
 
             buildWixCompile.Enabled = true;
             buildWixInstall.Enabled = true;
@@ -1105,6 +1126,7 @@ namespace WixEdit {
             Text = "WiX Edit";
 
             fileSave.Enabled = false;
+            fileSaveAs.Enabled = false;
         }
 
         [DllImport("User32")] 
