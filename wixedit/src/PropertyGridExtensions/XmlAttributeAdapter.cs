@@ -66,7 +66,13 @@ namespace WixEdit.PropertyGridExtensions {
                     xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType/xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
                     if (xmlNodeDefinition == null) {
                         xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType", wixFiles.XsdNsmgr);
-                        showInnerTextIfEmpty = false;
+                        if (xmlNodeDefinition == null) {
+                            // Nothing?
+                            xmlNodeDefinition = xmlNodeElement;
+                            showInnerTextIfEmpty = true;
+                        } else {
+                            showInnerTextIfEmpty = false;
+                        }
                     } else {
                         showInnerTextIfEmpty = true;
                     }
@@ -217,8 +223,10 @@ namespace WixEdit.PropertyGridExtensions {
             }
 
             // Add InnerText if required or present.
-            if (XmlNodeDefinition.Name == "xs:extension" &&
-                ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) {
+            if (
+                (XmlNodeDefinition.Name == "xs:extension" &&
+                    ( (xmlNode.InnerText != null && xmlNode.InnerText.Length > 0) || showInnerTextIfEmpty == true) ) ||
+                (XmlNodeDefinition.Name == "xs:element" && showInnerTextIfEmpty == true) ) {
                 ArrayList attrs = new ArrayList();
 
                 // Add default attributes Category, TypeConverter and Description
