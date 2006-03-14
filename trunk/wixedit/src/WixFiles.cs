@@ -72,14 +72,21 @@ namespace WixEdit {
             }
         }
 
+        public bool ReadOnly() {
+            return wxsFile.Exists && ((wxsFile.Attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly);
+        }
+
         public void LoadWxsFile() {
             if (wxsDocument == null) {
                 wxsDocument = new XmlDocument();
             }
-//            wxsDocument.Load(wxsFile.FullName);
+            
+            if (ReadOnly()) {
+                MessageBox.Show(String.Format("\"{0}\" is readony.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
             FileMode mode = FileMode.Open;
-            using(FileStream fs = new FileStream(wxsFile.FullName, mode)) {
+            using(FileStream fs = new FileStream(wxsFile.FullName, mode, FileAccess.Read, FileShare.Read)) {
                 wxsDocument.Load(fs);
                 fs.Close();
             }
@@ -203,10 +210,27 @@ namespace WixEdit {
         #endregion
 
         public bool HasChanges() {
-            return (UndoManager.HasChanges() || projectSettings.HasChanges());
+            return (!ReadOnly() && (UndoManager.HasChanges() || projectSettings.HasChanges()));
+        }
+
+        public void SaveAs(string newFile) {
+            wxsFile = new FileInfo(newFile);
+
+            wxsWatcher.EnableRaisingEvents = false;
+            wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
+
+            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
+            wxsWatcher.Changed += wxsWatcher_ChangedHandler;
+            
+            Save();
         }
 
         public void Save() {
+            if (ReadOnly()) {
+                MessageBox.Show(String.Format("\"{0}\" is readony, cannot save this file.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             wxsWatcher.EnableRaisingEvents = false;
 
             XmlComment commentElement = null;

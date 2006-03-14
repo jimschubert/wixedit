@@ -225,6 +225,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "res\bmp\import.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "res\bmp\info.bmp"
                     BuildAction = "EmbeddedResource"
                 />
@@ -294,6 +298,10 @@
                 />
                 <File
                     RelPath = "res\bmp\save.bmp"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "res\bmp\saveas.bmp"
                     BuildAction = "EmbeddedResource"
                 />
                 <File
