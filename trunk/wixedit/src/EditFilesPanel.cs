@@ -251,7 +251,7 @@ namespace WixEdit {
                         }
                     }
                 } catch (Exception ex) {
-                    MessageBox.Show(this, "Unexpected error occured during import:\r\n\r\n" + ex.ToString(), "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, "An error occured during import:\r\n\r\n" + ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 if (errorMessageBuilder.Length > 0) {

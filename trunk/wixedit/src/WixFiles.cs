@@ -142,7 +142,7 @@ namespace WixEdit {
             if (File.Exists(WixEditSettings.Instance.WixBinariesDirectory.Xsd)) {
                 xsdDocument.Load(WixEditSettings.Instance.WixBinariesDirectory.Xsd);
             } else {
-                xsdDocument.Load(WixFiles.GetResourceStream("wix.xsd"));
+                xsdDocument.Load(GetResourceStream("wix.xsd"));
             }
         
             xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
@@ -176,6 +176,101 @@ namespace WixEdit {
 
         public FileInfo WxsFile {
             get { return wxsFile; }
+        }
+
+        public FileInfo OutputFile {
+            get {
+                if (HasLightArguments) {
+                    string customArgs = GetCustomLightArguments();
+                    int outPos = customArgs.IndexOf("-out");
+                    if (outPos >= 0) {
+                        customArgs = customArgs.Substring(outPos+4).Trim();
+
+                        string result = customArgs;
+                        if (customArgs.StartsWith("\"")) {
+                            int endQuotePos = customArgs.IndexOf("\"", 1);
+                            if (endQuotePos > 1) {
+                                result = customArgs.Substring(1, endQuotePos-1);
+                            }
+                        } else {
+                            int endSpacePos = customArgs.IndexOf(" ");
+                            int endQuotePos = customArgs.IndexOf("\"");
+                            if (endSpacePos > 0) {
+                                result = customArgs.Substring(0, endSpacePos);
+                            } else if (endQuotePos > 0) {
+                                result = customArgs.Substring(0, endQuotePos);
+                            }
+                        }
+
+                        if (result != null) {
+                            if (Path.IsPathRooted(result)) {
+                                return new FileInfo(result);
+                            } else {
+                                return new FileInfo(Path.Combine(wxsFile.Directory.FullName, result));
+                            }
+                        }
+                    }
+                }
+
+                string extension = "msi";
+                if (wxsDocument.SelectSingleNode("/wix:Wix/wix:Module", wxsNsmgr) != null) {
+                    extension = "msm";
+                }
+
+                return new FileInfo(Path.ChangeExtension(wxsFile.FullName, extension));
+            }
+        }
+
+        public bool HasLightArguments {
+            get {
+                if (projectSettings.LightArgs != null && projectSettings.LightArgs.Trim().Length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        public string GetLightArguments() {
+            if (HasLightArguments) {
+                return GetCustomLightArguments();
+            } else {
+                return String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wxsFile.FullName, "wixobj"), OutputFile);
+            }
+        }
+
+        public string GetCustomLightArguments() {
+            string lightArgs = projectSettings.LightArgs;
+            lightArgs = lightArgs.Replace("<projectfile>", wxsFile.FullName);
+            lightArgs = lightArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wxsFile.Name));
+
+            return lightArgs;
+        }
+
+        public bool HasCandleArguments {
+            get {
+                if (projectSettings.CandleArgs != null && projectSettings.CandleArgs.Trim().Length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        public string GetCandleArguments() {
+            if (HasCandleArguments) {
+                return GetCustomCandleArguments();
+            } else {
+                return String.Format("-nologo \"{0}\" -out \"{1}\"", wxsFile.FullName, Path.ChangeExtension(wxsFile.FullName, "wixobj"));
+            }
+        }
+
+        private string GetCustomCandleArguments() {
+            string candleArgs = projectSettings.CandleArgs;
+            candleArgs = candleArgs.Replace("<projectfile>", wxsFile.FullName);
+            candleArgs = candleArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wxsFile.Name));
+
+            return candleArgs;
         }
 
         public DirectoryInfo WxsDirectory {
