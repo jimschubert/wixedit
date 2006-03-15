@@ -27,49 +27,49 @@ using WixEdit.Settings;
 namespace WixEdit {
     public class PathHelper {   
         public static string GetRelativePath(string path, WixFiles wixFiles) {
+            if (Path.IsPathRooted(path) == false) {
+                path = Path.Combine(wixFiles.WxsDirectory.FullName, path);
+            }
+
+            if (File.Exists(path) == false) {
+                throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
+            }
+
             string sepCharString = Path.DirectorySeparatorChar.ToString();
             if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
-                if (File.Exists(Path.GetFullPath(path)) == false) {
-                    throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
-                }
-
-                return Path.GetFullPath(path);
-            } else {
-                if (File.Exists(Path.GetFullPath(path)) == false) {
-                    throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
-                }
-
-                Uri newBinaryPath = new Uri(Path.GetFullPath(path), true);
-
-                string binaries = wixFiles.WxsDirectory.FullName;
-                if (binaries.EndsWith(sepCharString) == false) {
-                    binaries = binaries + sepCharString;
-                }
-
-                Uri binariesPath = new Uri(binaries, true);
-                
-                string relativeValue = binariesPath.MakeRelative(newBinaryPath);
-                relativeValue = relativeValue.Replace("/", sepCharString);
-                
-
-                FileInfo testRelativeValue = null;
-
-                if (Path.IsPathRooted(relativeValue)) {
-                    testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
-                } else {
-                    if (relativeValue.StartsWith("file:")) {
-                        relativeValue.Remove(0, 5);
-                    }
-
-                    testRelativeValue = new FileInfo(relativeValue);
-                }
-                
-                if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
-                    throw new Exception(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
-                }
-
-                return relativeValue;
+                return path;
             }
+
+            Uri newBinaryPath = new Uri(path, true);
+
+            string binaries = wixFiles.WxsDirectory.FullName;
+            if (binaries.EndsWith(sepCharString) == false) {
+                binaries = binaries + sepCharString;
+            }
+
+            Uri binariesPath = new Uri(binaries, true);
+            
+            string relativeValue = binariesPath.MakeRelative(newBinaryPath);
+            relativeValue = relativeValue.Replace("/", sepCharString);
+            
+
+            FileInfo testRelativeValue = null;
+
+            if (Path.IsPathRooted(relativeValue) == false) {
+                testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
+            } else {
+                if (relativeValue.StartsWith("file:")) {
+                    relativeValue.Remove(0, 5);
+                }
+
+                testRelativeValue = new FileInfo(relativeValue);
+            }
+            
+            if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
+                throw new Exception(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
+            }
+
+            return relativeValue;
         }
 
         public static string GetShortFileName(FileInfo fileInfo, WixFiles wixFiles, XmlNode componentElement) {

@@ -597,8 +597,7 @@ namespace WixEdit {
         private void buildMenu_Popup(object sender, EventArgs e) {
             bool isEnabled = false;
             if (wixFiles != null) {
-                string msiPath = Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi");
-                if (File.Exists(msiPath)) {
+                if (wixFiles.OutputFile.Exists) {
                     isEnabled = true;
                 }
             }
@@ -697,27 +696,28 @@ namespace WixEdit {
        
         private void buildWixInstall_Click(object sender, System.EventArgs e) {
             try {
-                string msiPath = Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi");
-                if (File.Exists(msiPath) == false) {
-                    MessageBox.Show("Install package doesn't exist. Compile the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    return;
-                }
-
-                if (wixFiles.HasChanges() == true) {
-                    if (DialogResult.Cancel == MessageBox.Show("In memory changes to \""+ wixFiles.WxsFile.Name +"\" will be discared with this install.", "Discard changes", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)) {
+                if (wixFiles != null) {
+                    if (wixFiles.OutputFile.Exists) {
+                        MessageBox.Show("Install package doesn't exist. Compile the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    
                         return;
                     }
-                }
-
-                if (wixFiles.WxsFile.LastWriteTime.CompareTo(File.GetLastWriteTime(msiPath)) >= 0) {
-                    DialogResult outOfDate = MessageBox.Show("The MSI file is out of date, continue?", "Discard changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-                    if (outOfDate == DialogResult.Cancel || outOfDate == DialogResult.No) {
-                        return;
+    
+                    if (wixFiles.HasChanges() == true) {
+                        if (DialogResult.Cancel == MessageBox.Show("In memory changes to \""+ wixFiles.WxsFile.Name +"\" will be discared with this install.", "Discard changes", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)) {
+                            return;
+                        }
                     }
+    
+                    if (wixFiles.WxsFile.LastWriteTime.CompareTo(wixFiles.OutputFile.LastWriteTime) >= 0) {
+                        DialogResult outOfDate = MessageBox.Show("The MSI file is out of date, continue?", "Discard changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                        if (outOfDate == DialogResult.Cancel || outOfDate == DialogResult.No) {
+                            return;
+                        }
+                    }
+    
+                    Install(wixFiles.OutputFile.FullName);
                 }
-
-                Install(msiPath);
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -725,14 +725,15 @@ namespace WixEdit {
 
         private void buildWixUninstall_Click(object sender, System.EventArgs e) {
             try {
-                string msiPath = Path.ChangeExtension(wixFiles.WxsFile.FullName, "msi");
-                if (File.Exists(msiPath) == false) {
-                    MessageBox.Show("Install package doesn't exist. Compile and install the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    return;
+                if (wixFiles != null) {
+                    if (wixFiles.OutputFile.Exists) {
+                        MessageBox.Show("Install package doesn't exist. Compile and install the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    
+                        return;
+                    }
+    
+                    Uninstall(wixFiles.OutputFile.FullName);
                 }
-
-                Uninstall(msiPath);
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -807,24 +808,11 @@ namespace WixEdit {
             psiCandle.UseShellExecute = false;
             psiCandle.RedirectStandardOutput = true;
             psiCandle.RedirectStandardError = false;
-            if (wixFiles.ProjectSettings.CandleArgs != null && wixFiles.ProjectSettings.CandleArgs.Trim().Length > 0) {
-                string candleArgs = wixFiles.ProjectSettings.CandleArgs;
-                candleArgs = candleArgs.Replace("<projectfile>", wixFiles.WxsFile.FullName);
-                candleArgs = candleArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wixFiles.WxsFile.Name));
-
-                psiCandle.Arguments = candleArgs;
-            } else {
-                psiCandle.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", wixFiles.WxsFile.FullName, Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"));
-            }
+            psiCandle.Arguments = wixFiles.GetCandleArguments();
 
             string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Light;
             if (File.Exists(lightExe) == false) {
                 throw new Exception("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
-            }
-
-            string extension = "msi";
-            if (wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/wix:Module", wixFiles.WxsNsmgr) != null) {
-                extension = "msm";
             }
 
             ProcessStartInfo psiLight = new ProcessStartInfo();
@@ -834,15 +822,7 @@ namespace WixEdit {
             psiLight.UseShellExecute = false;
             psiLight.RedirectStandardOutput = true;
             psiLight.RedirectStandardError = false;
-            if (wixFiles.ProjectSettings.LightArgs != null && wixFiles.ProjectSettings.LightArgs.Trim().Length > 0) {
-                string lightArgs = wixFiles.ProjectSettings.LightArgs;
-                lightArgs = lightArgs.Replace("<projectfile>", wixFiles.WxsFile.FullName);
-                lightArgs = lightArgs.Replace("<projectname>", Path.GetFileNameWithoutExtension(wixFiles.WxsFile.Name));
-
-                psiLight.Arguments = lightArgs;
-            } else {
-                psiLight.Arguments = String.Format("-nologo \"{0}\" -out \"{1}\"", Path.ChangeExtension(wixFiles.WxsFile.FullName, "wixobj"), Path.ChangeExtension(wixFiles.WxsFile.FullName, extension));
-            }
+            psiLight.Arguments = wixFiles.GetLightArguments();
 
             ShowOutputPanel(null, null);
             outputPanel.Clear();
@@ -989,9 +969,6 @@ namespace WixEdit {
             WixEditSettings.Instance.AddRecentlyUsedFile(file);
             WixEditSettings.Instance.SaveChanges();
 
-            Environment.CurrentDirectory = wixFiles.WxsDirectory.FullName;
-
-
             tabButtonControl = new TabButtonControl();
             tabButtonControl.Dock = DockStyle.Fill;
 
@@ -1082,8 +1059,6 @@ namespace WixEdit {
             if (oldTabIndex >= 0 && oldTabIndex < panels.Length && panels[oldTabIndex].Menu != null) {
                 mainMenu.MenuItems.RemoveAt(2);
             }
-
-            Environment.CurrentDirectory = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
 
             buildWixCompile.Enabled = false;
             buildWixInstall.Enabled = false;
