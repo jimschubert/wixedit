@@ -120,7 +120,7 @@ namespace WixEdit {
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", WixFiles.WixNamespaceUri);
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;
@@ -168,7 +168,7 @@ namespace WixEdit {
                 if (DialogResult.OK == frm.ShowDialog()) {
                     wixFiles.UndoManager.BeginNewCommandRange();
 
-                    XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", "http://schemas.microsoft.com/wix/2003/01/wi");
+                    XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", WixFiles.WixNamespaceUri);
 
                     XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                     newAttr.Value = frm.SelectedString;

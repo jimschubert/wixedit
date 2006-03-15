@@ -24,9 +24,11 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Windows.Forms;
 
+using WixEdit.Import;
 
 namespace WixEdit {
     /// <summary>
@@ -34,6 +36,7 @@ namespace WixEdit {
     /// </summary>
     public class EditFilesPanel : DetailsBasePanel {        
         protected ContextMenu globalTreeViewContextMenu;
+        protected IconMenuItem importFilesMenu;
 
         public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
             globalTreeViewContextMenu = new ContextMenu();
@@ -45,6 +48,9 @@ namespace WixEdit {
             treeView.DragDrop += new DragEventHandler(treeView_DragDrop);
 
             treeView.AllowDrop = true;
+
+            importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            importFilesMenu.Click += new System.EventHandler(ImportFiles_Click);
         }
 
         protected override ArrayList GetXmlNodes() {
@@ -68,6 +74,11 @@ namespace WixEdit {
             globalTreeViewContextMenu.Show(this, spot);
         }
 
+        protected override void AddCustomTreeViewContextMenuItems(XmlNode node, ContextMenu treeViewContextMenu) {
+            if (node.Name == "Component") {
+                treeViewContextMenu.MenuItems.Add(1, importFilesMenu);
+            }
+        }
 
         protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
             globalTreeViewContextMenu.MenuItems.Clear();
@@ -95,7 +106,7 @@ namespace WixEdit {
 
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
 
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(elementName, "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlElement newElement = wixFiles.WxsDocument.CreateElement(elementName, WixFiles.WixNamespaceUri);
             TreeNode action = new TreeNode(elementName);
             action.Tag = newElement;
 
@@ -151,6 +162,7 @@ namespace WixEdit {
                     } else {
                         e.Effect = DragDropEffects.None;
                     }
+                // Directories are not yet supported.
                 // } else if (ImageListFactory.GetImageIndex("Directory") == aNode.ImageIndex) {
                 //    e.Effect = DragDropEffects.Copy;
                 } else {
@@ -180,78 +192,75 @@ namespace WixEdit {
                 oldNode.ForeColor = aNode.ForeColor;
             }
 
-            wixFiles.UndoManager.BeginNewCommandRange();
-
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (ImageListFactory.GetImageIndex("Component") == aNode.ImageIndex) {
-                foreach (string file in files) {
-                    FileInfo fileInfo = new FileInfo(file);
 
-                    CreateFileElement(fileInfo, aNodeElement);
-                }
-            }
+            ImportFilesInComponent(aNodeElement, files);
         }
 
-        protected void CreateFileElement(FileInfo fileInfo, XmlNode aNodeElement) {
-            TreeNode fileNode = CreateNewSubElement("File");
-            XmlNode fileElement = fileNode.Tag as XmlNode;
+        private void ImportFiles_Click(object sender, System.EventArgs e) {
+            TreeNode aNode = treeView.SelectedNode;
+            XmlNode aNodeElement = aNode.Tag as XmlNode;
 
-            fileNode.Text = fileInfo.Name;
-
-            if (fileInfo.Exists) {
-                Icon ico = FileIconFactory.GetFileIcon(fileInfo.FullName);
-                treeView.ImageList.Images.Add(ico);
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "All files (*.*)|*.*|Registration Files (*.reg)|*.REG" ;
+            ofd.RestoreDirectory = true ;
+            ofd.Multiselect = true;
+            
+            if (ofd.ShowDialog() == DialogResult.OK) {
+                string[] files = ofd.FileNames;
     
-                fileNode.ImageIndex = treeView.ImageList.Images.Count - 1;
-                fileNode.SelectedImageIndex = treeView.ImageList.Images.Count - 1;
+                ImportFilesInComponent(aNodeElement, files);
             }
-
-            XmlAttribute idAttr = wixFiles.WxsDocument.CreateAttribute("Id");
-            idAttr.Value = fileInfo.Name;
-            fileElement.Attributes.Append(idAttr);
-
-            XmlAttribute longNameAttr = wixFiles.WxsDocument.CreateAttribute("LongName");
-            longNameAttr.Value = fileInfo.Name;
-            fileElement.Attributes.Append(longNameAttr);
-                    
-            XmlAttribute nameAttr = wixFiles.WxsDocument.CreateAttribute("Name");
-
-            nameAttr.Value = GetShortFileName(fileInfo, aNodeElement);
-                    
-            fileElement.Attributes.Append(nameAttr);
-
-            XmlAttribute srcAttr = wixFiles.WxsDocument.CreateAttribute("Source");
-            srcAttr.Value = RelativePathHelper.GetRelativePath(fileInfo.FullName, wixFiles);
-            fileElement.Attributes.Append(srcAttr);
         }
 
-        protected string GetShortFileName(FileInfo fileInfo, XmlNode aNodeElement) {
-            string nameStart = Path.GetFileNameWithoutExtension(fileInfo.Name).ToUpper();
-            int tooShort = 0;
-            if (nameStart.Length > 7) {
-                nameStart = nameStart.Substring(0, 7);
-            } else {
-                tooShort = 7 - nameStart.Length;
-            }
-
-            string nameExtension = fileInfo.Extension.ToUpper();
-                    
-            int i = 1;
-            string shortFileName = String.Format("{0}{1}{2}", nameStart, i, nameExtension);
-
-            while (aNodeElement.SelectSingleNode(String.Format("wix:File[@Name='{0}']", shortFileName), wixFiles.WxsNsmgr) != null) {
-                if (i%10 == 9) {
-                    if (tooShort > 0) {
-                        tooShort--;
-                    } else {
-                        nameStart = nameStart.Substring(0, nameStart.Length - 1);
+        private void ImportFilesInComponent(XmlNode componentNode, string[] files) {
+            if (componentNode.Name == "Component") {
+                bool foundReg = false;
+                foreach (string file in files) {
+                    if (Path.GetExtension(file).ToLower() == ".reg") {
+                        foundReg = true;
+                        break;
                     }
                 }
 
-                shortFileName = String.Format("{0}{1} {2}", nameStart, ++i, nameExtension);
-            }
+                bool importRegistryFiles = false;
+                if (foundReg == true) {
+                    DialogResult result = MessageBox.Show(this, "Import Registry (*.reg) files to Registry elements?", "Import?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    if (result == DialogResult.Cancel) {
+                        return;
+                    } else if (result == DialogResult.Yes) {
+                        importRegistryFiles = true;
+                    }
+                }
 
-            return shortFileName;
+                wixFiles.UndoManager.BeginNewCommandRange();
+                StringBuilder errorMessageBuilder = new StringBuilder();
+                try {
+                    foreach (string file in files) {
+                        FileInfo fileInfo = new FileInfo(file);
+                        try {
+                            if (fileInfo.Extension.ToLower() == ".reg" && importRegistryFiles) {
+                                RegistryImport regImport = new RegistryImport();
+                                regImport.Import(wixFiles, fileInfo, componentNode);
+                            } else {
+                                FileImport fileImport = new FileImport();
+                                fileImport.Import(wixFiles, fileInfo, componentNode);
+                            }
+                        } catch (ImportException ex) {
+                            errorMessageBuilder.AppendFormat("{0} ({1})\r\n", fileInfo.Name, ex.Message);
+                        }
+                    }
+                } catch (Exception ex) {
+                    MessageBox.Show(this, "Unexpected error occured during import:\r\n\r\n" + ex.ToString(), "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                if (errorMessageBuilder.Length > 0) {
+                    MessageBox.Show(this, "Import failed for the following files:\r\n\r\n" + errorMessageBuilder.ToString(), "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                ReloadData();
+                ShowNode(componentNode);
+            }
         }
     }
 }

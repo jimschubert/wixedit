@@ -68,7 +68,7 @@ namespace WixEdit.PropertyGridExtensions {
                   if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
                       XmlElement.Attributes[attributeName].Value = Path.GetFullPath(path);
                   } else {
-                      XmlElement.Attributes[attributeName].Value = RelativePathHelper.GetRelativePath(value as string, wixFiles);
+                      XmlElement.Attributes[attributeName].Value = PathHelper.GetRelativePath(value as string, wixFiles);
                   }
                 }
             }

@@ -124,7 +124,7 @@ namespace WixEdit {
                     return;
                 }
 
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Error", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Error", WixFiles.WixNamespaceUri);
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;

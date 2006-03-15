@@ -640,14 +640,14 @@ namespace WixEdit {
         private void editUndo_Click(object sender, System.EventArgs e) {
             XmlNode node = wixFiles.UndoManager.Undo();
 
-            ShowNode(node);
+            ShowNode(node, true);
         }
         
         
         private void editRedo_Click(object sender, System.EventArgs e) {
             XmlNode node = wixFiles.UndoManager.Redo();
 
-            ShowNode(node);
+            ShowNode(node, true);
         }
 
         private void toolsExternal_Click(object sender, System.EventArgs e) {
@@ -665,6 +665,10 @@ namespace WixEdit {
         }
 
         private void ShowNode(XmlNode node) {
+            ShowNode(node, false);
+        }
+
+        private void ShowNode(XmlNode node, bool forceReload) {
             if (node != null) {
                 foreach (DisplayBasePanel panel in panels) {
                     if (node.Name == "Product") {
@@ -672,6 +676,9 @@ namespace WixEdit {
                     } else if (panel.IsOwnerOfNode(node)) {
                         tabButtonControl.SelectedPanel = panel;
                         panel.ShowNode(node);
+                        if (forceReload) {
+                            panel.ReloadData();
+                        }
                         break;
                     }
                 }

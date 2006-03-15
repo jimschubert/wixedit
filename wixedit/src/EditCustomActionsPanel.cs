@@ -58,7 +58,7 @@ namespace WixEdit {
 
             XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
 
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement("CustomAction", "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlElement newElement = wixFiles.WxsDocument.CreateElement("CustomAction", WixFiles.WixNamespaceUri);
             TreeNode action = new TreeNode("CustomAction");
             action.Tag = newElement;
 

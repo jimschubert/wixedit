@@ -89,7 +89,7 @@ namespace WixEdit {
                 return;
             }
 
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, WixFiles.WixNamespaceUri);
             TreeNode action = new TreeNode(item.Text);
             action.Tag = newElement;
 
