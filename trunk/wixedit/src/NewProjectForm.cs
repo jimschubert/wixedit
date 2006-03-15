@@ -255,7 +255,7 @@ namespace WixEdit {
             XmlDocument wixXmlDoc = new XmlDocument();
             wixXmlDoc.AppendChild(wixXmlDoc.CreateXmlDeclaration("1.0", "utf-8", null));
             XmlNamespaceManager wxsNsmgr = new XmlNamespaceManager(wixXmlDoc.NameTable);
-            wxsNsmgr.AddNamespace("wix", "http://schemas.microsoft.com/wix/2003/01/wi");
+            wxsNsmgr.AddNamespace("wix", WixFiles.WixNamespaceUri);
 
             string installerType;
             if (moduleRadioButton.Checked) {
@@ -264,9 +264,9 @@ namespace WixEdit {
                 installerType = productRadioButton.Tag as string;
             }
 
-            XmlNode rootNode = wixXmlDoc.CreateElement("Wix", "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlNode rootNode = wixXmlDoc.CreateElement("Wix", WixFiles.WixNamespaceUri);
             wixXmlDoc.AppendChild(rootNode);
-            XmlNode installationTypeNode = wixXmlDoc.CreateElement(installerType, "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlNode installationTypeNode = wixXmlDoc.CreateElement(installerType, WixFiles.WixNamespaceUri);
             rootNode.AppendChild(installationTypeNode);
 
             if (templateList.SelectedItem.ToString() != "<none>") {
@@ -277,7 +277,7 @@ namespace WixEdit {
                 includeXmlDoc.Load(includeFile);
     
                 XmlNamespaceManager wxsIncludeNsmgr = new XmlNamespaceManager(includeXmlDoc.NameTable);
-                wxsIncludeNsmgr.AddNamespace("wix", "http://schemas.microsoft.com/wix/2003/01/wi");
+                wxsIncludeNsmgr.AddNamespace("wix", WixFiles.WixNamespaceUri);
     
                 XmlNodeList nodesToImport = includeXmlDoc.SelectNodes("/wix:Include/*", wxsIncludeNsmgr);
     

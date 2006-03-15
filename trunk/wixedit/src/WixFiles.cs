@@ -46,6 +46,8 @@ namespace WixEdit {
         static XmlDocument xsdDocument;
         static XmlNamespaceManager xsdNsmgr;
 
+        public static string WixNamespaceUri = "http://schemas.microsoft.com/wix/2003/01/wi";
+
         static WixFiles() {
             ReloadXsd();
         }

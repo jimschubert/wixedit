@@ -216,7 +216,7 @@ namespace WixEdit {
         /// </summary>
         /// <param name="hwnd"></param>
         /// <returns></returns>
-        [DllImport("user32")]
+        [DllImport("User32")]
         public static extern int GetDialogBaseUnits(int hwnd);
 
 

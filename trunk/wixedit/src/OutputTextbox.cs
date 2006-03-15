@@ -67,7 +67,7 @@ public class OutputTextbox : RichTextBox {
     private const Int32 WM_SETTEXT = 0xC;
     private const Int32 SCF_SELECTION = 0x1;
 
-    [DllImport("user32.dll",EntryPoint="SendMessage")]
+    [DllImport("User32.dll")]
     private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref CharFormat2 lParem);
 
     public Color SelectionBackColor {

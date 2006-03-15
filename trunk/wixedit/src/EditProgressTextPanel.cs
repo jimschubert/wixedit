@@ -125,7 +125,7 @@ namespace WixEdit {
                     return;
                 }
 
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("ProgressText", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("ProgressText", WixFiles.WixNamespaceUri);
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Action");
                 newAttr.Value = frm.SelectedString;

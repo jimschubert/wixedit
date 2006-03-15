@@ -117,7 +117,7 @@ namespace WixEdit {
             if (DialogResult.OK == frm.ShowDialog()) {
                 wixFiles.UndoManager.BeginNewCommandRange();
 
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", "http://schemas.microsoft.com/wix/2003/01/wi");
+                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", WixFiles.WixNamespaceUri);
 
                 XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
                 newAttr.Value = frm.SelectedString;

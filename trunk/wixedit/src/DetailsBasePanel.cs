@@ -610,6 +610,11 @@ namespace WixEdit {
                 treeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
                 treeViewContextMenu.MenuItems.Add(infoAboutCurrentElementMenu);
             }
+
+            AddCustomTreeViewContextMenuItems(node, treeViewContextMenu);
+        }
+
+        protected virtual void AddCustomTreeViewContextMenuItems(XmlNode node, ContextMenu treeViewContextMenu) {
         }
 
         private void NewElement_Click(object sender, System.EventArgs e) {
@@ -662,7 +667,7 @@ namespace WixEdit {
 
             wixFiles.UndoManager.BeginNewCommandRange();
 
-            XmlElement newElement = node.OwnerDocument.CreateElement(typeName, "http://schemas.microsoft.com/wix/2003/01/wi");
+            XmlElement newElement = node.OwnerDocument.CreateElement(typeName, WixFiles.WixNamespaceUri);
             TreeNode control = new TreeNode(typeName);
             control.Tag = newElement;
 

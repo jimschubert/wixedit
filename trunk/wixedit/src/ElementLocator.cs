@@ -48,7 +48,7 @@ namespace WixEdit {
                     return null;
                 }
 
-                ui = wixFiles.WxsDocument.CreateElement("UI", "http://schemas.microsoft.com/wix/2003/01/wi");
+                ui = wixFiles.WxsDocument.CreateElement("UI", WixFiles.WixNamespaceUri);
 
                 theParent.AppendChild(ui);
             }
