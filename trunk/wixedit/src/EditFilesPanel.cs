@@ -134,7 +134,12 @@ namespace WixEdit {
         }
 
         private void treeView_DragLeave(object sender, EventArgs e) {
-
+            if (oldNode != null) {
+                TreeNode newNode = new TreeNode();
+                oldNode.BackColor = newNode.BackColor;
+                oldNode.ForeColor = newNode.ForeColor;
+                oldNode = null;
+            }
         }
 
         TreeNode oldNode = null;
