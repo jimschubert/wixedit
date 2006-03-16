@@ -44,7 +44,7 @@ namespace WixEdit {
             // Start building http POST.
             StringBuilder buffer = new StringBuilder();
 
-            boundary = "----------" + Guid.NewGuid().ToString("N");
+            boundary = "----------" + Guid.NewGuid().ToString("N").ToUpper();
             
             buffer.Append("--").Append(boundary).Append("\r\n");
             buffer.Append("Content-Disposition: form-data; name=\"");
