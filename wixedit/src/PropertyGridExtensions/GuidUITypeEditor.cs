@@ -45,7 +45,7 @@ namespace WixEdit.PropertyGridExtensions {
         /// <param name="value">the value prior to editing</param>
         /// <returns>the new connection string after editing</returns>
         public string EditValue(string value) {
-            return Guid.NewGuid().ToString();
+            return Guid.NewGuid().ToString().ToUpper();
         }
     }
 }
