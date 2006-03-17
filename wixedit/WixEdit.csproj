@@ -793,6 +793,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\PathHelper.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\PictureControl.cs"
                     SubType = "UserControl"
                     BuildAction = "Compile"
@@ -805,11 +810,6 @@
                 <File
                     RelPath = "src\ProjectSettingsForm.cs"
                     SubType = "Form"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "src\RelativePathHelper.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -854,6 +854,21 @@
                 <File
                     RelPath = "src\About\AboutForm.cs"
                     SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Import\FileImport.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Import\ImportException.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Import\RegistryImport.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
