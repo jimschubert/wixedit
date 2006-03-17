@@ -80,6 +80,12 @@
 		<call target="release" />
     </target>
 
+    <target name="rebuild" >
+        <property name="project.revision" value="true"/>
+
+		<call target="build" />
+    </target>
+
     <target name="release" depends="all">
         <if propertyexists="project.version">
             <property name="project.version.string" value="-${project.version}" />
