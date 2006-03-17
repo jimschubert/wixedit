@@ -963,7 +963,19 @@ namespace WixEdit {
         }
 
         private void LoadWxsFile(FileInfo file) {
-            wixFiles = new WixFiles(file);
+            if (file.Exists == false) {
+                MessageBox.Show(String.Format("File does not exist. ({0}))", file.Name), "File not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+                return;
+            }
+
+            try {
+                wixFiles = new WixFiles(file);
+            } catch (UnauthorizedAccessException) {
+                MessageBox.Show(String.Format("Access is denied. ({0}))", file.Name), "Acces denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+            } catch {
+                MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+            }
+
             wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
 
             WixEditSettings.Instance.AddRecentlyUsedFile(file);
