@@ -97,5 +97,10 @@ namespace WixEdit {
 
             return ret;
         }
+
+        public static int GetUnsupportedImageIndex() {
+            return imageTypes.Count;
+        }
+
     }
 }

@@ -140,6 +140,8 @@ namespace WixEdit {
         #endregion
 
         protected void LoadData() {
+            this.SuspendLayout();
+
             treeView.Nodes.Clear();
 
             IList files = GetXmlNodes();
@@ -151,6 +153,8 @@ namespace WixEdit {
             if (treeView.Nodes.Count > 0) {
                 treeView.SelectedNode = treeView.Nodes[0];
             }
+
+            this.ResumeLayout();
         }
 
         protected virtual StringCollection SkipElements {
@@ -428,6 +432,15 @@ namespace WixEdit {
             }
 
             nodes.Add(node);
+
+            if (file.ChildNodes.Count > 1000) {
+                TreeNode tooManyNodes = new TreeNode("<< Too many children to display >>");
+                node.ImageIndex = ImageListFactory.GetUnsupportedImageIndex();
+                node.SelectedImageIndex = ImageListFactory.GetUnsupportedImageIndex();
+                node.Nodes.Add(tooManyNodes);
+
+                return;
+            }
 
             foreach (XmlNode child in file.ChildNodes) {
                 AddTreeNodesRecursive(child, node.Nodes);

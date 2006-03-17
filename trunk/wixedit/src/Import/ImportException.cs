@@ -25,5 +25,8 @@ namespace WixEdit.Import {
     public class ImportException : Exception {
         public ImportException(string message) : base(message) {
         }
+
+        public ImportException(string message, Exception ex) : base(message, ex) {
+        }
     }
 }

@@ -30,13 +30,22 @@ namespace WixEdit.Import {
     /// Summary description for RegistryImport.
     /// </summary>
     public class RegistryImport {
-        public RegistryImport() {
+        WixFiles wixFiles;
+        FileInfo regFileInfo;
+        XmlNode componentElement;
+        int lineNumber;
+
+        public RegistryImport(WixFiles wixFiles, FileInfo regFileInfo, XmlNode componentElement) {
+            this.wixFiles = wixFiles;
+            this.regFileInfo = regFileInfo;
+            this.componentElement = componentElement;
         }
 
-        public void Import(WixFiles wixFiles, FileInfo regFileInfo, XmlNode componentElement) {
+        public void Import() {
             TextReader reader = new StreamReader(regFileInfo.FullName);
-
+            
             string line = reader.ReadLine();
+            lineNumber = 1;
             string trimmedLine = "";
 
             ArrayList createdChildren = new ArrayList();
@@ -45,6 +54,7 @@ namespace WixEdit.Import {
             string currentRoot = null;
             string currentKey = null;
             while ((line = reader.ReadLine()) != null) {
+                lineNumber++;
                 trimmedLine = line.Trim();
 
                 if (trimmedLine == "") {
@@ -52,7 +62,7 @@ namespace WixEdit.Import {
                 } else if (trimmedLine.StartsWith("[")) {
                     if (trimmedLine.EndsWith("]") == false ||
                         trimmedLine.IndexOf("\\") < 0) {
-                        throw new ImportException(String.Format("Invalid line: \"{0}\"", trimmedLine));
+                        throw new ImportException(String.Format("Invalid line (Line {0}): \"{1}\"", lineNumber, trimmedLine));
                     }
 
                     if (currentKeyUsed == false && currentKey != null && currentRoot != null) {
@@ -72,7 +82,7 @@ namespace WixEdit.Import {
                     string fullRoot = fullRegKey.Substring(0, rootSeparatePos);
                     string root = GetRootString(fullRoot);
                     if (root == null || fullRegKey.Length-rootSeparatePos-1 <= 0) {
-                        throw new ImportException(String.Format("Invalid line: \"{0}\"", trimmedLine));
+                        throw new ImportException(String.Format("Invalid line (Line {0}): \"{1}\"", lineNumber, trimmedLine));
                     }
                     string restKey = fullRegKey.Substring(rootSeparatePos+1, fullRegKey.Length-rootSeparatePos-1);
 
@@ -81,9 +91,9 @@ namespace WixEdit.Import {
                 } else if (trimmedLine.StartsWith("\"") || trimmedLine.StartsWith("@")) {
                     if ((trimmedLine.IndexOf("@") != 0 && trimmedLine.IndexOf("\"", 1) < 0) ||
                         trimmedLine.IndexOf("=") < 0) {
-                        throw new ImportException(String.Format("Invalid line: \"{0}\"", trimmedLine));
+                        throw new ImportException(String.Format("Invalid line (Line {0}): \"{1}\"", lineNumber, trimmedLine));
                     } else if (currentRoot == null || currentKey == null) {
-                        throw new ImportException(String.Format("Invalid line, missing key specification: \"{0}\"", trimmedLine));
+                        throw new ImportException(String.Format("Invalid line (Line {0}), missing key specification: \"{1}\"", lineNumber, trimmedLine));
                     }
 
                     string nextLine = null;
@@ -91,8 +101,9 @@ namespace WixEdit.Import {
                         trimmedLine = trimmedLine.Remove(trimmedLine.Length-1, 1);
 
                         nextLine = reader.ReadLine();
+                        lineNumber++;
                         if (nextLine == null) {
-                            throw new ImportException(String.Format("Invalid line, missing part of value: \"{0}\"", trimmedLine));
+                            throw new ImportException(String.Format("Invalid line (Line {0}), missing part of value: \"{1}\"", lineNumber, trimmedLine));
                         }
 
                         trimmedLine += nextLine.Trim();
@@ -119,7 +130,7 @@ namespace WixEdit.Import {
 
                     currentKeyUsed = true;
                 } else {
-                    throw new ImportException(String.Format("Invalid line: \"{0}\"", trimmedLine));
+                    throw new ImportException(String.Format("Invalid line (Line {0}): \"{1}\"", lineNumber, trimmedLine));
                 }
             }
 
@@ -183,10 +194,10 @@ namespace WixEdit.Import {
                 } else if (rest.StartsWith("(7):")) {
                     return "multiString";
                 } else {
-                    throw new ImportException(String.Format("Invalid hex specification: \"{0}\"", rawValueString));
+                    throw new ImportException(String.Format("Invalid hex specification (Line {0}): \"{1}\"", lineNumber, rawValueString));
                 }
             } else {
-                throw new ImportException(String.Format("Invalid value: \"{0}\"", rawValueString));
+                throw new ImportException(String.Format("Invalid value (Line {0}): \"{1}\"", lineNumber, rawValueString));
             }
         }
 
@@ -199,8 +210,12 @@ namespace WixEdit.Import {
                     ret = valueString.Substring(1, valueString.Length-2);
                     break;
                 case "integer":
-                    ret = valueString.Substring(valStart, valueString.Length-valStart).Trim();
-                    ret = Int32.Parse(ret, System.Globalization.NumberStyles.HexNumber).ToString();
+                    string intStr = valueString.Substring(valStart, valueString.Length-valStart).Trim();
+                    try {
+                        ret = Int32.Parse(intStr, System.Globalization.NumberStyles.HexNumber).ToString();
+                    } catch (FormatException ex) {
+                        throw new ImportException(String.Format("Failed to parse dword value (Line {0}): {1}", lineNumber, intStr), ex);
+                    }
                     break;
                 case "binary":
                     ret = valueString.Substring(valStart, valueString.Length-valStart).Trim();
@@ -241,15 +256,18 @@ namespace WixEdit.Import {
         }
 
         private string GetStringFromBinary(string binaryString) {
-            string[] stringBytes = binaryString.Split(',');
+            string[] stringBytes = binaryString.Trim(',').Split(',');
             byte[] bytes = new byte[stringBytes.Length];
 
-            for (int i = 0; i < stringBytes.Length; i++) {
-                bytes[i] = Byte.Parse(stringBytes[i], System.Globalization.NumberStyles.HexNumber);
+            try {
+                for (int i = 0; i < stringBytes.Length; i++) {
+                    bytes[i] = Byte.Parse(stringBytes[i], System.Globalization.NumberStyles.HexNumber);
+                }
+            } catch (FormatException ex) {
+                throw new ImportException(String.Format("Failed to parse binary value (Line {0}): {1}", lineNumber, binaryString), ex);
             }
 
-            char[] unicodeChars = new char[Encoding.Unicode.GetCharCount(bytes, 0, bytes.Length)];
-            Encoding.Unicode.GetChars(bytes, 0, bytes.Length, unicodeChars, 0);
+            char[] unicodeChars = Encoding.Unicode.GetChars(bytes, 0, bytes.Length);
 
             return new string(unicodeChars);
         }

@@ -240,23 +240,27 @@ namespace WixEdit {
 
                 wixFiles.UndoManager.BeginNewCommandRange();
                 StringBuilder errorMessageBuilder = new StringBuilder();
-                try {
-                    foreach (string file in files) {
-                        FileInfo fileInfo = new FileInfo(file);
-                        try {
-                            if (fileInfo.Extension.ToLower() == ".reg" && importRegistryFiles) {
-                                RegistryImport regImport = new RegistryImport();
-                                regImport.Import(wixFiles, fileInfo, componentNode);
-                            } else {
-                                FileImport fileImport = new FileImport();
-                                fileImport.Import(wixFiles, fileInfo, componentNode);
-                            }
-                        } catch (ImportException ex) {
-                            errorMessageBuilder.AppendFormat("{0} ({1})\r\n", fileInfo.Name, ex.Message);
+                
+                foreach (string file in files) {
+                    FileInfo fileInfo = new FileInfo(file);
+                    try {
+                        if (fileInfo.Extension.ToLower() == ".reg" && importRegistryFiles) {
+                            RegistryImport regImport = new RegistryImport(wixFiles, fileInfo, componentNode);
+                            regImport.Import();
+                        } else {
+                            FileImport fileImport = new FileImport(wixFiles, fileInfo, componentNode);
+                            fileImport.Import();
+                        }
+                    } catch (ImportException ex) {
+                        errorMessageBuilder.AppendFormat("{0} ({1})\r\n", fileInfo.Name, ex.Message);
+                    } catch (Exception ex) {
+                        string message = String.Format("An exception occured during the import of \"{0}\"! Please press OK to report this error to the WixEdit website, so this error can be fixed.", fileInfo.Name);
+                        ExceptionForm form = new ExceptionForm(message, ex);
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            ErrorReporter reporter = new ErrorReporter();
+                            reporter.Report(ex);
                         }
                     }
-                } catch (Exception ex) {
-                    MessageBox.Show(this, "An error occured during import:\r\n\r\n" + ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 if (errorMessageBuilder.Length > 0) {
