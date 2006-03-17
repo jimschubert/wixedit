@@ -28,10 +28,16 @@ namespace WixEdit.Import {
     /// Summary description for FileImport.
     /// </summary>
     public class FileImport {
-        public FileImport() {
+        WixFiles wixFiles;
+        FileInfo fileInfo;
+        XmlNode componentElement;
+        public FileImport(WixFiles wixFiles, FileInfo fileInfo, XmlNode componentElement) {
+            this.wixFiles = wixFiles;
+            this.fileInfo = fileInfo;
+            this.componentElement = componentElement;
         }
 
-        public void Import(WixFiles wixFiles, FileInfo fileInfo, XmlNode componentElement) {
+        public void Import() {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
             newElement.SetAttribute("Id", fileInfo.Name);
