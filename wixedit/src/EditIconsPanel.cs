@@ -256,6 +256,21 @@ namespace WixEdit {
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
             iconGrid.SelectedObject = binAdapter;
+
+            if (iconGrid.SelectedGridItem != null && iconGrid.SelectedGridItem.Parent != null) {
+                string val = null;
+                if (node is XmlAttribute) {
+                    val = node.Value;
+                } else if(node.Attributes["Id"] != null) {
+                    val = node.Attributes["Id"].Value;
+                }
+                foreach (GridItem item in iconGrid.SelectedGridItem.Parent.GridItems) {
+                    if (val != null && val == item.Label) {
+                        iconGrid.SelectedGridItem = item;
+                        break;
+                    }
+                }
+            }
         }
 
         public override void ReloadData() {

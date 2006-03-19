@@ -40,6 +40,7 @@ namespace WixEdit {
                     skipElements = new StringCollection();
                     skipElements.Add("Property");
                     skipElements.Add("UI");
+                    skipElements.Add("Icon");
                     skipElements.Add("Binary");
                     skipElements.Add("Feature");
                     skipElements.Add("Directory");

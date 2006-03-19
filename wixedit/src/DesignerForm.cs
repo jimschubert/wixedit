@@ -32,6 +32,7 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 
+using WixEdit.Controls;
 
 namespace WixEdit {
     public delegate void DesignerFormItemHandler(XmlNode item);

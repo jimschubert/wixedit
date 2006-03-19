@@ -205,6 +205,21 @@ namespace WixEdit {
     
             propertyGrid.SelectedObject = uiTextAdapter;
             propertyGrid.Update();
+
+            if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
+                string val = null;
+                if (node is XmlAttribute) {
+                    val = node.Value;
+                } else if(node.Attributes["Id"] != null) {
+                    val = node.Attributes["Id"].Value;
+                }
+                foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                    if (val != null && val == item.Label) {
+                        propertyGrid.SelectedGridItem = item;
+                        break;
+                    }
+                }
+            }
         }
 
         public override void ReloadData() {

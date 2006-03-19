@@ -33,7 +33,7 @@ using System.Reflection;
 using WixEdit.About;
 using WixEdit.Settings;
 
-namespace WixEdit {
+namespace WixEdit.Controls {
 	/// <summary>
 	/// The tab buttons control.
 	/// </summary>
