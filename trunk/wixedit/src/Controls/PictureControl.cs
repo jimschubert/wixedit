@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace WixEdit {
+namespace WixEdit.Controls {
     public class PictureControl : UserControl {
         protected ArrayList pictureControls;
         Bitmap bitmap;

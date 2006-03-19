@@ -254,6 +254,21 @@ namespace WixEdit {
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
             binaryGrid.SelectedObject = binAdapter;
+
+            if (binaryGrid.SelectedGridItem != null && binaryGrid.SelectedGridItem.Parent != null) {
+                string val = null;
+                if (node is XmlAttribute) {
+                    val = node.Value;
+                } else if(node.Attributes["Id"] != null) {
+                    val = node.Attributes["Id"].Value;
+                }
+                foreach (GridItem item in binaryGrid.SelectedGridItem.Parent.GridItems) {
+                    if (val != null && val == item.Label) {
+                        binaryGrid.SelectedGridItem = item;
+                        break;
+                    }
+                }
+            }
         }
 
         public override void ReloadData() {

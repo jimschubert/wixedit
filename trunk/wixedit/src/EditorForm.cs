@@ -34,6 +34,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 using WixEdit.About;
+using WixEdit.Controls;
 using WixEdit.Settings;
 
 namespace WixEdit {
@@ -72,6 +73,7 @@ namespace WixEdit {
         protected IconMenuItem editMenu;
         protected IconMenuItem editUndo;
         protected IconMenuItem editRedo;
+        protected IconMenuItem editFind;
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsExternal;
         protected IconMenuItem toolsOptions;
@@ -85,8 +87,10 @@ namespace WixEdit {
         protected IconMenuItem helpTutorial;
         protected IconMenuItem helpMSIReference;
         
+        protected ResultsPanel resultsPanel;
+        protected SearchPanel searchPanel;
         protected OutputPanel outputPanel;
-        protected Splitter outputSplitter;
+        protected Splitter resultsSplitter;
 
         protected bool fileIsDirty;
 
@@ -203,6 +207,7 @@ namespace WixEdit {
             editMenu = new IconMenuItem();
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
+            editFind = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.find.bmp")));
 
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
@@ -223,10 +228,17 @@ namespace WixEdit {
             editRedo.Shortcut = Shortcut.CtrlR;
             editRedo.ShowShortcut = true;
 
+            editFind.Text = "&Find";
+            editFind.Click += new EventHandler(editFind_Click);
+            editFind.Shortcut = Shortcut.CtrlF;
+            editFind.ShowShortcut = true;
+
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
+            editMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            editMenu.MenuItems.Add(3, editFind);
             
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -317,22 +329,26 @@ namespace WixEdit {
             mainPanel.Dock = DockStyle.Fill;
             Controls.Add(mainPanel);
 
-            outputSplitter = new Splitter();
-            outputSplitter.Dock = DockStyle.Bottom;
-            outputSplitter.Height = 2;
-            Controls.Add(outputSplitter);
+            resultsSplitter = new Splitter();
+            resultsSplitter.Dock = DockStyle.Bottom;
+            resultsSplitter.Height = 2;
+            Controls.Add(resultsSplitter);
 
             outputPanel = new OutputPanel();
-            outputPanel.Dock = DockStyle.Bottom;
-            outputPanel.Height = 100;
-            outputPanel.Size = new Size(200, 150);
+            outputPanel.Text = "Output";
+            searchPanel = new SearchPanel(this);
+            searchPanel.Text = "Search Results";
 
-            outputPanel.CloseClicked += new EventHandler(HideOutputPanel);
+            resultsPanel = new ResultsPanel(new Panel[] { outputPanel, searchPanel });
+            resultsPanel.CloseClicked += new EventHandler(HideResultsPanel);            
+            resultsPanel.Dock = DockStyle.Bottom;
+            resultsPanel.Height = 100;
+            resultsPanel.Size = new Size(200, 150);
 
-            Controls.Add(outputPanel);
+            Controls.Add(resultsPanel);
 
-            outputPanel.Visible = false;
-            outputSplitter.Visible = false;
+            resultsPanel.Visible = false;
+            resultsSplitter.Visible = false;
 
             splashScreenHandler = new EventHandler(EditorForm_Activated);
             this.Activated += splashScreenHandler;
@@ -574,6 +590,9 @@ namespace WixEdit {
 
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
+            editMenu.MenuItems.Add(2, new IconMenuItem("-"));
+            editMenu.MenuItems.Add(3, editFind);
+            editFind.Enabled = (wixFiles != null);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -641,12 +660,21 @@ namespace WixEdit {
 
             ShowNode(node, true);
         }
-        
-        
+
         private void editRedo_Click(object sender, System.EventArgs e) {
             XmlNode node = wixFiles.UndoManager.Redo();
 
             ShowNode(node, true);
+        }
+
+        private void editFind_Click(object sender, System.EventArgs e) {
+            EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Find what text:";
+            if (DialogResult.OK == frm.ShowDialog()) {
+                string search = frm.SelectedString;
+                ShowSearchPanel(null, null);
+                searchPanel.Search(wixFiles, search);
+            }
         }
 
         private void toolsExternal_Click(object sender, System.EventArgs e) {
@@ -663,7 +691,7 @@ namespace WixEdit {
             Process.Start(psiExternal);
         }
 
-        private void ShowNode(XmlNode node) {
+        public void ShowNode(XmlNode node) {
             ShowNode(node, false);
         }
 
@@ -854,14 +882,28 @@ namespace WixEdit {
             outputPanel.Run(psiDark);
         }
 
-        private void ShowOutputPanel(object sender, System.EventArgs e) {
-            outputSplitter.Visible = true;
-            outputPanel.Visible = true;
+        private void ShowResultsPanel(object sender, System.EventArgs e) {
+            resultsSplitter.Visible = true;
+            resultsPanel.Visible = true;
         }
 
-        private void HideOutputPanel(object sender, System.EventArgs e) {
-            outputSplitter.Visible = false;
-            outputPanel.Visible = false;
+        private void ShowOutputPanel(object sender, System.EventArgs e) {
+            resultsSplitter.Visible = true;
+            resultsPanel.Visible = true;
+
+            resultsPanel.ShowPanel(outputPanel);
+        }
+
+        private void ShowSearchPanel(object sender, System.EventArgs e) {
+            resultsSplitter.Visible = true;
+            resultsPanel.Visible = true;
+
+            resultsPanel.ShowPanel(searchPanel);
+        }
+
+        private void HideResultsPanel(object sender, System.EventArgs e) {
+            resultsSplitter.Visible = false;
+            resultsPanel.Visible = false;
         }
 
         protected void ShowProductProperties() {
@@ -1121,6 +1163,8 @@ namespace WixEdit {
 
             fileSave.Enabled = false;
             fileSaveAs.Enabled = false;
+
+            searchPanel.Clear();
         }
 
         [DllImport("User32")] 

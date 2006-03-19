@@ -34,6 +34,7 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 
+using WixEdit.Controls;
 using WixEdit.PropertyGridExtensions;
 using WixEdit.Settings;
  
@@ -422,6 +423,17 @@ namespace WixEdit {
             if (treeNode != null) {
                 dialogTreeView.SelectedNode = null;
                 dialogTreeView.SelectedNode = treeNode;
+            }
+
+            if (node is XmlAttribute) {
+                if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
+                    foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                        if (node.Name == item.Label) {
+                            propertyGrid.SelectedGridItem = item;
+                            break;
+                        }
+                    }
+                }
             }
         }
 

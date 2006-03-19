@@ -26,7 +26,7 @@ using System.Xml;
 
 using WixEdit.Settings;
 
-namespace WixEdit {
+namespace WixEdit.Controls {
     public delegate void SelectionOverlayItemHandler(XmlNode item);
 
     public class SelectionOverlay : UserControl {

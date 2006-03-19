@@ -23,6 +23,8 @@ using System;
 using System.Xml;
 using System.Windows.Forms;
 
+using WixEdit.Controls;
+
 namespace WixEdit {
     /// <summary>
     /// Panel to edit install data.
@@ -46,7 +48,7 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
-            tabControl = new TabControl();
+            tabControl = new CustomTabControl();
             tabControl.Dock = DockStyle.Fill;
 
             Controls.Add(tabControl);
@@ -94,7 +96,7 @@ namespace WixEdit {
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {
-            bool ret = (editDialogPanel.IsOwnerOfNode(node) || editUISequencePanel.IsOwnerOfNode(node));
+            bool ret = (editDialogPanel.IsOwnerOfNode(node) || editUISequencePanel.IsOwnerOfNode(node) || editUITextPanel.IsOwnerOfNode(node) || editProgressTextPanel.IsOwnerOfNode(node) || editErrorPanel.IsOwnerOfNode(node));
             if (ret == false) {
                 if (node.Name == "UI") {
                     ret = true;

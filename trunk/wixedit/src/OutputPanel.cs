@@ -36,6 +36,8 @@ using System.Text;
 using System.Threading;
 using System.Xml.Xsl;
 
+using WixEdit.Controls;
+
 namespace WixEdit {
     /// <summary>
     /// Summary description for OutputPanel.
@@ -43,8 +45,6 @@ namespace WixEdit {
     public class OutputPanel : Panel {
         protected OutputTextbox outputTextBox;
         protected Process activeProcess;
-        Button closeButton;
-        Label outputLabel;
 
         private System.Windows.Forms.Timer doubleClickTimer = new System.Windows.Forms.Timer();
         private bool isFirstClick = true;
@@ -60,91 +60,27 @@ namespace WixEdit {
             get { return outputTextBox; }
         }
 
-        public event EventHandler CloseClicked;
-
         private void InitializeComponent() {
             TabStop = true;
-            int buttonWidth = 11;
-            int buttonHeigth = 11;
-            int paddingX = 2;
-            int paddingY = 2;
 
-            closeButton = new Button();
             outputTextBox = new OutputTextbox();
-            outputLabel = new Label();
 
-            closeButton.Size = new Size(buttonWidth, buttonHeigth);
-            closeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            closeButton.Location = new Point(ClientSize.Width - buttonWidth - 2*paddingX, paddingY);
-            closeButton.BackColor = Color.Transparent;
-            closeButton.Click += new EventHandler(OnCloseClick);
-
-
-            outputLabel.Text = "WIX Compiler output";
-            outputLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold, GraphicsUnit.Point, ((System.Byte)(0)));;
-            outputLabel.BorderStyle = BorderStyle.FixedSingle;
-
-            Bitmap bmp = new Bitmap(WixFiles.GetResourceStream("close_8x8.bmp"));
-            bmp.MakeTransparent();
-            closeButton.Image = bmp;
-            closeButton.FlatStyle = FlatStyle.Flat;
-
-            outputLabel.Size = new Size(ClientSize.Width - 2*paddingX, buttonHeigth+ (2*paddingY));
-            outputLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            outputLabel.Location = new Point(paddingX, 0);
-
-            outputLabel.BackColor = Color.Gray;
-            outputLabel.ForeColor = Color.LightGray;
-
-
-            outputTextBox.Dock = DockStyle.Bottom;
-            outputTextBox.Location = new Point(0, buttonHeigth + 3*paddingY);
-            outputTextBox.Size = new Size(200, ClientSize.Height - outputTextBox.Location.Y);
-            outputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            outputTextBox.Dock = DockStyle.Fill;
             outputTextBox.ScrollBars = RichTextBoxScrollBars.Both;
             outputTextBox.WordWrap = false;
             outputTextBox.AllowDrop = false;
 
-            Controls.Add(closeButton);
-            Controls.Add(outputLabel);
             Controls.Add(outputTextBox);
 
-
-            closeButton.TabStop = true;
-            outputLabel.TabStop = true;
             outputTextBox.TabStop = true;
 
-            closeButton.LostFocus += new EventHandler(HasFocus);
-            outputLabel.LostFocus += new EventHandler(HasFocus);
-            outputTextBox.LostFocus += new EventHandler(HasFocus);
-
-            closeButton.GotFocus += new EventHandler(HasFocus);
-            outputLabel.GotFocus += new EventHandler(HasFocus);
-            outputTextBox.GotFocus += new EventHandler(HasFocus);
-
-            closeButton.Enter += new EventHandler(HasFocus);
-            outputLabel.Enter += new EventHandler(HasFocus);
-            outputTextBox.Enter += new EventHandler(HasFocus);
-
-            closeButton.Click += new EventHandler(HasFocus);
-            outputLabel.Click += new EventHandler(HasFocus);
-
             outputTextBox.MouseUp += new MouseEventHandler(outputTextBox_MouseDown);
-
 
             doubleClickTimer.Interval = 100;
             doubleClickTimer.Tick += new EventHandler(doubleClickTimer_Tick);
         }
 
-        protected void OnCloseClick(Object sender, EventArgs e) {
-            if (CloseClicked != null) {
-                CloseClicked(sender, e);
-            }
-        }
-
         private void outputTextBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
-            HasFocus(sender, e);
-            
             // This is the first mouse click.
             if (isFirstClick) {
                 isFirstClick = false;
@@ -300,18 +236,6 @@ namespace WixEdit {
             xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
             xmlDisplayForm.ShowFile(String.Format("{0}#a{1}", outputFile, anchorNumber));
             xmlDisplayForm.Show();
-        }
-
-        protected void HasFocus(Object sender, EventArgs e) {
-            if (closeButton.Focused ||
-                outputLabel.Focused ||
-                outputTextBox.Focused || outputTextBox.Capture) {
-                outputLabel.BackColor = Color.DimGray;
-                outputLabel.ForeColor = Color.White;
-            } else {
-                outputLabel.BackColor = Color.Gray;
-                outputLabel.ForeColor = Color.LightGray;
-            }
         }
 
         public int Run(ProcessStartInfo[] processStartInfos) {

@@ -93,7 +93,6 @@ namespace WixEdit {
                 fs.Close();
             }
 
-
             XmlNode possibleComment = wxsDocument.FirstChild.NextSibling;
             if (possibleComment != null && possibleComment.Name == "#comment") {
                 string comment = possibleComment.Value;

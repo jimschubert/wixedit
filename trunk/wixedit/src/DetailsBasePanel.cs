@@ -194,6 +194,15 @@ namespace WixEdit {
             if (treeNode != null) {
                 treeView.SelectedNode = null;
                 treeView.SelectedNode = treeNode;
+
+                if (node is XmlAttribute) {
+                    foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                        if (node.Name == item.Label) {
+                            propertyGrid.SelectedGridItem = item;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
