@@ -442,7 +442,7 @@ namespace WixEdit {
 
             nodes.Add(node);
 
-            if (file.ChildNodes.Count > 1000) {
+            if (file.ChildNodes.Count > 10000) {
                 TreeNode tooManyNodes = new TreeNode("<< Too many children to display >>");
                 node.ImageIndex = ImageListFactory.GetUnsupportedImageIndex();
                 node.SelectedImageIndex = ImageListFactory.GetUnsupportedImageIndex();
