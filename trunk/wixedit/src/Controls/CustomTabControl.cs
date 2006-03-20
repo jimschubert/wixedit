@@ -74,22 +74,27 @@ namespace WixEdit.Controls {
 			bool isSelected = (this.SelectedIndex == index);
 
 			Rectangle boundsRectangle = this.GetTabRect(index);
+            
+            int isSelectOffset = 2;
+            if (isSelected) {
+                isSelectOffset = 0;
+            }
 
 			Point[] pts = new Point[6];
 			if (this.Alignment == TabAlignment.Top) {
 				pts[0] = new Point(boundsRectangle.Left, boundsRectangle.Bottom - 3);
-				pts[1] = new Point(boundsRectangle.Left, boundsRectangle.Top + 2 - 2);
-				pts[2] = new Point(boundsRectangle.Left + 2, boundsRectangle.Top - 2);
-				pts[3] = new Point(boundsRectangle.Right - 2, boundsRectangle.Top - 2);
-				pts[4] = new Point(boundsRectangle.Right, boundsRectangle.Top + 2 - 2);
+				pts[1] = new Point(boundsRectangle.Left, boundsRectangle.Top + 2 - 2 + isSelectOffset);
+				pts[2] = new Point(boundsRectangle.Left + 2, boundsRectangle.Top - 2 + isSelectOffset);
+				pts[3] = new Point(boundsRectangle.Right - 2, boundsRectangle.Top - 2 + isSelectOffset);
+				pts[4] = new Point(boundsRectangle.Right, boundsRectangle.Top + 2 - 2 + isSelectOffset);
 				pts[5] = new Point(boundsRectangle.Right, boundsRectangle.Bottom - 3);
 			} else {
 				pts[0] = new Point(boundsRectangle.Left, boundsRectangle.Top + 1);
 				pts[1] = new Point(boundsRectangle.Right, boundsRectangle.Top + 1);
-				pts[2] = new Point(boundsRectangle.Right, boundsRectangle.Bottom - 2);
-				pts[3] = new Point(boundsRectangle.Right - 2, boundsRectangle.Bottom);
-				pts[4] = new Point(boundsRectangle.Left + 2, boundsRectangle.Bottom);
-				pts[5] = new Point(boundsRectangle.Left, boundsRectangle.Bottom - 2);
+				pts[2] = new Point(boundsRectangle.Right, boundsRectangle.Bottom - 2 - isSelectOffset);
+				pts[3] = new Point(boundsRectangle.Right - 2, boundsRectangle.Bottom - isSelectOffset);
+				pts[4] = new Point(boundsRectangle.Left + 2, boundsRectangle.Bottom - isSelectOffset);
+				pts[5] = new Point(boundsRectangle.Left, boundsRectangle.Bottom - 2 - isSelectOffset);
 			}
 
             Brush br;
@@ -126,8 +131,14 @@ namespace WixEdit.Controls {
 			br = new SolidBrush(tabPage.ForeColor);
 			if (this.Alignment == TabAlignment.Top) {
        		    tabTextArea.Offset(0, -2);
+                if (isSelected == false) {
+       		        tabTextArea.Offset(0, isSelectOffset/2);
+                }
             } else {
        		    tabTextArea.Offset(0, 1);
+                if (isSelected == false) {
+       		        tabTextArea.Offset(0, isSelectOffset/-2);
+                }
             }
 
 			g.DrawString(tabPage.Text, Font, br, tabTextArea, stringFormat);
