@@ -193,6 +193,7 @@
       <ComponentRef Id="component13" />
       <ComponentRef Id="component14" />
       <ComponentRef Id="component15" />
+      <ComponentRef Id="component16" />
     </Feature>
     <Feature Id="SamplesFeature" Title="Samples" Level="1" Display="expand" Description="WixEdit samples">
       <FeatureRef Id="SamplesFeature.UISample" />

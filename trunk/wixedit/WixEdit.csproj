@@ -788,18 +788,8 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "src\OutputTextbox.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "src\PathHelper.cs"
                     SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "src\PictureControl.cs"
-                    SubType = "UserControl"
                     BuildAction = "Compile"
                 />
                 <File
@@ -813,18 +803,18 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "src\SelectionOverlay.cs"
-                    SubType = "UserControl"
+                    RelPath = "src\ResultsPanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\SearchPanel.cs"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "src\SelectStringForm.cs"
                     SubType = "Form"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "src\TabButtonControl.cs"
-                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
@@ -854,6 +844,31 @@
                 <File
                     RelPath = "src\About\AboutForm.cs"
                     SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Controls\CustomTabControl.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Controls\OutputTextbox.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Controls\PictureControl.cs"
+                    SubType = "UserControl"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Controls\SelectionOverlay.cs"
+                    SubType = "UserControl"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Controls\TabButtonControl.cs"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
