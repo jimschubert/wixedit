@@ -263,6 +263,8 @@ namespace WixEdit {
                     val = node.Value;
                 } else if(node.Attributes["Id"] != null) {
                     val = node.Attributes["Id"].Value;
+                } else if(node.Attributes["SourceFile"] != null) {
+                    val = node.Attributes["SourceFile"].Value;
                 }
                 foreach (GridItem item in iconGrid.SelectedGridItem.Parent.GridItems) {
                     if (val != null && val == item.Label) {
