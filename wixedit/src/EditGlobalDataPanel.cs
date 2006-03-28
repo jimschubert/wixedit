@@ -50,7 +50,7 @@ namespace WixEdit {
                     skipElements.Add("AdminUISequence");
                     skipElements.Add("AdvertiseExecuteSequence");
                     skipElements.Add("CustomAction");
-                    skipElements.Add("Include");
+                    skipElements.Add("include");
                 }
 
                 return skipElements;
