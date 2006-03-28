@@ -222,6 +222,20 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (propertyGrid.SelectedGridItem != null) {
+                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:ProgressText", wixFiles.WxsNsmgr);
+                foreach (XmlNode item in properties) {
+                    if (item.Attributes["Action"].Value == propertyGrid.SelectedGridItem.Label) {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
         public override void ReloadData() {
             propertyGrid.SelectedObject = null;
 

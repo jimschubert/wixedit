@@ -52,7 +52,11 @@ namespace WixEdit.PropertyGridExtensions {
 
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
+                wixFiles.UndoManager.StartPropertyGridEdit();
+
                 Attribute.Value = String.Empty;
+
+                wixFiles.UndoManager.EndPropertyGridEdit();
             } else {
                 string stringValue = value.ToString();
 
@@ -87,7 +91,11 @@ namespace WixEdit.PropertyGridExtensions {
                     }
                 }
 
+                wixFiles.UndoManager.StartPropertyGridEdit();
+
                 Attribute.Value = value.ToString();
+
+                wixFiles.UndoManager.EndPropertyGridEdit();
             }
         }
     }

@@ -206,6 +206,14 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (treeView.SelectedNode == null) {
+                return null;
+            }
+
+            return (XmlNode) treeView.SelectedNode.Tag;
+        }
+
         protected virtual TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
             foreach (TreeNode treeNode in treeNodes) {
                 if (treeNode.Tag == node) {

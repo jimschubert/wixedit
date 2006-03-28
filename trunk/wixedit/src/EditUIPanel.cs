@@ -128,6 +128,22 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (tabControl.SelectedTab == editDialogTabPage) {
+                return editDialogPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editUISequenceTabPage) {
+                return editUISequencePanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editUITextTabPage) {
+                return editUITextPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editProgressTextTabPage) {
+                return editProgressTextPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editErrorTabPage) {
+                return editErrorPanel.GetShowingNode();
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             editDialogPanel.ReloadData();
             editUISequencePanel.ReloadData();

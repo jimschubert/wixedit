@@ -20,6 +20,7 @@
 
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -33,6 +34,7 @@ namespace WixEdit {
         FileInfo wxsFile;
 
         UndoManager undoManager;
+        IncludeManager includeManager;
 
         XmlDocument wxsDocument;
         XmlNamespaceManager wxsNsmgr;
@@ -60,7 +62,7 @@ namespace WixEdit {
             wxsNsmgr = new XmlNamespaceManager(wxsDocument.NameTable);
             wxsNsmgr.AddNamespace("wix", wxsDocument.DocumentElement.NamespaceURI);
 
-            undoManager = new UndoManager(wxsDocument);
+            undoManager = new UndoManager(this, wxsDocument);
 
             wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
             wxsWatcher_ChangedHandler = new FileSystemEventHandler(wxsWatcher_Changed);
@@ -127,11 +129,19 @@ namespace WixEdit {
             } else {
                 projectSettings = new ProjectSettings(String.Empty, String.Empty);
             }
+
+            includeManager = new IncludeManager(this, wxsDocument);
         }
 
         public UndoManager UndoManager {
             get {
                 return undoManager;
+            }
+        }
+
+        public IncludeManager IncludeManager {
+            get {
+                return includeManager;
             }
         }
 
@@ -329,6 +339,8 @@ namespace WixEdit {
 
             wxsWatcher.EnableRaisingEvents = false;
 
+            UndoManager.DeregisterHandlers();
+
             XmlComment commentElement = null;
             if (projectSettings.IsEmpty() == false) {
                 StringBuilder commentBuilder = new StringBuilder();
@@ -340,6 +352,18 @@ namespace WixEdit {
 
                 commentElement = wxsDocument.CreateComment(commentBuilder.ToString());
                 wxsDocument.InsertBefore(commentElement, wxsDocument.DocumentElement);
+            }
+
+            if (IncludeManager.HasIncludes) {
+                IncludeManager.RemoveIncludes();
+
+                ArrayList changedIncludes = UndoManager.ChangedIncludes;
+                if (changedIncludes.Count > 0) {
+                    string filesString = String.Join("\r\n\x2022 ", changedIncludes.ToArray(typeof(string)) as string[]);
+                    if (DialogResult.Yes == MessageBox.Show(String.Format("Do you want to save the following changed include files?\r\n\r\n\x2022 {0}", filesString), "Save?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) {
+                        IncludeManager.SaveIncludes(UndoManager.ChangedIncludes);
+                    }
+                }
             }
 
             FileMode mode = FileMode.OpenOrCreate;
@@ -358,6 +382,11 @@ namespace WixEdit {
                 fs.Close();
             }
 
+            if (IncludeManager.HasIncludes) {
+                // Remove nodes from main xml document
+                IncludeManager.RestoreIncludes();
+            }
+
             projectSettings.ChangesHasBeenSaved();
 
             if (commentElement != null) {
@@ -367,6 +396,7 @@ namespace WixEdit {
             wxsWatcher.EnableRaisingEvents = true;
 
             undoManager.Clear();
+            UndoManager.RegisterHandlers();
         }
 
         private void wxsWatcher_Changed(object sender, FileSystemEventArgs e) {

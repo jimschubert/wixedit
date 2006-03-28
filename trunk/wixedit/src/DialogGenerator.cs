@@ -802,6 +802,10 @@ namespace WixEdit {
             
             XmlAttribute srcAttrib = binaryNode.Attributes["SourceFile"];
             if (srcAttrib == null) {
+                srcAttrib = binaryNode.Attributes["src"];
+            }
+
+            if (srcAttrib == null) {
                 throw new Exception(String.Format("src Attribute of binary with id \"{0}\" not found", binaryId));
             }
 
@@ -817,6 +821,7 @@ namespace WixEdit {
 
                 return File.Open(src, FileMode.Open);
             } else {
+                src = Path.Combine(wixFiles.WxsDirectory.FullName, src);
                 if (File.Exists(src)) {
                     return File.Open(src, FileMode.Open);
                 } else {

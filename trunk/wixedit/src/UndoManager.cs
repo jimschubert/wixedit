@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using System.Windows.Forms;
 using System.Xml;
 
 using WixEdit.Settings;
@@ -31,6 +32,7 @@ namespace WixEdit {
         ArrayList redoCommands;
 
         bool beginNewCommandRange;
+        bool isPropertyGridEdit;
         
         XmlDocument wxsDocument;
 
@@ -41,13 +43,16 @@ namespace WixEdit {
 
         DateTime timeCheck;
 
-        public UndoManager(XmlDocument wxsDocument) {
+        WixFiles wixFiles;
+
+        public UndoManager(WixFiles wixFiles, XmlDocument wxsDocument) {
             undoCommands = new ArrayList();
             redoCommands = new ArrayList();
 
             beginNewCommandRange = true;
 
             this.wxsDocument = wxsDocument;
+            this.wixFiles = wixFiles;
 
             nodeChangedHandler  = new XmlNodeChangedEventHandler(OnNodeChanged); 
             nodeChangingHandler = new XmlNodeChangedEventHandler(OnNodeChanging);
@@ -62,14 +67,14 @@ namespace WixEdit {
             timeCheck = DateTime.Now;
         }
 
-        private void RegisterHandlers() {
+        public void RegisterHandlers() {
             wxsDocument.NodeChanged += nodeChangedHandler;
             wxsDocument.NodeChanging += nodeChangingHandler; 
             wxsDocument.NodeInserted += nodeInsertedHandler;
             wxsDocument.NodeRemoving += nodeRemovingHandler;
         }
 
-        private void DeregisterHandlers() {
+        public void DeregisterHandlers() {
             wxsDocument.NodeChanged -= nodeChangedHandler;
             wxsDocument.NodeChanging -= nodeChangingHandler; 
             wxsDocument.NodeInserted -= nodeInsertedHandler;
@@ -80,6 +85,14 @@ namespace WixEdit {
             timeCheck = DateTime.Now;
 
             beginNewCommandRange = true;
+        }
+
+        public void StartPropertyGridEdit() {
+            isPropertyGridEdit = true;
+        }
+
+        public void EndPropertyGridEdit() {
+            isPropertyGridEdit = false;
         }
 
         /// <summary>
@@ -100,7 +113,13 @@ namespace WixEdit {
             redoCommands.Clear();
 
             CheckTime();
-            undoCommands.Add(new ChangeCommand(args.Node, oldNodeValue, args.Node.Value, beginNewCommandRange));
+
+            string affectedInclude = wixFiles.IncludeManager.FindIncludeFile(args.Node);
+            undoCommands.Add(new ChangeCommand(args.Node, oldNodeValue, args.Node.Value, beginNewCommandRange, affectedInclude));
+
+            if (affectedInclude != null && affectedInclude.Length > 0) {
+                HandleChangedInclude((IReversibleCommand) undoCommands[undoCommands.Count - 1]);
+            }
 
             beginNewCommandRange = false;
         }
@@ -119,7 +138,13 @@ namespace WixEdit {
             redoCommands.Clear();
 
             CheckTime();
-            undoCommands.Add(new InsertCommand(args.NewParent, args.Node, beginNewCommandRange));
+
+            string affectedInclude = wixFiles.IncludeManager.FindIncludeFile(args.Node);
+            undoCommands.Add(new InsertCommand(args.NewParent, args.Node, beginNewCommandRange, affectedInclude));
+
+            if (affectedInclude != null && affectedInclude.Length > 0) {
+                HandleChangedInclude((IReversibleCommand) undoCommands[undoCommands.Count - 1]);
+            }
 
             beginNewCommandRange = false;
         }
@@ -129,11 +154,63 @@ namespace WixEdit {
             redoCommands.Clear();
 
             CheckTime();
-            undoCommands.Add(new RemoveCommand(args.OldParent, args.Node, beginNewCommandRange));
+
+            string affectedInclude = wixFiles.IncludeManager.FindIncludeFile(args.Node);
+            undoCommands.Add(new RemoveCommand(args.OldParent, args.Node, beginNewCommandRange, affectedInclude));
+
+            if (affectedInclude != null && affectedInclude.Length > 0) {
+                HandleChangedInclude((IReversibleCommand) undoCommands[undoCommands.Count - 1]);
+            }
 
             beginNewCommandRange = false;
         }
 
+        ArrayList allowChangIncludeFiles = new ArrayList();
+
+        public ArrayList ChangedIncludes {
+            get {
+                ArrayList changedIncludes = new ArrayList();
+                foreach (IReversibleCommand cmd in undoCommands) {
+                    if (cmd.AffectedInclude != null && cmd.AffectedInclude.Length > 0 && changedIncludes.Contains(cmd.AffectedInclude) == false) {
+                        changedIncludes.Add(cmd.AffectedInclude);                        
+                    }
+                }
+
+                return changedIncludes;
+            }
+        }
+
+        private void HandleChangedInclude(IReversibleCommand cmd) {
+            if (WixEditSettings.Instance.AllowIncludeChanges == IncludeChangesHandling.Disallow) {
+                // Stop people from making more changes to this file,
+                // and undo this command.
+                if (isPropertyGridEdit) {
+                    this.Undo(false);
+
+                    MessageBox.Show(String.Format("You cannot change include file \"{0}\".", cmd.AffectedInclude), "Cannot modify include file.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                } else {
+                    throw new ApplicationException("Not allowed to change include file.", new IncludeFileChangedException(this, cmd, true));
+                }
+            } else if (WixEditSettings.Instance.AllowIncludeChanges == IncludeChangesHandling.Allow) {
+                // Do nothing...
+                if (allowChangIncludeFiles.Count == 0 || allowChangIncludeFiles.Contains(cmd.AffectedInclude) == false) {
+                    allowChangIncludeFiles.Add(cmd.AffectedInclude);
+                }
+            } else if (WixEditSettings.Instance.AllowIncludeChanges == IncludeChangesHandling.AskForEachFile) {
+                if (allowChangIncludeFiles.Count == 0 || allowChangIncludeFiles.Contains(cmd.AffectedInclude) == false) {
+                    DialogResult result = MessageBox.Show(String.Format("You are changing \"{0}\", do you wish to continue?", cmd.AffectedInclude), "Modify include file?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes) {
+                        allowChangIncludeFiles.Add(cmd.AffectedInclude);
+                    } else {
+                        if (isPropertyGridEdit) {
+                            this.Undo(false);
+                        } else {
+                            throw new ApplicationException("Not allowed to change include file.", new IncludeFileChangedException(this, cmd, false));
+                        }
+                    }
+                }
+            }
+        }
 
         public void Clear() {
             undoCommands.Clear();
@@ -199,6 +276,10 @@ namespace WixEdit {
         }
 
         public XmlNode Undo() {
+            return Undo(true);
+        }
+
+        public XmlNode Undo(bool canRedo) {
             XmlNode affectedNode = null;
             ArrayList affectedNodes = new ArrayList();
             
@@ -214,6 +295,10 @@ namespace WixEdit {
                     undoCommands.Remove(command);
                     redoCommands.Add(command);
                 } while (undoCommands.Count > 0 && command.BeginCommandRange == false);
+
+                if (canRedo == false) {
+                    redoCommands.Clear();
+                }
 
                 RegisterHandlers();
 
@@ -262,7 +347,10 @@ namespace WixEdit {
     public interface IReversibleCommand {
         bool BeginCommandRange {
             get;
-            set;
+        }
+
+        string AffectedInclude {
+            get;
         }
 
         XmlNode Undo();
@@ -271,29 +359,53 @@ namespace WixEdit {
         string GetDisplayActionString();
     }
 
-    public class InsertCommand : IReversibleCommand {
-        XmlNode parentNode;
-        XmlNode insertedNode;
-        XmlNode previousSiblingNode;
+    public abstract class BaseCommand : IReversibleCommand {
+        protected bool beginCommandRange;
+        protected string affectedInclude;
+        protected string displayActionString;
 
-        bool beginCommandRange;
-
-        public InsertCommand(XmlNode parentNode, XmlNode insertedNode, bool beginCommandRange) {
-            this.parentNode = parentNode;
-            this.insertedNode = insertedNode;
+        public BaseCommand(bool beginCommandRange, string affectedInclude, string displayActionString) {
             this.beginCommandRange = beginCommandRange;
+            this.affectedInclude = affectedInclude;
+            this.displayActionString = displayActionString;
         }
+
+        public abstract XmlNode Undo();
+        public abstract XmlNode Redo();
 
         public bool BeginCommandRange {
             get {
                 return beginCommandRange;
             }
-            set {
-                beginCommandRange = value;
+        }
+
+        public string AffectedInclude {
+            get {
+                return affectedInclude;
             }
         }
 
-        public XmlNode Undo() {
+        public string GetDisplayActionString() {
+            if (affectedInclude != null && affectedInclude.Length > 0) {
+                return String.Format("{0} ({1})", displayActionString, affectedInclude);
+            } else {
+                return displayActionString;
+            }
+        }
+    }
+
+    public class InsertCommand : BaseCommand {
+        XmlNode parentNode;
+        XmlNode insertedNode;
+        XmlNode previousSiblingNode;
+
+        public InsertCommand(XmlNode parentNode, XmlNode insertedNode, bool beginCommandRange, string affectedInclude) :
+                            base(beginCommandRange, affectedInclude, "Insert") {
+            this.parentNode = parentNode;
+            this.insertedNode = insertedNode;
+        }
+
+        public override XmlNode Undo() {
             previousSiblingNode = insertedNode.PreviousSibling;
             if (insertedNode is XmlAttribute) {
                 parentNode.Attributes.Remove(insertedNode as XmlAttribute);
@@ -304,7 +416,7 @@ namespace WixEdit {
             return parentNode;
         }
 
-        public XmlNode Redo() {
+        public override XmlNode Redo() {
             if (previousSiblingNode != null) {
                 if (insertedNode is XmlAttribute) {
                     parentNode.Attributes.InsertAfter(insertedNode as XmlAttribute, previousSiblingNode as XmlAttribute);
@@ -321,36 +433,21 @@ namespace WixEdit {
 
             return insertedNode;
         }
-
-        public string GetDisplayActionString() {
-            return "Insert";
-        }
     }
 
-    public class RemoveCommand : IReversibleCommand {
+    public class RemoveCommand : BaseCommand {
         XmlNode parentNode;
         XmlNode removedNode;
         XmlNode previousSiblingNode;
         
-        bool beginCommandRange;
-
-        public RemoveCommand(XmlNode parentNode, XmlNode removedNode, bool beginCommandRange) {
+        public RemoveCommand(XmlNode parentNode, XmlNode removedNode, bool beginCommandRange, string affectedInclude) :
+                            base(beginCommandRange, affectedInclude, "Delete") {
             this.parentNode = parentNode;
             this.removedNode = removedNode;
             previousSiblingNode = removedNode.PreviousSibling;
-            this.beginCommandRange = beginCommandRange;
         }
 
-        public bool BeginCommandRange {
-            get {
-                return beginCommandRange;
-            }
-            set {
-                beginCommandRange = value;
-            }
-        }
-
-        public XmlNode Undo() {
+        public override XmlNode Undo() {
             if (previousSiblingNode != null) {
                 if (removedNode is XmlAttribute) {
                     parentNode.Attributes.InsertAfter(removedNode as XmlAttribute, previousSiblingNode as XmlAttribute);
@@ -368,7 +465,7 @@ namespace WixEdit {
             return removedNode;
         }
 
-        public XmlNode Redo() {
+        public override XmlNode Redo() {
             if (removedNode is XmlAttribute) {
                 parentNode.Attributes.Remove(removedNode as XmlAttribute);
             } else {
@@ -377,49 +474,30 @@ namespace WixEdit {
 
             return parentNode;
         }
-
-        public string GetDisplayActionString() {
-            return "Delete";
-        }
     }
 
-    public class ChangeCommand : IReversibleCommand {
+    public class ChangeCommand : BaseCommand {
         XmlNode changedNode;
         string oldValue;
         string newValue;
 
-        bool beginCommandRange;
-
-        public ChangeCommand(XmlNode changedNode, string oldValue, string newValue, bool beginCommandRange) {
+        public ChangeCommand(XmlNode changedNode, string oldValue, string newValue, bool beginCommandRange, string affectedInclude) :
+                            base(beginCommandRange, affectedInclude, "Change") {
             this.changedNode = changedNode;
             this.oldValue = oldValue;
             this.newValue = newValue;
-            this.beginCommandRange = beginCommandRange;
         }
 
-        public bool BeginCommandRange {
-            get {
-                return beginCommandRange;
-            }
-            set {
-                beginCommandRange = value;
-            }
-        }
-
-        public XmlNode Undo() {
+        public override XmlNode Undo() {
             changedNode.Value = oldValue;
 
             return changedNode;
         }
 
-        public XmlNode Redo() {
+        public override XmlNode Redo() {
             changedNode.Value = newValue;
 
             return changedNode;
-        }
-
-        public string GetDisplayActionString() {
-            return "Change";
         }
     }
 }

@@ -393,6 +393,8 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            this.SuspendLayout();
+
             LoadData();
 
             XmlNode showable = GetShowableNode(node);
@@ -403,17 +405,22 @@ namespace WixEdit {
             }
 
             foreach (ListViewItem item in wxsDialogs.Items) {
+                item.Selected = false;
+            }
+
+            foreach (ListViewItem item in wxsDialogs.Items) {
                 if (dialog == item.Tag) {
                     item.Selected = true;
 
                     ShowWixDialogTree(null);
                     ShowWixProperties(null);
                     ShowWixDialog(null);  
-          
+
+                    Application.DoEvents();
+
                     ShowWixDialogTree(dialog);
                     ShowWixProperties(dialog);
                     ShowWixDialog(dialog);
-
 
                     break;
                 }
@@ -423,18 +430,41 @@ namespace WixEdit {
             if (treeNode != null) {
                 dialogTreeView.SelectedNode = null;
                 dialogTreeView.SelectedNode = treeNode;
+
+                ShowWixProperties(showable);
             }
 
-            if (node is XmlAttribute) {
+            XmlNode attNode = node;
+            if (attNode is XmlText) {
+                attNode = attNode.ParentNode;
+            }
+
+            if (attNode is XmlAttribute) {
                 if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
                     foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
-                        if (node.Name == item.Label) {
+                        if (attNode.Name == item.Label) {
                             propertyGrid.SelectedGridItem = item;
                             break;
                         }
                     }
                 }
             }
+
+            this.ResumeLayout();
+        }
+
+        public override XmlNode GetShowingNode() {
+            if (dialogTreeView.SelectedNode == null) {
+                if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
+                    string currentDialogId = wxsDialogs.SelectedItems[0].Text;
+
+                    return wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+                }
+
+                return null;
+            }
+
+            return (XmlNode) dialogTreeView.SelectedNode.Tag;
         }
 
         private TreeNode FindTreeNode(XmlNode node, TreeNodeCollection treeNodes) {
@@ -718,6 +748,8 @@ namespace WixEdit {
 
         public void OnDeleteWxsDialogsItem(object sender, EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
+                wixFiles.UndoManager.BeginNewCommandRange();
+
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
                 XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
 
@@ -810,6 +842,8 @@ namespace WixEdit {
         }
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
             // Get the XmlAttribute from the PropertyDescriptor
             XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
             XmlAttribute att = desc.Attribute;
@@ -1148,6 +1182,8 @@ namespace WixEdit {
             if (node == null) {
                 return;
             }
+
+            wixFiles.UndoManager.BeginNewCommandRange();
 
             node.ParentNode.RemoveChild(node);
 

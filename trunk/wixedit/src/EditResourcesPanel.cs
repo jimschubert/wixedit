@@ -92,6 +92,16 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (tabControl.SelectedTab == editBinariesTabPage) {
+                return editBinariesPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editIconsTabPage) {
+                return editIconsPanel.GetShowingNode();
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             editBinariesPanel.ReloadData();
             editIconsPanel.ReloadData();

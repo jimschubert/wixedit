@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace WixEdit.Import {
     /// <summary>
@@ -37,7 +38,7 @@ namespace WixEdit.Import {
             this.componentElement = componentElement;
         }
 
-        public void Import() {
+        public void Import(TreeNode treeNode) {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
             newElement.SetAttribute("Id", fileInfo.Name);
@@ -45,7 +46,23 @@ namespace WixEdit.Import {
             newElement.SetAttribute("Name", PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement));
             newElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
-            componentElement.AppendChild(newElement);
+            TreeNode newNode = new TreeNode(fileInfo.Name);
+            newNode.Tag = newElement;
+            
+            int imageIndex = ImageListFactory.GetImageIndex("File");
+            if (imageIndex >= 0) {
+                newNode.ImageIndex = imageIndex;
+                newNode.SelectedImageIndex = imageIndex;
+            }
+
+            XmlNodeList sameNodes = componentElement.SelectNodes("wix:File", wixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                componentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                componentElement.AppendChild(newElement);
+            }
+
+            treeNode.Nodes.Add(newNode);
         }
     }
 }
