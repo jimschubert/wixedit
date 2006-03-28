@@ -36,6 +36,7 @@ namespace WixEdit {
 
         public abstract bool IsOwnerOfNode(XmlNode node);
         public abstract void ShowNode(XmlNode node);
+        public abstract XmlNode GetShowingNode();
         public abstract void ReloadData();
 
         protected virtual XmlNode GetShowableNode(XmlNode node) {

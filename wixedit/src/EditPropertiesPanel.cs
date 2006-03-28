@@ -216,6 +216,19 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (propertyGrid.SelectedGridItem != null) {
+                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
+                foreach (XmlNode item in properties) {
+                    if (item.Attributes["Id"].Value == propertyGrid.SelectedGridItem.Label) {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             propertyGrid.SelectedObject = null;
 

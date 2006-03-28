@@ -20,35 +20,38 @@
 
 
 using System;
+using System.Collections;
 using System.Xml;
 
-namespace WixEdit.PropertyGridExtensions {
-    /// <summary>
-    /// Summary description for UITextElementPropertyDescriptor.
-    /// </summary>
-    public class UITextElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
-        public UITextElementPropertyDescriptor(WixFiles wixFiles, XmlNode uiTextElement, string name, Attribute[] attrs) :
-            base(wixFiles, uiTextElement, name, attrs) {
+using WixEdit.Settings;
+
+namespace WixEdit {
+    public class IncludeFileChangedException : Exception {
+        UndoManager undoMgr;
+        IReversibleCommand cmd;
+        bool notifyUser;
+        public IncludeFileChangedException(UndoManager undoMgr, IReversibleCommand cmd, bool notifyUser) {
+            this.undoMgr = undoMgr;
+            this.cmd = cmd;
+            this.notifyUser = notifyUser;
         }
 
-        public override object GetValue(object component) {
-            return XmlElement.InnerText;
-        }
-
-        public override void SetValue(object component, object value) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
-            wixFiles.UndoManager.StartPropertyGridEdit();
-
-            // Object can be a Int or DateTime or String. Etc.
-            if (value == null) {
-                XmlElement.InnerText = String.Empty;
-            } else {
-                XmlElement.InnerText = value.ToString();
+        public UndoManager UndoManager {
+            get {
+                return undoMgr;
             }
-
-            wixFiles.UndoManager.EndPropertyGridEdit();
         }
 
+        public IReversibleCommand Command {
+            get {
+                return cmd;
+            }
+        }
+
+        public bool NotifyUser {
+            get {
+                return notifyUser;
+            }
+        }
     }
 }

@@ -92,7 +92,7 @@ namespace WixEdit {
             Clear();
 
             string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", search.ToLower());
-            string searchElement = String.Format("//*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}') and count(./*) = 0]", search.ToLower());
+            string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", search.ToLower());
             lastNodes = wixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
             foreach (XmlNode node in lastNodes) {
                 OutputResult(search, node, GetFirstElement(node));

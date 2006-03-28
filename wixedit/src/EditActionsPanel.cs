@@ -84,6 +84,16 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (tabControl.SelectedTab == editCustomActionsTabPage) {
+                return editCustomActionsPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editExecuteSequenceTabPage) {
+                return editExecuteSequencePanel.GetShowingNode();
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             editCustomActionsPanel.ReloadData();
             editExecuteSequencePanel.ReloadData();

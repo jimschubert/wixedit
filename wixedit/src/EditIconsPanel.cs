@@ -275,6 +275,19 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (iconGrid.SelectedGridItem != null) {
+                XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
+                foreach (XmlNode item in binaries) {
+                    if (item.Attributes["Id"].Value == iconGrid.SelectedGridItem.Label) {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             iconGrid.SelectedObject = null;
 

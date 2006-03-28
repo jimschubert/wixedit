@@ -84,6 +84,17 @@ namespace WixEdit {
             }
         }
 
+
+        public override XmlNode GetShowingNode() {
+            if (tabControl.SelectedTab == editFilesTabPage) {
+                return editFilesPanel.GetShowingNode();
+            } else if (tabControl.SelectedTab == editFeaturesTabPage) {
+                return editFeaturesPanel.GetShowingNode();
+            }
+
+            return null;
+        }
+
         public override void ReloadData() {
             editFilesPanel.ReloadData();
             editFeaturesPanel.ReloadData();

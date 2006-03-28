@@ -199,7 +199,7 @@ namespace WixEdit {
 
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            ImportFilesInComponent(aNodeElement, files);
+            ImportFilesInComponent(aNode, aNodeElement, files);
         }
 
         private void ImportFiles_Click(object sender, System.EventArgs e) {
@@ -214,12 +214,16 @@ namespace WixEdit {
             if (ofd.ShowDialog() == DialogResult.OK) {
                 string[] files = ofd.FileNames;
     
-                ImportFilesInComponent(aNodeElement, files);
+                ImportFilesInComponent(aNode, aNodeElement, files);
             }
         }
 
-        private void ImportFilesInComponent(XmlNode componentNode, string[] files) {
+        private void ImportFilesInComponent(TreeNode node, XmlNode componentNode, string[] files) {
             if (componentNode.Name == "Component") {
+                bool mustExpand = (node.Nodes.Count == 0);
+
+                treeView.SuspendLayout();
+
                 bool foundReg = false;
                 foreach (string file in files) {
                     if (Path.GetExtension(file).ToLower() == ".reg") {
@@ -246,10 +250,10 @@ namespace WixEdit {
                     try {
                         if (fileInfo.Extension.ToLower() == ".reg" && importRegistryFiles) {
                             RegistryImport regImport = new RegistryImport(wixFiles, fileInfo, componentNode);
-                            regImport.Import();
+                            regImport.Import(node);
                         } else {
                             FileImport fileImport = new FileImport(wixFiles, fileInfo, componentNode);
-                            fileImport.Import();
+                            fileImport.Import(node);
                         }
                     } catch (ImportException ex) {
                         errorMessageBuilder.AppendFormat("{0} ({1})\r\n", fileInfo.Name, ex.Message);
@@ -267,8 +271,13 @@ namespace WixEdit {
                     MessageBox.Show(this, "Import failed for the following files:\r\n\r\n" + errorMessageBuilder.ToString(), "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
 
-                ReloadData();
                 ShowNode(componentNode);
+
+                if (mustExpand) {
+                    node.Expand();
+                }
+
+                treeView.ResumeLayout();
             }
         }
     }

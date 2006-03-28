@@ -23,6 +23,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace WixEdit.Import {
@@ -41,7 +42,7 @@ namespace WixEdit.Import {
             this.componentElement = componentElement;
         }
 
-        public void Import() {
+        public void Import(TreeNode treeNode) {
             TextReader reader = new StreamReader(regFileInfo.FullName);
             
             string line = reader.ReadLine();
@@ -144,6 +145,24 @@ namespace WixEdit.Import {
 
             foreach (XmlNode child in createdChildren) {
                 componentElement.AppendChild(child);
+
+                string displayName = "Registry";
+                string root = child.Attributes["Root"].Value;
+                string key = child.Attributes["Key"].Value;
+                XmlAttribute name = child.Attributes["Name"];
+                if (name != null) {
+                    if (key.EndsWith("\\") == false) {
+                        key = key + "\\";
+                    }
+                    key = key + name.Value;
+                }
+
+                displayName = root + "\\" + key;
+
+                int imageIndex = ImageListFactory.GetImageIndex("Registry");
+                TreeNode newNode = new TreeNode(displayName, imageIndex, imageIndex);
+                
+                treeNode.Nodes.Add(newNode);
             }
         }
 

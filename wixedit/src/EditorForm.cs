@@ -121,7 +121,7 @@ namespace WixEdit {
 
             Text = "WiX Edit";
             Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
-            ClientSize = new Size(630, 480);
+            ClientSize = new Size(800, 600);
             MinimumSize = new Size(250, 200);
             
             openWxsFileDialog = new OpenFileDialog();
@@ -225,7 +225,7 @@ namespace WixEdit {
 
             editRedo.Text = "&Redo";
             editRedo.Click += new EventHandler(editRedo_Click);
-            editRedo.Shortcut = Shortcut.CtrlR;
+            editRedo.Shortcut = Shortcut.CtrlY;
             editRedo.ShowShortcut = true;
 
             editFind.Text = "&Find";
@@ -343,7 +343,7 @@ namespace WixEdit {
             resultsPanel.CloseClicked += new EventHandler(HideResultsPanel);            
             resultsPanel.Dock = DockStyle.Bottom;
             resultsPanel.Height = 100;
-            resultsPanel.Size = new Size(200, 150);
+            resultsPanel.Size = new Size(200, 216);
 
             Controls.Add(resultsPanel);
 
@@ -455,6 +455,10 @@ namespace WixEdit {
         }
 
         private void fileSave_Click(object sender, System.EventArgs e) {
+            Save();
+        }
+
+        private void Save() {
             wixFiles.Save();
         }
 
@@ -463,10 +467,17 @@ namespace WixEdit {
             dlg.OverwritePrompt = true;
             dlg.FileName = wixFiles.WxsFile.FullName;
             dlg.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
-            dlg.AddExtension = true;
-            dlg.DefaultExt = "wxs";
             if (dlg.ShowDialog(this) == DialogResult.OK) {
-                wixFiles.SaveAs(dlg.FileName);
+                string newName = dlg.FileName;
+                string ext = Path.GetExtension(newName);
+                if (ext == null || ext.Length == 0) {
+                    newName = newName + ".wxs";
+                }
+                wixFiles.SaveAs(newName);
+                WixEditSettings.Instance.AddRecentlyUsedFile(new FileInfo(dlg.FileName));
+                WixEditSettings.Instance.SaveChanges();
+
+                UpdateTitlebar();
             }
         }
 
@@ -482,7 +493,7 @@ namespace WixEdit {
             }
         }
 
-        public delegate void VoidDelegate();
+        public delegate void VoidVoidDelegate();
 
         private void fileExit_Click(object sender, System.EventArgs e) {
             EditorForm[] constEditorArray = new EditorForm[formInstances.Count];
@@ -495,7 +506,7 @@ namespace WixEdit {
                     continue;
                 }
 
-                edit.Invoke(new VoidDelegate(edit.Close));
+                edit.Invoke(new VoidVoidDelegate(edit.Close));
             }
 
             this.Close();
@@ -702,10 +713,10 @@ namespace WixEdit {
                         panel.ReloadData();
                     } else if (panel.IsOwnerOfNode(node)) {
                         tabButtonControl.SelectedPanel = panel;
-                        panel.ShowNode(node);
                         if (forceReload) {
                             panel.ReloadData();
                         }
+                        panel.ShowNode(node);
                         break;
                     }
                 }
@@ -991,7 +1002,7 @@ namespace WixEdit {
 
                 DialogResult result = MessageBox.Show(messageText + "Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes) {
-                    wixFiles.Save();
+                    Save();
                 } else if (result == DialogResult.Cancel) {
                     return false;
                 }   
@@ -1091,14 +1102,9 @@ namespace WixEdit {
 
             panels[5] = editActionsPanel;
 
-
             // Update menu
             fileClose.Enabled = true;
-            if (WixEditSettings.Instance.DisplayFullPathInTitlebar) {
-                Text = "WiX Edit - " + wixFiles.WxsFile.FullName;
-            } else {
-                Text = "WiX Edit - " + wixFiles.WxsFile.Name;
-            }
+            UpdateTitlebar();
 
             fileSave.Enabled = true;
             fileSaveAs.Enabled = true;
@@ -1107,6 +1113,16 @@ namespace WixEdit {
             buildWixInstall.Enabled = true;
             buildWixUninstall.Enabled = true;
             buildProjectSettings.Enabled = true;
+        }
+
+        private void UpdateTitlebar() {
+            if (wixFiles == null) {
+                Text = "WiX Edit";
+            } else if (WixEditSettings.Instance.DisplayFullPathInTitlebar) {
+                Text = "WiX Edit - " + wixFiles.WxsFile.FullName;
+            } else {
+                Text = "WiX Edit - " + wixFiles.WxsFile.Name;
+            }
         }
 
         private void CloseWxsFile() {
@@ -1185,8 +1201,15 @@ namespace WixEdit {
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length == 2) {
                 string xmlFile = args[1];
-                if (xmlFile != null && xmlFile.Length > 0 && File.Exists(xmlFile)) {
-                    fileToOpen = xmlFile;
+                if (xmlFile != null && xmlFile.Length > 0) {
+                    if (File.Exists(xmlFile)) {
+                        fileToOpen = xmlFile;
+                    } else if (xmlFile == "-last") {
+                        string[] recentFiles = WixEditSettings.Instance.GetRecentlyUsedFiles();
+                        if (recentFiles.Length > 0) {
+                            fileToOpen = recentFiles[0];
+                        }
+                    }
                 }
             }
 
@@ -1300,9 +1323,19 @@ namespace WixEdit {
 
         private delegate void InvokeDelegate();
         private void wixFiles_wxsChanged(object sender, EventArgs e) {
+            ReloadAll();
+        }
+
+        private void ReloadAll() {
             try {
+                XmlNode current = ((DisplayBasePanel)tabButtonControl.SelectedPanel).GetShowingNode();
+
                 foreach (DisplayBasePanel panel in panels) {
                     panel.BeginInvoke(new InvokeDelegate(panel.ReloadData));
+                }
+
+                if (current != null) {
+                    ((DisplayBasePanel)tabButtonControl.SelectedPanel).ShowNode(current);
                 }
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1310,6 +1343,16 @@ namespace WixEdit {
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
+            if (e.Exception.InnerException is IncludeFileChangedException) {
+                IncludeFileChangedException ifcException = e.Exception.InnerException as IncludeFileChangedException;
+                ifcException.UndoManager.Undo(false);
+                if (ifcException.NotifyUser) {
+                    MessageBox.Show(String.Format("You cannot change \"{0}\"", ifcException.Command.AffectedInclude), "Cannot change includes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                return;
+            }
+
             string message = "Unable to perform your action, an error occured! Please press OK to report this error to the WixEdit website, so this error can be fixed.";
             ExceptionForm form = new ExceptionForm(message, e.Exception);
             if (form.ShowDialog() == DialogResult.OK) {

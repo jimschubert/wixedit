@@ -47,12 +47,16 @@ namespace WixEdit.PropertyGridExtensions {
         public override void SetValue(object component, object value) {
             wixFiles.UndoManager.BeginNewCommandRange();
 
+            wixFiles.UndoManager.StartPropertyGridEdit();
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
                 node.InnerText = String.Empty;
             } else {
                 node.InnerText = value.ToString();
             }
+
+            wixFiles.UndoManager.EndPropertyGridEdit();
         }
     }
 }

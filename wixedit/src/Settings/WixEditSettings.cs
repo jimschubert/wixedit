@@ -41,6 +41,12 @@ namespace WixEdit.Settings {
         ForceAbolutePaths = 2
     }
 
+    public enum IncludeChangesHandling {
+        AskForEachFile = 0,
+        Allow = 1,
+        Disallow = 2
+    }
+
     [DefaultPropertyAttribute("BinDirectory")]
     public class WixEditSettings : PropertyAdapterBase {
         [XmlRoot("WixEdit")]
@@ -58,6 +64,9 @@ namespace WixEdit.Settings {
                 EditDialog = new EditDialogData();
 
                 Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+                AllowIncludeChanges = IncludeChangesHandling.AskForEachFile;
+                BackupChangedIncludes = true;
             }
 
             public WixEditData(WixEditData oldVersion) {
@@ -79,6 +88,9 @@ namespace WixEdit.Settings {
                 DisplayFullPathInTitlebar = oldVersion.DisplayFullPathInTitlebar;
 
                 XmlIndentation = oldVersion.XmlIndentation;
+
+                AllowIncludeChanges = oldVersion.AllowIncludeChanges;
+                BackupChangedIncludes = oldVersion.BackupChangedIncludes;
                 
                 if (oldVersion.EditDialog == null) {
                     EditDialog = new EditDialogData();
@@ -107,6 +119,9 @@ namespace WixEdit.Settings {
             public EditDialogData EditDialog;
 
             public int XmlIndentation;
+
+            public IncludeChangesHandling AllowIncludeChanges;
+            public bool BackupChangedIncludes;
         }
         public class EditDialogData {
             public int SnapToGrid = 5;
@@ -381,6 +396,32 @@ namespace WixEdit.Settings {
             }
             set {
                 data.UseRelativeOrAbsolutePaths = value;
+            }
+        }
+
+        [
+        Category("Include Files"), 
+        Description("How to handle changes in include files.")
+        ]
+        public IncludeChangesHandling AllowIncludeChanges {
+            get {
+                return data.AllowIncludeChanges;
+            }
+            set {
+                data.AllowIncludeChanges = value;
+            }
+        }
+
+        [
+        Category("Include Files"), 
+        Description("Make a backup copy of changed include files? (Extension: .wixedit.original)")
+        ]
+        public bool BackupChangedIncludes {
+            get {
+                return data.BackupChangedIncludes;
+            }
+            set {
+                data.BackupChangedIncludes = value;
             }
         }
 
