@@ -200,6 +200,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:UIText", wixFiles.WxsNsmgr);
             UITextElementAdapter uiTextAdapter = new UITextElementAdapter(properties, wixFiles);
     

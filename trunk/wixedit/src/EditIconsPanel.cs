@@ -253,6 +253,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
             iconGrid.SelectedObject = binAdapter;

@@ -194,6 +194,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
             PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
     

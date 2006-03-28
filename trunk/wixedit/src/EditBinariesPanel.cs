@@ -251,6 +251,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Binary", wixFiles.WxsNsmgr);
             BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
             binaryGrid.SelectedObject = binAdapter;

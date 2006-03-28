@@ -32,7 +32,11 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override object GetValue(object component) {
-            return XmlElement.InnerText;
+            if (XmlElement.Attributes["Value"] != null) {
+                return XmlElement.Attributes["Value"].Value;
+            } else {
+                return XmlElement.InnerText;
+            }
         }
 
         public override void SetValue(object component, object value) {
@@ -42,13 +46,20 @@ namespace WixEdit.PropertyGridExtensions {
 
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                XmlElement.InnerText = String.Empty;
+                if (XmlElement.Attributes["Value"] != null) {
+                    XmlElement.Attributes["Value"].Value = String.Empty;
+                } else {
+                    XmlElement.InnerText = String.Empty;
+                }
             } else {
-                XmlElement.InnerText = value.ToString();
+                if (XmlElement.Attributes["Value"] != null) {
+                    XmlElement.Attributes["Value"].Value = value.ToString();
+                } else {
+                    XmlElement.InnerText = value.ToString();
+                }
             }
 
             wixFiles.UndoManager.EndPropertyGridEdit();
         }
-
     }
 }
