@@ -199,6 +199,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
             ErrorElementAdapter errorAdapter = new ErrorElementAdapter(properties, wixFiles);
     

@@ -186,6 +186,10 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
+            if (node is XmlText) {
+                node = node.ParentNode;
+            }
+
             TreeNode treeNode = FindTreeNode(GetShowableNode(node), treeView.Nodes);
             if (treeNode == null) {
                 LoadData();

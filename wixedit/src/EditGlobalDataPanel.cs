@@ -37,7 +37,6 @@ namespace WixEdit {
             get {
                 if (skipElements == null) {
                     skipElements = new StringCollection();
-                    skipElements = new StringCollection();
                     skipElements.Add("Property");
                     skipElements.Add("UI");
                     skipElements.Add("Icon");
@@ -51,6 +50,7 @@ namespace WixEdit {
                     skipElements.Add("AdminUISequence");
                     skipElements.Add("AdvertiseExecuteSequence");
                     skipElements.Add("CustomAction");
+                    skipElements.Add("Include");
                 }
 
                 return skipElements;
