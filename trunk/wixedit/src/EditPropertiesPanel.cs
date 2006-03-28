@@ -109,6 +109,50 @@ namespace WixEdit {
             if (propertyGrid.SelectedGridItem.PropertyDescriptor is PropertyElementPropertyDescriptor) {
                 propertyGridContextMenu.MenuItems.Add(menuItem2);
                 propertyGridContextMenu.MenuItems.Add(menuItem3);
+
+                MenuItem attribOptionsMenuItem = new IconMenuItem("Options");
+
+                PropertyElementPropertyDescriptor descriptor = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
+
+                IconMenuItem attribMenuItem;
+                XmlNodeList xmlNodeElements = wixFiles.XsdDocument.SelectNodes("//xs:element[@name='Property']/xs:complexType/xs:attribute[@type='YesNoType']", wixFiles.XsdNsmgr);
+                foreach (XmlNode node in xmlNodeElements) {
+                    attribMenuItem = new IconMenuItem(node.Attributes["name"].Value);
+                    attribMenuItem.Click += new EventHandler(OnToggleAttribute);
+                    attribOptionsMenuItem.MenuItems.Add(attribMenuItem);
+
+                    XmlAttribute att = descriptor.XmlElement.Attributes[node.Attributes["name"].Value];
+                    if (att != null && att.Value.ToLower() == "yes") {
+                        attribMenuItem.Checked = true;
+                    }
+                }
+
+                if (xmlNodeElements.Count > 0) {
+                    propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
+                    propertyGridContextMenu.MenuItems.Add(attribOptionsMenuItem);
+                }
+            }
+        }
+
+        public void OnToggleAttribute(object sender, EventArgs e) {
+            wixFiles.UndoManager.BeginNewCommandRange();
+
+            MenuItem item = sender as MenuItem;
+
+            PropertyElementPropertyDescriptor descriptor = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
+
+            XmlAttribute att = descriptor.XmlElement.Attributes[item.Text];
+            if (att != null) {
+                if (att.Value.ToLower() == "yes") {
+                    descriptor.XmlElement.Attributes.Remove(att);
+//                    att.Value = "No";
+                } else {
+                    att.Value = "Yes";
+                }
+            } else {
+                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute(item.Text);
+                newAttr.Value = "Yes";
+                descriptor.XmlElement.Attributes.Append(newAttr);
             }
         }
 
