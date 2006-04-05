@@ -81,6 +81,7 @@ namespace WixEdit {
             Controls.Add(outputTextBox);
 
             outputTextBox.TabStop = true;
+            outputTextBox.HideSelection = false;
 
             outputTextBox.MouseUp += new MouseEventHandler(outputTextBox_MouseDown);
 
@@ -142,8 +143,6 @@ namespace WixEdit {
                     OutputRaw(String.Format("{0} = '{1}'\\par\r\n", element.Name, strValue));
                 }
             }
-//            OutputRaw(String.Format("{0}/@{1} = '{2}'\\par\r\n", element.Name, node.Name, node.Value));
-//            Output(String.Format("{0} - {1}: {2}", element.Name, node.Name, node.Value), false);
         }
 
         private void outputTextBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
@@ -181,17 +180,21 @@ namespace WixEdit {
             }
 
             outputTextBox.SuspendLayout();
-            outputTextBox.HideSelection = true;
 
-            int oldSelectionStart = outputTextBox.SelectionStart;
-            int oldSelectionLength = outputTextBox.SelectionLength;
             if (currentSelectionStart + currentSelectionLength > 0) {
+                int oldSelectionStart = outputTextBox.SelectionStart;
+                int oldSelectionLength = outputTextBox.SelectionLength;
+            
                 outputTextBox.Select(currentSelectionStart, currentSelectionLength);
                 outputTextBox.SelectionBackColor = Color.White;
                 outputTextBox.SelectionColor = Color.Black;
 
                 currentSelectionStart = 0;
                 currentSelectionLength = 0;
+
+                if (currentLine <= lastNodes.Count) {
+                    outputTextBox.Select(oldSelectionStart, oldSelectionLength);
+                }
             }
 
             if (currentLine < lastNodes.Count) {
@@ -205,8 +208,6 @@ namespace WixEdit {
                 outputTextBox.Select(beginLineIndex, 0);    
 
                 editorForm.ShowNode(lastNodes[currentLine]);
-            } else {
-                outputTextBox.Select(oldSelectionStart, oldSelectionLength);
             }
         }
 

@@ -49,6 +49,9 @@ namespace WixEdit {
         private System.Windows.Forms.Timer doubleClickTimer = new System.Windows.Forms.Timer();
         private bool isFirstClick = true;
         private int milliseconds = 0;
+        
+        private int currentSelectionStart = 0;
+        private int currentSelectionLength = 0;
 
         XmlDisplayForm xmlDisplayForm = new XmlDisplayForm();
 
@@ -73,6 +76,7 @@ namespace WixEdit {
             Controls.Add(outputTextBox);
 
             outputTextBox.TabStop = true;
+            outputTextBox.HideSelection = false;
 
             outputTextBox.MouseUp += new MouseEventHandler(outputTextBox_MouseDown);
 
@@ -112,6 +116,9 @@ namespace WixEdit {
         }
 
         private void OpenLine(int x, int y) {
+            int start = outputTextBox.SelectionStart;
+            int length = outputTextBox.SelectionLength;
+
             // Obtain the character index at which the mouse cursor was clicked at.
             int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
             int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
@@ -129,30 +136,28 @@ namespace WixEdit {
             }
 
             outputTextBox.SuspendLayout();
-            outputTextBox.HideSelection = true;
-
-            outputTextBox.Select(0, outputTextBox.TextLength);       
-            outputTextBox.SelectionBackColor = Color.White;
-            outputTextBox.SelectionColor = Color.Black;
-
-            outputTextBox.Select(beginLineIndex, outputTextBox.Lines[currentLine].Length + 1);
-            outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
-            outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
             
-            string text = outputTextBox.SelectedText;
+            if (currentSelectionStart + currentSelectionLength > 0) {
+                outputTextBox.Select(currentSelectionStart, currentSelectionLength);
+                outputTextBox.SelectionBackColor = Color.White;
+                outputTextBox.SelectionColor = Color.Black;
+            }
 
-            outputTextBox.Select(beginLineIndex, 0);
-
+            currentSelectionStart = beginLineIndex;
+            currentSelectionLength = outputTextBox.Lines[currentLine].Length + 1;
+            
+            string text = outputTextBox.Lines[currentLine];
 
             int bracketStart = text.IndexOf("(");
             int bracketEnd = text.IndexOf(")");
 
             if (bracketStart == -1 || bracketEnd == -1) {
-                outputTextBox.Select(0, outputTextBox.TextLength);       
-                outputTextBox.SelectionBackColor = Color.White;
-                outputTextBox.SelectionColor = Color.Black;
-                outputTextBox.Select(beginLineIndex, 0);
+                // outputTextBox.Select(start, length);
+                // outputTextBox.Select(beginLineIndex, 0);
                 outputTextBox.ResumeLayout();
+
+                currentSelectionStart = 0; 
+                currentSelectionLength = 0;
 
                 return;
             }
@@ -163,20 +168,31 @@ namespace WixEdit {
             try {
                 lineNumber = Int32.Parse(text.Substring(bracketStart + 1, bracketEnd - bracketStart - 1));
             } catch (Exception) {
+                outputTextBox.ResumeLayout();
+
+                currentSelectionStart = 0; 
+                currentSelectionLength = 0;
+
                 return;
             }
 
             string message = text.Substring(bracketEnd+1);
 
             if (File.Exists(fileName) == false) {
-                outputTextBox.Select(0, outputTextBox.TextLength);       
-                outputTextBox.SelectionBackColor = Color.White;
-                outputTextBox.SelectionColor = Color.Black;
-                outputTextBox.Select(beginLineIndex, 0);
+                // outputTextBox.Select(start, length);
+                // outputTextBox.Select(beginLineIndex, 0);
                 outputTextBox.ResumeLayout();
+
+                currentSelectionStart = 0; 
+                currentSelectionLength = 0;
 
                 return;
             }
+
+            outputTextBox.Select(currentSelectionStart, currentSelectionLength);
+            outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
+            outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
+            outputTextBox.Select(beginLineIndex, 0);
 
             outputTextBox.ResumeLayout();
 

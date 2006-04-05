@@ -440,7 +440,13 @@ namespace WixEdit {
                             if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
                                 MessageBox.Show("The existing wxs file will be overwritten.\r\n\r\nAre you sure you want to continue?", "Overwrite?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                                 Decompile(fileToOpen);
-                                LoadWxsFile(Path.ChangeExtension(fileToOpen, "wxs"));
+
+                                string newWxs = Path.ChangeExtension(fileToOpen, "wxs");
+                                if (File.Exists(newWxs)) {
+                                    LoadWxsFile(newWxs);
+                                } else {
+                                    MessageBox.Show("Dark.exe failed to decompile the msi.", "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
                             }
                         } catch (Exception ex) {
                             MessageBox.Show(ex.Message, "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1021,6 +1027,10 @@ namespace WixEdit {
                 return;
             }
 
+            if (wixFiles != null) {
+                wixFiles.Dispose();
+            }
+
             try {
                 wixFiles = new WixFiles(file);
             } catch (UnauthorizedAccessException) {
@@ -1171,6 +1181,7 @@ namespace WixEdit {
             }
 
             if (wixFiles != null) {
+                wixFiles.Dispose();
                 wixFiles = null;
             }
 
