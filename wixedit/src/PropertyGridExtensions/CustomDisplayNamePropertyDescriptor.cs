@@ -31,19 +31,26 @@ namespace WixEdit.PropertyGridExtensions {
     /// </summary>
     public class CustomDisplayNamePropertyDescriptor : CustomPropertyDescriptorBase {
         public CustomDisplayNamePropertyDescriptor(WixFiles wixFiles, PropertyInfo propInfo, Attribute[] attrs) 
-            : base(wixFiles, Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2"), propInfo, attrs) {
+            : base(wixFiles, AddSpaces(propInfo.Name), propInfo, attrs) {
+        }
+
+        private static string AddSpaces(string input) {
+            string ret = Regex.Replace(input, "([a-z])([A-Z])", "$1 $2");
+
+            // WiX should be spelled correctly... ;-)
+            return ret.Replace("Wix", "WiX").Replace("wix", "WiX");
         }
 
         private static string MakeUppercaseFirstLetter(bool useUppercaseFirstLetter, string input) {
             if (useUppercaseFirstLetter) {
-                return String.Format("{0}{1}", input.Substring(0, 1).ToUpper(), input.Substring(1).ToLower());
+                return String.Format("{0}{1}", input.Substring(0, 1).ToUpper(), input.Substring(1));
             } else {
                 return input;
             }
         }
 
         public CustomDisplayNamePropertyDescriptor(WixFiles wixFiles, PropertyInfo propInfo, Attribute[] attrs, bool useUppercaseFirstLetter) 
-            : base(wixFiles, MakeUppercaseFirstLetter(useUppercaseFirstLetter, Regex.Replace(propInfo.Name, "([a-z])([A-Z])", "$1 $2")), propInfo, attrs) {
+            : base(wixFiles, MakeUppercaseFirstLetter(useUppercaseFirstLetter, AddSpaces(propInfo.Name)), propInfo, attrs) {
         }
 
         public override object GetValue(object component) {
