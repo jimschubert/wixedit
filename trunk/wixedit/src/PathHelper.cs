@@ -73,7 +73,7 @@ namespace WixEdit {
         }
 
         public static string GetShortFileName(FileInfo fileInfo, WixFiles wixFiles, XmlNode componentElement) {
-            string nameStart = Path.GetFileNameWithoutExtension(fileInfo.Name).ToUpper();
+            string nameStart = Path.GetFileNameWithoutExtension(fileInfo.Name).ToUpper().Replace(" ", "");
             int tooShort = 0;
             if (nameStart.Length > 7) {
                 nameStart = nameStart.Substring(0, 7);
