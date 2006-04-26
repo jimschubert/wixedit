@@ -37,6 +37,7 @@ namespace WixEdit {
     public class EditFilesPanel : DetailsBasePanel {        
         protected ContextMenu globalTreeViewContextMenu;
         protected IconMenuItem importFilesMenu;
+        protected IconMenuItem importFolderMenu;
 
         public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
             globalTreeViewContextMenu = new ContextMenu();
@@ -50,7 +51,10 @@ namespace WixEdit {
             treeView.AllowDrop = true;
 
             importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-            importFilesMenu.Click += new System.EventHandler(ImportFiles_Click);
+            importFilesMenu.Click += new EventHandler(ImportFiles_Click);
+
+            importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            importFolderMenu.Click += new EventHandler(ImportFolder_Click);
         }
 
         protected override ArrayList GetXmlNodes() {
@@ -77,6 +81,8 @@ namespace WixEdit {
         protected override void AddCustomTreeViewContextMenuItems(XmlNode node, ContextMenu treeViewContextMenu) {
             if (node.Name == "Component") {
                 treeViewContextMenu.MenuItems.Add(1, importFilesMenu);
+            } else if (node.Name == "Directory") {
+                treeViewContextMenu.MenuItems.Add(1, importFolderMenu);
             }
         }
 
@@ -151,7 +157,8 @@ namespace WixEdit {
             }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
-                if (ImageListFactory.GetImageIndex("Component") == aNode.ImageIndex) {
+                XmlNode aNodeElement = aNode.Tag as XmlNode;
+                if (aNodeElement.Name == "Component") {
                     bool filesOnly = true;
 
                     string[] filesAndFolders = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -167,9 +174,22 @@ namespace WixEdit {
                     } else {
                         e.Effect = DragDropEffects.None;
                     }
-                // Directories are not yet supported.
-                // } else if (ImageListFactory.GetImageIndex("Directory") == aNode.ImageIndex) {
-                //    e.Effect = DragDropEffects.Copy;
+                } else if (aNodeElement.Name == "Directory") {
+                    bool dirsOnly = true;
+
+                    string[] filesAndFolders = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    foreach (string fileOrFolder in filesAndFolders) {
+                        if (Directory.Exists(fileOrFolder) == false) {
+                            dirsOnly = false;
+                            break;
+                        }
+                    }
+
+                    if (dirsOnly) {
+                        e.Effect = DragDropEffects.Copy;
+                    } else {
+                        e.Effect = DragDropEffects.None;
+                    }
                 } else {
                     e.Effect = DragDropEffects.None;
                 }
@@ -197,9 +217,12 @@ namespace WixEdit {
                 oldNode.ForeColor = aNode.ForeColor;
             }
 
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-            ImportFilesInComponent(aNode, aNodeElement, files);
+            string[] filesOrFolders = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (aNodeElement.Name == "Component") {
+                ImportFilesInComponent(aNode, aNodeElement, filesOrFolders);
+            } else if (aNodeElement.Name == "Directory") {
+                ImportFoldersInDirectory(aNode, aNodeElement, filesOrFolders);
+            }
         }
 
         private void ImportFiles_Click(object sender, System.EventArgs e) {
@@ -215,6 +238,43 @@ namespace WixEdit {
                 string[] files = ofd.FileNames;
     
                 ImportFilesInComponent(aNode, aNodeElement, files);
+            }
+        }
+
+        private void ImportFolder_Click(object sender, System.EventArgs e) {
+            TreeNode aNode = treeView.SelectedNode;
+            XmlNode aNodeElement = aNode.Tag as XmlNode;
+
+            FolderBrowserDialog  ofd = new FolderBrowserDialog ();
+            ofd.Description = "Select folder to import";
+            ofd.ShowNewFolderButton = false;
+            if (ofd.ShowDialog() == DialogResult.OK) {
+                ImportFoldersInDirectory(aNode, aNodeElement, new string[] { ofd.SelectedPath });
+            }
+        }
+        
+        private void ImportFoldersInDirectory(TreeNode node, XmlNode directoryNode, string[] folders) {
+            if (directoryNode.Name == "Directory") {
+                bool mustExpand = (node.Nodes.Count == 0);
+
+                treeView.SuspendLayout();
+
+                wixFiles.UndoManager.BeginNewCommandRange();
+                try {
+                    DirectoryImport dirImport = new DirectoryImport(wixFiles, folders, directoryNode);
+                    dirImport.Import(node);
+                } catch (ImportException ex) {
+                    MessageBox.Show(String.Format("Failed to complete import: {0}\r\n\r\nThe import is aborted and could be partially completed.", ex.Message), "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } catch (Exception ex) {
+                    string message = "An exception occured during the import! Please press OK to report this error to the WixEdit website, so this error can be fixed.";
+                    ExceptionForm form = new ExceptionForm(message, ex);
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        ErrorReporter reporter = new ErrorReporter();
+                        reporter.Report(ex);
+                    }
+                }
+
+                treeView.ResumeLayout();
             }
         }
 

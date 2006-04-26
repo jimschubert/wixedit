@@ -882,6 +882,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\Import\DirectoryImport.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\Import\FileImport.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

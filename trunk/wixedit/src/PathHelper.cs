@@ -100,5 +100,32 @@ namespace WixEdit {
 
             return shortFileName;
         }
+
+        public static string GetShortDirectoryName(DirectoryInfo directoryInfo, WixFiles wixFiles, XmlNode componentElement) {
+            string nameStart = directoryInfo.Name;
+            int tooShort = 0;
+            if (nameStart.Length > 7) {
+                nameStart = nameStart.Substring(0, 7);
+            } else {
+                tooShort = 7 - nameStart.Length;
+            }
+
+            int i = 1;
+            string shortDirectoryName = String.Format("{0}{1}", nameStart, i);
+
+            while (componentElement.SelectSingleNode(String.Format("wix:Directory[@Name='{0}']", shortDirectoryName), wixFiles.WxsNsmgr) != null) {
+                if (i%10 == 9) {
+                    if (tooShort > 0) {
+                        tooShort--;
+                    } else {
+                        nameStart = nameStart.Substring(0, nameStart.Length - 1);
+                    }
+                }
+
+                shortDirectoryName = String.Format("{0}{1}", nameStart, ++i);
+            }
+
+            return shortDirectoryName;
+        }
      }
 }
