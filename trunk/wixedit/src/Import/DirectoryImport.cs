@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
 
@@ -48,9 +49,28 @@ namespace WixEdit.Import {
             }
         }
 
+        private bool NeedToIgnore(string fileOrDir) {
+            bool ignoreThis = false;
+            foreach (string test in WixEdit.Settings.WixEditSettings.Instance.IgnoreFilesAndDirectories) {
+                string escapedTest = Regex.Escape(test);
+                escapedTest = escapedTest.Replace("\\*", ".*");
+                escapedTest = String.Format("^{0}$", escapedTest);
+                if (Regex.IsMatch(fileOrDir, escapedTest, RegexOptions.IgnoreCase)) {
+                    ignoreThis = true;
+                    break;
+                }
+            }
+
+            return ignoreThis;
+        }
+
         private void RecurseDirectories(string[] subFolders, TreeNode treeNode, XmlNode parentDirectoryElement) {
             foreach (string folder in subFolders) {
                 DirectoryInfo dirInfo  = new DirectoryInfo(folder);
+
+                if (NeedToIgnore(dirInfo.Name)) {
+                    continue;
+                }
 
                 XmlElement newElement = parentDirectoryElement.OwnerDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
 
@@ -112,6 +132,10 @@ namespace WixEdit.Import {
 
             foreach (string file in files) {
                 FileInfo fileInfo = new FileInfo(file);
+
+                if (NeedToIgnore(fileInfo.Name)) {
+                    continue;
+                }
                 
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 

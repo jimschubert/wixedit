@@ -67,6 +67,18 @@ namespace WixEdit.Settings {
 
                 AllowIncludeChanges = IncludeChangesHandling.AskForEachFile;
                 BackupChangedIncludes = true;
+
+                IgnoreFilesAndDirectories = new string[] {   "*~",
+                                                             "#*#",
+                                                             ".#*",
+                                                             "%*%",
+                                                             "._*",
+                                                             "CVS",
+                                                             ".cvsignore",
+                                                             "SCCS",
+                                                             "vssver.scc",
+                                                             ".svn",
+                                                             ".DS_Store" };
             }
 
             public WixEditData(WixEditData oldVersion) {
@@ -78,9 +90,14 @@ namespace WixEdit.Settings {
                 TemplateDirectory = oldVersion.TemplateDirectory;
                 DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
                 UseRelativeOrAbsolutePaths = oldVersion.UseRelativeOrAbsolutePaths;
-                ExternalXmlEditor = oldVersion.ExternalXmlEditor;
-                if (ExternalXmlEditor == null || ExternalXmlEditor.Length == 0) {
+                if (oldVersion.ExternalXmlEditor == null || oldVersion.ExternalXmlEditor.Length == 0) {
                     ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+                } else {
+                    ExternalXmlEditor = oldVersion.ExternalXmlEditor;
+                }
+
+                if (oldVersion.IgnoreFilesAndDirectories != null) {
+                    IgnoreFilesAndDirectories = oldVersion.IgnoreFilesAndDirectories;
                 }
 
                 RecentOpenedFiles = oldVersion.RecentOpenedFiles;
@@ -122,6 +139,8 @@ namespace WixEdit.Settings {
 
             public IncludeChangesHandling AllowIncludeChanges;
             public bool BackupChangedIncludes;
+
+            public string[] IgnoreFilesAndDirectories;
         }
         public class EditDialogData {
             public int SnapToGrid = 5;
@@ -372,6 +391,26 @@ namespace WixEdit.Settings {
             }
         }
 
+        public class MyStringCollection : StringCollection {
+
+        }
+
+        [
+        Category("Importing"), 
+        Description("Directories and files to ignore. The \"*\" is threated as wildcard for zero or more characters."),
+        ]
+        public string[] IgnoreFilesAndDirectories {
+            get {
+                return data.IgnoreFilesAndDirectories;
+            }
+            set {
+                if (value == null) {
+                    data.IgnoreFilesAndDirectories = new string[] {};
+                } else {
+                    data.IgnoreFilesAndDirectories = value;
+                }
+            }
+        }
         
         [
         Category("View Options"), 
