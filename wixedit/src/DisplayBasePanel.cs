@@ -21,24 +21,147 @@
 
 
 using System;
+using System.IO;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace WixEdit {
     /// <summary>
-    /// Summary description for DisplayBasePanel.
+    /// DisplayBasePanel is the base class for every panel with a PropertyGrid.
     /// </summary>
     public abstract class DisplayBasePanel : BasePanel{
+        protected string currentElementName;
+        protected XmlNode currentParent;
+        protected PropertyGrid currentGrid;
+        protected ContextMenu currentGridContextMenu;
+        protected string currentKeyName;
+        protected string currentXPath;
+        protected XmlNodeList currentList;
+
         public DisplayBasePanel(WixFiles wixFiles) : base(wixFiles) {
             Reload += new ReloadHandler(ReloadData);
 
             CreateControl();
         }
 
-        public abstract bool IsOwnerOfNode(XmlNode node);
-        public abstract void ShowNode(XmlNode node);
-        public abstract XmlNode GetShowingNode();
-        public abstract void ReloadData();
+        public DisplayBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName) : base(wixFiles) {
+            currentXPath = xpath;
+            currentElementName = elementName;
+            currentKeyName = keyName;
 
+            Reload += new ReloadHandler(ReloadData);
+
+            CreateControl();
+        }
+
+        /// <summary>
+        /// Has to be assigned in inherited classes, it defines a name for new element
+        /// </summary>
+        protected string CurrentElementName {
+            get {
+                return currentElementName;
+            }
+        }
+
+        /// <summary>
+        /// Parent node for specific part of wix file 
+        /// </summary>
+        protected XmlNode CurrentParent {
+            get {
+                return currentParent;
+            }
+            set {
+                currentParent = value;
+            }
+        }
+
+        /// <summary>
+        /// PropertyGrid which is build to fit inherited class, specific to wix item
+        /// </summary>
+        protected PropertyGrid CurrentGrid {
+            get {
+                return currentGrid;
+            }
+            set {
+                currentGrid = value;
+            }
+        }
+
+        /// <summary>
+        /// Context menu assigned to <see cref="PropertyGrid"/>
+        /// </summary>
+        protected ContextMenu CurrentGridContextMenu {
+            get {
+                return currentGridContextMenu;
+            }
+            set {
+                currentGridContextMenu = value;
+            }
+        }
+
+        /// <summary>
+        /// Has to be assigned in inherited classes,it defines a name of identifier
+        ///  of specific part of wix file, e.g. for Binaries it is "Id", for ProgressText it is "Action"
+        /// </summary>
+        protected string CurrentKeyName {
+            get {
+                return currentKeyName;
+            }
+        }
+
+        /// <summary>
+        /// Has to be assigned in inherited classes, id defines XPath for a list of 
+        /// specific inherited parts of wix schema, e.g. Properties or UIText and so on.
+        /// </summary>
+        protected string CurrentXPath {
+            get {
+                return currentXPath;
+            }
+        }
+
+        /// <summary>
+        /// List of specific item of wix, e.g. Binaries, ErrorText, etc.
+        /// </summary>
+        protected XmlNodeList CurrentList {
+            get {
+                return currentList;
+            }
+            set {
+                currentList = value;
+            }
+        }
+
+        /// <summary>
+        /// Checks whether this panel is the owner of this node.
+        /// </summary>
+        /// <param name="node">Node to check</param>
+        /// <returns>Returnes whether this panel is owner.</returns>
+        public abstract bool IsOwnerOfNode(XmlNode node);
+
+        /// <summary>
+        /// This should display the node in the panel.
+        /// </summary>
+        /// <remarks>GetShowingNode should do the exact oposite</remarks>
+        /// <param name="node">Node to display</param>
+        public abstract void ShowNode(XmlNode node);
+
+        /// <summary>
+        /// Reloads the panel.
+        /// </summary>
+        public abstract void ReloadData();
+        
+        /// <summary>
+        /// Method assign root node of wixfile, which is /wix:Wix/*
+        /// <remarks>it has to be override if root node is different, e.g UI section</remarks>
+        protected virtual void AssignParentNode(){
+            currentParent = WixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", WixFiles.WxsNsmgr);
+        }
+        
+        /// <summary>
+        /// Find the first parent node that can be shown, default behavior is the first XmlNodeType.Element.
+        /// </summary>
+        /// <param name="node">Node to get showable parent from.</param>
+        /// <returns>Parent node which can be shown.</returns>
         protected virtual XmlNode GetShowableNode(XmlNode node) {
             XmlNode showableNode = node;
             while (showableNode.NodeType != XmlNodeType.Element) {
@@ -52,9 +175,94 @@ namespace WixEdit {
             return showableNode;
         }
 
+        /// <summary>
+        /// Get currently shown node.
+        /// </summary>
+        /// <remarks>ShowNode should do the exact oposite</remarks>
+        /// <returns></returns>
+        public virtual XmlNode GetShowingNode() {
+            if (currentGrid.SelectedGridItem != null) {
+                XmlNodeList properties = WixFiles.WxsDocument.SelectNodes(currentXPath, WixFiles.WxsNsmgr);
+                foreach (XmlNode item in properties) {
+                    if (item.Attributes[currentElementName].Value == currentGrid.SelectedGridItem.Label) {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
+        
+        /// <summary>
+        /// Inserts the new element at the right place, right after nodes with the same name.
+        /// </summary>
+        /// <param name="parentElement">Parent node which gets the new element as child</param>
+        /// <param name="newElement">The new element which gets inserted as child of the parent element.</param>
+        protected virtual void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
+            XmlNodeList sameNodes = parentElement.SelectNodes("wix:" + newElement.Name, WixFiles.WxsNsmgr);
+            if (sameNodes.Count > 0) {
+                parentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
+            } else {
+                parentElement.AppendChild(newElement);
+            }
+        }
+        
+        /// <summary>
+        /// Method do import of specific part of wixfile, depends on given Xpath. It gives back all answers which are fit to Xpath.
+        /// </summary>
+        /// <param name="xPath">Xpath query</param>
+        protected virtual bool ImportItems(string xPath) {
+            if (xPath == null || xPath.Trim().Length==0) {
+                throw new NullReferenceException("xPath");
+            }
+
+            string importFile = this.OpenDialogFile();
+            if (importFile == null || !File.Exists(importFile)){
+                return false;
+            }
+
+            XmlDocument importXml = new XmlDocument();
+            importXml.Load(importFile);
+
+            XmlNodeList itemList =  importXml.SelectNodes(xPath, WixFiles.WxsNsmgr);
+            if (itemList.Count > 0) {
+                foreach (XmlNode item in itemList) {
+                    if (item.Attributes[currentKeyName] == null) {
+                        continue;
+                    }
+                    string itemName = item.Attributes[currentKeyName].Value;
+                    XmlNode importedItem = WixFiles.WxsDocument.ImportNode(item, true);
+                    InsertNewXmlNode(currentParent, importedItem);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Method open FileDialog to ask wixfiles, no multiple selection
+        /// </summary>
+        /// <returns>Absolute full path to file included filename with extension</returns>
+        private string OpenDialogFile(){
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            ofd.Multiselect = false;
+            ofd.InitialDirectory = WixFiles.WxsDirectory.FullName;
+
+            if (ofd.ShowDialog() != DialogResult.OK) {
+                return null;
+            } else {
+                return ofd.FileName;
+            }
+        }
+        
         private delegate void ReloadHandler();
         private event ReloadHandler Reload;
 
+        /// <summary>
+        /// Reloads the panel.
+        /// </summary>
         public void DoReload() {
             Reload();
         }

@@ -38,210 +38,63 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditErrorPanel.
     /// </summary>
-    public class EditErrorPanel : DisplayBasePanel {
-        #region Controls
-        private PropertyGrid propertyGrid;
-        private ContextMenu propertyGridContextMenu;
-        #endregion
-
-        public EditErrorPanel(WixFiles wixFiles) : base(wixFiles) {
-            InitializeComponent();
-        }
-
-        #region Initialize Controls
-        private void InitializeComponent() {
-            propertyGrid = new CustomPropertyGrid();
-            propertyGridContextMenu = new ContextMenu();
-
-            // 
-            // propertyGrid
-            //
-            propertyGrid.Dock = DockStyle.Fill;
-            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            propertyGrid.Location = new Point(140, 0);
-            propertyGrid.Name = "propertyGrid";
-            propertyGrid.Size = new Size(269, 266);
-            propertyGrid.TabIndex = 1;
-            propertyGrid.PropertySort = PropertySort.Alphabetical;
-            propertyGrid.ToolbarVisible = false;
-            propertyGrid.HelpVisible = false;
-            propertyGrid.ContextMenu = propertyGridContextMenu;
-
-            // 
-            // propertyGridContextMenu
-            //
-            propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
-
-            Controls.Add(propertyGrid);
-
+    public class EditErrorPanel : DisplaySimpleBasePanel {
+        public EditErrorPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:Error", "Error", "Id", null) {
             LoadData();
         }
-        #endregion
 
-        protected void LoadData() {
-            XmlNodeList errors = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
-
-            ErrorElementAdapter errorAdapter = new ErrorElementAdapter(errors, wixFiles);
-            propertyGrid.SelectedObject = errorAdapter;
+        protected override void AssignParentNode() {
+            CurrentParent = ElementLocator.GetUIElement(WixFiles);
         }
 
-        public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
-            if (propertyGrid.SelectedObject == null) {
-                return;
-            }
-
-            MenuItem menuItemSeparator = new IconMenuItem("-");
-
-            // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            MenuItem menuItem3 = new IconMenuItem("&Rename");
-
-            menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
-            menuItem3.Click += new EventHandler(OnRenamePropertyGridItem);
-        
-            // Clear all previously added MenuItems.
-            propertyGridContextMenu.MenuItems.Clear();
-
-            propertyGridContextMenu.MenuItems.Add(menuItem1);
-            if (propertyGrid.SelectedGridItem.PropertyDescriptor is ErrorElementPropertyDescriptor) {
-                propertyGridContextMenu.MenuItems.Add(menuItem2);
-                propertyGridContextMenu.MenuItems.Add(menuItem3);
-            }
+        protected override XmlNode GetSelectedPropertyDescriptor(){
+            ErrorElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
+            return desc.XmlElement;
         }
 
-        public void OnNewPropertyGridItem(object sender, EventArgs e) {
+        protected override object GetPropertyAdapter(){
+            return new ErrorElementAdapter(CurrentList, WixFiles);
+        }
+
+        public override void OnNewPropertyGridItem(object sender, EventArgs e) {
             EnterIntegerForm frm = new EnterIntegerForm();
             frm.Text = "Enter Error Number";
+
             if (DialogResult.OK == frm.ShowDialog()) {
-                wixFiles.UndoManager.BeginNewCommandRange();
-
-                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
-                if (ui == null) {
+                if (CurrentParent == null) {
                     MessageBox.Show("No location found to add UI element, need element like module or product!");
-
                     return;
                 }
 
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Error", WixFiles.WixNamespaceUri);
+                WixFiles.UndoManager.BeginNewCommandRange();
 
-                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
+                XmlElement newProp = WixFiles.WxsDocument.CreateElement(CurrentElementName, WixFiles.WixNamespaceUri);
+                XmlAttribute newAttr = WixFiles.WxsDocument.CreateAttribute(CurrentKeyName);
+
                 newAttr.Value = frm.SelectedString;
+
                 newProp.Attributes.Append(newAttr);
 
-                InsertNewXmlNode(ui, newProp);
+                InsertNewXmlNode(CurrentParent, newProp);
 
-                XmlNodeList errors = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
+                RefreshGrid(frm.SelectedString);
+            }
+        }
 
-                ErrorElementAdapter errorAdapter = new ErrorElementAdapter(errors, wixFiles);
+        public override void OnRenamePropertyGridItem(object sender, EventArgs e) {
+            XmlNode element = GetSelectedPropertyDescriptor();
+            if (element != null){
+                EnterIntegerForm frm = new EnterIntegerForm(element.Attributes[CurrentKeyName].Value);
+                frm.Text = "Enter Error Number";
 
-                propertyGrid.SelectedObject = errorAdapter;
-                propertyGrid.Update();
+                if (DialogResult.OK == frm.ShowDialog()) {    
+                    WixFiles.UndoManager.BeginNewCommandRange();
 
-                foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
-                    if (it.Label == frm.SelectedString) {
-                        propertyGrid.SelectedGridItem = it;
-                        break;
-                    }
+                    element.Attributes[CurrentKeyName].Value = frm.SelectedString;
+
+                    RefreshGrid();
                 }
             }
-        }
-
-        public void OnDeletePropertyGridItem(object sender, EventArgs e) {
-            // Get the XmlAttribute from the PropertyDescriptor
-            ErrorElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            ErrorElementAdapter errorAdapter = propertyGrid.SelectedObject as ErrorElementAdapter;
-            propertyGrid.SelectedObject = null;
-
-            // Remove the attribute
-            element.ParentNode.RemoveChild(element);
-
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
-            errorAdapter = new ErrorElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = errorAdapter;
-            propertyGrid.Update();
-        }
-
-        public void OnRenamePropertyGridItem(object sender, EventArgs e) {
-            // Get the XmlAttribute from the PropertyDescriptor
-            ErrorElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            EnterIntegerForm frm = new EnterIntegerForm(element.Attributes["Id"].Value);
-            frm.Text = "Enter Error Number";
-            if (DialogResult.OK == frm.ShowDialog()) {    
-                wixFiles.UndoManager.BeginNewCommandRange();
-
-                element.Attributes["Id"].Value = frm.SelectedString;
-    
-                // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-                ErrorElementAdapter errorAdapter = propertyGrid.SelectedObject as ErrorElementAdapter;
-                propertyGrid.SelectedObject = null;
-
-                propertyGrid.SelectedObject = errorAdapter;
-                propertyGrid.Update();
-            }
-        }
-
-        public override bool IsOwnerOfNode(XmlNode node) {
-            XmlNode showable = GetShowableNode(node);
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr)) {
-                if (showable == xmlNode) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public override void ShowNode(XmlNode node) {
-            if (node is XmlText) {
-                node = node.ParentNode;
-            }
-
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
-            ErrorElementAdapter errorAdapter = new ErrorElementAdapter(properties, wixFiles);
-    
-            propertyGrid.SelectedObject = errorAdapter;
-            propertyGrid.Update();
-
-            if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
-                string val = null;
-                if (node is XmlAttribute) {
-                    val = node.Value;
-                } else if(node.Attributes["Id"] != null) {
-                    val = node.Attributes["Id"].Value;
-                }
-                foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
-                    if (val != null && val == item.Label) {
-                        propertyGrid.SelectedGridItem = item;
-                        break;
-                    }
-                }
-            }
-        }
-
-        public override XmlNode GetShowingNode() {
-            if (propertyGrid.SelectedGridItem != null) {
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Error", wixFiles.WxsNsmgr);
-                foreach (XmlNode item in properties) {
-                    if (item.Attributes["Id"].Value == propertyGrid.SelectedGridItem.Label) {
-                        return item;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public override void ReloadData() {
-            propertyGrid.SelectedObject = null;
-
-            LoadData();
         }
     }
 }

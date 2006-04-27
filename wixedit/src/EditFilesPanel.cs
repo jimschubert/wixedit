@@ -34,109 +34,59 @@ namespace WixEdit {
     /// <summary>
     /// Panel for adding and removing files and other installable items.
     /// </summary>
-    public class EditFilesPanel : DetailsBasePanel {        
-        protected ContextMenu globalTreeViewContextMenu;
-        protected IconMenuItem importFilesMenu;
-        protected IconMenuItem importFolderMenu;
+    public class EditFilesPanel : DisplayTreeBasePanel {          
+        private TreeNode oldNode = null;
+        
+        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Directory|/wix:Wix/*/wix:DirectoryRef", null, "Id") {
 
-        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles) {
-            globalTreeViewContextMenu = new ContextMenu();
-            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
+            LoadData();
 
-            treeView.DragEnter += new DragEventHandler(treeView_DragEnter);
-            treeView.DragLeave += new EventHandler(treeView_DragLeave);
-            treeView.DragOver += new DragEventHandler(treeView_DragOver);
-            treeView.DragDrop += new DragEventHandler(treeView_DragDrop);
-
-            treeView.AllowDrop = true;
-
-            importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-            importFilesMenu.Click += new EventHandler(ImportFiles_Click);
-
-            importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-            importFolderMenu.Click += new EventHandler(ImportFolder_Click);
+            CurrentTreeView.DragEnter += new DragEventHandler(treeView_DragEnter);
+            CurrentTreeView.DragLeave += new EventHandler(treeView_DragLeave);
+            CurrentTreeView.DragOver += new DragEventHandler(treeView_DragOver);
+            CurrentTreeView.DragDrop += new DragEventHandler(treeView_DragDrop);
+            CurrentTreeView.AllowDrop = true;
         }
-
-        protected override ArrayList GetXmlNodes() {
-            ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Directory", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:DirectoryRef", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            return nodes;
-        }
-
-        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
-            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
-
-            globalTreeViewContextMenu.Show(this, spot);
-        }
-
+        
         protected override void AddCustomTreeViewContextMenuItems(XmlNode node, ContextMenu treeViewContextMenu) {
             if (node.Name == "Component") {
+                IconMenuItem importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+                importFilesMenu.Click += new System.EventHandler(ImportFiles_Click);
                 treeViewContextMenu.MenuItems.Add(1, importFilesMenu);
             } else if (node.Name == "Directory") {
+                IconMenuItem importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+                importFolderMenu.Click += new System.EventHandler(ImportFolder_Click);
                 treeViewContextMenu.MenuItems.Add(1, importFolderMenu);
             }
         }
 
-        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
-            globalTreeViewContextMenu.MenuItems.Clear();
+        //I changed a menu, because it's simple to implement further and it follows menu like in UISeq., 
+        //means we should keep one desing way of UI. Lets suppose use New and its submenu for it in every case where are more then one possibilities
+        //
+        protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
+            //clear menu and add import menu
+            base.PopupPanelContextMenu(sender,e);
 
-            IconMenuItem subMenuItem1 = new IconMenuItem("New Directory", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            IconMenuItem subMenuItem2 = new IconMenuItem("New DirectoryRef", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            //add custom menu, index has to be used!!!
+            IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            IconMenuItem subSubMenuItem1 = new IconMenuItem("Directory");
+            IconMenuItem subSubMenuItem2 = new IconMenuItem("DirectoryRef");
 
-            subMenuItem1.Click += new EventHandler(NewDirectoryElement_Click);
-            subMenuItem2.Click += new EventHandler(NewDirectoryRefElement_Click);
+            subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
+            subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);
 
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem1);
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem2);
+            subMenuItem.MenuItems.Add(subSubMenuItem1);
+            subMenuItem.MenuItems.Add(subSubMenuItem2);
+
+            PanelContextMenu.MenuItems.Add(0,subMenuItem);
         }
-
-        private void NewDirectoryElement_Click(object sender, System.EventArgs e) {
-            NewCustomElement("Directory");
+        
+        protected override void NewCustomElement_Click(object sender, System.EventArgs e) {
+            MenuItem item = (MenuItem) sender;
+            CreateNewCustomElement(item.Text);
         }
-
-        private void NewDirectoryRefElement_Click(object sender, System.EventArgs e) {
-            NewCustomElement("DirectoryRef");
-        }
-
-        private void NewCustomElement(string elementName) {
-            wixFiles.UndoManager.BeginNewCommandRange();           
-
-            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(elementName, WixFiles.WixNamespaceUri);
-            TreeNode action = new TreeNode(elementName);
-            action.Tag = newElement;
-
-            int imageIndex = ImageListFactory.GetImageIndex(elementName);
-            if (imageIndex >= 0) {
-                action.ImageIndex = imageIndex;
-                action.SelectedImageIndex = imageIndex;
-            }
-
-            XmlNodeList sameNodes = xmlNode.SelectNodes("wix:" + elementName, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                xmlNode.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                xmlNode.AppendChild(newElement);
-            }
-
-            treeView.Nodes.Add(action);
-            treeView.SelectedNode = action;
-
-            ShowProperties(newElement); 
-        }
-
+        
         private void treeView_DragEnter(object sender, DragEventArgs e) {
-
         }
 
         private void treeView_DragLeave(object sender, EventArgs e) {
@@ -148,9 +98,8 @@ namespace WixEdit {
             }
         }
 
-        TreeNode oldNode = null;
         private void treeView_DragOver(object sender, DragEventArgs e) {
-            TreeNode aNode = treeView.GetNodeAt(treeView.PointToClient(new Point(e.X, e.Y)));
+            TreeNode aNode = CurrentTreeView.GetNodeAt(CurrentTreeView.PointToClient(new Point(e.X, e.Y)));
 
             if (oldNode == aNode) {
                 return;
@@ -207,8 +156,8 @@ namespace WixEdit {
         }
 
         private void treeView_DragDrop(object sender, DragEventArgs e) {
-            TreeNode aNode = treeView.GetNodeAt(treeView.PointToClient(new Point(e.X, e.Y)));
-            treeView.SelectedNode = aNode;
+            TreeNode aNode = CurrentTreeView.GetNodeAt(CurrentTreeView.PointToClient(new Point(e.X, e.Y)));
+            CurrentTreeView.SelectedNode = aNode;
 
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
@@ -226,7 +175,7 @@ namespace WixEdit {
         }
 
         private void ImportFiles_Click(object sender, System.EventArgs e) {
-            TreeNode aNode = treeView.SelectedNode;
+            TreeNode aNode = CurrentTreeView.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
             OpenFileDialog ofd = new OpenFileDialog();
@@ -242,7 +191,7 @@ namespace WixEdit {
         }
 
         private void ImportFolder_Click(object sender, System.EventArgs e) {
-            TreeNode aNode = treeView.SelectedNode;
+            TreeNode aNode = CurrentTreeView.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
             FolderBrowserDialog  ofd = new FolderBrowserDialog ();
@@ -257,11 +206,11 @@ namespace WixEdit {
             if (directoryNode.Name == "Directory") {
                 bool mustExpand = (node.Nodes.Count == 0);
 
-                treeView.SuspendLayout();
+                CurrentTreeView.SuspendLayout();
 
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
                 try {
-                    DirectoryImport dirImport = new DirectoryImport(wixFiles, folders, directoryNode);
+                    DirectoryImport dirImport = new DirectoryImport(WixFiles, folders, directoryNode);
                     dirImport.Import(node);
                 } catch (ImportException ex) {
                     MessageBox.Show(String.Format("Failed to complete import: {0}\r\n\r\nThe import is aborted and could be partially completed.", ex.Message), "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -274,7 +223,7 @@ namespace WixEdit {
                     }
                 }
 
-                treeView.ResumeLayout();
+                CurrentTreeView.ResumeLayout();
             }
         }
 
@@ -282,7 +231,7 @@ namespace WixEdit {
             if (componentNode.Name == "Component") {
                 bool mustExpand = (node.Nodes.Count == 0);
 
-                treeView.SuspendLayout();
+                CurrentTreeView.SuspendLayout();
 
                 bool foundReg = false;
                 foreach (string file in files) {
@@ -302,17 +251,17 @@ namespace WixEdit {
                     }
                 }
 
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
                 StringBuilder errorMessageBuilder = new StringBuilder();
                 
                 foreach (string file in files) {
                     FileInfo fileInfo = new FileInfo(file);
                     try {
                         if (fileInfo.Extension.ToLower() == ".reg" && importRegistryFiles) {
-                            RegistryImport regImport = new RegistryImport(wixFiles, fileInfo, componentNode);
+                            RegistryImport regImport = new RegistryImport(WixFiles, fileInfo, componentNode);
                             regImport.Import(node);
                         } else {
-                            FileImport fileImport = new FileImport(wixFiles, fileInfo, componentNode);
+                            FileImport fileImport = new FileImport(WixFiles, fileInfo, componentNode);
                             fileImport.Import(node);
                         }
                     } catch (ImportException ex) {
@@ -337,7 +286,7 @@ namespace WixEdit {
                     node.Expand();
                 }
 
-                treeView.ResumeLayout();
+                CurrentTreeView.ResumeLayout();
             }
         }
     }

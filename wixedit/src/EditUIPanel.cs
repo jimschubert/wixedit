@@ -53,35 +53,35 @@ namespace WixEdit {
 
             Controls.Add(tabControl);
 
-            editDialogPanel = new EditDialogPanel(wixFiles);
+            editDialogPanel = new EditDialogPanel(WixFiles);
             editDialogPanel.Dock = DockStyle.Fill;
             editDialogTabPage = new TabPage("Dialogs");
             editDialogTabPage.Controls.Add(editDialogPanel);
             tabControl.TabPages.Add(editDialogTabPage);
 
 
-            editUISequencePanel = new EditUISequencePanel(wixFiles);
+            editUISequencePanel = new EditUISequencePanel(WixFiles);
             editUISequencePanel.Dock = DockStyle.Fill;
             editUISequenceTabPage = new TabPage("UI Sequence");
             editUISequenceTabPage.Controls.Add(editUISequencePanel);
             tabControl.TabPages.Add(editUISequenceTabPage);
 
 
-            editUITextPanel = new EditUITextPanel(wixFiles);
+            editUITextPanel = new EditUITextPanel(WixFiles);
             editUITextPanel.Dock = DockStyle.Fill;
             editUITextTabPage = new TabPage("UI Text");
             editUITextTabPage.Controls.Add(editUITextPanel);
             tabControl.TabPages.Add(editUITextTabPage);
 
 
-            editProgressTextPanel = new EditProgressTextPanel(wixFiles);
+            editProgressTextPanel = new EditProgressTextPanel(WixFiles);
             editProgressTextPanel.Dock = DockStyle.Fill;
             editProgressTextTabPage = new TabPage("Progress Text");
             editProgressTextTabPage.Controls.Add(editProgressTextPanel);
             tabControl.TabPages.Add(editProgressTextTabPage);
 
 
-            editErrorPanel = new EditErrorPanel(wixFiles);
+            editErrorPanel = new EditErrorPanel(WixFiles);
             editErrorPanel.Dock = DockStyle.Fill;
             editErrorTabPage = new TabPage("Error Text");
             editErrorTabPage.Controls.Add(editErrorPanel);

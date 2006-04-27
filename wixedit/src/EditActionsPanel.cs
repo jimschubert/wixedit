@@ -47,7 +47,7 @@ namespace WixEdit {
 
             Controls.Add(tabControl);
 
-            editCustomActionsPanel = new EditCustomActionsPanel(wixFiles);
+            editCustomActionsPanel = new EditCustomActionsPanel(WixFiles);
             editCustomActionsPanel.Dock = DockStyle.Fill;
 
             editCustomActionsTabPage = new TabPage("Custom Actions");
@@ -56,7 +56,7 @@ namespace WixEdit {
             tabControl.TabPages.Add(editCustomActionsTabPage);
 
 
-            editExecuteSequencePanel = new EditExecuteSequencePanel(wixFiles);
+            editExecuteSequencePanel = new EditExecuteSequencePanel(WixFiles);
             editExecuteSequencePanel.Dock = DockStyle.Fill;
 
             editExecuteSequenceTabPage = new TabPage("Execute Sequence");

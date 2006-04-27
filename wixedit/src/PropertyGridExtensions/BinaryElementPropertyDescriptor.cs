@@ -28,13 +28,15 @@ using WixEdit.Settings;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// PropertyDescriptor for BinaryElements.
+    /// PropertyDescriptor for BinaryElements. The binary element requires a attribute for the value.
     /// </summary>
     public class BinaryElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
         string attributeName;
         public BinaryElementPropertyDescriptor(XmlNode binaryElement, WixFiles wixFiles, string name, Attribute[] attrs) :
             base(wixFiles, binaryElement, name, attrs) {
-            if (XmlElement.Attributes["Source"] != null) {
+            if (XmlElement.Attributes["src"] != null) {
+                attributeName = "src";
+            } else if (XmlElement.Attributes["Source"] != null) {
                 attributeName = "Source";
             } else if (XmlElement.Attributes["SourceFile"] != null) {
                 attributeName = "SourceFile";
@@ -43,6 +45,7 @@ namespace WixEdit.PropertyGridExtensions {
             } else if (XmlElement.Attributes["Layout"] != null) {
                 attributeName = "Layout";
             } else {
+                MessageBox.Show("Expecting Source, SourceFile, FileSource or Layout attribute...");
                 throw new Exception("Expecting Source, SourceFile, FileSource or Layout attribute...");
             }
         }

@@ -47,14 +47,14 @@ namespace WixEdit {
 
             Controls.Add(tabControl);
 
-            editBinariesPanel = new EditBinariesPanel(wixFiles);
+            editBinariesPanel = new EditBinariesPanel(WixFiles);
             editBinariesPanel.Dock = DockStyle.Fill;
             editBinariesTabPage = new TabPage("Binaries");
             editBinariesTabPage.Controls.Add(editBinariesPanel);
             tabControl.TabPages.Add(editBinariesTabPage);
 
 
-            editIconsPanel = new EditIconsPanel(wixFiles);
+            editIconsPanel = new EditIconsPanel(WixFiles);
             editIconsPanel.Dock = DockStyle.Fill;
             editIconsTabPage = new TabPage("Icons");
             editIconsTabPage.Controls.Add(editIconsPanel);

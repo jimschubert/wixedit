@@ -38,264 +38,35 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditIconsPanel.
     /// </summary>
-    public class EditIconsPanel : DisplayBasePanel {
-        #region Controls
-        private PropertyGrid iconGrid;
-        private ContextMenu iconGridContextMenu;
-        #endregion
-
-        public EditIconsPanel(WixFiles wixFiles) : base(wixFiles) {
-            InitializeComponent();
-        }
-
-        #region Initialize Controls
-        private void InitializeComponent() {
-            iconGrid = new CustomPropertyGrid();
-            iconGridContextMenu = new ContextMenu();
-
-            // 
-            // iconGrid
-            //
-            iconGrid.Dock = DockStyle.Fill;
-            iconGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            iconGrid.Location = new Point(140, 0);
-            iconGrid.Name = "iconGrid";
-            iconGrid.Size = new Size(269, 266);
-            iconGrid.TabIndex = 1;
-            iconGrid.PropertySort = PropertySort.Alphabetical;
-            iconGrid.ToolbarVisible = false;
-            iconGrid.HelpVisible = false;
-            iconGrid.ContextMenu = iconGridContextMenu;
-
-            // 
-            // iconGridContextMenu
-            //
-            iconGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
-
-            Controls.Add(iconGrid);
-
+    public class EditIconsPanel : DisplaySimpleBasePanel {
+        public EditIconsPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Icon", "Icon", "Id", "SourceFile") {
             LoadData();
         }
-        #endregion
 
-        protected void LoadData() {
-            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-
-            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            iconGrid.SelectedObject = binAdapter;
-        }
-
-        public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
-            if (iconGrid.SelectedObject == null) {
-                return;
+        protected static string GetValueAttributeName(WixFiles wixFiles) {
+            if (wixFiles.XsdDocument.SelectSingleNode("/xs:schema/xs:element[@name='Icon']/xs:complexType/xs:attribute[@name='SourceFile']", wixFiles.XsdNsmgr) != null) {
+                return "SourceFile";
+            } else if (wixFiles.XsdDocument.SelectSingleNode("/xs:schema/xs:element[@name='Icon']/xs:complexType/xs:attribute[@name='src']", wixFiles.XsdNsmgr) != null) {
+                return "src";
             }
 
-            MenuItem menuItemSeparator = new IconMenuItem("-");
-
-            // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("Add &New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("Add &File", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem3 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            MenuItem menuItem4 = new IconMenuItem("&Rename");
-
-            menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnAddFilePropertyGridItem);
-            menuItem3.Click += new EventHandler(OnDeletePropertyGridItem);
-            menuItem4.Click += new EventHandler(OnRenamePropertyGridItem);
+            throw new ApplicationException("WiX xsd should define src or SourceFile attribute on Icon element");
+        }
         
-            // Clear all previously added MenuItems.
-            iconGridContextMenu.MenuItems.Clear();
-
-            iconGridContextMenu.MenuItems.Add(menuItem1);
-            iconGridContextMenu.MenuItems.Add(menuItem2);
-            if (iconGrid.SelectedGridItem.PropertyDescriptor is BinaryElementPropertyDescriptor) {
-                iconGridContextMenu.MenuItems.Add(menuItem3);
-                iconGridContextMenu.MenuItems.Add(menuItem4);
-            }
+        protected override XmlNode GetSelectedPropertyDescriptor() {
+            BinaryElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
+            return desc.XmlElement;
         }
-
-        public void OnNewPropertyGridItem(object sender, EventArgs e) {
-            EnterStringForm frm = new EnterStringForm();
-            frm.Text = "Enter Resource Name";
-            if (DialogResult.OK == frm.ShowDialog()) {
-                wixFiles.UndoManager.BeginNewCommandRange();
-
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", WixFiles.WixNamespaceUri);
-
-                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
-                newAttr.Value = frm.SelectedString;
-                newProp.Attributes.Append(newAttr);
-
-                newAttr = wixFiles.WxsDocument.CreateAttribute("SourceFile");
-                newAttr.Value = "";
-                newProp.Attributes.Append(newAttr);
-
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-                
-                InsertNewXmlNode(product, newProp);
-
-                XmlNodeList Icons = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-                BinaryElementAdapter binAdapter = new BinaryElementAdapter(Icons, wixFiles);
-                iconGrid.SelectedObject = binAdapter;
-                iconGrid.Update();
-
-                foreach (GridItem it in iconGrid.SelectedGridItem.Parent.GridItems) {
-                    if (it.Label == frm.SelectedString) {
-                        iconGrid.SelectedGridItem = it;
-                        break;
-                    }
-                }
-            }
+        
+        protected override object GetPropertyAdapter() {
+            return new BinaryElementAdapter(CurrentList, WixFiles);
         }
-
-        public void OnAddFilePropertyGridItem(object sender, EventArgs e) {
-            string filePath = string.Empty;
-
-            OpenFileDialog openDialog = new OpenFileDialog();
-            openDialog.InitialDirectory = wixFiles.WxsDirectory.FullName;
-            
-            if(openDialog.ShowDialog() == DialogResult.OK) {
-                filePath = openDialog.FileName;
-
-                EnterStringForm frm;
-                if (filePath != string.Empty & File.Exists(filePath)) {
-                    frm = new EnterStringForm(Path.GetFileName(filePath));
-                } else {
-                    frm = new EnterStringForm();
-                }
-            
-                frm.Text = "Enter Resource Name";
-                if (DialogResult.OK == frm.ShowDialog()) {
-                    wixFiles.UndoManager.BeginNewCommandRange();
-
-                    XmlElement newProp = wixFiles.WxsDocument.CreateElement("Icon", WixFiles.WixNamespaceUri);
-
-                    XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
-                    newAttr.Value = frm.SelectedString;
-                    newProp.Attributes.Append(newAttr);
-
-                    newAttr = wixFiles.WxsDocument.CreateAttribute("SourceFile");
-                    newAttr.Value = filePath;
-                    newProp.Attributes.Append(newAttr);
-
-                    XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-
-                    InsertNewXmlNode(product, newProp);
-
-                    XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-                    BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-                    iconGrid.SelectedObject = binAdapter;
-                    iconGrid.Update();
-
-                    foreach (GridItem it in iconGrid.SelectedGridItem.Parent.GridItems) {
-                        if (it.Label == frm.SelectedString) {
-                            iconGrid.SelectedGridItem = it;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            openDialog.Dispose();
-        }
-
-        public void OnDeletePropertyGridItem(object sender, EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
-            // Get the XmlAttribute from the PropertyDescriptor
-            BinaryElementPropertyDescriptor desc = iconGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            // Temporarily store the XmlAttributeAdapter, while resetting the iconGrid.
-            BinaryElementAdapter binAdapter = iconGrid.SelectedObject as BinaryElementAdapter;
-            iconGrid.SelectedObject = null;
-
-            // Remove the attribute
-            element.ParentNode.RemoveChild(element);
-
-            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-            binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            iconGrid.SelectedObject = binAdapter;
-            iconGrid.Update();
-        }
-
-        public void OnRenamePropertyGridItem(object sender, EventArgs e) {
-            // Get the XmlAttribute from the PropertyDescriptor
-            BinaryElementPropertyDescriptor desc = iconGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            EnterStringForm frm = new EnterStringForm(element.Attributes["Id"].Value);
-            frm.Text = "Enter Icon Name";
-            if (DialogResult.OK == frm.ShowDialog()) {    
-                wixFiles.UndoManager.BeginNewCommandRange();
-    
-                element.Attributes["Id"].Value = frm.SelectedString;
-    
-                // Temporarily store the XmlAttributeAdapter, while resetting the iconGrid.
-                BinaryElementAdapter binAdapter = iconGrid.SelectedObject as BinaryElementAdapter;
-                iconGrid.SelectedObject = null;
-
-                iconGrid.SelectedObject = binAdapter;
-                iconGrid.Update();
-            }
-        }
-
-        public override bool IsOwnerOfNode(XmlNode node) {
-            XmlNode showable = GetShowableNode(node);
-
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr)) {
-                if (showable == xmlNode) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public override void ShowNode(XmlNode node) {
-            if (node is XmlText) {
-                node = node.ParentNode;
-            }
-
-            XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-            BinaryElementAdapter binAdapter = new BinaryElementAdapter(binaries, wixFiles);
-            iconGrid.SelectedObject = binAdapter;
-
-            if (iconGrid.SelectedGridItem != null && iconGrid.SelectedGridItem.Parent != null) {
-                string val = null;
-                if (node is XmlAttribute) {
-                    val = node.Value;
-                } else if(node.Attributes["Id"] != null) {
-                    val = node.Attributes["Id"].Value;
-                } else if(node.Attributes["SourceFile"] != null) {
-                    val = node.Attributes["SourceFile"].Value;
-                }
-                foreach (GridItem item in iconGrid.SelectedGridItem.Parent.GridItems) {
-                    if (val != null && val == item.Label) {
-                        iconGrid.SelectedGridItem = item;
-                        break;
-                    }
-                }
-            }
-        }
-
-        public override XmlNode GetShowingNode() {
-            if (iconGrid.SelectedGridItem != null) {
-                XmlNodeList binaries = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Icon", wixFiles.WxsNsmgr);
-                foreach (XmlNode item in binaries) {
-                    if (item.Attributes["Id"].Value == iconGrid.SelectedGridItem.Label) {
-                        return item;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public override void ReloadData() {
-            iconGrid.SelectedObject = null;
-
-            LoadData();
+        
+        public override void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
+            base.OnPropertyGridPopupContextMenu(sender,e);
+            MenuItem menuItem2 = new IconMenuItem("Add &File", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            menuItem2.Click += new EventHandler(OnAddFilePropertyGridItem);
+            CurrentGridContextMenu.MenuItems.Add(1,menuItem2);
         }
     }
 }

@@ -39,248 +39,28 @@ namespace WixEdit {
     /// <summary>
     /// Summary description for EditPropertiesPanel.
     /// </summary>
-    public class EditPropertiesPanel : DisplayBasePanel {
-        #region Controls
-        private PropertyGrid propertyGrid;
-        private ContextMenu propertyGridContextMenu;
-        #endregion
-
-        public EditPropertiesPanel(WixFiles wixFiles) : base(wixFiles) {
-            InitializeComponent();
-        }
-
-        #region Initialize Controls
-        private void InitializeComponent() {
-            propertyGrid = new CustomPropertyGrid();
-            propertyGridContextMenu = new ContextMenu();
-
-            // 
-            // propertyGrid
-            //
-            propertyGrid.Dock = DockStyle.Fill;
-            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
-            propertyGrid.Location = new Point(140, 0);
-            propertyGrid.Name = "propertyGrid";
-            propertyGrid.Size = new Size(269, 266);
-            propertyGrid.TabIndex = 1;
-            propertyGrid.PropertySort = PropertySort.Alphabetical;
-            propertyGrid.ToolbarVisible = false;
-            propertyGrid.HelpVisible = false;
-            propertyGrid.ContextMenu = propertyGridContextMenu;
-
-            // 
-            // propertyGridContextMenu
-            //
-            propertyGridContextMenu.Popup += new EventHandler(OnPropertyGridPopupContextMenu);
-
-            Controls.Add(propertyGrid);
-
+    public class EditPropertiesPanel : DisplaySimpleBasePanel {
+        // Constructing properties as innerHTML but should be Value in later versions of WiX.
+        public EditPropertiesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Property", "Property", "Id", GetValueAttributeName(wixFiles)) {
             LoadData();
         }
-        #endregion
 
-        protected void LoadData() {
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
 
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
-        }
-
-        public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
-            if (propertyGrid.SelectedObject == null) {
-                return;
-            }
-
-            MenuItem menuItemSeparator = new IconMenuItem("-");
-
-            // Define the MenuItem objects to display for the TextBox.
-            MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            MenuItem menuItem3 = new IconMenuItem("&Rename");
-
-            menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
-            menuItem3.Click += new EventHandler(OnRenamePropertyGridItem);
-        
-            // Clear all previously added MenuItems.
-            propertyGridContextMenu.MenuItems.Clear();
-
-            propertyGridContextMenu.MenuItems.Add(menuItem1);
-            if (propertyGrid.SelectedGridItem.PropertyDescriptor is PropertyElementPropertyDescriptor) {
-                propertyGridContextMenu.MenuItems.Add(menuItem2);
-                propertyGridContextMenu.MenuItems.Add(menuItem3);
-
-                MenuItem attribOptionsMenuItem = new IconMenuItem("Options");
-
-                PropertyElementPropertyDescriptor descriptor = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-
-                IconMenuItem attribMenuItem;
-                XmlNodeList xmlNodeElements = wixFiles.XsdDocument.SelectNodes("//xs:element[@name='Property']/xs:complexType/xs:attribute[@type='YesNoType']", wixFiles.XsdNsmgr);
-                foreach (XmlNode node in xmlNodeElements) {
-                    attribMenuItem = new IconMenuItem(node.Attributes["name"].Value);
-                    attribMenuItem.Click += new EventHandler(OnToggleAttribute);
-                    attribOptionsMenuItem.MenuItems.Add(attribMenuItem);
-
-                    XmlAttribute att = descriptor.XmlElement.Attributes[node.Attributes["name"].Value];
-                    if (att != null && att.Value.ToLower() == "yes") {
-                        attribMenuItem.Checked = true;
-                    }
-                }
-
-                if (xmlNodeElements.Count > 0) {
-                    propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
-                    propertyGridContextMenu.MenuItems.Add(attribOptionsMenuItem);
-                }
+        protected static string GetValueAttributeName(WixFiles wixFiles) {
+            if (wixFiles.XsdDocument.SelectSingleNode("/xs:schema/xs:element[@name='Property']/xs:complexType/xs:attribute[@name='Value']", wixFiles.XsdNsmgr) != null) {
+                return "Value";
+            } else  {
+                return null;
             }
         }
 
-        public void OnToggleAttribute(object sender, EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
-            MenuItem item = sender as MenuItem;
-
-            PropertyElementPropertyDescriptor descriptor = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-
-            XmlAttribute att = descriptor.XmlElement.Attributes[item.Text];
-            if (att != null) {
-                if (att.Value.ToLower() == "yes") {
-                    descriptor.XmlElement.Attributes.Remove(att);
-//                    att.Value = "No";
-                } else {
-                    att.Value = "Yes";
-                }
-            } else {
-                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute(item.Text);
-                newAttr.Value = "Yes";
-                descriptor.XmlElement.Attributes.Append(newAttr);
-            }
+        protected override XmlNode GetSelectedPropertyDescriptor(){
+            PropertyElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
+            return desc.XmlElement;
         }
 
-        public void OnNewPropertyGridItem(object sender, EventArgs e) {
-            EnterStringForm frm = new EnterStringForm();
-            if (DialogResult.OK == frm.ShowDialog()) {
-                wixFiles.UndoManager.BeginNewCommandRange();
-
-                XmlElement newProp = wixFiles.WxsDocument.CreateElement("Property", WixFiles.WixNamespaceUri);
-
-                XmlAttribute newAttr = wixFiles.WxsDocument.CreateAttribute("Id");
-                newAttr.Value = frm.SelectedString;
-                newProp.Attributes.Append(newAttr);
-
-                XmlNode product = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-
-                InsertNewXmlNode(product, newProp);
-
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-
-                PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-
-                propertyGrid.SelectedObject = propAdapter;
-                propertyGrid.Update();
-
-                foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
-                    if (it.Label == frm.SelectedString) {
-                        propertyGrid.SelectedGridItem = it;
-                        break;
-                    }
-                }
-            }
-        }
-
-        public void OnDeletePropertyGridItem(object sender, EventArgs e) {
-            // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
-            propertyGrid.SelectedObject = null;
-
-            // Remove the attribute
-            element.ParentNode.RemoveChild(element);
-
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            propAdapter = new PropertyElementAdapter(properties, wixFiles);
-            propertyGrid.SelectedObject = propAdapter;
-            propertyGrid.Update();
-        }
-
-        public void OnRenamePropertyGridItem(object sender, EventArgs e) {
-            // Get the XmlAttribute from the PropertyDescriptor
-            PropertyElementPropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            XmlNode element = desc.XmlElement;
-
-            EnterStringForm frm = new EnterStringForm(element.Attributes["Id"].Value);
-            frm.Text = "Enter Property Name";
-            if (DialogResult.OK == frm.ShowDialog()) {    
-                wixFiles.UndoManager.BeginNewCommandRange();
-
-                element.Attributes["Id"].Value = frm.SelectedString;
-
-                // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-                PropertyElementAdapter propAdapter = propertyGrid.SelectedObject as PropertyElementAdapter;
-                propertyGrid.SelectedObject = null;
-
-                propertyGrid.SelectedObject = propAdapter;
-                propertyGrid.Update();
-            }
-        }
-
-        public override bool IsOwnerOfNode(XmlNode node) {
-            XmlNode showable = GetShowableNode(node);
-            foreach (XmlNode xmlNode in wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr)) {
-                if (showable == xmlNode) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public override void ShowNode(XmlNode node) {
-            if (node is XmlText) {
-                node = node.ParentNode;
-            }
-
-            XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-            PropertyElementAdapter propAdapter = new PropertyElementAdapter(properties, wixFiles);
-    
-            propertyGrid.SelectedObject = propAdapter;
-            propertyGrid.Update();
-
-            if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
-                string val = null;
-                if (node is XmlAttribute) {
-                    val = node.Value;
-                } else if(node.Attributes["Id"] != null) {
-                    val = node.Attributes["Id"].Value;
-                }
-                foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
-                    if (val != null && val == item.Label) {
-                        propertyGrid.SelectedGridItem = item;
-                        break;
-                    }
-                }
-            }
-        }
-
-        public override XmlNode GetShowingNode() {
-            if (propertyGrid.SelectedGridItem != null) {
-                XmlNodeList properties = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Property", wixFiles.WxsNsmgr);
-                foreach (XmlNode item in properties) {
-                    if (item.Attributes["Id"].Value == propertyGrid.SelectedGridItem.Label) {
-                        return item;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public override void ReloadData() {
-            propertyGrid.SelectedObject = null;
-
-            LoadData();
+        protected override object GetPropertyAdapter(){
+            return new PropertyElementAdapter(CurrentList, WixFiles);
         }
     }
 }

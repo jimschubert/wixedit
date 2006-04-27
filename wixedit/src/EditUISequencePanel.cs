@@ -30,39 +30,19 @@ namespace WixEdit {
     /// <summary>
     /// Panel to edit UISequence data.
     /// </summary>
-    public class EditUISequencePanel : DetailsBasePanel {
-        protected ContextMenu globalTreeViewContextMenu;
-
-        public EditUISequencePanel(WixFiles wixFiles) : base(wixFiles) {
-            globalTreeViewContextMenu = new ContextMenu();
-            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
+    public class EditUISequencePanel : DisplayTreeBasePanel {
+        public EditUISequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallUISequence|/wix:Wix//wix:AdminUISequence", null, "Id") {
+            LoadData();
         }
 
-        protected override ArrayList GetXmlNodes() {
-            ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix//wix:InstallUISequence", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix//wix:AdminUISequence", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            return nodes;
-        }
-        
-        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
-            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
-
-            globalTreeViewContextMenu.Show(this, spot);
+        protected override void AssignParentNode() {
+            CurrentParent = ElementLocator.GetUIElement(WixFiles);
         }
 
-
-        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
-            globalTreeViewContextMenu.MenuItems.Clear();
-
+        protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
+            //clear menu and add import menu
+            base.PopupPanelContextMenu(sender,e);
+            //add custom menu, index has to be used!!!
             IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
             IconMenuItem subSubMenuItem1 = new IconMenuItem("InstallUISequence");
@@ -74,37 +54,12 @@ namespace WixEdit {
             subMenuItem.MenuItems.Add(subSubMenuItem1);
             subMenuItem.MenuItems.Add(subSubMenuItem2);
 
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
+            PanelContextMenu.MenuItems.Add(0,subMenuItem);
         }
-
-        private void NewCustomElement_Click(object sender, System.EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
+        
+        protected override void NewCustomElement_Click(object sender, System.EventArgs e) {
             MenuItem item = (MenuItem) sender;
-
-            XmlNode xmlNode = ElementLocator.GetUIElement(wixFiles);
-            if (xmlNode == null) {
-                MessageBox.Show("No location found to add UI element, need element like module or product!");
-
-                return;
-            }
-
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, WixFiles.WixNamespaceUri);
-            TreeNode action = new TreeNode(item.Text);
-            action.Tag = newElement;
-
-            int imageIndex = ImageListFactory.GetImageIndex(item.Text);
-            if (imageIndex >= 0) {
-                action.ImageIndex = imageIndex;
-                action.SelectedImageIndex = imageIndex;
-            }
-
-            InsertNewXmlNode(xmlNode, newElement);
-
-            treeView.Nodes.Add(action);
-            treeView.SelectedNode = action;
-
-            ShowProperties(newElement); 
+            CreateNewCustomElement(item.Text);
         }
     }
 }

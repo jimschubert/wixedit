@@ -47,7 +47,7 @@ namespace WixEdit {
 
             Controls.Add(tabControl);
 
-            editFilesPanel = new EditFilesPanel(wixFiles);
+            editFilesPanel = new EditFilesPanel(WixFiles);
             editFilesPanel.Dock = DockStyle.Fill;
 
             editFilesTabPage = new TabPage("Files");
@@ -56,7 +56,7 @@ namespace WixEdit {
             tabControl.TabPages.Add(editFilesTabPage);
 
 
-            editFeaturesPanel = new EditFeaturesPanel(wixFiles);
+            editFeaturesPanel = new EditFeaturesPanel(WixFiles);
             editFeaturesPanel.Dock = DockStyle.Fill;
 
             editFeaturesTabPage = new TabPage("Features");

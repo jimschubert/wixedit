@@ -351,7 +351,7 @@ namespace WixEdit {
         protected void LoadData() {
             wxsDialogs.Items.Clear();
 
-            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
+            XmlNodeList dialogs = WixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", WixFiles.WxsNsmgr);
             foreach (XmlNode dialog in dialogs) {
                 XmlAttribute attr = dialog.Attributes["Id"];
                 if (attr != null) {
@@ -374,7 +374,7 @@ namespace WixEdit {
         }
 
         public override bool IsOwnerOfNode(XmlNode node) {
-            XmlNodeList dialogs = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", wixFiles.WxsNsmgr);
+            XmlNodeList dialogs = WixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:UI/wix:Dialog", WixFiles.WxsNsmgr);
             return FindNode(GetShowableNode(node), dialogs);
         }
 
@@ -458,7 +458,7 @@ namespace WixEdit {
                 if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                     string currentDialogId = wxsDialogs.SelectedItems[0].Text;
 
-                    return wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+                    return WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
                 }
 
                 return null;
@@ -575,11 +575,11 @@ namespace WixEdit {
 
         public void SetDefaultValues(XmlNode node) {
             if (node.Name.ToLower() == "dialog") {
-                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Width");
+                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Width");
                 att.Value = "370";
                 node.Attributes.Append(att);
 
-                att = wixFiles.WxsDocument.CreateAttribute("Height");
+                att = WixFiles.WxsDocument.CreateAttribute("Height");
                 att.Value = "270";
                 node.Attributes.Append(att);
             } else if (node.Name.ToLower() == "control") {
@@ -642,19 +642,19 @@ namespace WixEdit {
                     }
                 }
 
-                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Width");
+                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Width");
                 att.Value = width.ToString();
                 node.Attributes.Append(att);
 
-                att = wixFiles.WxsDocument.CreateAttribute("Height");
+                att = WixFiles.WxsDocument.CreateAttribute("Height");
                 att.Value = height.ToString();
                 node.Attributes.Append(att);
 
-                att = wixFiles.WxsDocument.CreateAttribute("X");
+                att = WixFiles.WxsDocument.CreateAttribute("X");
                 att.Value = left.ToString();
                 node.Attributes.Append(att);
 
-                att = wixFiles.WxsDocument.CreateAttribute("Y");
+                att = WixFiles.WxsDocument.CreateAttribute("Y");
                 att.Value = top.ToString();
                 node.Attributes.Append(att);
             }
@@ -664,19 +664,19 @@ namespace WixEdit {
             EnterStringForm frm = new EnterStringForm();
             frm.Text = "Enter new Dialog name";
             if (DialogResult.OK == frm.ShowDialog()) {
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
 
-                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                XmlNode ui = ElementLocator.GetUIElement(WixFiles);
                 if (ui == null) {
                     MessageBox.Show("No location found to add UI element, need element like module or product!");
 
                     return;
                 }
 
-                XmlNode dialog = wixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
+                XmlNode dialog = WixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
                 SetDefaultValues(dialog);
 
-                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute("Id");
+                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Id");
                 att.Value = frm.SelectedString;
                 dialog.Attributes.Append(att);
                 
@@ -697,7 +697,7 @@ namespace WixEdit {
         public void OnImportWxsDialogsItem(object sender, EventArgs e) {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
-            ofd.InitialDirectory = wixFiles.WxsDirectory.FullName;
+            ofd.InitialDirectory = WixFiles.WxsDirectory.FullName;
 
             if (ofd.ShowDialog() != DialogResult.OK) {
                 return;
@@ -706,10 +706,10 @@ namespace WixEdit {
             XmlDocument importXml = new XmlDocument();
             importXml.Load(ofd.FileName);
 
-            XmlNodeList dialogList =  importXml.SelectNodes("//wix:Dialog", wixFiles.WxsNsmgr);
+            XmlNodeList dialogList =  importXml.SelectNodes("//wix:Dialog", WixFiles.WxsNsmgr);
             if (dialogList.Count > 0) {
-                wixFiles.UndoManager.BeginNewCommandRange();
-                XmlNode ui = ElementLocator.GetUIElement(wixFiles);
+                WixFiles.UndoManager.BeginNewCommandRange();
+                XmlNode ui = ElementLocator.GetUIElement(WixFiles);
                 if (ui == null) {
                     MessageBox.Show("No location found to add UI element, need element like module or product!");
 
@@ -724,7 +724,7 @@ namespace WixEdit {
                     
                     string itemName = importDialog.Attributes["Id"].Value;
 
-                    XmlNode importedDialog = wixFiles.WxsDocument.ImportNode(importDialog, true);
+                    XmlNode importedDialog = WixFiles.WxsDocument.ImportNode(importDialog, true);
                     InsertNewXmlNode(ui, importedDialog);
     
                     ListViewItem item = new ListViewItem(itemName);
@@ -748,10 +748,10 @@ namespace WixEdit {
 
         public void OnDeleteWxsDialogsItem(object sender, EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
 
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-                XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+                XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
 
                 dialog.ParentNode.RemoveChild(dialog);
 
@@ -779,7 +779,7 @@ namespace WixEdit {
 
             ArrayList attributes = new ArrayList();
 
-            XmlNodeList xmlAttributes = attAdapter.XmlNodeDefinition.SelectNodes("xs:attribute", wixFiles.XsdNsmgr);
+            XmlNodeList xmlAttributes = attAdapter.XmlNodeDefinition.SelectNodes("xs:attribute", WixFiles.XsdNsmgr);
             foreach (XmlNode at in xmlAttributes) {
                 string attName = at.Attributes["name"].Value;
                 if (attAdapter.XmlNode.Attributes[attName] == null) {
@@ -812,11 +812,11 @@ namespace WixEdit {
             if (newAttributeName == "InnerText") {
                 attAdapter.ShowInnerTextIfEmpty = true;
             } else {
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
 
                 // Get the XmlAttribute from the PropertyDescriptor
                 XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
+                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
     
                 // resetting the propertyGrid.
                 propertyGrid.SelectedObject = null;
@@ -842,7 +842,7 @@ namespace WixEdit {
         }
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
+            WixFiles.UndoManager.BeginNewCommandRange();
 
             // Get the XmlAttribute from the PropertyDescriptor
             XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
@@ -865,7 +865,7 @@ namespace WixEdit {
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-                XmlNode dialog = wixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), wixFiles.WxsNsmgr);
+                XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
                 
                 ShowWixDialogTree(dialog);
                 ShowWixProperties(dialog);
@@ -917,7 +917,7 @@ namespace WixEdit {
             }
 
             if (dialog != null) {
-                DialogGenerator generator = new DialogGenerator(wixFiles, TopLevelControl);
+                DialogGenerator generator = new DialogGenerator(WixFiles, TopLevelControl);
                 currentDialog = generator.GenerateDialog(dialog, this);
     
                 if (currentDialog != null) {
@@ -1016,7 +1016,7 @@ namespace WixEdit {
         private void ShowWixProperties(XmlNode xmlNode) {
             XmlAttributeAdapter attAdapter = null;
             if (xmlNode != null) {
-                attAdapter = new XmlAttributeAdapter(xmlNode, wixFiles);
+                attAdapter = new XmlAttributeAdapter(xmlNode, WixFiles);
             }
 
             propertyGrid.SelectedObject = null;
@@ -1080,7 +1080,7 @@ namespace WixEdit {
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
-            XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
+            XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
             if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
                 dialogTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
                 dialogTreeViewContextMenu.MenuItems.Add(infoAboutCurrentElementMenu);
@@ -1103,7 +1103,7 @@ namespace WixEdit {
                 EnterStringForm frm = new EnterStringForm();
                 frm.Text = "Enter new Control name";
                 if (DialogResult.OK == frm.ShowDialog()) {
-                    wixFiles.UndoManager.BeginNewCommandRange();
+                    WixFiles.UndoManager.BeginNewCommandRange();
 
                     XmlElement newControl = node.OwnerDocument.CreateElement("Control", WixFiles.WixNamespaceUri);
 
@@ -1143,7 +1143,7 @@ namespace WixEdit {
             }
 
             if (node.Name == "Control") {
-                wixFiles.UndoManager.BeginNewCommandRange();
+                WixFiles.UndoManager.BeginNewCommandRange();
 
                 XmlElement newElement = node.OwnerDocument.CreateElement(typeName, WixFiles.WixNamespaceUri);
 
@@ -1183,7 +1183,7 @@ namespace WixEdit {
                 return;
             }
 
-            wixFiles.UndoManager.BeginNewCommandRange();
+            WixFiles.UndoManager.BeginNewCommandRange();
 
             node.ParentNode.RemoveChild(node);
 
@@ -1195,7 +1195,7 @@ namespace WixEdit {
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
             XmlNode xmlNode = (XmlNode) dialogTreeView.SelectedNode.Tag;
 
-            XmlDocumentationManager docManager = new XmlDocumentationManager(wixFiles);
+            XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
 
             string title = String.Format("Info about '{0}' element", xmlNode.Name);            
