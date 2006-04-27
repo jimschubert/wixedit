@@ -23,15 +23,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Collections;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Data;
-using System.Xml;
-using System.IO;
-using System.Resources;
-using System.Reflection;
 
 using WixEdit.PropertyGridExtensions;
 
@@ -40,19 +34,19 @@ namespace WixEdit {
     /// Summary description for EditPropertiesPanel.
     /// </summary>
     public abstract class BasePanel : Panel {
-        protected WixFiles wixFiles;
+        private WixFiles wixFiles;
 
         public BasePanel(WixFiles wixFiles) {
+            if (wixFiles == null){
+                throw new ArgumentException("Cannot construct base panel without wixFiles", "wixFiles");
+            }
+
             this.wixFiles = wixFiles;
         }
 
-
-        protected virtual void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
-            XmlNodeList sameNodes = parentElement.SelectNodes("wix:" + newElement.Name, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                parentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                parentElement.AppendChild(newElement);
+        protected WixFiles WixFiles {
+            get {
+                return wixFiles;
             }
         }
 

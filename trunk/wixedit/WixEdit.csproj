@@ -638,17 +638,22 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "src\DetailsBasePanel.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "src\DialogGenerator.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "src\DisplayBasePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DisplaySimpleBasePanel.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\DisplayTreeBasePanel.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />
@@ -679,12 +684,12 @@
                 />
                 <File
                     RelPath = "src\EditExecuteSequencePanel.cs"
-                    SubType = "Component"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "src\EditFeaturesPanel.cs"
-                    SubType = "Component"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -694,7 +699,7 @@
                 />
                 <File
                     RelPath = "src\EditGlobalDataPanel.cs"
-                    SubType = "Component"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -734,7 +739,7 @@
                 />
                 <File
                     RelPath = "src\EditUISequencePanel.cs"
-                    SubType = "Component"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

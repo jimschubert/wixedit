@@ -30,69 +30,19 @@ namespace WixEdit {
     /// <summary>
     /// Panel to edit features.
     /// </summary>
-    public class EditFeaturesPanel : DetailsBasePanel {
-        protected ContextMenu globalTreeViewContextMenu;
-
-        public EditFeaturesPanel(WixFiles wixFiles) : base(wixFiles) {
-            globalTreeViewContextMenu = new ContextMenu();
-            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
+    public class EditFeaturesPanel : DisplayTreeBasePanel {
+        public EditFeaturesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Feature", "Feature", "Id") {
+            LoadData();
         }
 
-        protected override ArrayList GetXmlNodes() {
-             ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*/wix:Feature", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            return nodes;
-        }
-                
-        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
-            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
-
-            globalTreeViewContextMenu.Show(this, spot);
-        }
-
-
-        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
-            globalTreeViewContextMenu.MenuItems.Clear();
-
+        protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
+            //clear menu and add import menu
+            base.PopupPanelContextMenu(sender,e);
+            //add custom menu, index has to be used!!!
             IconMenuItem subMenuItem = new IconMenuItem("New Feature", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
             subMenuItem.Click += new EventHandler(NewCustomElement_Click);
-
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
-        }
-
-        private void NewCustomElement_Click(object sender, System.EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
-            string elementName = "Feature";
-
-            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(elementName, WixFiles.WixNamespaceUri);
-            TreeNode action = new TreeNode(elementName);
-            action.Tag = newElement;
-
-            int imageIndex = ImageListFactory.GetImageIndex(elementName);
-            if (imageIndex >= 0) {
-                action.ImageIndex = imageIndex;
-                action.SelectedImageIndex = imageIndex;
-            }
-
-            XmlNodeList sameNodes = xmlNode.SelectNodes("wix:" + elementName, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                xmlNode.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                xmlNode.AppendChild(newElement);
-            }
-
-            treeView.Nodes.Add(action);
-            treeView.SelectedNode = action;
-
-            ShowProperties(newElement); 
+            PanelContextMenu.MenuItems.Add(0,subMenuItem);
         }
     }
 }

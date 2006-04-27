@@ -30,89 +30,39 @@ namespace WixEdit {
     /// <summary>
     /// Panel to edit Custom Actions.
     /// </summary>
-    public class EditExecuteSequencePanel : DetailsBasePanel {
+    public class EditExecuteSequencePanel : DisplayTreeBasePanel {
         protected ContextMenu globalTreeViewContextMenu;
 
-        public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles) {
-            globalTreeViewContextMenu = new ContextMenu();
-            globalTreeViewContextMenu.Popup += new EventHandler(PopupGlobalTreeViewContextMenu);
+        public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallExecuteSequence|/wix:Wix//wix:AdminExecuteSequence|/wix:Wix//wix:AdvertiseExecuteSequence", null, "Id") {
+            LoadData();
         }
-
-        protected override ArrayList GetXmlNodes() {
-            ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix//wix:InstallExecuteSequence", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix//wix:AdminExecuteSequence", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix//wix:AdvertiseExecuteSequence", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            return nodes;
-        }
-
-        protected override void OnGlobalTreeViewContextMenu(object sender, System.Windows.Forms.MouseEventArgs e) {
-            Point spot = PointToClient(treeView.PointToScreen(new Point(e.X,e.Y)));
-
-            globalTreeViewContextMenu.Show(this, spot);
-        }
-
-
-        protected void PopupGlobalTreeViewContextMenu(System.Object sender, System.EventArgs e) {
-            globalTreeViewContextMenu.MenuItems.Clear();
-
+        
+        protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
+            //clear menu and add import menu
+            base.PopupPanelContextMenu(sender,e);
+            //add custom menu, index has to be used!!!
             IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-
+            
             IconMenuItem subSubMenuItem1 = new IconMenuItem("InstallExecuteSequence");
             IconMenuItem subSubMenuItem2 = new IconMenuItem("AdminExecuteSequence");
             IconMenuItem subSubMenuItem3 = new IconMenuItem("AdvertiseExecuteSequence");
-
+            
             subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
             subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);
             subSubMenuItem3.Click += new EventHandler(NewCustomElement_Click);
-
+            
             subMenuItem.MenuItems.Add(subSubMenuItem1);
             subMenuItem.MenuItems.Add(subSubMenuItem2);
             subMenuItem.MenuItems.Add(subSubMenuItem3);
-
-            globalTreeViewContextMenu.MenuItems.Add(subMenuItem);
+            
+            PanelContextMenu.MenuItems.Add(0,subMenuItem);
         }
-
-        private void NewCustomElement_Click(object sender, System.EventArgs e) {
-            wixFiles.UndoManager.BeginNewCommandRange();
-
+        
+        //if CurrentElementName is not set in constructor for whole class then it is set here
+        //it is used when there are more possibilities in menu
+        protected override void NewCustomElement_Click(object sender, System.EventArgs e) {
             MenuItem item = (MenuItem) sender;
-
-            XmlNode xmlNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-
-            XmlElement newElement = wixFiles.WxsDocument.CreateElement(item.Text, WixFiles.WixNamespaceUri);
-            TreeNode action = new TreeNode(item.Text);
-            action.Tag = newElement;
-
-            int imageIndex = ImageListFactory.GetImageIndex(item.Text);
-            if (imageIndex >= 0) {
-                action.ImageIndex = imageIndex;
-                action.SelectedImageIndex = imageIndex;
-            }
-
-            XmlNodeList sameNodes = xmlNode.SelectNodes("wix:" + item.Text, wixFiles.WxsNsmgr);
-            if (sameNodes.Count > 0) {
-                xmlNode.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-            } else {
-                xmlNode.AppendChild(newElement);
-            }
-
-            treeView.Nodes.Add(action);
-            treeView.SelectedNode = action;
-
-            ShowProperties(newElement); 
+            CreateNewCustomElement(item.Text);
         }
     }
 }

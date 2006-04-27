@@ -28,8 +28,9 @@ namespace WixEdit {
     /// <summary>
     /// Panel to edit global data.
     /// </summary>
-    public class EditGlobalDataPanel : DetailsBasePanel {
-        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles) {
+    public class EditGlobalDataPanel : DisplayTreeBasePanel {
+        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*", null, "Id") {
+            LoadData();
         }
 
         private StringCollection skipElements;
@@ -56,15 +57,20 @@ namespace WixEdit {
                 return skipElements;
             }
         }
+        
+        //I am not sure if we should impelement Import function in this panel.
+        //if yes it should be implemented either new function.
+        protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e){
+            //clear menu and add import menu
+            base.PopupPanelContextMenu(sender,e);
+            //add custom menu, index has to be used!!!
+        }
 
-        protected override ArrayList GetXmlNodes() {
-            ArrayList nodes = new ArrayList();
-            XmlNodeList xmlNodes = wixFiles.WxsDocument.SelectNodes("/wix:Wix/*", wixFiles.WxsNsmgr);
-            foreach (XmlNode xmlNode in xmlNodes) {
-                nodes.Add(xmlNode);
-            }
-
-            return nodes;
+        /// <summary>
+        /// Method override a parent method from base. In this case is necesery change xpath to /*
+        /// </summary>
+        protected override void AssignParentNode(){
+            CurrentParent = WixFiles.WxsDocument.SelectSingleNode("/*", WixFiles.WxsNsmgr);
         }
 
         protected override void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
