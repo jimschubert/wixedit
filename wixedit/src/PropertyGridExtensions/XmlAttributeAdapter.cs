@@ -81,11 +81,17 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void RemoveProperty(XmlNode xmlElement) {
-            //xmlElement.ParentNode.RemoveChild(xmlElement);
-
             if (xmlElement is XmlAttribute) {
                 XmlAttribute attrib = xmlElement as XmlAttribute;
-                attrib.OwnerElement.Attributes.Remove((XmlAttribute) xmlElement);
+
+                // Show all existing + required elements
+                XmlNode xmlAttributeDefinition = xmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", xmlElement.Name), wixFiles.XsdNsmgr);
+                if (xmlAttributeDefinition.Attributes["use"] == null || 
+                    xmlAttributeDefinition.Attributes["use"].Value != "required") {
+                    attrib.OwnerElement.Attributes.Remove((XmlAttribute) xmlElement);
+                } else {
+                    ((XmlAttribute) xmlElement).Value = "";
+                }
             } else {
                 xmlElement.ParentNode.RemoveChild(xmlElement);
             }
