@@ -31,12 +31,14 @@ namespace WixEdit {
     /// </summary>
     public abstract class DisplayBasePanel : BasePanel{
         protected string currentElementName;
-        protected XmlNode currentParent;
-        protected PropertyGrid currentGrid;
-        protected ContextMenu currentGridContextMenu;
         protected string currentKeyName;
         protected string currentXPath;
+        
+        protected XmlNode currentParent;
         protected XmlNodeList currentList;
+
+        protected PropertyGrid currentGrid;
+        protected ContextMenu currentGridContextMenu;
 
         public DisplayBasePanel(WixFiles wixFiles) : base(wixFiles) {
             Reload += new ReloadHandler(ReloadData);
@@ -44,7 +46,33 @@ namespace WixEdit {
             CreateControl();
         }
 
+        public DisplayBasePanel(WixFiles wixFiles, string xpath, string keyName) : base(wixFiles) {
+            if (xpath == null) {
+                throw new ArgumentException("Require xpath in construction", "xpath");
+            }
+            if (keyName == null) {
+                throw new ArgumentException("Require keyName in construction", "keyName");
+            }
+
+            currentXPath = xpath;
+            currentKeyName = keyName;
+
+            Reload += new ReloadHandler(ReloadData);
+
+            CreateControl();
+        }
+
         public DisplayBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName) : base(wixFiles) {
+            if (xpath == null) {
+                throw new ArgumentException("Require xpath in construction", "xpath");
+            }
+            if (elementName == null) {
+                throw new ArgumentException("Require elementName in construction", "elementName");
+            }
+            if (keyName == null) {
+                throw new ArgumentException("Require keyName in construction", "keyName");
+            }
+
             currentXPath = xpath;
             currentElementName = elementName;
             currentKeyName = keyName;

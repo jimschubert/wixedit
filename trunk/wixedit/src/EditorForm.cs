@@ -340,7 +340,7 @@ namespace WixEdit {
             searchPanel.Text = "Search Results";
 
             resultsPanel = new ResultsPanel(new Panel[] { outputPanel, searchPanel });
-            resultsPanel.CloseClicked += new EventHandler(HideResultsPanel);            
+            resultsPanel.CloseClicked += new EventHandler(ResultsPanelCloseClick);            
             resultsPanel.Dock = DockStyle.Bottom;
             resultsPanel.Height = 100;
             resultsPanel.Size = new Size(200, 216);
@@ -689,7 +689,7 @@ namespace WixEdit {
             frm.Text = "Find what text:";
             if (DialogResult.OK == frm.ShowDialog()) {
                 string search = frm.SelectedString;
-                ShowSearchPanel(null, null);
+                ShowSearchPanel();
                 searchPanel.Search(wixFiles, search);
             }
         }
@@ -804,7 +804,7 @@ namespace WixEdit {
             psiInstall.RedirectStandardOutput = false;
             psiInstall.RedirectStandardError = false;
 
-            ShowOutputPanel(null, null);
+            ShowOutputPanel();
             outputPanel.Clear();
             Update();
 
@@ -829,7 +829,7 @@ namespace WixEdit {
             psUninstall.RedirectStandardOutput = false;
             psUninstall.RedirectStandardError = false;
 
-            ShowOutputPanel(null, null);
+            ShowOutputPanel();
             outputPanel.Clear();
             Update();
 
@@ -869,7 +869,7 @@ namespace WixEdit {
             psiLight.RedirectStandardError = false;
             psiLight.Arguments = wixFiles.GetLightArguments();
 
-            ShowOutputPanel(null, null);
+            ShowOutputPanel();
             outputPanel.Clear();
             Update();
 
@@ -892,33 +892,37 @@ namespace WixEdit {
             psiDark.RedirectStandardError = false;
             psiDark.Arguments = String.Format("-nologo -x \"{0}\" \"{1}\" \"{2}\"", msiFile.DirectoryName, msiFile.FullName, Path.ChangeExtension(msiFile.FullName, "wxs"));
 
-            ShowOutputPanel(null, null);
+            ShowOutputPanel();
             outputPanel.Clear();
             Update();
 
             outputPanel.Run(psiDark);
         }
 
-        private void ShowResultsPanel(object sender, System.EventArgs e) {
+        private void ShowResultsPanel() {
             resultsSplitter.Visible = true;
             resultsPanel.Visible = true;
         }
 
-        private void ShowOutputPanel(object sender, System.EventArgs e) {
+        private void ShowOutputPanel() {
             resultsSplitter.Visible = true;
             resultsPanel.Visible = true;
 
             resultsPanel.ShowPanel(outputPanel);
         }
 
-        private void ShowSearchPanel(object sender, System.EventArgs e) {
+        private void ShowSearchPanel() {
             resultsSplitter.Visible = true;
             resultsPanel.Visible = true;
 
             resultsPanel.ShowPanel(searchPanel);
         }
 
-        private void HideResultsPanel(object sender, System.EventArgs e) {
+        private void ResultsPanelCloseClick(object sender, System.EventArgs e) {
+            HideResultsPanel();
+        }
+            
+        private void HideResultsPanel() {
             resultsSplitter.Visible = false;
             resultsPanel.Visible = false;
         }
@@ -1318,18 +1322,12 @@ namespace WixEdit {
                         if (wixFiles == null) {
                             LoadWxsFile(argument);
                         } else {
-                            EditorForm newForm = new EditorForm(argument);
-    
-                            Thread t = new Thread(new ThreadStart(newForm.StartMessageLoop));
-                            t.Start();
+                            NewInstanceStarter starter = new NewInstanceStarter(argument);
+                            starter.Start();
                         }
                     }
                     break;
             }
-        }
-
-        protected void StartMessageLoop() {
-            Application.Run(this);
         }
 
         private delegate void InvokeDelegate();

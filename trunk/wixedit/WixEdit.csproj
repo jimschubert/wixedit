@@ -684,12 +684,12 @@
                 />
                 <File
                     RelPath = "src\EditExecuteSequencePanel.cs"
-                    SubType = "Code"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "src\EditFeaturesPanel.cs"
-                    SubType = "Code"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
@@ -699,7 +699,7 @@
                 />
                 <File
                     RelPath = "src\EditGlobalDataPanel.cs"
-                    SubType = "Code"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
@@ -739,7 +739,7 @@
                 />
                 <File
                     RelPath = "src\EditUISequencePanel.cs"
-                    SubType = "Code"
+                    SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
@@ -789,6 +789,11 @@
                 />
                 <File
                     RelPath = "src\IncludeManager.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\NewInstanceStarter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

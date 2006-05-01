@@ -39,7 +39,7 @@ namespace WixEdit {
     /// Summary description for EditErrorPanel.
     /// </summary>
     public class EditErrorPanel : DisplaySimpleBasePanel {
-        public EditErrorPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:Error", "Error", "Id", null) {
+        public EditErrorPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:Error", "Error", "Id") {
             LoadData();
         }
 

@@ -51,6 +51,11 @@ namespace WixEdit {
             CreateControl();
         }
 
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName) : base(wixFiles, xpath, keyName) {
+            InitializeComponent();
+            CreateControl();
+        }
+
         protected TreeView CurrentTreeView {
             get {
                 return currTreeView;
@@ -355,6 +360,14 @@ namespace WixEdit {
         protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
             XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            if (desc == null) {
+                string typeString = "null";
+                if (CurrentGrid.SelectedGridItem.PropertyDescriptor != null) {
+                    typeString = CurrentGrid.SelectedGridItem.PropertyDescriptor.GetType().ToString();
+                }
+
+                throw new Exception(String.Format("Expected XmlAttributePropertyDescriptor, but got {0} in OnDeletePropertyGridItem", typeString));
+            }
             XmlAttribute att = desc.Attribute;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
@@ -363,6 +376,7 @@ namespace WixEdit {
 
             
             XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), WixFiles.XsdNsmgr);
+            WixFiles.UndoManager.BeginNewCommandRange();
 
             if (xmlAttributeDefinition.Attributes["use"] == null || 
                 xmlAttributeDefinition.Attributes["use"].Value != "required") {
@@ -696,18 +710,26 @@ namespace WixEdit {
 
         private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) {
             if(e.KeyCode == Keys.Delete) {
-                WixFiles.UndoManager.BeginNewCommandRange();
-      
+                if (currTreeView.SelectedNode == null) {
+                    return;
+                }
+
                 XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
                 if (node == null) {
                     return;
                 }
+
+                WixFiles.UndoManager.BeginNewCommandRange();
       
                 node.ParentNode.RemoveChild(node);
       
                 currTreeView.Nodes.Remove(currTreeView.SelectedNode);
       
-                ShowProperties(currTreeView.SelectedNode.Tag as XmlNode);
+                if (currTreeView.SelectedNode != null) {
+                    ShowProperties(currTreeView.SelectedNode.Tag as XmlNode);
+                } else {
+                    ShowProperties(null);
+                }
             }
         }
 

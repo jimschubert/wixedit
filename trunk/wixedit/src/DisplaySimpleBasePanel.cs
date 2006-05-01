@@ -36,9 +36,20 @@ namespace WixEdit {
         private string currentValueName;
 
         public DisplaySimpleBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName, string valueName) : base(wixFiles, xpath, elementName, keyName) {
+            if (valueName == null) {
+                throw new ArgumentException("Require valueName in construction", "valueName");
+            }
+
             Reload += new ReloadHandler(ReloadData);
 
             currentValueName = valueName;
+
+            InitializeComponent();
+            CreateControl();
+        }
+
+        public DisplaySimpleBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName) : base(wixFiles, xpath, elementName, keyName) {
+            Reload += new ReloadHandler(ReloadData);
 
             InitializeComponent();
             CreateControl();
@@ -102,7 +113,7 @@ namespace WixEdit {
 
             CurrentGridContextMenu.MenuItems.Clear();
             CurrentGridContextMenu.MenuItems.Add(menuItem1);
-            if (CurrentGrid.SelectedGridItem.Value != null) {
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor != null) {
                 CurrentGridContextMenu.MenuItems.Add(menuItem3);
                 CurrentGridContextMenu.MenuItems.Add(menuItem4);
             }

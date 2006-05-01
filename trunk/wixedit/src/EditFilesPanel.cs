@@ -37,7 +37,7 @@ namespace WixEdit {
     public class EditFilesPanel : DisplayTreeBasePanel {          
         private TreeNode oldNode = null;
         
-        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Directory|/wix:Wix/*/wix:DirectoryRef", null, "Id") {
+        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Directory|/wix:Wix/*/wix:DirectoryRef", "Id") {
 
             LoadData();
 

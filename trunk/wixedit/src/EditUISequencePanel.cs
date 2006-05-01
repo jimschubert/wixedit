@@ -31,7 +31,7 @@ namespace WixEdit {
     /// Panel to edit UISequence data.
     /// </summary>
     public class EditUISequencePanel : DisplayTreeBasePanel {
-        public EditUISequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallUISequence|/wix:Wix//wix:AdminUISequence", null, "Id") {
+        public EditUISequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallUISequence|/wix:Wix//wix:AdminUISequence", "Id") {
             LoadData();
         }
 

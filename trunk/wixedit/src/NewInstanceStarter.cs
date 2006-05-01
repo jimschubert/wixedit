@@ -1,4 +1,3 @@
-
 // Copyright (c) 2005 J.Keuper (j.keuper@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,40 +20,26 @@
 
 
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Collections;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
-using System.Data;
-using System.Xml;
-using System.IO;
-using System.Resources;
-using System.Reflection;
-
-using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
-    /// <summary>
-    /// Summary description for EditProgressTextPanel.
-    /// </summary>
-    public class EditProgressTextPanel : DisplaySimpleBasePanel {
-        public EditProgressTextPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:ProgressText", "ProgressText", "Action") {
-            LoadData();
+    public class NewInstanceStarter {
+        string argument;
+
+        public NewInstanceStarter(string startArgument) {
+            argument = startArgument;
         }
-        
-        protected override void AssignParentNode() {
-            CurrentParent = ElementLocator.GetUIElement(WixFiles);
+
+        public void Start() {
+            Thread t = new Thread(new ThreadStart(InnerStart));
+            t.Start();
         }
-        
-        protected override XmlNode GetSelectedPropertyDescriptor(){
-            ProgressTextElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as ProgressTextElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-        
-        protected override object GetPropertyAdapter(){
-            return new ProgressTextElementAdapter(CurrentList, WixFiles);
+
+        private void InnerStart() {
+            EditorForm newForm = new EditorForm(argument);
+
+            Application.Run(newForm);
         }
     }
 }

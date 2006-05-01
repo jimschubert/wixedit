@@ -33,7 +33,7 @@ namespace WixEdit {
     public class EditExecuteSequencePanel : DisplayTreeBasePanel {
         protected ContextMenu globalTreeViewContextMenu;
 
-        public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallExecuteSequence|/wix:Wix//wix:AdminExecuteSequence|/wix:Wix//wix:AdvertiseExecuteSequence", null, "Id") {
+        public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallExecuteSequence|/wix:Wix//wix:AdminExecuteSequence|/wix:Wix//wix:AdvertiseExecuteSequence", "Id") {
             LoadData();
         }
         

@@ -92,9 +92,8 @@ namespace WixEdit {
                 // Start the double click timer.
                 doubleClickTimer.Start();
             } else { // This is the second mouse click.
-                // Verify that the mouse click is within the double click
-                // rectangle and is within the system-defined double 
-                // click period.
+                // Verify that the mouse click is within the double click rectangle and 
+                // is within the system-defined double click period.
                 if (milliseconds < SystemInformation.DoubleClickTime) {
                     OpenLine(e.X, e.Y);
                 }
