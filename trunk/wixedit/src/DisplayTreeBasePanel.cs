@@ -377,15 +377,7 @@ namespace WixEdit {
             
             XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), WixFiles.XsdNsmgr);
             WixFiles.UndoManager.BeginNewCommandRange();
-
-            if (xmlAttributeDefinition.Attributes["use"] == null || 
-                xmlAttributeDefinition.Attributes["use"].Value != "required") {
-                // Remove the attribute
-                attAdapter.XmlNode.Attributes.Remove(att);
-            } else {
-                // Clear the item.
-                att.Value = "";
-            }
+            attAdapter.RemoveProperty(att);
 
             // Update the CurrentGrid.
             CurrentGrid.SelectedObject = attAdapter;
