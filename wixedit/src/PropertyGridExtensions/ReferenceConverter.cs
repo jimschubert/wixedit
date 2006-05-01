@@ -42,7 +42,9 @@ namespace WixEdit.PropertyGridExtensions {
 
                 ArrayList strings = new ArrayList();
                 foreach (XmlNode node in referencedNodes) {
-                    strings.Add(node.Attributes["Id"].Value);
+                    if (node.Attributes["Id"] != null) {
+                        strings.Add(node.Attributes["Id"].Value);
+                    }
                 }
 
                 return new StandardValuesCollection(strings.ToArray(typeof(string)));

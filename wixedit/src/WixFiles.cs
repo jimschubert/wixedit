@@ -86,7 +86,7 @@ namespace WixEdit {
             }
             
             if (ReadOnly()) {
-                MessageBox.Show(String.Format("\"{0}\" is readony.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(String.Format("\"{0}\" is read-only.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             FileMode mode = FileMode.Open;
@@ -333,7 +333,7 @@ namespace WixEdit {
 
         public void Save() {
             if (ReadOnly()) {
-                MessageBox.Show(String.Format("\"{0}\" is readony, cannot save this file.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(String.Format("\"{0}\" is read-only, cannot save this file.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

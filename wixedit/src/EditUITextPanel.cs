@@ -40,7 +40,7 @@ namespace WixEdit {
     /// Summary description for EditUITextPanel.
     /// </summary>
     public class EditUITextPanel : DisplaySimpleBasePanel {
-        public EditUITextPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:UIText", "UIText", "Id", null) {
+        public EditUITextPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:UI/wix:UIText", "UIText", "Id") {
             LoadData();
         }
 

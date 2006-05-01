@@ -29,7 +29,7 @@ namespace WixEdit {
     /// Panel to edit global data.
     /// </summary>
     public class EditGlobalDataPanel : DisplayTreeBasePanel {
-        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*", null, "Id") {
+        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*", "Id") {
             LoadData();
         }
 
