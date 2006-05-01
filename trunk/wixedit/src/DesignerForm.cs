@@ -56,16 +56,21 @@ namespace WixEdit {
                     string tmpSelectedNodeId = null;
                     SelectionOverlay ctrl = null;
 
-                    if (value.Attributes["Id"] != null && value.Attributes["Id"].Value != null && value.Attributes["Id"].Value.Trim().Length > 0) {
-                        tmpSelectedNodeId = value.Attributes["Id"].Value;
-                        ctrl = (SelectionOverlay) controlMap[tmpSelectedNodeId];
+                    XmlAttribute att = value.Attributes["Id"];
+                    if (att != null && 
+                        att.Value != null && 
+                        att.Value.Trim().Length > 0) {
+                        tmpSelectedNodeId = att.Value;
+                        if (controlMap.Contains(tmpSelectedNodeId)) {
+                            ctrl = (SelectionOverlay) controlMap[tmpSelectedNodeId];
+                        }
                     }
 
                     if (ctrl != null) {
                         ctrl.IsSelected = true;
                         selectedNodeId = tmpSelectedNodeId;
                     } else {
-                        if (selectedNodeId != null) {
+                        if (selectedNodeId != null && controlMap.Contains(selectedNodeId)) {
                             ctrl = (SelectionOverlay) controlMap[selectedNodeId];
                             ctrl.IsSelected = false;
                         }

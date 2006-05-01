@@ -53,24 +53,23 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         protected override bool ProcessDialogKey(Keys keyData) {
-            if (SelectedGridItem != null) {               
-                if (ActiveControl.GetType().ToString() == "System.Windows.Forms.PropertyGridInternal.PropertyGridView") {
-                    if(keyData == Keys.Delete) {
-                        PropertyAdapterBase adapter = this.SelectedObject as PropertyAdapterBase;
+            if (SelectedGridItem != null &&
+                ActiveControl != null &&
+                ActiveControl.GetType().ToString() == "System.Windows.Forms.PropertyGridInternal.PropertyGridView" &&
+                keyData == Keys.Delete) {
+                PropertyAdapterBase adapter = this.SelectedObject as PropertyAdapterBase;
 
-                        if (adapter.WixFiles != null) {
-                            adapter.WixFiles.UndoManager.BeginNewCommandRange();
-                        }
+                if (adapter.WixFiles != null) {
+                    adapter.WixFiles.UndoManager.BeginNewCommandRange();
+                }
 
-                        CustomXmlPropertyDescriptorBase descriptor = this.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
-                        if (descriptor != null && descriptor.XmlElement != null) {
-                            this.SelectedObject = null;
-                            adapter.RemoveProperty(descriptor.XmlElement);
-                            this.SelectedObject = adapter;
+                CustomXmlPropertyDescriptorBase descriptor = this.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+                if (descriptor != null && descriptor.XmlElement != null) {
+                    this.SelectedObject = null;
+                    adapter.RemoveProperty(descriptor.XmlElement);
+                    this.SelectedObject = adapter;
 
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
 
