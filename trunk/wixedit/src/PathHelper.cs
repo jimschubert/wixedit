@@ -82,6 +82,9 @@ namespace WixEdit {
             }
 
             string nameExtension = fileInfo.Extension.ToUpper();
+            if (nameExtension.Length > 4) {
+                nameExtension = nameExtension.Substring(0, 4);
+            }
                     
             int i = 1;
             string shortFileName = String.Format("{0}{1}{2}", nameStart, i, nameExtension);
