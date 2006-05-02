@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
 
@@ -41,7 +42,7 @@ namespace WixEdit.Import {
         public void Import(TreeNode treeNode) {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-            newElement.SetAttribute("Id", fileInfo.Name);
+            newElement.SetAttribute("Id", GenerateValidFileId(fileInfo.Name));
             newElement.SetAttribute("LongName", fileInfo.Name);
             newElement.SetAttribute("Name", PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement));
             newElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
@@ -63,6 +64,27 @@ namespace WixEdit.Import {
             }
 
             treeNode.Nodes.Add(newNode);
+        }
+
+        /// <summary>
+        /// Identifier's may contain ASCII characters A-Z, a-z, digits, underscores (_), 
+        /// or periods (.). Every identifier must begin with either a letter or an underscore.
+        /// </summary>
+        /// <param name="filename">Name of file to generate Id from</param>
+        /// <returns>A valid Id.</returns>
+        public static string GenerateValidFileId(string filename) {
+            if (Regex.Match(filename, "^[A-Za-z_][A-Za-z0-9_.]*$").Length > 0) {
+                return filename;
+            }
+
+            string newId = filename;
+            newId = Regex.Replace(newId, "[^A-Za-z0-9_.]", "_");
+
+            if (Regex.Match(newId, "^[A-Za-z_]").Length == 0) {
+                newId = "_" + newId;
+            }
+
+            return newId;
         }
     }
 }

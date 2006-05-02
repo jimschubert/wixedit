@@ -139,7 +139,7 @@ namespace WixEdit.Import {
                 
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-                newFileElement.SetAttribute("Id", fileInfo.Name);
+                newFileElement.SetAttribute("Id", FileImport.GenerateValidFileId(fileInfo.Name));
                 newFileElement.SetAttribute("LongName", fileInfo.Name);
                 newFileElement.SetAttribute("Name", PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement));
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
