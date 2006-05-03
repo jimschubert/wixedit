@@ -334,9 +334,9 @@ namespace WixEdit {
             resultsSplitter.Height = 2;
             Controls.Add(resultsSplitter);
 
-            outputPanel = new OutputPanel();
+            outputPanel = new OutputPanel(buildMenu);
             outputPanel.Text = "Output";
-            searchPanel = new SearchPanel(this);
+            searchPanel = new SearchPanel(this, editMenu);
             searchPanel.Text = "Search Results";
 
             resultsPanel = new ResultsPanel(new Panel[] { outputPanel, searchPanel });
@@ -587,7 +587,6 @@ namespace WixEdit {
         private void editMenu_Popup(object sender, System.EventArgs e) {
             // Clear the menu, so when we change the text the 
             // IconMenuItem.OnMeasureItem will be fired.
-            editMenu.MenuItems.Clear();
 
             if (wixFiles == null || wixFiles.UndoManager.CanUndo() == false) {
                 editUndo.Enabled = false;
@@ -605,11 +604,7 @@ namespace WixEdit {
                 editRedo.Text = "&Redo " + wixFiles.UndoManager.GetNextRedoActionString();
             }
 
-            editMenu.MenuItems.Add(0, editUndo);
-            editMenu.MenuItems.Add(1, editRedo);
-            editMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            editMenu.MenuItems.Add(3, editFind);
-            editFind.Enabled = (wixFiles != null);
+            editFind.Enabled = (wixFiles != null && searchPanel.IsBusy == false);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -631,10 +626,12 @@ namespace WixEdit {
         }
 
         private void buildMenu_Popup(object sender, EventArgs e) {
+            buildWixCompile.Enabled = (wixFiles != null && outputPanel.IsBusy == false);
+
             bool isEnabled = false;
             if (wixFiles != null) {
                 if (wixFiles.OutputFile.Exists) {
-                    isEnabled = true;
+                    isEnabled = (outputPanel.IsBusy == false);
                 }
             }
 
@@ -742,7 +739,7 @@ namespace WixEdit {
         private void buildWixInstall_Click(object sender, System.EventArgs e) {
             try {
                 if (wixFiles != null) {
-                    if (wixFiles.OutputFile.Exists) {
+                    if (wixFiles.OutputFile.Exists == false) {
                         MessageBox.Show("Install package doesn't exist. Compile the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
     
                         return;
@@ -771,7 +768,7 @@ namespace WixEdit {
         private void buildWixUninstall_Click(object sender, System.EventArgs e) {
             try {
                 if (wixFiles != null) {
-                    if (wixFiles.OutputFile.Exists) {
+                    if (wixFiles.OutputFile.Exists == false) {
                         MessageBox.Show("Install package doesn't exist. Compile and install the package first.", "Need to compile", MessageBoxButtons.OK, MessageBoxIcon.Information);
     
                         return;

@@ -148,6 +148,10 @@ namespace WixEdit {
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e) {
+            if (Parent == null) {
+                return;
+            }
+
             if (Parent.GetType().Equals(typeof(MainMenu))) {
                 DrawMainMenu(e.Graphics, e.Bounds, e.State);
             } else if (IsSeparator()) {
