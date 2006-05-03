@@ -58,8 +58,23 @@ namespace WixEdit {
 
         XmlDisplayForm xmlDisplayForm = new XmlDisplayForm();
 
-        public SearchPanel(EditorForm editorForm) {
+        Thread currentProcessThread;
+        WixFiles currentWixFiles;
+        string currentSearch;
+        bool isCancelled = false;
+
+        IconMenuItem editMenu;
+        IconMenuItem cancelMenuItem;
+
+        public SearchPanel(EditorForm editorForm, IconMenuItem editMenu) {
             this.editorForm = editorForm;
+            this.editMenu = editMenu;
+
+            cancelMenuItem = new IconMenuItem();
+            cancelMenuItem.Text = "Cancel Find";
+            cancelMenuItem.Click += new EventHandler(cancelMenuItem_Click);
+            cancelMenuItem.Shortcut = Shortcut.CtrlC;
+            cancelMenuItem.ShowShortcut = true;
 
             InitializeComponent();
         }
@@ -89,18 +104,53 @@ namespace WixEdit {
             doubleClickTimer.Tick += new EventHandler(doubleClickTimer_Tick);
         }
 
-        public void Search(WixFiles wixFiles, string search) {
-            Clear();
+        public bool IsBusy {
+            get {
+                if (currentProcessThread == null) {
+                    return false;
+                }
 
-            string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", search.ToLower());
-            string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", search.ToLower());
-            lastNodes = wixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
-            foreach (XmlNode node in lastNodes) {
-                OutputResult(search, node, GetFirstElement(node));
+                return currentProcessThread.IsAlive;
+            }
+        }
+
+        public void Search(WixFiles wixFiles, string search) {
+            if (IsBusy) {
+                throw new Exception("OutputPanel is already busy.");
             }
 
-            Output("--------------------------------", false);
-            Output(String.Format("Found \"{0}\" {1} {2}", search, lastNodes.Count, (lastNodes.Count == 1) ? "time" : "times"), true);
+            isCancelled = false;
+
+            editMenu.MenuItems.Add(cancelMenuItem);
+
+            currentWixFiles = wixFiles;
+            currentSearch = search;
+
+            currentProcessThread = new Thread(new ThreadStart(InternalSearch));
+            currentProcessThread.Start();
+        }
+
+        private void InternalSearch() {
+            Clear();
+
+            string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", currentSearch.ToLower());
+            string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", currentSearch.ToLower());
+            lastNodes = currentWixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
+            foreach (XmlNode node in lastNodes) {
+                if (isCancelled) {
+                    break;
+                }
+                OutputResult(currentSearch, node, GetFirstElement(node));
+            }
+
+            if (isCancelled) {
+                Output("Aborted...", true);
+            } else {
+                Output("--------------------------------", false);
+                Output(String.Format("Found \"{0}\" {1} {2}", currentSearch, lastNodes.Count, (lastNodes.Count == 1) ? "time" : "times"), true);
+            }
+
+            editMenu.MenuItems.Remove(cancelMenuItem);
         }
 
         private XmlElement GetFirstElement(XmlNode node) {
@@ -253,6 +303,14 @@ namespace WixEdit {
         public void Clear() {
             outputTextBox.Text = "";
             lastNodes = null;
+        }
+
+        public void Cancel() {
+            isCancelled = true;
+        }
+
+        private void cancelMenuItem_Click(object sender, System.EventArgs e) {
+            Cancel();
         }
     }
 }

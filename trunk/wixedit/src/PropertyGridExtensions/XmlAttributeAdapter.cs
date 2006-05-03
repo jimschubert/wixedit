@@ -52,7 +52,9 @@ namespace WixEdit.PropertyGridExtensions {
             xmlNodeElement = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", xmlNode.Name), wixFiles.XsdNsmgr);
 
             if (xmlNodeElement == null) {
-                MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (xmlNode.NodeType != XmlNodeType.ProcessingInstruction) {
+                    MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             } else {
                 if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
                     xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
@@ -117,6 +119,10 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
+            if (xmlNodeDefinition == null) {
+                return new PropertyDescriptorCollection(new PropertyDescriptor[] {});
+            }
+
             ArrayList props = new ArrayList();
 
             // Show all existing + required elements

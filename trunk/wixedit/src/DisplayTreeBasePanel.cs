@@ -433,6 +433,10 @@ namespace WixEdit {
             }
 
             foreach (XmlNode child in file.ChildNodes) {
+                if (child.NodeType == XmlNodeType.ProcessingInstruction) {
+                    continue;
+                }
+
                 AddTreeNodesRecursive(child, node.Nodes);
             }
         }
@@ -659,6 +663,10 @@ namespace WixEdit {
             currTreeView.Nodes.Clear();
 
             foreach (XmlNode file in CurrentList) {
+                if (file.NodeType == XmlNodeType.ProcessingInstruction) {
+                    continue;
+                }
+
                 AddTreeNodesRecursive(file, currTreeView.Nodes);
             }
 
