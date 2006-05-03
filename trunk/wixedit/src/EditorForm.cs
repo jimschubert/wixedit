@@ -1040,6 +1040,10 @@ namespace WixEdit {
                 MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             }
 
+            if (wixFiles == null) {
+                return;
+            }
+
             wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
 
             WixEditSettings.Instance.AddRecentlyUsedFile(file);

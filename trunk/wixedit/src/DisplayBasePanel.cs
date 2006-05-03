@@ -250,7 +250,13 @@ namespace WixEdit {
             }
 
             XmlDocument importXml = new XmlDocument();
-            importXml.Load(importFile);
+            try {
+                importXml.Load(importFile);
+            } catch (Exception) {
+                MessageBox.Show("Failed to load xml from file.", "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+
+                return false;
+            }
 
             XmlNodeList itemList =  importXml.SelectNodes(xPath, WixFiles.WxsNsmgr);
             if (itemList.Count > 0) {
@@ -258,8 +264,10 @@ namespace WixEdit {
                     if (item.Attributes[currentKeyName] == null) {
                         continue;
                     }
+
                     string itemName = item.Attributes[currentKeyName].Value;
                     XmlNode importedItem = WixFiles.WxsDocument.ImportNode(item, true);
+
                     InsertNewXmlNode(currentParent, importedItem);
                 }
                 return true;
