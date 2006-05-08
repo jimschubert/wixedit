@@ -196,9 +196,7 @@ namespace WixEdit {
 
             // Get the XmlAttribute from the PropertyDescriptor
             XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            if (desc == null) {
-                isRequired = true;
-            } else {
+            if (desc != null) {
                 XmlAttribute att = desc.Attribute;
                 XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), WixFiles.XsdNsmgr);
 
@@ -255,6 +253,8 @@ namespace WixEdit {
         public virtual void ImportElement_Click(object sender, EventArgs e) {
             if (this.ImportItems(CurrentXPath)){
                 this.LoadData();
+            } else if (CurrentElementName != null && this.ImportItems("//wix:" + CurrentElementName)){
+                this.LoadData();
             }
         }
 
@@ -301,8 +301,6 @@ namespace WixEdit {
             if (newAttributeName == "InnerText") {
                 attAdapter.ShowInnerTextIfEmpty = true;
             } else {
-                // Get the XmlAttribute from the PropertyDescriptor
-                XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
                 XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
     
                 // resetting the CurrentGrid.
@@ -359,8 +357,14 @@ namespace WixEdit {
 
         protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
             // Get the XmlAttribute from the PropertyDescriptor
-            XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            if (desc == null) {
+            XmlNode element = null;
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor is BinaryElementPropertyDescriptor) {
+                BinaryElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
+                element = desc.Attribute;
+            } else if (CurrentGrid.SelectedGridItem.PropertyDescriptor is CustomXmlPropertyDescriptorBase) {
+                CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+                element = desc.XmlElement;
+            } else {
                 string typeString = "null";
                 if (CurrentGrid.SelectedGridItem.PropertyDescriptor != null) {
                     typeString = CurrentGrid.SelectedGridItem.PropertyDescriptor.GetType().ToString();
@@ -368,16 +372,17 @@ namespace WixEdit {
 
                 throw new Exception(String.Format("Expected XmlAttributePropertyDescriptor, but got {0} in OnDeletePropertyGridItem", typeString));
             }
-            XmlAttribute att = desc.Attribute;
+
+            if (element == null) {
+                throw new Exception("No element found to delete!");
+            }
 
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
             CurrentGrid.SelectedObject = null;
 
-            
-            XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), WixFiles.XsdNsmgr);
             WixFiles.UndoManager.BeginNewCommandRange();
-            attAdapter.RemoveProperty(att);
+            attAdapter.RemoveProperty(element);
 
             // Update the CurrentGrid.
             CurrentGrid.SelectedObject = attAdapter;
@@ -752,12 +757,17 @@ namespace WixEdit {
         }
 
         private void DeleteElement_Click(object sender, System.EventArgs e) {
-            WixFiles.UndoManager.BeginNewCommandRange();
+            if (currTreeView.SelectedNode == null) {
+                return;
+            }
 
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
             }
+
+            WixFiles.UndoManager.BeginNewCommandRange();
+
             node.ParentNode.RemoveChild(node);
             currTreeView.Nodes.Remove(currTreeView.SelectedNode);
             if (currTreeView.SelectedNode == null) {

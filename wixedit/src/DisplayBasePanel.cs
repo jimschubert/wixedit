@@ -257,6 +257,10 @@ namespace WixEdit {
 
                 return false;
             }
+            
+            // We have to set the Wix namespace 
+            importXml.DocumentElement.SetAttribute("xmlns", WixFiles.WixNamespaceUri);
+            importXml.LoadXml(importXml.OuterXml);
 
             XmlNodeList itemList =  importXml.SelectNodes(xPath, WixFiles.WxsNsmgr);
             if (itemList.Count > 0) {

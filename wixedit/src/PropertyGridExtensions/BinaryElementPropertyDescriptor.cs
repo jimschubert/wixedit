@@ -50,6 +50,12 @@ namespace WixEdit.PropertyGridExtensions {
             }
         }
 
+        public XmlAttribute Attribute {
+            get {
+                return XmlElement.Attributes[attributeName];
+            }
+        }
+
         public override object GetValue(object component) {
             return XmlElement.Attributes[attributeName].Value;
         }
@@ -58,20 +64,19 @@ namespace WixEdit.PropertyGridExtensions {
             wixFiles.UndoManager.BeginNewCommandRange();
 
             if (value == null) {
-                XmlElement.Attributes[attributeName].Value = String.Empty;
+                Attribute.Value = String.Empty;
             } else {
-
                 string sepCharString = Path.DirectorySeparatorChar.ToString();
                 string path = value.ToString();
 
                 if (File.Exists(Path.GetFullPath(path)) == false) {
                     MessageBox.Show(String.Format("{0} could not be located", path), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    XmlElement.Attributes[attributeName].Value = path;
+                    Attribute.Value = path;
                 } else {
                   if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
-                      XmlElement.Attributes[attributeName].Value = Path.GetFullPath(path);
+                      Attribute.Value = Path.GetFullPath(path);
                   } else {
-                      XmlElement.Attributes[attributeName].Value = PathHelper.GetRelativePath(value as string, wixFiles);
+                      Attribute.Value = PathHelper.GetRelativePath(value as string, wixFiles);
                   }
                 }
             }
