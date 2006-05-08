@@ -47,9 +47,7 @@ namespace WixEdit {
         
         private DesignerForm currentDialog;
         private TreeView dialogTreeView;
-        private PropertyGrid propertyGrid;
         private ContextMenu wxsDialogsContextMenu;
-        private ContextMenu propertyGridContextMenu;
         private ContextMenu dialogTreeViewContextMenu;
         private ListView wxsDialogs;
         private Splitter splitter1;
@@ -118,6 +116,9 @@ namespace WixEdit {
 
         #region Initialize Controls
         private void InitializeComponent() {
+            PropertyGrid propertyGrid;
+            ContextMenu propertyGridContextMenu;
+        
             viewMenu = new IconMenuItem();
             Opacity100 = new IconMenuItem();
             Opacity75 = new IconMenuItem();
@@ -343,6 +344,10 @@ namespace WixEdit {
             wxsDialogs.HeaderStyle = ColumnHeaderStyle.None;
             wxsDialogs.Resize += new EventHandler(OnResizeWxsDialogs);
 
+            
+            CurrentGrid = propertyGrid;
+            CurrentGridContextMenu = propertyGridContextMenu;
+
             LoadData();
         }
 
@@ -368,7 +373,7 @@ namespace WixEdit {
         public override void ReloadData() {
             ShowWixDialog(null);
             dialogTreeView.Nodes.Clear();
-            propertyGrid.SelectedObject = null;
+            CurrentGrid.SelectedObject = null;
 
             LoadData();
         }
@@ -440,10 +445,10 @@ namespace WixEdit {
             }
 
             if (attNode is XmlAttribute) {
-                if (propertyGrid.SelectedGridItem != null && propertyGrid.SelectedGridItem.Parent != null) {
-                    foreach (GridItem item in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                if (CurrentGrid.SelectedGridItem != null && CurrentGrid.SelectedGridItem.Parent != null) {
+                    foreach (GridItem item in CurrentGrid.SelectedGridItem.Parent.GridItems) {
                         if (attNode.Name == item.Label) {
-                            propertyGrid.SelectedGridItem = item;
+                            CurrentGrid.SelectedGridItem = item;
                             break;
                         }
                     }
@@ -547,30 +552,63 @@ namespace WixEdit {
         }
 
         public void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
-            if (propertyGrid.SelectedObject == null) {
+            if (CurrentGrid.SelectedObject == null) {
                 return;
             }
+
+            
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;          
+
+            // Need to change "Delete" to "Clear" for required items.
+            bool isRequired = false;
+
+            // Get the XmlAttribute from the PropertyDescriptor
+            XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            if (desc != null) {
+                XmlAttribute att = desc.Attribute;
+                XmlNode xmlAttributeDefinition = attAdapter.XmlNodeDefinition.SelectSingleNode(String.Format("xs:attribute[@name='{0}']", att.Name), WixFiles.XsdNsmgr);
+
+                if (xmlAttributeDefinition.Attributes["use"] != null &&
+                    xmlAttributeDefinition.Attributes["use"].Value == "required") {
+                    isRequired = true;
+                }
+            }
+
+
 
             MenuItem menuItemSeparator = new IconMenuItem("-");
 
             // Define the MenuItem objects to display for the TextBox.
             MenuItem menuItem1 = new IconMenuItem("&New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             MenuItem menuItem3 = new IconMenuItem("Description");
             
-            menuItem3.Checked = propertyGrid.HelpVisible;
+            menuItem3.Checked = CurrentGrid.HelpVisible;
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
-            menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
             menuItem3.Click += new EventHandler(OnToggleDescriptionPropertyGrid);
         
             // Clear all previously added MenuItems.
-            propertyGridContextMenu.MenuItems.Clear();
+            CurrentGridContextMenu.MenuItems.Clear();
 
-            propertyGridContextMenu.MenuItems.Add(menuItem1);
-            propertyGridContextMenu.MenuItems.Add(menuItem2);
-            propertyGridContextMenu.MenuItems.Add(menuItemSeparator);
-            propertyGridContextMenu.MenuItems.Add(menuItem3);
+            CurrentGridContextMenu.MenuItems.Add(menuItem1);
+
+            
+            MenuItem menuItem2 = null;
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor != null &&
+                !(CurrentGrid.SelectedGridItem.PropertyDescriptor is InnerTextPropertyDescriptor)) {
+                if (isRequired) {
+                    menuItem2 = new IconMenuItem("&Clear", new Bitmap(WixFiles.GetResourceStream("bmp.clear.bmp")));
+                } else {
+                    menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+                }
+                menuItem2.Click += new EventHandler(OnDeletePropertyGridItem);
+            
+                CurrentGridContextMenu.MenuItems.Add(menuItem2);
+            }
+
+            CurrentGridContextMenu.MenuItems.Add(menuItemSeparator);
+            CurrentGridContextMenu.MenuItems.Add(menuItem3);
+
         }
 
         public void SetDefaultValues(XmlNode node) {
@@ -706,6 +744,10 @@ namespace WixEdit {
             XmlDocument importXml = new XmlDocument();
             importXml.Load(ofd.FileName);
 
+            // We have to set the Wix namespace 
+            importXml.DocumentElement.SetAttribute("xmlns", WixFiles.WixNamespaceUri);
+            importXml.LoadXml(importXml.OuterXml);
+
             XmlNodeList dialogList =  importXml.SelectNodes("//wix:Dialog", WixFiles.WxsNsmgr);
             if (dialogList.Count > 0) {
                 WixFiles.UndoManager.BeginNewCommandRange();
@@ -775,7 +817,7 @@ namespace WixEdit {
 
         public void OnNewPropertyGridItem(object sender, EventArgs e) {
             // Temporarily store the XmlAttributeAdapter
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
 
             ArrayList attributes = new ArrayList();
 
@@ -789,7 +831,7 @@ namespace WixEdit {
 
             if (attAdapter.XmlNodeDefinition.Name == "xs:extension") {
                 bool hasInnerText = false;
-                foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
+                foreach (GridItem it in CurrentGrid.SelectedGridItem.Parent.GridItems) {
                     if (it.Label == "InnerText") {
                         hasInnerText = true;
                         break;
@@ -815,49 +857,49 @@ namespace WixEdit {
                 WixFiles.UndoManager.BeginNewCommandRange();
 
                 // Get the XmlAttribute from the PropertyDescriptor
-                XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+                XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
                 XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
     
                 // resetting the propertyGrid.
-                propertyGrid.SelectedObject = null;
+                CurrentGrid.SelectedObject = null;
     
                 // Add the attribute
                 attAdapter.XmlNode.Attributes.Append(att);
             }
 
             // Update the propertyGrid.
-            propertyGrid.SelectedObject = attAdapter;
-            propertyGrid.Update();
+            CurrentGrid.SelectedObject = attAdapter;
+            CurrentGrid.Update();
 
-            foreach (GridItem it in propertyGrid.SelectedGridItem.Parent.GridItems) {
+            foreach (GridItem it in CurrentGrid.SelectedGridItem.Parent.GridItems) {
                 if (it.Label == newAttributeName) {
-                    propertyGrid.SelectedGridItem = it;
+                    CurrentGrid.SelectedGridItem = it;
                     break;
                 }
             }
         }
 
         public void OnToggleDescriptionPropertyGrid(object sender, EventArgs e) {
-            propertyGrid.HelpVisible = !propertyGrid.HelpVisible;
+            CurrentGrid.HelpVisible = !CurrentGrid.HelpVisible;
         }
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
             WixFiles.UndoManager.BeginNewCommandRange();
 
             // Get the XmlAttribute from the PropertyDescriptor
-            XmlAttributePropertyDescriptor desc = propertyGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+            XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
             XmlAttribute att = desc.Attribute;
 
-            // Temporarily store the XmlAttributeAdapter, while resetting the propertyGrid.
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
-            propertyGrid.SelectedObject = null;
+            // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
+            CurrentGrid.SelectedObject = null;
 
             // Remove the attribute
             attAdapter.XmlNode.Attributes.Remove(att);
 
-            // Update the propertyGrid.
-            propertyGrid.SelectedObject = attAdapter;
-            propertyGrid.Update();
+            // Update the CurrentGrid.
+            CurrentGrid.SelectedObject = attAdapter;
+            CurrentGrid.Update();
         }
 
         int prevSelectedIndex = -1;
@@ -1019,9 +1061,9 @@ namespace WixEdit {
                 attAdapter = new XmlAttributeAdapter(xmlNode, WixFiles);
             }
 
-            propertyGrid.SelectedObject = null;
-            propertyGrid.SelectedObject = attAdapter;
-            propertyGrid.Update();
+            CurrentGrid.SelectedObject = null;
+            CurrentGrid.SelectedObject = attAdapter;
+            CurrentGrid.Update();
 
             return;
         }
@@ -1078,7 +1120,7 @@ namespace WixEdit {
                 dialogTreeViewContextMenu.MenuItems.Add(deleteCurrentElementMenu);
             }
 
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
 
             XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
             if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
@@ -1196,7 +1238,7 @@ namespace WixEdit {
             XmlNode xmlNode = (XmlNode) dialogTreeView.SelectedNode.Tag;
 
             XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) propertyGrid.SelectedObject;
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
 
             string title = String.Format("Info about '{0}' element", xmlNode.Name);            
             string message = docManager.GetDocumentation(attAdapter.XmlNodeDefinition);

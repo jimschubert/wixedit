@@ -145,6 +145,8 @@ namespace WixEdit {
         public virtual void OnImportPropertyGridItem(object sender, EventArgs e) {
             if (this.ImportItems(CurrentXPath)){
                 this.RefreshGrid();
+            } else if (CurrentElementName != null && this.ImportItems("//wix:" + CurrentElementName)){
+                this.RefreshGrid();
             }
         }
 
