@@ -182,15 +182,17 @@ namespace WixEdit {
         }
 
         public void OnDeletePropertyGridItem(object sender, EventArgs e) {
-            XmlNode element = GetSelectedPropertyDescriptor();
+            PropertyAdapterBase adapter = CurrentGrid.SelectedObject as PropertyAdapterBase;
+            
+            XmlNode element = GetSelectedGridObject();
             if (element != null){
-                element.ParentNode.RemoveChild(element);
+                adapter.RemoveProperty(element);
                 RefreshGrid(string.Empty);
             }
         }
 
         public virtual void OnRenamePropertyGridItem(object sender, EventArgs e) {
-            XmlNode element = GetSelectedPropertyDescriptor();
+            XmlNode element = GetSelectedGridObject();
             if (element != null){
                 EnterStringForm frm = new EnterStringForm(element.Attributes[CurrentKeyName].Value);
                 frm.Text = "Enter Binary Name";
@@ -260,8 +262,13 @@ namespace WixEdit {
             CurrentGrid.Update();
         }
 
+        protected virtual XmlNode GetSelectedGridObject() {
+            CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+            return desc.XmlElement;
+        }
+
         protected abstract object GetPropertyAdapter();
-        protected abstract XmlNode GetSelectedPropertyDescriptor();
+
         private delegate void ReloadHandler();
         private event ReloadHandler Reload;
     }

@@ -54,11 +54,6 @@ namespace WixEdit {
             }
         }
 
-        protected override XmlNode GetSelectedPropertyDescriptor(){
-            PropertyElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as PropertyElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-
         protected override object GetPropertyAdapter(){
             return new PropertyElementAdapter(CurrentList, WixFiles);
         }

@@ -47,11 +47,6 @@ namespace WixEdit {
             CurrentParent = ElementLocator.GetUIElement(WixFiles);
         }
 
-        protected override XmlNode GetSelectedPropertyDescriptor(){
-            ErrorElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as ErrorElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-
         protected override object GetPropertyAdapter(){
             return new ErrorElementAdapter(CurrentList, WixFiles);
         }
@@ -82,7 +77,7 @@ namespace WixEdit {
         }
 
         public override void OnRenamePropertyGridItem(object sender, EventArgs e) {
-            XmlNode element = GetSelectedPropertyDescriptor();
+            XmlNode element = GetSelectedGridObject();
             if (element != null){
                 EnterIntegerForm frm = new EnterIntegerForm(element.Attributes[CurrentKeyName].Value);
                 frm.Text = "Enter Error Number";

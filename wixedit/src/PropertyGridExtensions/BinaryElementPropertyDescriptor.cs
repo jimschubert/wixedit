@@ -31,33 +31,38 @@ namespace WixEdit.PropertyGridExtensions {
     /// PropertyDescriptor for BinaryElements. The binary element requires a attribute for the value.
     /// </summary>
     public class BinaryElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
-        string attributeName;
         public BinaryElementPropertyDescriptor(XmlNode binaryElement, WixFiles wixFiles, string name, Attribute[] attrs) :
-            base(wixFiles, binaryElement, name, attrs) {
-            if (XmlElement.Attributes["src"] != null) {
-                attributeName = "src";
-            } else if (XmlElement.Attributes["Source"] != null) {
-                attributeName = "Source";
-            } else if (XmlElement.Attributes["SourceFile"] != null) {
-                attributeName = "SourceFile";
-            } else if (XmlElement.Attributes["FileSource"] != null) {
-                attributeName = "FileSource";
-            } else if (XmlElement.Attributes["Layout"] != null) {
-                attributeName = "Layout";
+            base(wixFiles, /*binaryElement*/binaryElement.Attributes[GetAttributeName(binaryElement)], name, attrs) {
+        }
+
+        private static string GetAttributeName(XmlNode binaryElement) {
+            string name = null;
+            if (binaryElement.Attributes["src"] != null) {
+                name = "src";
+            } else if (binaryElement.Attributes["Source"] != null) {
+                name = "Source";
+            } else if (binaryElement.Attributes["SourceFile"] != null) {
+                name = "SourceFile";
+            } else if (binaryElement.Attributes["FileSource"] != null) {
+                name = "FileSource";
+            } else if (binaryElement.Attributes["Layout"] != null) {
+                name = "Layout";
             } else {
                 MessageBox.Show("Expecting Source, SourceFile, FileSource or Layout attribute...");
                 throw new Exception("Expecting Source, SourceFile, FileSource or Layout attribute...");
             }
+
+            return name;
         }
 
         public XmlAttribute Attribute {
             get {
-                return XmlElement.Attributes[attributeName];
+                return XmlElement as XmlAttribute;
             }
         }
 
         public override object GetValue(object component) {
-            return XmlElement.Attributes[attributeName].Value;
+            return XmlElement.Value;
         }
 
         public override void SetValue(object component, object value) {

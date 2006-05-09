@@ -50,8 +50,14 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void RemoveProperty(XmlNode xmlElement) {
-            binaryNodes.Remove(xmlElement);
-            xmlElement.ParentNode.RemoveChild(xmlElement);
+            XmlNode theElement = xmlElement;
+            if (xmlElement is XmlAttribute) {
+                XmlAttribute xmlAttribute = xmlElement as XmlAttribute;
+                theElement = xmlAttribute.OwnerElement;
+            }
+
+            binaryNodes.Remove(theElement);
+            theElement.ParentNode.RemoveChild(theElement);
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {

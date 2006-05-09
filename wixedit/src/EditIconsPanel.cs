@@ -52,12 +52,7 @@ namespace WixEdit {
 
             throw new ApplicationException("WiX xsd should define src or SourceFile attribute on Icon element");
         }
-        
-        protected override XmlNode GetSelectedPropertyDescriptor() {
-            BinaryElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-        
+                
         protected override object GetPropertyAdapter() {
             return new BinaryElementAdapter(CurrentList, WixFiles);
         }

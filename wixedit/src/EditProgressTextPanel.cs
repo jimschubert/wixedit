@@ -47,12 +47,7 @@ namespace WixEdit {
         protected override void AssignParentNode() {
             CurrentParent = ElementLocator.GetUIElement(WixFiles);
         }
-        
-        protected override XmlNode GetSelectedPropertyDescriptor(){
-            ProgressTextElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as ProgressTextElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-        
+                
         protected override object GetPropertyAdapter(){
             return new ProgressTextElementAdapter(CurrentList, WixFiles);
         }
