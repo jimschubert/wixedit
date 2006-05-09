@@ -48,11 +48,6 @@ namespace WixEdit {
             CurrentParent = ElementLocator.GetUIElement(WixFiles);
         }
 
-        protected override XmlNode GetSelectedPropertyDescriptor(){
-            UITextElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as UITextElementPropertyDescriptor;
-            return desc.XmlElement;
-        }
-
         protected override object GetPropertyAdapter(){
             return new UITextElementAdapter(CurrentList, WixFiles);
         }

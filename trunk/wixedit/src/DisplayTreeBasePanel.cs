@@ -355,13 +355,10 @@ namespace WixEdit {
             }
         }
 
-        protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
+        protected XmlNode GetSelectedProperty() {
             // Get the XmlAttribute from the PropertyDescriptor
             XmlNode element = null;
-            if (CurrentGrid.SelectedGridItem.PropertyDescriptor is BinaryElementPropertyDescriptor) {
-                BinaryElementPropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as BinaryElementPropertyDescriptor;
-                element = desc.Attribute;
-            } else if (CurrentGrid.SelectedGridItem.PropertyDescriptor is CustomXmlPropertyDescriptorBase) {
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor is CustomXmlPropertyDescriptorBase) {
                 CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
                 element = desc.XmlElement;
             } else {
@@ -377,8 +374,14 @@ namespace WixEdit {
                 throw new Exception("No element found to delete!");
             }
 
+            return element;
+        }
+
+        protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
+            XmlNode element = GetSelectedProperty();
+            
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
+            PropertyAdapterBase attAdapter = (PropertyAdapterBase) CurrentGrid.SelectedObject;
             CurrentGrid.SelectedObject = null;
 
             WixFiles.UndoManager.BeginNewCommandRange();
