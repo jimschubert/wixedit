@@ -57,7 +57,7 @@ namespace WixEdit {
 
             if (DialogResult.OK == frm.ShowDialog()) {
                 if (CurrentParent == null) {
-                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+                    MessageBox.Show(String.Format("No location found to add \"{0}\" element, need parent element!", CurrentElementName));
                     return;
                 }
 
