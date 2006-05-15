@@ -98,17 +98,19 @@ namespace WixEdit {
         }
 
         private void outputTextBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
-            // This is the first mouse click.
-            if (isFirstClick) {
-                isFirstClick = false;
+            if (e.Button == MouseButtons.Left) {
+                // This is the first mouse click.
+                if (isFirstClick) {
+                    isFirstClick = false;
 
-                // Start the double click timer.
-                doubleClickTimer.Start();
-            } else { // This is the second mouse click.
-                // Verify that the mouse click is within the double click rectangle and 
-                // is within the system-defined double click period.
-                if (milliseconds < SystemInformation.DoubleClickTime) {
-                    OpenLine(e.X, e.Y);
+                    // Start the double click timer.
+                    doubleClickTimer.Start();
+                } else { // This is the second mouse click.
+                    // Verify that the mouse click is within the double click rectangle and 
+                    // is within the system-defined double click period.
+                    if (milliseconds < SystemInformation.DoubleClickTime) {
+                        OpenLine(e.X, e.Y);
+                    }
                 }
             }
         }
@@ -284,6 +286,7 @@ namespace WixEdit {
             isCancelled = false;
 
             buildMenu.MenuItems.Add(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.WaitCursor;
 
             currentProcessStartInfos = processStartInfos;
 
@@ -332,6 +335,7 @@ namespace WixEdit {
             }
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.IBeam;
         }
         
         public void Run(ProcessStartInfo processStartInfo) {
@@ -342,6 +346,7 @@ namespace WixEdit {
             isCancelled = false;
 
             buildMenu.MenuItems.Add(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.WaitCursor;
 
             currentProcessStartInfo = processStartInfo;
 
@@ -367,6 +372,7 @@ namespace WixEdit {
             }
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.IBeam;
         }
 
         public void RunWithLogFile(ProcessStartInfo processStartInfo, string logFile) {
@@ -377,6 +383,7 @@ namespace WixEdit {
             isCancelled = false;
 
             buildMenu.MenuItems.Add(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.WaitCursor;
 
             currentProcessStartInfo = processStartInfo;
             currentLogFile = logFile;
@@ -407,6 +414,7 @@ namespace WixEdit {
             }
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.IBeam;
         }
 
         private void ReadLogFile(string logFile) {

@@ -195,7 +195,7 @@ namespace WixEdit {
             XmlNode element = GetSelectedGridObject();
             if (element != null){
                 EnterStringForm frm = new EnterStringForm(element.Attributes[CurrentKeyName].Value);
-                frm.Text = "Enter Binary Name";
+                frm.Text = "Enter Name";
                 if (DialogResult.OK == frm.ShowDialog()) {    
                     WixFiles.UndoManager.BeginNewCommandRange();  
                     element.Attributes[CurrentKeyName].Value = frm.SelectedString;
@@ -215,7 +215,7 @@ namespace WixEdit {
         }
 
         public override void ShowNode(XmlNode node) {
-            CurrentGrid.SelectedObject =  new BinaryElementAdapter(CurrentList, WixFiles);
+            CurrentGrid.SelectedObject =  GetPropertyAdapter();
 
             if (CurrentGrid.SelectedGridItem != null && CurrentGrid.SelectedGridItem.Parent != null) {
                 string val = null;

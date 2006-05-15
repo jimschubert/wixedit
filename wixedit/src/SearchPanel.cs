@@ -122,6 +122,7 @@ namespace WixEdit {
             isCancelled = false;
 
             editMenu.MenuItems.Add(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.WaitCursor;
 
             currentWixFiles = wixFiles;
             currentSearch = search;
@@ -130,27 +131,57 @@ namespace WixEdit {
             currentProcessThread.Start();
         }
 
+        /// <summary>
+        /// Escaping for something like:
+        /// <code>What's "Foo Bar Baz"</code>
+        /// So that would become
+        /// <code>concat('', 'What', "'", 's "Foo Bar Baz")</code>
+        /// suitable for a xpath query.
+        /// </summary>
+        /// <param name="input">Raw search string</param>
+        /// <returns>With concat constructed search string</returns>
+        public string BuildXPathSearchString (string input) {
+            string[] components = input.Split('\'');
+
+            StringBuilder result = new StringBuilder();
+            result.Append("concat(''");
+            for (int i = 0; i < components.Length; i++) {
+                result.AppendFormat(", '{0}'", components[i]);
+                if (i < components.Length - 1) {
+                    result.Append(", \"'\"");
+                }
+            }
+            result.Append(")");
+            
+            return result.ToString();
+        }
+
         private void InternalSearch() {
             Clear();
 
-            string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", currentSearch.ToLower());
-            string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{0}')]", currentSearch.ToLower());
-            lastNodes = currentWixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
-            foreach (XmlNode node in lastNodes) {
-                if (isCancelled) {
-                    break;
+            try {
+                string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", BuildXPathSearchString(currentSearch.ToLower()));
+                string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", BuildXPathSearchString(currentSearch.ToLower()));
+                lastNodes = currentWixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
+                foreach (XmlNode node in lastNodes) {
+                    if (isCancelled) {
+                        break;
+                    }
+                    OutputResult(currentSearch, node, GetFirstElement(node));
                 }
-                OutputResult(currentSearch, node, GetFirstElement(node));
-            }
 
-            if (isCancelled) {
-                Output("Aborted...", true);
-            } else {
-                Output("--------------------------------", false);
-                Output(String.Format("Found \"{0}\" {1} {2}", currentSearch, lastNodes.Count, (lastNodes.Count == 1) ? "time" : "times"), true);
+                if (isCancelled) {
+                    Output("Aborted...", true);
+                } else {
+                    Output("--------------------------------", false);
+                    Output(String.Format("Found \"{0}\" {1} {2}", currentSearch, lastNodes.Count, (lastNodes.Count == 1) ? "time" : "times"), true);
+                }
+            } catch (Exception ex) {
+                Output(ex.ToString(), true);
             }
 
             editMenu.MenuItems.Remove(cancelMenuItem);
+            outputTextBox.Cursor = Cursors.IBeam;
         }
 
         private XmlElement GetFirstElement(XmlNode node) {
@@ -196,18 +227,20 @@ namespace WixEdit {
         }
 
         private void outputTextBox_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
-            // This is the first mouse click.
-            if (isFirstClick) {
-                isFirstClick = false;
+            if (e.Button == MouseButtons.Left) {
+                // This is the first mouse click.
+                if (isFirstClick) {
+                    isFirstClick = false;
 
-                // Start the double click timer.
-                doubleClickTimer.Start();
-            } else { // This is the second mouse click.
-                // Verify that the mouse click is within the double click
-                // rectangle and is within the system-defined double 
-                // click period.
-                if (milliseconds < SystemInformation.DoubleClickTime) {
-                    OpenLine(e.X, e.Y);
+                    // Start the double click timer.
+                    doubleClickTimer.Start();
+                } else { // This is the second mouse click.
+                    // Verify that the mouse click is within the double click
+                    // rectangle and is within the system-defined double 
+                    // click period.
+                    if (milliseconds < SystemInformation.DoubleClickTime) {
+                        OpenLine(e.X, e.Y);
+                    }
                 }
             }
         }
