@@ -26,11 +26,26 @@ using System.Windows.Forms;
 
 namespace WixEdit.Controls {
     public class OutputTextbox : RichTextBox {
+        ContextMenu contextMenu;
+        IconMenuItem copyMenuItem;
+        IconMenuItem selectAllMenuItem;
+
         public OutputTextbox() : base() {
             SetStyle(ControlStyles.StandardClick, true);
             this.ReadOnly = true;
             this.HideSelection = false;
             this.DetectUrls = false;
+
+            copyMenuItem = new IconMenuItem("&Copy");
+            copyMenuItem.Click += new EventHandler(copyMenuItem_Click);
+
+            selectAllMenuItem = new IconMenuItem("Select &All");
+            selectAllMenuItem.Click += new EventHandler(selectAllMenuItem_Click);
+
+            contextMenu = new ContextMenu(new IconMenuItem[] { copyMenuItem, selectAllMenuItem });
+            contextMenu.Popup += new EventHandler(contextMenu_Popup);
+
+            this.ContextMenu = contextMenu;
         }
     
     
@@ -92,6 +107,19 @@ namespace WixEdit.Controls {
     
                 SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, ref Format);
             }
+        }
+
+        private void copyMenuItem_Click(object sender, EventArgs e) {
+            Copy();
+        }
+
+        private void selectAllMenuItem_Click(object sender, EventArgs e) {
+            SelectAll();
+        }
+
+        private void contextMenu_Popup(object sender, EventArgs e) {
+            this.copyMenuItem.Enabled = (this.SelectedText.Length > 0);
+            this.selectAllMenuItem.Enabled = (this.TextLength > 0);
         }
     }
 }
