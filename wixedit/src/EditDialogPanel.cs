@@ -887,15 +887,15 @@ namespace WixEdit {
             WixFiles.UndoManager.BeginNewCommandRange();
 
             // Get the XmlAttribute from the PropertyDescriptor
-            XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-            XmlAttribute att = desc.Attribute;
+            CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+            XmlNode att = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
+            PropertyAdapterBase attAdapter = (PropertyAdapterBase) CurrentGrid.SelectedObject;
             CurrentGrid.SelectedObject = null;
 
-            // Remove the attribute
-            attAdapter.XmlNode.Attributes.Remove(att);
+            // Remove the prop
+            attAdapter.RemoveProperty(att);
 
             // Update the CurrentGrid.
             CurrentGrid.SelectedObject = attAdapter;

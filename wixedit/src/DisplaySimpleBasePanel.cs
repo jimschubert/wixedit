@@ -186,6 +186,8 @@ namespace WixEdit {
             
             XmlNode element = GetSelectedGridObject();
             if (element != null){
+                WixFiles.UndoManager.BeginNewCommandRange();  
+
                 adapter.RemoveProperty(element);
                 RefreshGrid(string.Empty);
             }
@@ -194,12 +196,20 @@ namespace WixEdit {
         public virtual void OnRenamePropertyGridItem(object sender, EventArgs e) {
             XmlNode element = GetSelectedGridObject();
             if (element != null){
-                EnterStringForm frm = new EnterStringForm(element.Attributes[CurrentKeyName].Value);
+                XmlAttribute att = null;
+                if (element is XmlAttribute) {
+                    att = element as XmlAttribute;
+                } else {
+                    att = element.Attributes[CurrentKeyName];
+                }
+                EnterStringForm frm = new EnterStringForm(att.Value);
                 frm.Text = "Enter Name";
                 if (DialogResult.OK == frm.ShowDialog()) {    
                     WixFiles.UndoManager.BeginNewCommandRange();  
-                    element.Attributes[CurrentKeyName].Value = frm.SelectedString;
+                    att.Value = frm.SelectedString;
                     RefreshGrid();
+
+                    ShowNode(att);
                 }
             }
         }
@@ -219,10 +229,9 @@ namespace WixEdit {
 
             if (CurrentGrid.SelectedGridItem != null && CurrentGrid.SelectedGridItem.Parent != null) {
                 string val = null;
-                if (node is XmlAttribute) {
-                    val = node.Value;
-                } else if(node.Attributes[CurrentKeyName] != null) {
-                    val = node.Attributes[CurrentKeyName].Value;
+                XmlNode showable = GetShowableNode(node);
+                if(showable.Attributes[CurrentKeyName] != null) {
+                    val = showable.Attributes[CurrentKeyName].Value;
                 }
                 foreach (GridItem item in CurrentGrid.SelectedGridItem.Parent.GridItems) {
                     if (val != null && val == item.Label) {
@@ -232,6 +241,18 @@ namespace WixEdit {
                 }
             }
         }
+
+        public override XmlNode GetShowingNode() {
+            XmlNodeList properties = WixFiles.WxsDocument.SelectNodes(currentXPath, WixFiles.WxsNsmgr);
+            foreach (XmlNode item in properties) {
+                if (item.Attributes[CurrentKeyName].Value == currentGrid.SelectedGridItem.Label) {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
 
         public override void ReloadData() {
             CurrentGrid.SelectedObject = null;

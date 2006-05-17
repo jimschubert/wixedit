@@ -169,6 +169,23 @@ namespace WixEdit {
             }
         }
 
+        public override XmlNode GetShowingNode() {
+            if (currentGrid.SelectedGridItem != null) {
+                CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+                if (desc.XmlElement is XmlAttribute) {
+                    return desc.XmlElement;
+                } else if (desc.XmlElement.Attributes[currentGrid.SelectedGridItem.Label] != null) {
+                    return desc.XmlElement.Attributes[currentGrid.SelectedGridItem.Label];
+                } else {
+                    return desc.XmlElement;
+                }
+            } else if (currTreeView.SelectedNode != null) {
+                return (XmlNode) currTreeView.SelectedNode.Tag;
+            }
+
+            return null;
+        }
+
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
             if (currTreeView.SelectedNode == null) {
                 return;
@@ -358,7 +375,10 @@ namespace WixEdit {
         protected XmlNode GetSelectedProperty() {
             // Get the XmlAttribute from the PropertyDescriptor
             XmlNode element = null;
-            if (CurrentGrid.SelectedGridItem.PropertyDescriptor is CustomXmlPropertyDescriptorBase) {
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor is XmlAttributePropertyDescriptor) {
+                XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
+                element = desc.Attribute;
+            } else if (CurrentGrid.SelectedGridItem.PropertyDescriptor is CustomXmlPropertyDescriptorBase) {
                 CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
                 element = desc.XmlElement;
             } else {
@@ -370,16 +390,15 @@ namespace WixEdit {
                 throw new Exception(String.Format("Expected XmlAttributePropertyDescriptor, but got {0} in OnDeletePropertyGridItem", typeString));
             }
 
-            if (element == null) {
-                throw new Exception("No element found to delete!");
-            }
-
             return element;
         }
 
         protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
             XmlNode element = GetSelectedProperty();
-            
+            if (element == null) {
+                throw new Exception("No element found to delete!");
+            }
+
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
             PropertyAdapterBase attAdapter = (PropertyAdapterBase) CurrentGrid.SelectedObject;
             CurrentGrid.SelectedObject = null;

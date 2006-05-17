@@ -28,13 +28,11 @@ using WixEdit.Settings;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// PropertyDescriptor for BinaryElements. The binary element requires a attribute for the value.
+    /// PropertyDescriptor for attributes which can be browsed.
     /// </summary>
-    public class BinaryElementPropertyDescriptor : CustomXmlPropertyDescriptorBase {
-        string attributeName;
-        public BinaryElementPropertyDescriptor(XmlNode binaryElement, WixFiles wixFiles, string name, Attribute[] attrs) :
-            base(wixFiles, binaryElement, name, attrs) {
-            attributeName = GetAttributeName(binaryElement);
+    public class FileXmlAttributePropertyDescriptor : XmlAttributePropertyDescriptor {
+        public FileXmlAttributePropertyDescriptor(XmlNode element, WixFiles wixFiles, XmlNode description, string name, Attribute[] attrs) :
+            base(wixFiles, element.Attributes[GetAttributeName(element)], description, name, attrs) {
         }
 
         private static string GetAttributeName(XmlNode binaryElement) {
@@ -57,17 +55,6 @@ namespace WixEdit.PropertyGridExtensions {
             return name;
         }
 
-        public XmlAttribute Attribute {
-            get {
-                //return XmlElement as XmlAttribute;
-                return XmlElement.Attributes[attributeName];
-            }
-        }
-
-        public override object GetValue(object component) {
-            return Attribute.Value;
-        }
-
         public override void SetValue(object component, object value) {
             wixFiles.UndoManager.BeginNewCommandRange();
 
@@ -81,17 +68,13 @@ namespace WixEdit.PropertyGridExtensions {
                     MessageBox.Show(String.Format("{0} could not be located", path), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Attribute.Value = path;
                 } else {
-                  if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
-                      Attribute.Value = Path.GetFullPath(path);
-                  } else {
-                      Attribute.Value = PathHelper.GetRelativePath(value as string, wixFiles);
-                  }
+                    if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceAbolutePaths) {
+                        Attribute.Value = Path.GetFullPath(path);
+                    } else {
+                        Attribute.Value = PathHelper.GetRelativePath(value as string, wixFiles);
+                    }
                 }
             }
-        }
-
-        public override bool CanResetValue(object component) {
-            return (GetValue(component).Equals("") == false);
         }
     }
 }

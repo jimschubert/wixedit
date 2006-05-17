@@ -42,12 +42,12 @@ namespace WixEdit.Import {
         public void Import(TreeNode treeNode) {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-            newElement.SetAttribute("Id", GenerateValidFileId(fileInfo.Name));
-            newElement.SetAttribute("LongName", fileInfo.Name);
-            newElement.SetAttribute("Name", PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement));
+            newElement.SetAttribute("Id", GenerateValidIdentifier(fileInfo.Name));
+            newElement.SetAttribute("LongName", GenerateValidLongName(fileInfo.Name));
+            newElement.SetAttribute("Name", GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement)));
             newElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
-            TreeNode newNode = new TreeNode(fileInfo.Name);
+            TreeNode newNode = new TreeNode(newElement.GetAttribute("LongName"));
             newNode.Tag = newElement;
             
             int imageIndex = ImageListFactory.GetImageIndex("File");
@@ -70,9 +70,10 @@ namespace WixEdit.Import {
         /// Identifier's may contain ASCII characters A-Z, a-z, digits, underscores (_), 
         /// or periods (.). Every identifier must begin with either a letter or an underscore.
         /// </summary>
+        /// <remarks>http://msdn.microsoft.com/library/en-us/msi/setup/identifier.asp</remarks>
         /// <param name="filename">Name of file to generate Id from</param>
         /// <returns>A valid Id.</returns>
-        public static string GenerateValidFileId(string filename) {
+        public static string GenerateValidIdentifier(string filename) {
             if (Regex.Match(filename, "^[A-Za-z_][A-Za-z0-9_.]*$").Length > 0) {
                 return filename;
             }
@@ -82,6 +83,47 @@ namespace WixEdit.Import {
 
             if (Regex.Match(newId, "^[A-Za-z_]").Length == 0) {
                 newId = "_" + newId;
+            }
+
+            return newId;
+        }
+
+        /// <summary>
+        /// Values of this type will look like: "FileName.ext".  
+        /// The following characters are not allowed: \ ? | > : / * " + , ; = [ ] less-than, or whitespace.  
+        /// The name cannot be longer than 8 characters and the extension cannot exceed 3 characters.  
+        /// The value could also be a localization variable with the format $(loc.VARIABLE).
+        /// </summary>
+        /// <remarks>Hardcoded, because it't not possible to read this from the Wix.xsd</remarks>
+        /// <param name="filename">Name of file to generate Id from</param>
+        /// <returns>A valid Id.</returns>
+        public static string GenerateValidLongName(string filename) {
+            string newId = filename;
+            newId = Regex.Replace(newId, String.Format("[{0}]", Regex.Unescape("\\?|><:/*\"")), "_");
+
+            if (Regex.Match(newId, "~[0-9]").Length > 0) {
+                newId = newId.Replace("~", "_");
+            }
+
+            return newId;
+        }
+
+        /// <summary>
+        /// Type LongFileNameType in Wix.xsd:
+        /// Values of this type will look like: "Long File Name.extension".  
+        /// The following characters are not allowed: \ ? | > : / * " or less-than.  
+        /// The name must be shorter than 260 characters.  The value could 
+        /// also be a localization variable with the format $(loc.VARIABLE).
+        /// </summary>
+        /// <remarks>Hardcoded, because it't not possible to read this from the Wix.xsd</remarks>
+        /// <param name="filename">Name of file to generate Id from</param>
+        /// <returns>A valid Id.</returns>
+        public static string GenerateValidShortName(string filename) {
+            string newId = GenerateValidLongName(filename);
+            newId = Regex.Replace(newId, String.Format("[{0}]", Regex.Unescape("+,;=[]")), "_");
+            
+            if (Regex.Match(newId, "~[0-9]").Length > 0) {
+                newId = newId.Replace("~", "_");
             }
 
             return newId;

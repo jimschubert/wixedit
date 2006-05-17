@@ -208,18 +208,7 @@ namespace WixEdit {
         /// </summary>
         /// <remarks>ShowNode should do the exact oposite</remarks>
         /// <returns></returns>
-        public virtual XmlNode GetShowingNode() {
-            if (currentGrid.SelectedGridItem != null) {
-                XmlNodeList properties = WixFiles.WxsDocument.SelectNodes(currentXPath, WixFiles.WxsNsmgr);
-                foreach (XmlNode item in properties) {
-                    if (item.Attributes[currentElementName].Value == currentGrid.SelectedGridItem.Label) {
-                        return item;
-                    }
-                }
-            }
-
-            return null;
-        }
+        public abstract XmlNode GetShowingNode();
         
         /// <summary>
         /// Inserts the new element at the right place, right after nodes with the same name.

@@ -204,6 +204,8 @@ namespace WixEdit.PropertyGridExtensions {
                         if (attName == "Media") {
                             needsBrowse = true;
                         }
+                    } else if (xmlAttributeDefinition.Attributes["name"].Value == "src") {
+                        needsBrowse = true;
                     }
                 }
 
@@ -215,7 +217,7 @@ namespace WixEdit.PropertyGridExtensions {
                     Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
                     // BinaryElementPropertyDescriptor also uses the src attribute, and a possibility to use relative paths.
-                    BinaryElementPropertyDescriptor pd = new BinaryElementPropertyDescriptor(xmlNode, wixFiles, xmlAttributeDefinition.Attributes["name"].Value, attrArray);
+                    FileXmlAttributePropertyDescriptor pd = new FileXmlAttributePropertyDescriptor(xmlNode, wixFiles, xmlAttributeDefinition, xmlAttributeDefinition.Attributes["name"].Value, attrArray);
 
                     props.Add(pd);
                 } else {

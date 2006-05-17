@@ -957,6 +957,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\PropertyGridExtensions\FileXmlAttributePropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\PropertyGridExtensions\GuidUITypeEditor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
