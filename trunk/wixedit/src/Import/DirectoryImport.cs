@@ -74,11 +74,11 @@ namespace WixEdit.Import {
 
                 XmlElement newElement = parentDirectoryElement.OwnerDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
 
-                newElement.SetAttribute("Id", dirInfo.Name);
-                newElement.SetAttribute("LongName", dirInfo.Name);
-                newElement.SetAttribute("Name", PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement));
+                newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name));
+                newElement.SetAttribute("LongName", FileImport.GenerateValidLongName(dirInfo.Name));
+                newElement.SetAttribute("Name", FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
                 
-                TreeNode newNode = new TreeNode(dirInfo.Name);
+                TreeNode newNode = new TreeNode(newElement.GetAttribute("LongName"));
                 newNode.Tag = newElement;
 
                 if (firstShowableNode == null) {
@@ -113,13 +113,13 @@ namespace WixEdit.Import {
         private void AddFiles(string[] files, TreeNode treeNode, XmlNode parentDirectoryElement, DirectoryInfo dirInfo) {
             XmlElement newComponentElement = parentDirectoryElement.OwnerDocument.CreateElement("Component", WixFiles.WixNamespaceUri);
 
-            newComponentElement.SetAttribute("Id", dirInfo.Name);
+            newComponentElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name));
             newComponentElement.SetAttribute("DiskId", "1");
             newComponentElement.SetAttribute("Guid", Guid.NewGuid().ToString().ToUpper());
 
             parentDirectoryElement.AppendChild(newComponentElement);
 
-            TreeNode newComponentNode = new TreeNode(dirInfo.Name);
+            TreeNode newComponentNode = new TreeNode(newComponentElement.GetAttribute("Id"));
             newComponentNode.Tag = newComponentElement;
 
             int imageIndex = ImageListFactory.GetImageIndex("Component");
@@ -139,12 +139,12 @@ namespace WixEdit.Import {
                 
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-                newFileElement.SetAttribute("Id", FileImport.GenerateValidFileId(fileInfo.Name));
-                newFileElement.SetAttribute("LongName", fileInfo.Name);
-                newFileElement.SetAttribute("Name", PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement));
+                newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name));
+                newFileElement.SetAttribute("LongName", FileImport.GenerateValidLongName(fileInfo.Name));
+                newFileElement.SetAttribute("Name", FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
-                TreeNode newFileNode = new TreeNode(fileInfo.Name);
+                TreeNode newFileNode = new TreeNode(newFileElement.GetAttribute("LongName"));
                 newFileNode.Tag = newFileElement;
             
                 imageIndex = ImageListFactory.GetImageIndex("File");

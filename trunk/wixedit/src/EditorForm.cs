@@ -1331,7 +1331,9 @@ namespace WixEdit {
             }
         }
 
-        private delegate void InvokeDelegate();
+        private delegate void InvokeReloadDataDelegate();
+        private delegate void InvokeShowNodeDelegate(XmlNode node);
+
         private void wixFiles_wxsChanged(object sender, EventArgs e) {
             ReloadAll();
         }
@@ -1341,14 +1343,15 @@ namespace WixEdit {
                 XmlNode current = ((DisplayBasePanel)tabButtonControl.SelectedPanel).GetShowingNode();
 
                 foreach (DisplayBasePanel panel in panels) {
-                    panel.BeginInvoke(new InvokeDelegate(panel.ReloadData));
+                    panel.BeginInvoke(new InvokeReloadDataDelegate(panel.ReloadData));
                 }
 
                 if (current != null) {
-                    ((DisplayBasePanel)tabButtonControl.SelectedPanel).ShowNode(current);
+                    DisplayBasePanel panel = (DisplayBasePanel)tabButtonControl.SelectedPanel;
+                    panel.BeginInvoke(new InvokeShowNodeDelegate(panel.ShowNode), new object[] { current });
                 }
             } catch (Exception ex) {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error with reloading: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
