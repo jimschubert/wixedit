@@ -114,10 +114,10 @@
         <td><a name="a{$linenumber}" id="a{$linenumber}">
             <span class="marker">&lt;</span>
             <span class="elementname"><xsl:value-of select="name()" /></span>
-            </a>
             <xsl:call-template name="findNamespace" />
             <xsl:apply-templates select="@*" />
             <span class="marker"> /&gt;</span>
+            </a>
         </td>
       </tr>
     </table>
