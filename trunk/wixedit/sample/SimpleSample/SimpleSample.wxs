@@ -7,7 +7,7 @@
          <Directory Id="ProgramFilesFolder" Name="PFiles">
             <Directory Id="TestProduct" Name="testprod" LongName="TestProduct">
                <Component Id="TestComponent" Guid="DEAFBEEF-DEAD-DEAD-DEAD-DEADBEEF0003">
-                  <File Id="TestFile" Name="Test.txt"  KeyPath="yes" DiskId="1" src="Test.txt"/>
+                  <File Id="TestFile" Name="Test.txt"  KeyPath="yes" DiskId="1" Source="Test.txt"/>
                </Component>
             </Directory>
          </Directory>
