@@ -89,26 +89,6 @@ namespace WixEdit.Import {
         }
 
         /// <summary>
-        /// Values of this type will look like: "FileName.ext".  
-        /// The following characters are not allowed: \ ? | > : / * " + , ; = [ ] less-than, or whitespace.  
-        /// The name cannot be longer than 8 characters and the extension cannot exceed 3 characters.  
-        /// The value could also be a localization variable with the format $(loc.VARIABLE).
-        /// </summary>
-        /// <remarks>Hardcoded, because it't not possible to read this from the Wix.xsd</remarks>
-        /// <param name="filename">Name of file to generate Id from</param>
-        /// <returns>A valid Id.</returns>
-        public static string GenerateValidLongName(string filename) {
-            string newId = filename;
-            newId = Regex.Replace(newId, String.Format("[{0}]", Regex.Unescape("\\?|><:/*\"")), "_");
-
-            if (Regex.Match(newId, "~[0-9]").Length > 0) {
-                newId = newId.Replace("~", "_");
-            }
-
-            return newId;
-        }
-
-        /// <summary>
         /// Type LongFileNameType in Wix.xsd:
         /// Values of this type will look like: "Long File Name.extension".  
         /// The following characters are not allowed: \ ? | > : / * " or less-than.  
@@ -118,10 +98,31 @@ namespace WixEdit.Import {
         /// <remarks>Hardcoded, because it't not possible to read this from the Wix.xsd</remarks>
         /// <param name="filename">Name of file to generate Id from</param>
         /// <returns>A valid Id.</returns>
+        public static string GenerateValidLongName(string filename) {
+            string newId = filename;
+            newId = Regex.Replace(newId, "[\\?|><:/*\" ]", "_");
+
+            if (Regex.Match(newId, "~[0-9]").Length > 0) {
+                newId = newId.Replace("~", "_");
+            }
+
+            return newId;
+        }
+
+        /// <summary>
+        /// Type ShortFileNameType in Wix.xsd:
+        /// Values of this type will look like: "FileName.ext".  
+        /// The following characters are not allowed: \ ? | > : / * " + , ; = [ ] less-than, or whitespace.  
+        /// The name cannot be longer than 8 characters and the extension cannot exceed 3 characters.  
+        /// The value could also be a localization variable with the format $(loc.VARIABLE).
+        /// </summary>
+        /// <remarks>Hardcoded, because it't not possible to read this from the Wix.xsd</remarks>
+        /// <param name="filename">Name of file to generate Id from</param>
+        /// <returns>A valid Id.</returns>
         public static string GenerateValidShortName(string filename) {
             string newId = GenerateValidLongName(filename);
-            newId = Regex.Replace(newId, String.Format("[{0}]", Regex.Unescape("+,;=[]")), "_");
-            
+            newId = Regex.Replace(newId, "[\\+,;=\\[\\]]", "_");
+
             if (Regex.Match(newId, "~[0-9]").Length > 0) {
                 newId = newId.Replace("~", "_");
             }
