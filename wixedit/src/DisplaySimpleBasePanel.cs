@@ -196,12 +196,7 @@ namespace WixEdit {
         public virtual void OnRenamePropertyGridItem(object sender, EventArgs e) {
             XmlNode element = GetSelectedGridObject();
             if (element != null){
-                XmlAttribute att = null;
-                if (element is XmlAttribute) {
-                    att = element as XmlAttribute;
-                } else {
-                    att = element.Attributes[CurrentKeyName];
-                }
+                XmlAttribute att = element.Attributes[CurrentKeyName];
                 EnterStringForm frm = new EnterStringForm(att.Value);
                 frm.Text = "Enter Name";
                 if (DialogResult.OK == frm.ShowDialog()) {    

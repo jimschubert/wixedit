@@ -742,7 +742,13 @@ namespace WixEdit {
             }
 
             XmlDocument importXml = new XmlDocument();
-            importXml.Load(ofd.FileName);
+            try {
+                importXml.Load(ofd.FileName);
+            } catch {
+                MessageBox.Show("Failed to load XML from file, is it a valid XML file?", "Failed to load XML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                return;
+            }
 
             // We have to set the Wix namespace 
             importXml.DocumentElement.SetAttribute("xmlns", WixFiles.WixNamespaceUri);
@@ -753,7 +759,7 @@ namespace WixEdit {
                 WixFiles.UndoManager.BeginNewCommandRange();
                 XmlNode ui = ElementLocator.GetUIElement(WixFiles);
                 if (ui == null) {
-                    MessageBox.Show("No location found to add UI element, need element like module or product!");
+                    MessageBox.Show("No location found to add UI element, need element like module or product!", "Missing UI element", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     return;
                 }
@@ -887,7 +893,7 @@ namespace WixEdit {
             WixFiles.UndoManager.BeginNewCommandRange();
 
             // Get the XmlAttribute from the PropertyDescriptor
-            CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+            CustomXmlPropertyDescriptorBase desc = (CustomXmlPropertyDescriptorBase) CurrentGrid.SelectedGridItem.PropertyDescriptor;
             XmlNode att = desc.XmlElement;
 
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.
