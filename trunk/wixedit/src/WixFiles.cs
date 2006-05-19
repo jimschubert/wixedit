@@ -50,6 +50,8 @@ namespace WixEdit {
 
         public static string WixNamespaceUri = "http://schemas.microsoft.com/wix/2003/01/wi";
 
+        private string customLightArgumentsWarning;
+
         static WixFiles() {
             ReloadXsd();
         }
@@ -201,6 +203,11 @@ namespace WixEdit {
                             if (endQuotePos > 1) {
                                 result = customArgs.Substring(1, endQuotePos-1);
                             }
+                        } else if (customArgs.StartsWith("'")) {
+                            int endQuotePos = customArgs.IndexOf("'", 1);
+                            if (endQuotePos > 1) {
+                                result = customArgs.Substring(1, endQuotePos-1);
+                            }
                         } else {
                             int endSpacePos = customArgs.IndexOf(" ");
                             int endQuotePos = customArgs.IndexOf("\"");
@@ -208,14 +215,23 @@ namespace WixEdit {
                                 result = customArgs.Substring(0, endSpacePos);
                             } else if (endQuotePos > 0) {
                                 result = customArgs.Substring(0, endQuotePos);
+                            } else {
+                                result = customArgs;
                             }
                         }
 
                         if (result != null) {
-                            if (Path.IsPathRooted(result)) {
-                                return new FileInfo(result);
-                            } else {
-                                return new FileInfo(Path.Combine(wxsFile.Directory.FullName, result));
+                            try {
+                                if (Path.IsPathRooted(result)) {
+                                    return new FileInfo(result);
+                                } else {
+                                    return new FileInfo(Path.Combine(wxsFile.Directory.FullName, result));
+                                }
+                            } catch (ArgumentException ex) {
+                                if (customLightArgumentsWarning != GetCustomLightArguments()) {
+                                    customLightArgumentsWarning = GetCustomLightArguments();
+                                    MessageBox.Show(String.Format("Could not determine output file from custom commandline, please check your custom arguments for light.exe.\r\n\r\nCustom light arguments: \"{0}\"\r\nDetermined output file: \"{1}\"\r\nError message: \"{2}\"", GetCustomLightArguments(), result, ex.Message), "Illegal custom arguments", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                }
                             }
                         }
                     }

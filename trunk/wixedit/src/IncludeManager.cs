@@ -152,7 +152,16 @@ namespace WixEdit {
                     if (WixEditSettings.Instance.BackupChangedIncludes && bakFileInfo.Exists == false) {
                         fileInfo.CopyTo(bakFileInfo.FullName);
                     }
-                    includeDoc.Save(fileInfo.FullName);
+
+                    UnauthorizedAccessException theEx = null;
+                    do {
+                        try {
+                            includeDoc.Save(fileInfo.FullName);
+                            break;
+                        } catch (UnauthorizedAccessException ex) {
+                            theEx = ex;
+                        }
+                    } while (DialogResult.Retry == MessageBox.Show("Failed to save include file. " + theEx.Message, "Failed to save include file", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning));
                 }
             }
         }
