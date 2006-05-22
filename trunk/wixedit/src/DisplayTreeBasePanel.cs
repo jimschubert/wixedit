@@ -95,6 +95,7 @@ namespace WixEdit {
             panelContextMenu = new ContextMenu();
             panelContextMenu.Popup += new EventHandler(PopupPanelContextMenu);
 
+            currTreeView.HideSelection = false;
             currTreeView.Dock = DockStyle.Left;
             currTreeView.ImageIndex = -1;
             currTreeView.Location = new Point(0, 0);
