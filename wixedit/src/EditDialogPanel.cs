@@ -199,6 +199,7 @@ namespace WixEdit {
             // 
             // dialogTreeView
             // 
+            dialogTreeView.HideSelection = false;
             dialogTreeView.Dock = DockStyle.Left;
             dialogTreeView.ImageIndex = -1;
             dialogTreeView.Location = new Point(0, 0);
