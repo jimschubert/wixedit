@@ -219,18 +219,18 @@ namespace WixEdit {
                 int readEndElement = 0;
                 // Parse the XML and display each node.
                 while (reader.Read()){
-                   reads++;
-                   switch (reader.NodeType){
-                     case XmlNodeType.Element:
+                    reads++;
+                    switch (reader.NodeType){
+                      case XmlNodeType.Element:
                         readElement++;
                         break;
-                     case XmlNodeType.Text:
+                      case XmlNodeType.Text:
                         readText++;
                         break;
-                     case XmlNodeType.EndElement:
+                      case XmlNodeType.EndElement:
                         readEndElement++;
                         break;
-                   }
+                    }
                     if (reader.LineNumber == lineNumber) {
                         anchorCount = readElement;
                         break;

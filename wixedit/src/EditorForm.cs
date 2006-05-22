@@ -1036,6 +1036,8 @@ namespace WixEdit {
                 wixFiles = new WixFiles(file);
             } catch (UnauthorizedAccessException) {
                 MessageBox.Show(String.Format("Access is denied. ({0}))", file.Name), "Acces denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+            } catch (XmlException ex) {
+                MessageBox.Show(String.Format("Failed to open file. ({0}) The xml is not valid:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch {
                 MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             }
