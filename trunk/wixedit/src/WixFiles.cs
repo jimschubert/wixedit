@@ -97,7 +97,11 @@ namespace WixEdit {
                 fs.Close();
             }
 
-            XmlNode possibleComment = wxsDocument.FirstChild.NextSibling;
+
+            XmlNode possibleComment = wxsDocument.FirstChild;
+            if (possibleComment.NodeType == XmlNodeType.XmlDeclaration) {
+                possibleComment = wxsDocument.FirstChild.NextSibling;
+            }
             if (possibleComment != null && possibleComment.Name == "#comment") {
                 string comment = possibleComment.Value;
 
@@ -367,7 +371,13 @@ namespace WixEdit {
                 commentBuilder.AppendFormat("    lightArgs: {0}\r\n", projectSettings.LightArgs);
 
                 commentElement = wxsDocument.CreateComment(commentBuilder.ToString());
-                wxsDocument.InsertBefore(commentElement, wxsDocument.DocumentElement);
+
+                XmlNode firstElement = wxsDocument.FirstChild;
+                if (firstElement.NodeType == XmlNodeType.XmlDeclaration) {
+                    firstElement = wxsDocument.FirstChild.NextSibling;
+                }
+
+                wxsDocument.InsertBefore(commentElement, firstElement);
             }
 
             if (IncludeManager.HasIncludes) {
