@@ -61,11 +61,17 @@ namespace WixEdit {
         string currentLogFile;
         bool isCancelled = false;
 
+        WixFiles wixFiles = null;
+
+        EditorForm editorForm;
+
         IconMenuItem buildMenu;
         IconMenuItem cancelMenuItem;
 
-        public OutputPanel(IconMenuItem buildMenu) {
+        public OutputPanel(EditorForm editorForm, IconMenuItem buildMenu) {
+            this.editorForm = editorForm;
             this.buildMenu = buildMenu;
+            
             TabStop = true;
 
             outputTextBox = new OutputTextbox();
@@ -210,38 +216,81 @@ namespace WixEdit {
 
             outputTextBox.ResumeLayout();
 
+            // Finding the right anchor only works correctly when there are not multiple elements on one line.
             int anchorCount = 0;
+            int numberOfElements = 1;
             using (StreamReader sr = new StreamReader(fileName)) {
                 XmlTextReader reader = new XmlTextReader(sr);
                 int reads = 0;
                 int readElement = 0;
-                int readText = 0;
-                int readEndElement = 0;
+                
                 // Parse the XML and display each node.
                 while (reader.Read()){
                     reads++;
-                    switch (reader.NodeType){
-                      case XmlNodeType.Element:
+                    if (reader.NodeType == XmlNodeType.Element) {
                         readElement++;
-                        break;
-                      case XmlNodeType.Text:
-                        readText++;
-                        break;
-                      case XmlNodeType.EndElement:
-                        readEndElement++;
-                        break;
                     }
                     if (reader.LineNumber == lineNumber) {
                         anchorCount = readElement;
+                        while (reader.Read()){
+                            if (reader.LineNumber == lineNumber) {
+                                if (reader.NodeType == XmlNodeType.Element) {
+                                    numberOfElements++;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
                         break;
                     }
                 }   
             }
 
-            LaunchFile(fileName, anchorCount ,lineNumber, message.Trim());
+            if (numberOfElements == 1) {
+                ShowElement(anchorCount);
+            }
+
+            LaunchFile(fileName, anchorCount, numberOfElements, lineNumber, message.Trim());
         }
 
-        protected void LaunchFile(string filename, int anchorNumber, int lineNumber, string message) {
+        protected void ShowElement(int elementCount) {
+            if (wixFiles == null) {
+                return;
+            }
+
+            try {
+                XmlNode node = wixFiles.WxsDocument;
+                int count = -1;
+                while (count < elementCount) {
+                    if (node.ChildNodes.Count > 0) {
+                        node = node.ChildNodes[0];
+                    } else {
+                        if (node.NextSibling != null) {
+                            node = node.NextSibling;
+                        } else {
+                            XmlNode parentNode = node.ParentNode;
+                            while (parentNode != null && parentNode.NextSibling == null) {
+                                parentNode = parentNode.ParentNode;
+                            }
+
+                            if (parentNode == null) {
+                                return;
+                            }
+
+                            node = parentNode.NextSibling;
+                        }
+                    }
+
+                    count++;
+                }
+
+                editorForm.ShowNode(node);
+            } catch {
+                // Too bad, just ignore.
+            }
+        }
+
+        protected void LaunchFile(string filename, int anchorNumber, int numberOfAnchors, int lineNumber, string message) {
             XslTransform transform = new XslTransform();
             using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
                  XmlTextReader xr = new XmlTextReader(strm);
@@ -263,8 +312,14 @@ namespace WixEdit {
                 xmlDisplayForm = new XmlDisplayForm();
             }
 
+            StringBuilder anchorBuilder = new StringBuilder();
+            for (int i = 0; i < numberOfAnchors; i++) {
+                anchorBuilder.AppendFormat("{0},", anchorNumber+i);
+            }
+            anchorBuilder.Remove(anchorBuilder.Length-1, 1);
+
             xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
-            xmlDisplayForm.ShowFile(String.Format("{0}#a{1}", outputFile, anchorNumber));
+            xmlDisplayForm.ShowFile(String.Format("{0}#{1}", outputFile, anchorBuilder.ToString()));
             xmlDisplayForm.Show();
         }
 
@@ -277,11 +332,17 @@ namespace WixEdit {
                 return currentProcessThread.IsAlive;
             }
         }
-
+        
         public void Run(ProcessStartInfo[] processStartInfos) {
+            Run(processStartInfos, null);
+        }
+
+        public void Run(ProcessStartInfo[] processStartInfos, WixFiles theWixFiles) {
             if (IsBusy) {
                 throw new Exception("OutputPanel is already busy.");
             }
+
+            wixFiles = theWixFiles;
 
             isCancelled = false;
 
@@ -339,9 +400,15 @@ namespace WixEdit {
         }
         
         public void Run(ProcessStartInfo processStartInfo) {
+            Run(processStartInfo, null);
+        }
+
+        public void Run(ProcessStartInfo processStartInfo, WixFiles theWixFiles) {
             if (IsBusy) {
                 throw new Exception("OutputPanel is already busy.");
             }
+
+            wixFiles = theWixFiles;
 
             isCancelled = false;
 
@@ -525,6 +592,7 @@ namespace WixEdit {
 
         public void Clear() {
             outputTextBox.Text = "";
+            wixFiles = null;
         }
 
         public void Cancel() {

@@ -117,16 +117,7 @@ namespace WixEdit {
 
             OwnerDraw = true;
         }
-/*
-        public Icon Icon {
-            get {
-                return new Icon(bitmap);
-            }
-            set {
-                bitmap = value.ToBitmap();
-            }
-        }
-*/
+
         protected override void OnMeasureItem(MeasureItemEventArgs e) {
             StringFormat format = new StringFormat();
             format.SetTabStops(0, new Single[] {0});

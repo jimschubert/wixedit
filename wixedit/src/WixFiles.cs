@@ -308,7 +308,7 @@ namespace WixEdit {
 
         public static Stream GetResourceStream(string resourceName) {
             string resourceNamespace = "WixEdit.res.";
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetAssembly(typeof(WixFiles));
             if (assembly.GetManifestResourceInfo(resourceNamespace + resourceName) == null) {
                 throw new Exception("Could not find resource: " + resourceNamespace + resourceName);
             }
