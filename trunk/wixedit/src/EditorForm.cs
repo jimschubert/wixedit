@@ -334,7 +334,7 @@ namespace WixEdit {
             resultsSplitter.Height = 2;
             Controls.Add(resultsSplitter);
 
-            outputPanel = new OutputPanel(buildMenu);
+            outputPanel = new OutputPanel(this, buildMenu);
             outputPanel.Text = "Output";
             searchPanel = new SearchPanel(this, editMenu);
             searchPanel.Text = "Search Results";
@@ -870,7 +870,7 @@ namespace WixEdit {
             outputPanel.Clear();
             Update();
 
-            outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight});
+            outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight}, wixFiles);
         }
 
         private void Decompile(string fileName) {

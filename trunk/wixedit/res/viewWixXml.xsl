@@ -81,10 +81,21 @@
         }
         function ShowError() {
             if (location.hash) {
-                var anchorName = location.hash.substring(1, location.hash.length);
-                var anchor = document.getElementById(anchorName);
-                if (anchor) {
-                    anchor.style.backgroundColor = '#ffff00';
+                var anchorString = location.hash.substring(1, location.hash.length);
+                var anchorStringArray = anchorString.split(',');
+                
+                var i = 0;
+                for (; i &lt; anchorStringArray.length; i++) {
+                    var anchor = document.getElementById('a'+anchorStringArray[i]);
+                    if (anchor) {
+                        anchor.style.backgroundColor = '#ffff00';
+                    }
+                    /*
+                    anchor = document.getElementById('a-end'+anchorStringArray[i]);
+                    if (anchor) {
+                        anchor.style.backgroundColor = '#ffff00';
+                    }
+                    */
                 }
             }
         }
@@ -163,9 +174,11 @@
             <div class="collapsableContent">
                 <xsl:apply-templates/>
             </div>
+            <a name="a-end{$linenumber}" id="a-end{$linenumber}">
             <span class="marker">&lt;/</span>
             <span class="elementname"><xsl:value-of select="name()" /></span>
             <span class="marker">&gt;</span>
+            </a>
         </td>
       </tr>
     </table>
