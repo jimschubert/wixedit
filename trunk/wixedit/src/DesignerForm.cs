@@ -39,13 +39,15 @@ namespace WixEdit {
 
     public class DesignerForm : Form {
         Hashtable controlMap;
+        WixFiles wixFiles;
         string selectedNodeId;
 
         public event DesignerFormItemHandler ItemChanged;
         public event DesignerFormItemHandler SelectionChanged;
 
-        public DesignerForm() {
+        public DesignerForm(WixFiles wixFiles) {
             controlMap = new Hashtable();
+            this.wixFiles = wixFiles;
         }
 
         public XmlNode SelectedNode {
@@ -83,7 +85,7 @@ namespace WixEdit {
         }
 
         public void AddControl(XmlNode controlDefinition, Control control) {
-            SelectionOverlay overlay = new SelectionOverlay(control, controlDefinition);
+            SelectionOverlay overlay = new SelectionOverlay(control, controlDefinition, wixFiles);
             Controls.Add(overlay);
 
             overlay.ItemChanged += new SelectionOverlayItemHandler(OnItemChanged);
