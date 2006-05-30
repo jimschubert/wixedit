@@ -32,6 +32,8 @@ namespace WixEdit.Controls {
     public class SelectionOverlay : UserControl {
         static int snapToGrid = 5;
 
+        WixFiles wixFiles;
+
         protected Control control;
         protected XmlNode xmlNode;
         protected bool isSelected = false;
@@ -45,9 +47,10 @@ namespace WixEdit.Controls {
             snapToGrid = WixEditSettings.Instance.SnapToGrid;
         }
 
-        public SelectionOverlay(Control control, XmlNode xmlNode) {
+        public SelectionOverlay(Control control, XmlNode xmlNode, WixFiles wixFiles) {
             this.control = control;
             this.xmlNode = xmlNode;
+            this.wixFiles = wixFiles;
 
             ClientSize = new Size(control.Size.Width, control.Size.Height);
             Left = control.Left;
@@ -248,8 +251,8 @@ namespace WixEdit.Controls {
 
             Point topLeft = PointToScreen(new Point(control.Left, control.Top));
             topLeft = Parent.PointToClient(topLeft);
-            
-// MessageBox.Show("DLUs = " + DialogGenerator.PixelsToDialogUnitsWidth(topLeft.X).ToString() + ", X = " + topLeft.X.ToString());
+
+            wixFiles.UndoManager.BeginNewCommandRange();
 
             AssignIfChanged(xmlNode.Attributes["Width"], DialogGenerator.PixelsToDialogUnitsWidth(control.Width));
             AssignIfChanged(xmlNode.Attributes["X"], DialogGenerator.PixelsToDialogUnitsWidth(topLeft.X));
@@ -266,7 +269,6 @@ namespace WixEdit.Controls {
             int integerValue = Int32.Parse(stringValue);
 
             if (integerValue != newValue) {
-//                 MessageBox.Show(att.Name + " changed from " + integerValue.ToString() + " to " + newValue.ToString());
                 att.Value = newValue.ToString();
             }
         }
@@ -287,14 +289,24 @@ namespace WixEdit.Controls {
             if (isMoving) {
                 bool needsRedraw = false;
                 if (Math.Abs(currentPoint.X - isPositionPoint.X) >= snapToGrid) {
-                    Left = (((Left + 7 + currentPoint.X - isPositionPoint.X) / snapToGrid) * snapToGrid) - 7;
-                    isPositionPoint.X = currentPoint.X - ((Left + 7 + currentPoint.X - isPositionPoint.X) % snapToGrid);
+                    if (snapToGrid <= 1) {
+                        Left = Left + currentPoint.X - isPositionPoint.X;
+                        isPositionPoint.X = currentPoint.X;
+                    } else {
+                        Left = (((Left + 7 + currentPoint.X - isPositionPoint.X) / snapToGrid) * snapToGrid) - 7;
+                        isPositionPoint.X = currentPoint.X - ((Left + 7 + currentPoint.X - isPositionPoint.X) % snapToGrid);
+                    }
                     needsRedraw = true;
                 }
 
-                if (Math.Abs(currentPoint.Y - isPositionPoint.Y) >= snapToGrid) {
-                    Top = (((Top + 7 + currentPoint.Y - isPositionPoint.Y) / snapToGrid) * snapToGrid) - 7;
-                    isPositionPoint.Y = currentPoint.Y - ((Top + 7 + currentPoint.Y - isPositionPoint.Y) % snapToGrid);
+                if (snapToGrid <= 1 || Math.Abs(currentPoint.Y - isPositionPoint.Y) >= snapToGrid) {
+                    if (snapToGrid <= 1) {
+                        Top = Top + currentPoint.Y - isPositionPoint.Y;
+                        isPositionPoint.Y = currentPoint.Y;
+                    } else {
+                        Top = (((Top + 7 + currentPoint.Y - isPositionPoint.Y) / snapToGrid) * snapToGrid) - 7;
+                        isPositionPoint.Y = currentPoint.Y - ((Top + 7 + currentPoint.Y - isPositionPoint.Y) % snapToGrid);
+                    }
                     needsRedraw = true;
                 }
 
@@ -305,12 +317,12 @@ namespace WixEdit.Controls {
             } else if (sizingDirection != SizingDirection.None) {
                 Point snapToGridPoint = new Point(currentPoint.X, currentPoint.Y);
                 bool needsRedraw = false;
-                if (Math.Abs(currentPoint.X - isPositionPoint.X) >= snapToGrid) {
+                if (snapToGrid <= 1 || Math.Abs(currentPoint.X - isPositionPoint.X) >= snapToGrid) {
                     snapToGridPoint.X = currentPoint.X;
                     needsRedraw = true;
                 }
 
-                if (Math.Abs(currentPoint.Y - isPositionPoint.Y) >= snapToGrid) {
+                if (snapToGrid <= 1 || Math.Abs(currentPoint.Y - isPositionPoint.Y) >= snapToGrid) {
                     snapToGridPoint.Y = currentPoint.Y;
                     needsRedraw = true;
                 }
