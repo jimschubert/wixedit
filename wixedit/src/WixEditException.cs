@@ -21,11 +21,12 @@
 
 using System;
 
-using WixEdit;
-
-namespace WixEdit.Import {
-    public class ImportException : WixEditException {
-        public ImportException(string message) : base(message) {}
-        public ImportException(string message, Exception ex) : base(message, ex) {}
+namespace WixEdit {
+    /// <summary>
+    /// Summary description for WixEditException.
+    /// </summary>
+    public class WixEditException : Exception {
+        public WixEditException(string message) : base(message) {}
+        public WixEditException(string message, Exception ex) : base(message, ex) {}
     }
 }

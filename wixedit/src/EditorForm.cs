@@ -761,7 +761,7 @@ namespace WixEdit {
                     Install(wixFiles.OutputFile.FullName);
                 }
             } catch (Exception ex) {
-                MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Failed to install", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -777,7 +777,7 @@ namespace WixEdit {
                     Uninstall(wixFiles.OutputFile.FullName);
                 }
             } catch (Exception ex) {
-                MessageBox.Show(ex.Message, "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Failed to uninstall", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         
@@ -840,7 +840,7 @@ namespace WixEdit {
         private void Compile() {
             string candleExe = WixEditSettings.Instance.WixBinariesDirectory.Candle;
             if (File.Exists(candleExe) == false) {
-                throw new Exception("The executable \"candle.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
+                throw new WixEditException("The executable \"candle.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiCandle = new ProcessStartInfo();
@@ -854,7 +854,7 @@ namespace WixEdit {
 
             string lightExe = WixEditSettings.Instance.WixBinariesDirectory.Light;
             if (File.Exists(lightExe) == false) {
-                throw new Exception("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
+                throw new WixEditException("The executable \"light.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiLight = new ProcessStartInfo();
@@ -878,7 +878,7 @@ namespace WixEdit {
 
             string darkExe = WixEditSettings.Instance.WixBinariesDirectory.Dark;
             if (File.Exists(darkExe) == false) {
-                throw new Exception("The executable \"dark.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
+                throw new WixEditException("The executable \"dark.exe\" could not be found.\r\n\r\nPlease specify the correct path to the Wix binaries in the settings dialog.");
             }
 
             ProcessStartInfo psiDark = new ProcessStartInfo();
@@ -1365,6 +1365,9 @@ namespace WixEdit {
                     MessageBox.Show(String.Format("You cannot change \"{0}\"", ifcException.Command.AffectedInclude), "Cannot change includes", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
+                return;
+            } else if (e.Exception is WixEditException) {
+                MessageBox.Show(e.Exception.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

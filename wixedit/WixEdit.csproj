@@ -847,6 +847,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "src\WixEditException.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\WixFiles.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1038,6 +1043,11 @@
                 />
                 <File
                     RelPath = "src\Server\ErrorReporter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\Server\ErrorReportHandler.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

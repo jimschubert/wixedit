@@ -339,7 +339,7 @@ namespace WixEdit {
 
         public void Run(ProcessStartInfo[] processStartInfos, WixFiles theWixFiles) {
             if (IsBusy) {
-                throw new Exception("OutputPanel is already busy.");
+                throw new WixEditException("OutputPanel is already busy.");
             }
 
             wixFiles = theWixFiles;
@@ -405,7 +405,7 @@ namespace WixEdit {
 
         public void Run(ProcessStartInfo processStartInfo, WixFiles theWixFiles) {
             if (IsBusy) {
-                throw new Exception("OutputPanel is already busy.");
+                throw new WixEditException("OutputPanel is already busy.");
             }
 
             wixFiles = theWixFiles;
@@ -444,7 +444,7 @@ namespace WixEdit {
 
         public void RunWithLogFile(ProcessStartInfo processStartInfo, string logFile) {
             if (IsBusy) {
-                throw new Exception("OutputPanel is already busy.");
+                throw new WixEditException("OutputPanel is already busy.");
             }
 
             isCancelled = false;
