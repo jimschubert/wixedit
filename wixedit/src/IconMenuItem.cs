@@ -234,13 +234,16 @@ namespace WixEdit {
             float scTextWidth = graphics.MeasureString(GetShortcutText(), font, 50000, format).Width;
 
             int tabStopWidth = dest.Width - sideBarWidth - 5 - (int) Math.Ceiling(scTextWidth);
-            format.SetTabStops(tabStopWidth, new Single[] {0});
+            if (tabStopWidth > 0) {
+                format.SetTabStops(tabStopWidth, new Single[] {0});
+            }
 
             if (Enabled) {
                 br = new SolidBrush(Color.Black);
             } else {
                 br = new SolidBrush(Color.Gray);
             }
+
             graphics.DrawString(GetFormattedText(), font, br, dest.Left + sideBarWidth + 5, dest.Top + 4, format);
         }
 
