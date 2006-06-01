@@ -118,7 +118,7 @@ namespace WixEdit {
 
                 hasIncludes = true;
             } catch (Exception ex) {
-                throw new Exception("Importing of include files failed!!!", ex);
+                throw new WixEditException("Importing of include files failed!!!", ex);
             }
         }
 

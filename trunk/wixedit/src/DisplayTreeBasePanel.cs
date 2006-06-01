@@ -397,7 +397,7 @@ namespace WixEdit {
         protected void OnDeletePropertyGridItem(object sender, EventArgs e) {
             XmlNode element = GetSelectedProperty();
             if (element == null) {
-                throw new Exception("No element found to delete!");
+                throw new WixEditException("No element found to delete!");
             }
 
             // Temporarily store the XmlAttributeAdapter, while resetting the CurrentGrid.

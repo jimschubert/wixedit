@@ -62,8 +62,7 @@ namespace WixEdit.PropertyGridExtensions {
                     }
                     NumberFormatInfo formatInfo = (NumberFormatInfo) culture.GetFormat(typeof(NumberFormatInfo));
                     returnValue = Int64.Parse(textValue, NumberStyles.Integer, formatInfo);
-                }
-                catch (Exception exception) {
+                } catch (Exception exception) {
                     throw new Exception("Failed to ConvertFrom: " + textValue, exception);
                 }
 
@@ -166,7 +165,7 @@ namespace WixEdit.PropertyGridExtensions {
                     maxVal = 0;
                     break;
                 default:
-                    throw new Exception(typeString + " is a non supported type!");
+                    throw new WixEditException(typeString + " is a non supported type!");
 
             }
 

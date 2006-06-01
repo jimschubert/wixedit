@@ -20,12 +20,32 @@
 
 
 using System;
+using System.Threading;
+using System.Windows.Forms;
 
-using WixEdit;
+namespace WixEdit.Server {
+    public class ErrorReportHandler {
+        Exception ex;
+        IWin32Window owner;
+        string message;
 
-namespace WixEdit.Import {
-    public class ImportException : WixEditException {
-        public ImportException(string message) : base(message) {}
-        public ImportException(string message, Exception ex) : base(message, ex) {}
+        public ErrorReportHandler(Exception ex, IWin32Window owner, string message) {
+            this.ex = ex;
+            this.owner = owner;
+            this.message = message;
+        }
+
+        public void Report() {
+            ExceptionForm form = new ExceptionForm(message, ex);
+            if (form.ShowDialog(owner) == DialogResult.OK) {
+                ErrorReporter reporter = new ErrorReporter();
+                reporter.Report(ex);
+            }
+        }
+
+        public void ReportInSeparateThread() {
+            Thread t = new Thread(new ThreadStart(Report));
+            t.Start();
+        }
     }
 }

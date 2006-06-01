@@ -51,7 +51,7 @@ namespace WixEdit.PropertyGridExtensions {
                 name = "Layout";
             } else {
                 MessageBox.Show("Expecting Source, SourceFile, FileSource or Layout attribute...");
-                throw new Exception("Expecting Source, SourceFile, FileSource or Layout attribute...");
+                throw new WixEditException("Expecting Source, SourceFile, FileSource or Layout attribute...");
             }
 
             return name;
