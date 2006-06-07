@@ -867,6 +867,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\XPathHelper.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\About\AboutForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"

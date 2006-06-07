@@ -598,7 +598,11 @@ namespace WixEdit {
         public void Cancel() {
             if (DialogResult.Yes == MessageBox.Show("Do you want to stop your current action?", "WixEdit", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)) {
                 isCancelled = true;
-                activeProcess.Kill();
+                if (activeProcess != null && activeProcess.HasExited == false) {
+                    try {
+                        activeProcess.Kill();
+                    } catch {}
+                }
             }
         }
 
