@@ -64,7 +64,7 @@ namespace WixEdit {
                 // Verify valid xml
                 Hashtable includeDoms = new Hashtable();
                 foreach (XmlProcessingInstruction include in includes) {
-                    string data = include.Data;
+                    string data = include.Data.Trim('"', '\r', '\n', ' ');
                     if (Path.IsPathRooted(data) == false) {
                         data = Path.Combine(wixFiles.WxsDirectory.FullName, data);
                     }
@@ -111,7 +111,7 @@ namespace WixEdit {
                             xpathToNodesArrayMap.Add(xpath, nodesArrayList);
                         }
                         nodesArrayList.Add(nodesArray);
-                        nodesToFileMap.Add(nodesArray, include.Data);
+                        nodesToFileMap.Add(nodesArray, include.Data.Trim('"', '\r', '\n', ' '));
                         fileToNodesMap.Add(include, nodesArray);
                     }
                 }
@@ -125,7 +125,7 @@ namespace WixEdit {
         public void SaveIncludes(ArrayList changedIncludeFiles) {
             foreach (DictionaryEntry entry in fileToNodesMap) {
                 XmlProcessingInstruction include = entry.Key as XmlProcessingInstruction;
-                string file = include.Data;
+                string file = include.Data.Trim('"', '\r', '\n', ' ');
                 ArrayList nodes = entry.Value as ArrayList;
 
                 if (changedIncludeFiles.Contains(file) == false) {
@@ -189,7 +189,7 @@ namespace WixEdit {
         public void RestoreIncludes() {
             foreach (DictionaryEntry entry in fileToNodesMap) {
                 XmlProcessingInstruction include = entry.Key as XmlProcessingInstruction;
-                string file = include.Data;
+                string file = include.Data.Trim('"', '\r', '\n', ' ');
                 ArrayList nodes = entry.Value as ArrayList;
 
                 foreach (XmlNode node in nodes) {
