@@ -52,17 +52,22 @@ namespace WixEdit {
             string relativeValue = binariesPath.MakeRelative(newBinaryPath);
             relativeValue = relativeValue.Replace("/", sepCharString);
             
-
             FileInfo testRelativeValue = null;
 
-            if (Path.IsPathRooted(relativeValue) == false) {
-                testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
-            } else {
-                if (relativeValue.StartsWith("file:")) {
-                    relativeValue.Remove(0, 5);
-                }
+            try {
+                if (Path.IsPathRooted(relativeValue) == false) {
+                    testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
+                } else {
+                    if (relativeValue.StartsWith("file:")) {
+                        relativeValue.Remove(0, 5);
+                    }
 
-                testRelativeValue = new FileInfo(relativeValue);
+                    testRelativeValue = new FileInfo(relativeValue);
+                }
+            } catch (NotSupportedException ex) {
+                throw new WixEditException(String.Format("The format of the path \"{0}\" is not supported!", relativeValue), ex);
+            } catch (PathTooLongException ex) {
+                throw new WixEditException(String.Format("The the path \"{0}\" is too long after being fully qualified. Make sure path is less than 260 characters.", relativeValue), ex);
             }
             
             if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
@@ -89,7 +94,7 @@ namespace WixEdit {
             int i = 1;
             string shortFileName = String.Format("{0}{1}{2}", nameStart, i, nameExtension);
 
-            while (componentElement.SelectSingleNode(String.Format("wix:File[@Name='{0}']", shortFileName), wixFiles.WxsNsmgr) != null) {
+            while (componentElement.SelectSingleNode(String.Format("wix:File[@Name={0}]", XPathHelper.EscapeXPathInputString(shortFileName)), wixFiles.WxsNsmgr) != null) {
                 if (i%10 == 9) {
                     if (tooShort > 0) {
                         tooShort--;
@@ -116,7 +121,7 @@ namespace WixEdit {
             int i = 1;
             string shortDirectoryName = String.Format("{0}{1}", nameStart, i);
 
-            while (componentElement.SelectSingleNode(String.Format("wix:Directory[@Name='{0}']", shortDirectoryName), wixFiles.WxsNsmgr) != null) {
+            while (componentElement.SelectSingleNode(String.Format("wix:Directory[@Name={0}]", XPathHelper.EscapeXPathInputString(shortDirectoryName)), wixFiles.WxsNsmgr) != null) {
                 if (i%10 == 9) {
                     if (tooShort > 0) {
                         tooShort--;

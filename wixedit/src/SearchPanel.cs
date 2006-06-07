@@ -131,37 +131,12 @@ namespace WixEdit {
             currentProcessThread.Start();
         }
 
-        /// <summary>
-        /// Escaping for something like:
-        /// <code>What's "Foo Bar Baz"</code>
-        /// So that would become
-        /// <code>concat('', 'What', "'", 's "Foo Bar Baz")</code>
-        /// suitable for a xpath query.
-        /// </summary>
-        /// <param name="input">Raw search string</param>
-        /// <returns>With concat constructed search string</returns>
-        public string BuildXPathSearchString (string input) {
-            string[] components = input.Split('\'');
-
-            StringBuilder result = new StringBuilder();
-            result.Append("concat(''");
-            for (int i = 0; i < components.Length; i++) {
-                result.AppendFormat(", '{0}'", components[i]);
-                if (i < components.Length - 1) {
-                    result.Append(", \"'\"");
-                }
-            }
-            result.Append(")");
-            
-            return result.ToString();
-        }
-
         private void InternalSearch() {
             Clear();
 
             try {
-                string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", BuildXPathSearchString(currentSearch.ToLower()));
-                string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", BuildXPathSearchString(currentSearch.ToLower()));
+                string searchAttrib = String.Format("//@*[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", XPathHelper.EscapeXPathInputString(currentSearch.ToLower()));
+                string searchElement = String.Format("//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),{0})]", XPathHelper.EscapeXPathInputString(currentSearch.ToLower()));
                 lastNodes = currentWixFiles.WxsDocument.SelectNodes(searchAttrib + "|" + searchElement);
                 foreach (XmlNode node in lastNodes) {
                     if (isCancelled) {
