@@ -209,42 +209,51 @@ namespace WixEdit {
                 return;
             }
 
+            // Finding the right anchor only works correctly when there are not multiple elements on one line.
+            int anchorCount = 0;
+            int numberOfElements = 1;
+            try {
+                using (StreamReader sr = new StreamReader(fileName)) {
+                    XmlTextReader reader = new XmlTextReader(sr);
+                    int reads = 0;
+                    int readElement = 0;
+                
+                    // Parse the XML and display each node.
+                    while (reader.Read()){
+                        reads++;
+                        if (reader.NodeType == XmlNodeType.Element) {
+                            readElement++;
+                        }
+                        if (reader.LineNumber == lineNumber) {
+                            anchorCount = readElement;
+                            while (reader.Read()){
+                                if (reader.LineNumber == lineNumber) {
+                                    if (reader.NodeType == XmlNodeType.Element) {
+                                        numberOfElements++;
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }   
+                }
+            } catch (XmlException) {
+                outputTextBox.ResumeLayout();
+
+                currentSelectionStart = 0; 
+                currentSelectionLength = 0;
+
+                return;
+            }
+            
             outputTextBox.Select(currentSelectionStart, currentSelectionLength);
             outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
             outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
             outputTextBox.Select(beginLineIndex, 0);
 
             outputTextBox.ResumeLayout();
-
-            // Finding the right anchor only works correctly when there are not multiple elements on one line.
-            int anchorCount = 0;
-            int numberOfElements = 1;
-            using (StreamReader sr = new StreamReader(fileName)) {
-                XmlTextReader reader = new XmlTextReader(sr);
-                int reads = 0;
-                int readElement = 0;
-                
-                // Parse the XML and display each node.
-                while (reader.Read()){
-                    reads++;
-                    if (reader.NodeType == XmlNodeType.Element) {
-                        readElement++;
-                    }
-                    if (reader.LineNumber == lineNumber) {
-                        anchorCount = readElement;
-                        while (reader.Read()){
-                            if (reader.LineNumber == lineNumber) {
-                                if (reader.NodeType == XmlNodeType.Element) {
-                                    numberOfElements++;
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }   
-            }
 
             if (numberOfElements == 1) {
                 ShowElement(anchorCount);
