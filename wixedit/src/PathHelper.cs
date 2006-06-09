@@ -99,6 +99,9 @@ namespace WixEdit {
                     if (tooShort > 0) {
                         tooShort--;
                     } else {
+                        if (nameStart.Length <= 1) {
+                            throw new WixEditException("Cannot determine unique short name for " + fileInfo.Name);
+                        }
                         nameStart = nameStart.Substring(0, nameStart.Length - 1);
                     }
                 }
