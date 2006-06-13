@@ -206,9 +206,12 @@ namespace WixEdit {
                 return;
             }
 
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;          
-            PropertyAdapterBase adaptorBase = CurrentGrid.SelectedObject as PropertyAdapterBase;
-
+            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
+            if (attAdapter.XmlNodeDefinition != null) {
+                // How can this happen? Just trow an exception so it can be reported to the WixEdit website.
+                throw new Exception(String.Format("XmlAttributeAdapter.XmlNodeDefinition is null of \"{0}\" in {1}", attAdapter.GetType(), this.GetType()));
+            }
+            
             // Need to change "Delete" to "Clear" for required items.
             bool isRequired = false;
 
