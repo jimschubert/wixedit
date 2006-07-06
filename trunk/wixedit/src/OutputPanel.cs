@@ -68,6 +68,10 @@ namespace WixEdit {
         IconMenuItem buildMenu;
         IconMenuItem cancelMenuItem;
 
+        public delegate void OnCompleteDelegate(bool isCancelled);
+
+        OnCompleteDelegate onCompletedOutput;
+
         public OutputPanel(EditorForm editorForm, IconMenuItem buildMenu) {
             this.editorForm = editorForm;
             this.buildMenu = buildMenu;
@@ -343,15 +347,24 @@ namespace WixEdit {
         }
         
         public void Run(ProcessStartInfo[] processStartInfos) {
-            Run(processStartInfos, null);
+            Run(processStartInfos, null, null);
         }
 
         public void Run(ProcessStartInfo[] processStartInfos, WixFiles theWixFiles) {
+            Run(processStartInfos, theWixFiles, null);
+        }
+
+        public void Run(ProcessStartInfo[] processStartInfos, OnCompleteDelegate onComplete) {
+            Run(processStartInfos, null, onComplete);
+        }
+
+        public void Run(ProcessStartInfo[] processStartInfos, WixFiles theWixFiles, OnCompleteDelegate onComplete) {
             if (IsBusy) {
                 throw new WixEditException("OutputPanel is already busy.");
             }
 
             wixFiles = theWixFiles;
+            onCompletedOutput = onComplete;
 
             isCancelled = false;
 
@@ -406,18 +419,31 @@ namespace WixEdit {
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
             outputTextBox.Cursor = Cursors.IBeam;
+            
+            if (onCompletedOutput != null) {
+                onCompletedOutput(isCancelled);
+            }
         }
         
         public void Run(ProcessStartInfo processStartInfo) {
-            Run(processStartInfo, null);
+            Run(processStartInfo, null, null);
         }
 
         public void Run(ProcessStartInfo processStartInfo, WixFiles theWixFiles) {
+            Run(processStartInfo, theWixFiles, null);
+        }
+
+        public void Run(ProcessStartInfo processStartInfo, OnCompleteDelegate onComplete) {
+            Run(processStartInfo, null, onComplete);
+        }
+
+        public void Run(ProcessStartInfo processStartInfo, WixFiles theWixFiles, OnCompleteDelegate onComplete) {
             if (IsBusy) {
                 throw new WixEditException("OutputPanel is already busy.");
             }
 
             wixFiles = theWixFiles;
+            onCompletedOutput = onComplete;
 
             isCancelled = false;
 
@@ -449,6 +475,10 @@ namespace WixEdit {
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
             outputTextBox.Cursor = Cursors.IBeam;
+
+            if (onCompletedOutput != null) {
+                onCompletedOutput(isCancelled);
+            }
         }
 
         public void RunWithLogFile(ProcessStartInfo processStartInfo, string logFile) {
@@ -491,6 +521,10 @@ namespace WixEdit {
 
             buildMenu.MenuItems.Remove(cancelMenuItem);
             outputTextBox.Cursor = Cursors.IBeam;
+            
+            if (onCompletedOutput != null) {
+                onCompletedOutput(isCancelled);
+            }
         }
 
         private void ReadLogFile(string logFile) {

@@ -103,6 +103,8 @@ namespace WixEdit {
 
         protected static ArrayList formInstances = new ArrayList();
 
+        string decompiledWxs;
+
         public EditorForm() {
             InitializeComponent();
         }
@@ -439,14 +441,10 @@ namespace WixEdit {
                             // Either the wxs file doesn't exist or the user gives permission to overwrite the wxs file
                             if (File.Exists(Path.ChangeExtension(fileToOpen, "wxs")) == false ||
                                 MessageBox.Show("The existing wxs file will be overwritten.\r\n\r\nAre you sure you want to continue?", "Overwrite?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                                Decompile(fileToOpen);
 
-                                string newWxs = Path.ChangeExtension(fileToOpen, "wxs");
-                                if (File.Exists(newWxs)) {
-                                    LoadWxsFile(newWxs);
-                                } else {
-                                    MessageBox.Show("Dark.exe failed to decompile the msi.", "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
+                                decompiledWxs = Path.ChangeExtension(fileToOpen, "wxs");
+
+                                Decompile(fileToOpen, new OutputPanel.OnCompleteDelegate(OnDecompileComplete));
                             }
                         } catch (Exception ex) {
                             MessageBox.Show(ex.Message, "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -457,6 +455,18 @@ namespace WixEdit {
                 } catch (Exception ex) {
                     MessageBox.Show(String.Format("Failed to open {0}.\r\n({1}\r\n{2})", fileToOpen, ex.Message, ex.StackTrace)); 
                 }
+            }
+        }
+
+        protected void OnDecompileComplete(bool isCancelled) {
+            if (isCancelled) {
+                return;
+            }
+
+            if (File.Exists(decompiledWxs)) {
+                LoadWxsFile(decompiledWxs);
+            } else {
+                MessageBox.Show("Dark.exe failed to decompile the msi.", "Failed to decompile", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -873,7 +883,7 @@ namespace WixEdit {
             outputPanel.Run(new ProcessStartInfo[] {psiCandle, psiLight}, wixFiles);
         }
 
-        private void Decompile(string fileName) {
+        private void Decompile(string fileName, OutputPanel.OnCompleteDelegate onComplete) {
             FileInfo msiFile = new FileInfo(fileName);
 
             string darkExe = WixEditSettings.Instance.WixBinariesDirectory.Dark;
@@ -893,7 +903,7 @@ namespace WixEdit {
             outputPanel.Clear();
             Update();
 
-            outputPanel.Run(psiDark);
+            outputPanel.Run(psiDark, onComplete);
         }
 
         private void ShowResultsPanel() {
