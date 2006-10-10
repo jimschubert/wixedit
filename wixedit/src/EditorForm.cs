@@ -475,7 +475,11 @@ namespace WixEdit {
         }
 
         private void Save() {
-            wixFiles.Save();
+            try {
+                wixFiles.Save();
+            } catch (System.UnauthorizedAccessException ex) {
+                MessageBox.Show("Failed to save " + wixFiles.WxsFile.Name + ":\r\n\r\n" + ex.Message, "Failed to save", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void fileSaveAs_Click(object sender, System.EventArgs e) {
