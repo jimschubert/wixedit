@@ -39,6 +39,7 @@ namespace WixEdit {
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.Label errorLabel;
+        private System.Windows.Forms.Label errorMessageLabel;
         private System.Windows.Forms.Button detailsButton;
 
         private string message;
@@ -59,12 +60,13 @@ namespace WixEdit {
             detailsButton = new System.Windows.Forms.Button();
             pictureBox = new System.Windows.Forms.PictureBox();
             errorLabel = new System.Windows.Forms.Label();
+            errorMessageLabel = new System.Windows.Forms.Label();
             SuspendLayout();
             // 
             // okButton
             // 
             okButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            okButton.Location = new System.Drawing.Point(160, 60);
+            okButton.Location = new System.Drawing.Point(160, 100);
             okButton.Name = "okButton";
             okButton.TabIndex = 0;
             okButton.Text = "OK";
@@ -74,7 +76,7 @@ namespace WixEdit {
             // cancelButton
             // 
             cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            cancelButton.Location = new System.Drawing.Point(240, 60);
+            cancelButton.Location = new System.Drawing.Point(240, 100);
             cancelButton.Name = "cancelButton";
             cancelButton.TabIndex = 1;
             cancelButton.Text = "Cancel";
@@ -83,7 +85,7 @@ namespace WixEdit {
             // detailsButton
             // 
             detailsButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            detailsButton.Location = new System.Drawing.Point(320, 60);
+            detailsButton.Location = new System.Drawing.Point(320, 100);
             detailsButton.Name = "detailsButton";
             detailsButton.TabIndex = 2;
             detailsButton.Text = "Details";
@@ -108,11 +110,20 @@ namespace WixEdit {
             errorLabel.TabIndex = 4;
             errorLabel.Text = message;
             // 
+            // errorLabel
+            // 
+            errorMessageLabel.Location = new System.Drawing.Point(64, 60);
+            errorMessageLabel.Name = "errorMessageLabel";
+            errorMessageLabel.Size = new System.Drawing.Size(456, 40);
+            errorMessageLabel.TabIndex = 4;
+            errorMessageLabel.Text = "Error message: " + exception.Message;
+            // 
             // ExceptionForm
             // 
             AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            ClientSize = new System.Drawing.Size(545, 94);
+            ClientSize = new System.Drawing.Size(545, 134);
             Controls.Add(errorLabel);
+            Controls.Add(errorMessageLabel);
             Controls.Add(pictureBox);
             Controls.Add(detailsButton);
             Controls.Add(cancelButton);

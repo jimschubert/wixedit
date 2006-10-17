@@ -304,6 +304,12 @@ namespace WixEdit {
         }
 
         protected void LaunchFile(string filename, int anchorNumber, int numberOfAnchors, int lineNumber, string message) {
+            if (xmlDisplayForm.HasAxshdocvwLoadFailure) {
+                xmlDisplayForm.ShowAxshdocvwLoadFailureMessage();
+
+                return;
+            }
+
             XslTransform transform = new XslTransform();
             using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
                  XmlTextReader xr = new XmlTextReader(strm);
@@ -319,7 +325,6 @@ namespace WixEdit {
                 File.Delete(outputFile);
                 transform.Transform(filename, outputFile, null);
             }
-
 
             if (xmlDisplayForm.Visible == false) {
                 xmlDisplayForm = new XmlDisplayForm();
