@@ -71,7 +71,7 @@ namespace WixEdit {
             }
             
             if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
-                throw new WixEditException(String.Format("{0} is invalid. {1} should be relative to {2}", relativeValue, path, binaries));
+                throw new WixEditException(String.Format("{0} is invalid. {1} should be relative to {2}, or change your preference in the WixEdit settings.", relativeValue, path, binaries));
             }
 
             return relativeValue;
