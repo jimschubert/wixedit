@@ -73,6 +73,10 @@ namespace WixEdit {
         protected IconMenuItem editMenu;
         protected IconMenuItem editUndo;
         protected IconMenuItem editRedo;
+
+        protected IconMenuItem helpStateBrowser;
+        protected Assembly stateBrowserAssm;
+
         protected IconMenuItem editFind;
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsExternal;
@@ -241,7 +245,7 @@ namespace WixEdit {
             editMenu.MenuItems.Add(1, editRedo);
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
             editMenu.MenuItems.Add(3, editFind);
-            
+
             mainMenu.MenuItems.Add(1, editMenu);
 
 
@@ -307,6 +311,7 @@ namespace WixEdit {
             helpTutorial = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
             helpMSIReference = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
             helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.source.ico"), 16, 16));
+            helpStateBrowser = new IconMenuItem();
 
             helpTutorial.Text = "WiX Tutorial";
             helpTutorial.Click += new EventHandler(helpTutorial_Click);
@@ -324,6 +329,21 @@ namespace WixEdit {
             helpMenu.MenuItems.Add(3, helpAbout);
 
             mainMenu.MenuItems.Add(4, helpMenu);
+
+            // Object browser for debug purposes, just drop the statebrowser assembly next to 
+            // the WixEdit assembly and select the "Browse Application State" in the help menu.
+            // See http://sliver.com/dotnet/statebrowser/
+            try {
+                stateBrowserAssm = Assembly.Load("sliver.windows.forms.statebrowser, Version=1.5.0.0, Culture=neutral, PublicKeyToken=34afe62596d00324, Custom=null");
+            } catch (Exception) { }
+
+            if (stateBrowserAssm != null) {
+                helpStateBrowser.Text = "&Browse Application State";
+                helpStateBrowser.Click += new EventHandler(helpStateBrowser_Click);
+
+                helpMenu.MenuItems.Add(4, new IconMenuItem("-"));
+                helpMenu.MenuItems.Add(5, helpStateBrowser);
+            }
 
             Menu = mainMenu;
 
@@ -693,6 +713,38 @@ namespace WixEdit {
             XmlNode node = wixFiles.UndoManager.Redo();
 
             ShowNode(node, true);
+        }
+
+        private void helpStateBrowser_Click(object sender, System.EventArgs e) {
+            // Get form type
+            Type stateBrowserFormType = stateBrowserAssm.GetType("sliver.Windows.Forms.StateBrowserForm");
+
+            // Get ObjectToBrowse property
+            PropertyInfo objectToBrowseProp = stateBrowserFormType.GetProperty("ObjectToBrowse");
+            
+            // Get the Show method
+            MethodInfo showMethod = stateBrowserFormType.GetMethod("Show");
+            
+            // Create instance of form
+            object stateBrowserForm  = Activator.CreateInstance(stateBrowserFormType);
+
+            PropertyInfo tmpProp = stateBrowserFormType.GetProperty("ShowDataTypes");
+            tmpProp.SetValue(stateBrowserForm, true, new object[0]);
+
+            tmpProp = stateBrowserFormType.GetProperty("ShowNonPublicMembers");
+            tmpProp.SetValue(stateBrowserForm, true, new object[0]);
+
+            tmpProp = stateBrowserFormType.GetProperty("ShowStaticMembers");
+            tmpProp.SetValue(stateBrowserForm, true, new object[0]);
+
+            tmpProp = stateBrowserFormType.GetProperty("WindowState");
+            tmpProp.SetValue(stateBrowserForm, FormWindowState.Maximized, new object[0]);
+
+            // Set ObjectToBrowse property to this form
+            objectToBrowseProp.SetValue(stateBrowserForm, this, new object[0]);
+            
+            // Show the form
+            showMethod.Invoke(stateBrowserForm, null);
         }
 
         private void editFind_Click(object sender, System.EventArgs e) {
