@@ -56,8 +56,6 @@ namespace WixEdit {
 
         EditorForm editorForm;
 
-        XmlDisplayForm xmlDisplayForm = new XmlDisplayForm();
-
         Thread currentProcessThread;
         WixFiles currentWixFiles;
         string currentSearch;

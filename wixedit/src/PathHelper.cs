@@ -32,7 +32,7 @@ namespace WixEdit {
             }
 
             if (File.Exists(path) == false) {
-                throw new FileNotFoundException(String.Format("{0} could not be located", path), path);
+                throw new WixEditException(String.Format("{0} could not be located", path));
             }
 
             string sepCharString = Path.DirectorySeparatorChar.ToString();

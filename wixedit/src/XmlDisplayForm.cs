@@ -20,6 +20,7 @@
 
 
 using System;
+using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
 using AxSHDocVw;
@@ -31,11 +32,43 @@ namespace WixEdit {
 	public class XmlDisplayForm : Form 	{
         protected AxWebBrowser webBrowser;
         protected string url;
+
+        protected static bool hasAxshdocvwLoadFailure = false;
         
         public XmlDisplayForm() {
+            VisibleChanged += new EventHandler(VisibleChangedHandler);
 
-            InitializeComponent();
+            try {
+                InitializeComponent();
+            } catch (FileNotFoundException ex) {
+                if (ex.FileName.ToLower().IndexOf("axshdocvw") >= 0) {
+                    if (hasAxshdocvwLoadFailure == false) {
+                        hasAxshdocvwLoadFailure = true;
+    
+                        ShowAxshdocvwLoadFailureMessage();
+                    }
+                } else {
+                    throw;
+                }
+            }
 		}
+
+        public bool HasAxshdocvwLoadFailure {
+            get {
+                return hasAxshdocvwLoadFailure;
+            }
+        }
+
+        protected void VisibleChangedHandler(object sender, EventArgs e) {
+            if (hasAxshdocvwLoadFailure && this.Visible) {
+                ShowAxshdocvwLoadFailureMessage();
+                this.Visible = false;
+            }
+        }
+
+        public void ShowAxshdocvwLoadFailureMessage() {
+            MessageBox.Show("Unable to load assembly \"AxSHDocVw.dll\"! Please make sure it is present next to WixEdit executable. It is not possible to view the source of any compile errors or warnings in the WixEdit source viewer.", "Failed to load: AxSHDocVw", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
 
         public string Url {
             get { return url; }
@@ -73,7 +106,10 @@ namespace WixEdit {
         public void ShowFile(string url) {
             this.url = url;
             object o = null;
-            webBrowser.Navigate(url, ref o, ref o, ref o, ref o);
+
+            if (hasAxshdocvwLoadFailure == false) {
+                webBrowser.Navigate(url, ref o, ref o, ref o, ref o);
+            }
         }
     }
 }
