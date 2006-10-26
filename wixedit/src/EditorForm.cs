@@ -430,7 +430,8 @@ namespace WixEdit {
             }
 
             NewProjectForm frm = new NewProjectForm();
-            if (frm.ShowDialog() == DialogResult.OK) {
+            if (frm.ShowDialog() == DialogResult.OK &&
+                frm.NewFileName != null) {
                 CloseWxsFile();
 
                 LoadWxsFile(frm.NewFileName);
@@ -778,6 +779,10 @@ namespace WixEdit {
         private void ShowNode(XmlNode node, bool forceReload) {
             if (node != null) {
                 foreach (DisplayBasePanel panel in panels) {
+                    if (panel == null) {
+                        continue;
+                    }
+
                     if (node.Name == "Product") {
                         panel.ReloadData();
                     } else if (panel.IsOwnerOfNode(node)) {
@@ -1411,6 +1416,9 @@ namespace WixEdit {
                 XmlNode current = ((DisplayBasePanel)tabButtonControl.SelectedPanel).GetShowingNode();
 
                 foreach (DisplayBasePanel panel in panels) {
+                    if (panel == null) {
+                        continue;
+                    }
                     panel.BeginInvoke(new InvokeReloadDataDelegate(panel.ReloadData));
                 }
 

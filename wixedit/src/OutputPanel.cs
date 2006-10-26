@@ -146,8 +146,12 @@ namespace WixEdit {
             // Obtain the character index at which the mouse cursor was clicked at.
             int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
             int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
-
             int lineCount = outputTextBox.Lines.Length;
+
+            if (lineCount <= currentLine || outputTextBox.Lines[currentLine] == null) {
+                return;
+            }
+
 
             int beginLineIndex = currentIndex;
             if (currentLine == 0) {
