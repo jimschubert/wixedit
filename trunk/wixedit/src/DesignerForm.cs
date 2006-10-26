@@ -58,7 +58,10 @@ namespace WixEdit {
                     string tmpSelectedNodeId = null;
                     SelectionOverlay ctrl = null;
 
-                    XmlAttribute att = value.Attributes["Id"];
+                    XmlAttribute att = null;
+                    if (value.Attributes != null) {
+                        att = value.Attributes["Id"];
+                    }
                     if (att != null && 
                         att.Value != null && 
                         att.Value.Trim().Length > 0) {

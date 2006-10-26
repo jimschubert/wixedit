@@ -219,6 +219,10 @@ namespace WixEdit {
         }
 
         private void OpenLine(int x, int y) {
+            if (lastNodes == null) {
+                return;
+            }
+
             // Obtain the character index at which the mouse cursor was clicked at.
             int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
             int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
@@ -261,7 +265,7 @@ namespace WixEdit {
                 outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
                 outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
                 
-                outputTextBox.Select(beginLineIndex, 0);    
+                outputTextBox.Select(beginLineIndex, 0);
 
                 editorForm.ShowNode(lastNodes[currentLine]);
             }
