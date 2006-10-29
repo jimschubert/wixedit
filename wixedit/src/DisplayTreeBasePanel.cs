@@ -433,10 +433,18 @@ namespace WixEdit {
 
                 if (File.Exists(filePath)) {
                     Icon ico = FileIconFactory.GetFileIcon(filePath);
-                    currTreeView.ImageList.Images.Add(ico);
-    
-                    node.ImageIndex = currTreeView.ImageList.Images.Count - 1;
-                    node.SelectedImageIndex = currTreeView.ImageList.Images.Count - 1;
+                    if (ico != null) {
+                        currTreeView.ImageList.Images.Add(ico);
+        
+                        node.ImageIndex = currTreeView.ImageList.Images.Count - 1;
+                        node.SelectedImageIndex = currTreeView.ImageList.Images.Count - 1;
+                    } else {
+                        int imageIndex = ImageListFactory.GetImageIndex(file.Name);
+                        if (imageIndex >= 0) {
+                            node.ImageIndex = imageIndex;
+                            node.SelectedImageIndex = imageIndex;
+                        }
+                    }
                 } else {
                     int imageIndex = ImageListFactory.GetImageIndex(file.Name);
                     if (imageIndex >= 0) {
