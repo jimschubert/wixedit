@@ -797,10 +797,13 @@ namespace WixEdit {
 
         public void OnDeleteWxsDialogsItem(object sender, EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
-                WixFiles.UndoManager.BeginNewCommandRange();
-
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
                 XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
+                if (dialog == null) {
+                    throw new Exception(String.Format("Unable to delete dialog \"{0}\", the dialog could not be found in the source file.", currentDialogId));
+                }
+
+                WixFiles.UndoManager.BeginNewCommandRange();
 
                 dialog.ParentNode.RemoveChild(dialog);
 
