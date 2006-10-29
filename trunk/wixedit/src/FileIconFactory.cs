@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -62,6 +63,10 @@ namespace WixEdit {
             ShFileInfo shellFileInfo = new ShFileInfo();
 
             SHGetFileInfo(filePath, FILE_ATTRIBUTE_NORMAL, ref shellFileInfo, (uint)Marshal.SizeOf(shellFileInfo), (uint)flags);
+
+            if (shellFileInfo.hIcon == IntPtr.Zero) {
+                return null;
+            }
 
             Icon icon = (Icon)Icon.FromHandle(shellFileInfo.hIcon).Clone();
 
