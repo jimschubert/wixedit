@@ -48,7 +48,21 @@ namespace WixEdit {
         static XmlDocument xsdDocument;
         static XmlNamespaceManager xsdNsmgr;
 
-        public static string WixNamespaceUri = "http://schemas.microsoft.com/wix/2003/01/wi";
+
+        public static string WixNamespaceUri {
+            get {
+                if (WixEditSettings.Instance.IsUsingWix3()) {
+                    return WixNamespaceUri_V3;
+                } else if (WixEditSettings.Instance.IsUsingWix2()) {
+                    return WixNamespaceUri_V2;
+                } else {
+                    return WixNamespaceUri_Default;
+                }
+            }
+        }
+        public static string WixNamespaceUri_Default = WixNamespaceUri_V2;
+        public static string WixNamespaceUri_V2 = "http://schemas.microsoft.com/wix/2003/01/wi";
+        public static string WixNamespaceUri_V3 = "http://schemas.microsoft.com/wix/2006/wi";
 
         private string customLightArgumentsWarning;
 
@@ -163,6 +177,8 @@ namespace WixEdit {
             xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
             xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
             xsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
+
+
         }
 
         public static XmlDocument GetXsdDocument() {
