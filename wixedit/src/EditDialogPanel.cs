@@ -464,7 +464,7 @@ namespace WixEdit {
                 if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                     string currentDialogId = wxsDialogs.SelectedItems[0].Text;
 
-                    return WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
+                    return GetDialogNode(currentDialogId);
                 }
 
                 return null;
@@ -712,7 +712,14 @@ namespace WixEdit {
                     return;
                 }
 
-                XmlNode dialog = WixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
+                XmlNode dialog = GetDialogNode(frm.SelectedString);
+                if (dialog != null) {
+                    MessageBox.Show(String.Format("Dialog with the ID '{0}' already exists.", frm.SelectedString));
+
+                    return;
+                }
+
+                dialog = WixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
                 SetDefaultValues(dialog);
 
                 XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Id");
@@ -765,6 +772,8 @@ namespace WixEdit {
                     return;
                 }
 
+                ArrayList duplicateDialogs = new ArrayList();
+
                 ListViewItem firstItem = null;
                 foreach (XmlNode importDialog in dialogList) {
                     if (importDialog.Attributes["Id"] == null) {
@@ -772,6 +781,12 @@ namespace WixEdit {
                     }
                     
                     string itemName = importDialog.Attributes["Id"].Value;
+                    XmlNode existingDialog = GetDialogNode(itemName);
+                    if (existingDialog != null) {
+                        duplicateDialogs.Add(itemName);
+
+                        continue;
+                    }
 
                     XmlNode importedDialog = WixFiles.WxsDocument.ImportNode(importDialog, true);
                     InsertNewXmlNode(ui, importedDialog);
@@ -792,13 +807,23 @@ namespace WixEdit {
         
                     wxsDialogs.Focus();
                 }
+
+                if (duplicateDialogs.Count > 0) {
+                    MessageBox.Show(String.Format("Skipped import of dialogs with the following ID's because dialogs with those ID's already exist:\r\n\r\n{0}", String.Join(", ", (String[]) duplicateDialogs.ToArray(typeof(String)))), "Skipped dialogs", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
+        }
+
+        protected XmlNode GetDialogNode(string dialogId) {
+            XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", dialogId), WixFiles.WxsNsmgr);
+
+            return dialog;
         }
 
         public void OnDeleteWxsDialogsItem(object sender, EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-                XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
+                XmlNode dialog = GetDialogNode(currentDialogId);
                 if (dialog == null) {
                     throw new Exception(String.Format("Unable to delete dialog \"{0}\", the dialog could not be found in the source file.", currentDialogId));
                 }
@@ -917,7 +942,7 @@ namespace WixEdit {
         private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-                XmlNode dialog = WixFiles.WxsDocument.SelectSingleNode(String.Format("/wix:Wix/*/wix:UI/wix:Dialog[@Id='{0}']", currentDialogId), WixFiles.WxsNsmgr);
+                XmlNode dialog = GetDialogNode(currentDialogId);
                 
                 ShowWixDialogTree(dialog);
                 ShowWixProperties(dialog);

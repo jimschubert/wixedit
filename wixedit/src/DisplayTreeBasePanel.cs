@@ -434,10 +434,18 @@ namespace WixEdit {
                 if (File.Exists(filePath)) {
                     Icon ico = FileIconFactory.GetFileIcon(filePath);
                     if (ico != null) {
-                        currTreeView.ImageList.Images.Add(ico);
+                        try {
+                            currTreeView.ImageList.Images.Add(ico);
         
-                        node.ImageIndex = currTreeView.ImageList.Images.Count - 1;
-                        node.SelectedImageIndex = currTreeView.ImageList.Images.Count - 1;
+                            node.ImageIndex = currTreeView.ImageList.Images.Count - 1;
+                            node.SelectedImageIndex = currTreeView.ImageList.Images.Count - 1;
+                        } catch {
+                            int imageIndex = ImageListFactory.GetImageIndex(file.Name);
+                            if (imageIndex >= 0) {
+                                node.ImageIndex = imageIndex;
+                                node.SelectedImageIndex = imageIndex;
+                            }
+                        }
                     } else {
                         int imageIndex = ImageListFactory.GetImageIndex(file.Name);
                         if (imageIndex >= 0) {
@@ -734,6 +742,9 @@ namespace WixEdit {
         }
 
         private void TreeViewMouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
+            if (this.Visible == false) {
+                return;
+            }
             if (e.Button == MouseButtons.Right) {
                 TreeNode node = currTreeView.GetNodeAt(e.X, e.Y);
                 if (node == null) {

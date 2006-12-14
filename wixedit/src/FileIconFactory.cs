@@ -55,24 +55,28 @@ namespace WixEdit {
         }
 
         public static Icon GetFileIcon(string filePath, bool isLink) {
-            uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | SHGFI_SMALLICON;
-            if (isLink) {
-              flags |= SHGFI_LINKOVERLAY;
-            }
+            try {
+                uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | SHGFI_SMALLICON;
+                if (isLink) {
+                    flags |= SHGFI_LINKOVERLAY;
+                }
 
-            ShFileInfo shellFileInfo = new ShFileInfo();
+                ShFileInfo shellFileInfo = new ShFileInfo();
 
-            SHGetFileInfo(filePath, FILE_ATTRIBUTE_NORMAL, ref shellFileInfo, (uint)Marshal.SizeOf(shellFileInfo), (uint)flags);
+                SHGetFileInfo(filePath, FILE_ATTRIBUTE_NORMAL, ref shellFileInfo, (uint)Marshal.SizeOf(shellFileInfo), (uint)flags);
 
-            if (shellFileInfo.hIcon == IntPtr.Zero) {
+                if (shellFileInfo.hIcon == IntPtr.Zero) {
+                    return null;
+                }
+
+                Icon icon = (Icon)Icon.FromHandle(shellFileInfo.hIcon).Clone();
+
+                DestroyIcon(shellFileInfo.hIcon);    
+        
+                return icon;
+            } catch {
                 return null;
             }
-
-            Icon icon = (Icon)Icon.FromHandle(shellFileInfo.hIcon).Clone();
-
-            DestroyIcon(shellFileInfo.hIcon);    
-        
-            return icon;
         }
     }
 }

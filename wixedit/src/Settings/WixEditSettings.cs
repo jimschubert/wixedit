@@ -23,6 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -67,21 +68,9 @@ namespace WixEdit.Settings {
 
                 AllowIncludeChanges = IncludeChangesHandling.AskForEachFile;
                 BackupChangedIncludes = true;
-
-                IgnoreFilesAndDirectories = new string[] {   "*~",
-                                                             "#*#",
-                                                             ".#*",
-                                                             "%*%",
-                                                             "._*",
-                                                             "CVS",
-                                                             ".cvsignore",
-                                                             "SCCS",
-                                                             "vssver.scc",
-                                                             ".svn",
-                                                             ".DS_Store" };
             }
 
-            public WixEditData(WixEditData oldVersion) {
+            public WixEditData(WixEditData oldVersion, XmlDocument rawData) {
                 BinDirectory = oldVersion.BinDirectory;
                 DarkLocation = oldVersion.DarkLocation;
                 CandleLocation = oldVersion.CandleLocation;
@@ -98,6 +87,16 @@ namespace WixEdit.Settings {
 
                 if (oldVersion.IgnoreFilesAndDirectories != null) {
                     IgnoreFilesAndDirectories = oldVersion.IgnoreFilesAndDirectories;
+                } else {
+                    ArrayList oldValues = new ArrayList();
+                    XmlNodeList nodes = rawData.SelectNodes("/WixEdit/IgnoreFilesAndDirectories/string");
+                    foreach (XmlNode node in nodes) {
+                        oldValues.Add(node.InnerText);
+                    }
+
+                    if (oldValues.Count > 0) {
+                        IgnoreFilesAndDirectories = oldValues;
+                    }
                 }
 
                 RecentOpenedFiles = oldVersion.RecentOpenedFiles;
@@ -140,7 +139,7 @@ namespace WixEdit.Settings {
             public IncludeChangesHandling AllowIncludeChanges;
             public bool BackupChangedIncludes;
 
-            public string[] IgnoreFilesAndDirectories;
+            public ArrayList IgnoreFilesAndDirectories;
         }
         public class EditDialogData {
             public int SnapToGrid = 5;
@@ -228,10 +227,16 @@ namespace WixEdit.Settings {
                 data = new WixEditData();
             }
 
+            XmlDocument rawData = new XmlDocument();
+            try {
+                rawData.Load(SettingsFile);
+            } catch {
+                rawData = null;
+            }
 
             try {
                 if (data.Version == null) {
-                    data = new WixEditData(data);
+                    data = new WixEditData(data, rawData);
                 } else {
                     Version current = GetCurrentVersion();
                     Version old = new Version(data.Version);
@@ -241,10 +246,10 @@ namespace WixEdit.Settings {
                         if (current.CompareTo(old) < 0) {
                             // This is a config file of a future version.
                             MessageBox.Show("The version of the configuration file is newer than the version of this application, if any problems occur remove the WixEditSettings.xml from the directory where WixEdit.exe is located.", "Configuration file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            data = new WixEditData(data);
+                            data = new WixEditData(data, rawData);
                         } else {
                             // This is a config file of an old version.
-                            data = new WixEditData(data);
+                            data = new WixEditData(data, rawData);
 
                             if (File.Exists(SettingsFile)) {
                                 string oldFileName = SettingsFile + "_v" + old.ToString();
@@ -285,10 +290,10 @@ namespace WixEdit.Settings {
                 }
             }
 
-            FileStream fs = new FileStream(SettingsFile, mode);
-
-            ser.Serialize(fs, data);
-            fs.Close();
+            using (FileStream fs = new FileStream(SettingsFile, mode)) {
+                ser.Serialize(fs, data);
+                fs.Close();
+            }
         }
 
         [
@@ -327,6 +332,71 @@ namespace WixEdit.Settings {
                     data.XsdLocation = value.Xsd;
                     data.BinDirectory = value.BinDirectory;
                 }
+            }
+        }
+
+        [
+        Category("Locations"), 
+        Description("The version of the WiX binaries."), 
+        ReadOnly(true)
+        ]
+        public string WixBinariesVersion {
+            get {
+                int majorPart;
+                bool majorPartMatches = true;
+                int minorPart;
+                bool minorPartMatches = true;
+                int buildPart;
+                bool buildPartMatches = true;
+                int privatePart;
+                bool privatePartMatches = true;
+
+                BinDirectoryStructure binaries = WixBinariesDirectory;
+                if (File.Exists(binaries.Candle) == false ||
+                    File.Exists(binaries.Light) == false ||
+                    File.Exists(binaries.Dark) == false) {
+                    return "(Not all files present)";
+                }
+
+                FileVersionInfo info = FileVersionInfo.GetVersionInfo(binaries.Candle);
+                majorPart = info.ProductMajorPart;
+                minorPart = info.ProductMinorPart;
+                buildPart = info.ProductBuildPart;
+                privatePart = info.ProductPrivatePart;
+
+
+                string[] otherExes = new string[] {binaries.Light, binaries.Dark};
+                foreach (string exe in otherExes) {
+                    info = FileVersionInfo.GetVersionInfo(exe);
+                    if (majorPart != info.ProductMajorPart) {
+                        majorPartMatches = false;
+                    }
+                    if (minorPart != info.ProductMinorPart) {
+                        minorPartMatches = false;
+                    }
+                    if (buildPart != info.ProductBuildPart) {
+                        buildPartMatches = false;
+                    }
+                    if (privatePart != info.ProductPrivatePart) {
+                        privatePartMatches = false;
+                    }
+                }
+
+
+                if (majorPartMatches == false) {
+                    return "WARNING: Using mixed up versions of WiX!";
+                }
+                if (minorPartMatches == false) {
+                    return String.Format("{0}.* (Minor part of versions differ)", majorPart);
+                }
+                if (buildPartMatches == false) {
+                    return String.Format("{0}.{1}.* (Build part of versions differ)", majorPart, minorPart);
+                }
+                if (privatePartMatches == false) {
+                    return String.Format("{0}.{1}.{2}.*", majorPart, minorPart, buildPart);
+                }
+                
+                return String.Format("{0}.{1}.{2}.{3}", majorPart, minorPart, buildPart, privatePart);
             }
         }
 
@@ -398,14 +468,36 @@ namespace WixEdit.Settings {
         [
         Category("Importing"), 
         Description("Directories and files to ignore. The \"*\" is threated as wildcard for zero or more characters."),
+        Editor(
+            "System.Windows.Forms.Design.StringCollectionEditor, System.Design, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a",
+            "System.Drawing.Design.UITypeEditor, System.Drawing, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+// .NET 2.0:
+//        Editor(
+//             "System.Windows.Forms.Design.StringCollectionEditor, System.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a",
+//             "System.Drawing.Design.UITypeEditor,System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
         ]
-        public string[] IgnoreFilesAndDirectories {
+        public ArrayList IgnoreFilesAndDirectories {
             get {
+                if (data.IgnoreFilesAndDirectories == null) {
+                    data.IgnoreFilesAndDirectories = new ArrayList(
+                        new string[] {  "*~",
+                                        "#*#",
+                                        ".#*",
+                                        "%*%",
+                                        "._*",
+                                        "CVS",
+                                        ".cvsignore",
+                                        "SCCS",
+                                        "vssver.scc",
+                                        ".svn",
+                                        ".DS_Store" });
+                }
+
                 return data.IgnoreFilesAndDirectories;
             }
             set {
                 if (value == null) {
-                    data.IgnoreFilesAndDirectories = new string[] {};
+                    data.IgnoreFilesAndDirectories = new ArrayList();
                 } else {
                     data.IgnoreFilesAndDirectories = value;
                 }
@@ -604,12 +696,12 @@ namespace WixEdit.Settings {
         #region Serialization helpers
 
         static protected void DeserializeUnknownNode(object sender, XmlNodeEventArgs e) {
-            MessageBox.Show("Ignoring Unknown Node from settings file: " +   e.Name);
+            // MessageBox.Show("Ignoring Unknown Node from settings file: " +   e.Name);
         }
         
         static protected void DeserializeUnknownAttribute(object sender, XmlAttributeEventArgs e) {
-            System.Xml.XmlAttribute attr = e.Attr;
-            MessageBox.Show("Ignoring Unknown Attribute from settings file: " + attr.Name + " = '" + attr.Value + "'");
+            // System.Xml.XmlAttribute attr = e.Attr;
+            // MessageBox.Show("Ignoring Unknown Attribute from settings file: " + attr.Name + " = '" + attr.Value + "'");
         }
 
         #endregion
