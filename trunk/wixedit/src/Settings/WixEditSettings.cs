@@ -342,6 +342,13 @@ namespace WixEdit.Settings {
         ]
         public string WixBinariesVersion {
             get {
+                BinDirectoryStructure binaries = WixBinariesDirectory;
+                if (File.Exists(binaries.Candle) == false ||
+                    File.Exists(binaries.Light) == false ||
+                    File.Exists(binaries.Dark) == false) {
+                    return "(Not all files present)";
+                }
+
                 int majorPart;
                 bool majorPartMatches = true;
                 int minorPart;
@@ -350,13 +357,6 @@ namespace WixEdit.Settings {
                 bool buildPartMatches = true;
                 int privatePart;
                 bool privatePartMatches = true;
-
-                BinDirectoryStructure binaries = WixBinariesDirectory;
-                if (File.Exists(binaries.Candle) == false ||
-                    File.Exists(binaries.Light) == false ||
-                    File.Exists(binaries.Dark) == false) {
-                    return "(Not all files present)";
-                }
 
                 FileVersionInfo info = FileVersionInfo.GetVersionInfo(binaries.Candle);
                 majorPart = info.ProductMajorPart;
@@ -398,6 +398,22 @@ namespace WixEdit.Settings {
                 
                 return String.Format("{0}.{1}.{2}.{3}", majorPart, minorPart, buildPart, privatePart);
             }
+        }
+
+        public bool IsWixVersionOk() {
+            if (WixBinariesVersion.StartsWith("WARNING")) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        public bool IsUsingWix2() {
+            return WixBinariesVersion.StartsWith("2");
+        }
+
+        public bool IsUsingWix3() {
+            return WixBinariesVersion.StartsWith("3");
         }
 
         [
