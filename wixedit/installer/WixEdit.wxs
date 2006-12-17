@@ -138,68 +138,56 @@
               </Directory>
             </Directory>
           </Directory>
-          <Directory Id="WixBinaries.3.0" Name="WIX-3~1" LongName="wix-3.0.1719.0">
+          <Directory Id="WixBinaries.3.0" Name="WIX-3~1" LongName="wix-3.0.2211.0">
             <Component Id="WixBinaries.3.0" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3007">
-              <File Id="v3_CPL.TXT" Name="CPL.TXT" src="..\wix-3.0.1719.0\CPL.TXT" />
-              <File Id="v3_candle.exe" Name="candle.exe" src="..\wix-3.0.1719.0\candle.exe" />
-              <File Id="v3_candle.exe.config" Name="candle.cfg" LongName="candle.exe.config" src="..\wix-3.0.1719.0\candle.exe.config" />
-              <File Id="v3_dark.exe" Name="dark.exe" src="..\wix-3.0.1719.0\dark.exe" />
-              <File Id="v3_dark.exe.config" Name="dark.cfg" LongName="dark.exe.config" src="..\wix-3.0.1719.0\dark.exe.config" />
-              <File Id="v3_light.exe" Name="light.exe" src="..\wix-3.0.1719.0\light.exe" />
-              <File Id="v3_light.exe.config" Name="light.cfg" LongName="light.exe.config" src="..\wix-3.0.1719.0\light.exe.config" />
-              <File Id="v3_lit.exe" Name="lit.exe" src="..\wix-3.0.1719.0\lit.exe" />
-              <File Id="v3_lit.exe.config" Name="lit.cfg" LongName="lit.exe.config" src="..\wix-3.0.1719.0\lit.exe.config" />
-              <File Id="v3_tallow.exe" Name="tallow.exe" src="..\wix-3.0.1719.0\tallow.exe" />
-              <File Id="v3_tallow.exe.config" Name="tallow.cfg" LongName="tallow.exe.config" src="..\wix-3.0.1719.0\tallow.exe.config" />
-              <File Id="v3_mergemod.dll" Name="mergemod.dll" src="..\wix-3.0.1719.0\mergemod.dll" />
-              <File Id="v3_Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" Name="Micro123.dll" LongName="Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" src="..\wix-3.0.1719.0\Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" />
-              <File Id="v3_winterop.dll" Name="winterop.dll" src="..\wix-3.0.1719.0\winterop.dll" />
-              <File Id="v3_wix.dll" Name="wix.dll" src="..\wix-3.0.1719.0\wix.dll" />
-              <File Id="v3_WixTasks.dll" Name="WixTasks.dll" src="..\wix-3.0.1719.0\WixTasks.dll" />
-              <File Id="v3_wix.targets" Name="wix.tgt" LongName="wix.targets" src="..\wix-3.0.1719.0\wix.targets" />
+              <File Id="v3_CPL.TXT" Name="CPL.TXT" src="..\wix-3.0.2211.0\CPL.TXT" />
+              <File Id="v3_candle.exe" Name="candle.exe" src="..\wix-3.0.2211.0\candle.exe" />
+              <File Id="v3_candle.exe.config" Name="candle.cfg" LongName="candle.exe.config" src="..\wix-3.0.2211.0\candle.exe.config" />
+              <File Id="v3_dark.exe" Name="dark.exe" src="..\wix-3.0.2211.0\dark.exe" />
+              <File Id="v3_dark.exe.config" Name="dark.cfg" LongName="dark.exe.config" src="..\wix-3.0.2211.0\dark.exe.config" />
+              <File Id="v3_light.exe" Name="light.exe" src="..\wix-3.0.2211.0\light.exe" />
+              <File Id="v3_light.exe.config" Name="light.cfg" LongName="light.exe.config" src="..\wix-3.0.2211.0\light.exe.config" />
+              <File Id="v3_lit.exe" Name="lit.exe" src="..\wix-3.0.2211.0\lit.exe" />
+              <File Id="v3_lit.exe.config" Name="lit.cfg" LongName="lit.exe.config" src="..\wix-3.0.2211.0\lit.exe.config" />
+              <File Id="v3_mergemod.dll" Name="mergemod.dll" src="..\wix-3.0.2211.0\mergemod.dll" />
+              <File Id="v3_Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" Name="Micro123.dll" LongName="Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" src="..\wix-3.0.2211.0\Microsoft.Tools.WindowsInstallerXml.NAntTasks.dll" />
+              <File Id="v3_winterop.dll" Name="winterop.dll" src="..\wix-3.0.2211.0\winterop.dll" />
+              <File Id="v3_wix.dll" Name="wix.dll" src="..\wix-3.0.2211.0\wix.dll" />
+              <File Id="v3_WixTasks.dll" Name="WixTasks.dll" src="..\wix-3.0.2211.0\WixTasks.dll" />
+              <File Id="v3_wix.targets" Name="wix.tgt" LongName="wix.targets" src="..\wix-3.0.2211.0\wix.targets" />
+
+              <File Id="v3_smoke.exe" Name="smoke.exe" src="..\wix-3.0.2211.0\smoke.exe" />
+              <File Id="v3_smoke.exe.config" Name="smoke.cfg" LongName="smoke.exe.config" src="..\wix-3.0.2211.0\smoke.exe.config" />
+              <File Id="v3_heat.exe" Name="heat.exe" src="..\wix-3.0.2211.0\heat.exe" />
+              <File Id="v3_heat.exe.config" Name="heat.cfg" LongName="heat.exe.config" src="..\wix-3.0.2211.0\heat.exe.config" />
+              <File Id="v3_WixCop.exe" Name="WixCop.exe" src="..\wix-3.0.2211.0\WixCop.exe" />
+
+              <File Id="v3_wconsole.dll" Name="wconsole.dll" src="..\wix-3.0.2211.0\wconsole.dll" />
+              <File Id="v3_wui.dll" Name="wui.dll" src="..\wix-3.0.2211.0\wui.dll" />
+              <File Id="v3_darice.cub" Name="darice.cub" src="..\wix-3.0.2211.0\darice.cub" />
+              <File Id="v3_mergemod.cub" Name="mergemod.cub" src="..\wix-3.0.2211.0\mergemod.cub" />
             </Component>
-            <Directory Id="WixBinaries.3.0.ca" Name="ca">
-              <Component Id="WixBinaries.3.0.ca" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3008">
-                <File Id="v3_scaexec.dll" Name="scaexec.dll" src="..\wix-3.0.1719.0\ca\scaexec.dll" />
-                <File Id="v3_scasched.dll" Name="scasched.dll" src="..\wix-3.0.1719.0\ca\scasched.dll" />
-                <File Id="v3_scaextension.dll" Name="scaschex.dll" LongName="scaextension.dll" src="..\wix-3.0.1719.0\ca\ScaExtension.dll" />
-                <File Id="v3_wixca.dll" Name="wixca.dll" src="..\wix-3.0.1719.0\ca\wixca.dll" />
-                <File Id="v3_sca.wixlib" Name="SCA_1.WIX" LongName="sca.wixlib" src="..\wix-3.0.1719.0\ca\sca.wixlib" />
-                <File Id="v3_wixca.wixlib" Name="WIXCA_1.WIX" LongName="wixca.wixlib" src="..\wix-3.0.1719.0\ca\wixca.wixlib" />
-              </Component>
-            </Directory>
+            <Component Id="WixBinaries.3.0.Extensions" DiskId="1" KeyPath="yes" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3013">
+              <File Id="v3_WixDifxAppExtension.dll" Name="DifxApp.dll" LongName="WixDifxAppExtension.dll" src="..\wix-3.0.2211.0\WixDifxAppExtension.dll" />
+              <File Id="v3_WixIIsExtension.dll" Name="IIs.dll" LongName="WixIIsExtension.dll" src="..\wix-3.0.2211.0\WixIIsExtension.dll" />
+              <File Id="v3_WixNetFxExtension.dll" Name="NetFx.dll" LongName="WixNetFxExtension.dll" src="..\wix-3.0.2211.0\WixNetFxExtension.dll" />
+              <File Id="v3_WixSqlExtension.dll" Name="Sql.dll" LongName="WixSqlExtension.dll" src="..\wix-3.0.2211.0\WixSqlExtension.dll" />
+              <File Id="v3_WixUIExtension.dll" Name="UI.dll" LongName="WixUIExtension.dll" src="..\wix-3.0.2211.0\WixUIExtension.dll" />
+              <File Id="v3_WixUtilExtension.dll" Name="Util.dll" LongName="WixUtilExtension.dll" src="..\wix-3.0.2211.0\WixUtilExtension.dll" />
+              <File Id="v3_WixVSExtension.dll" Name="VS.dll" LongName="WixVSExtension.dll" src="..\wix-3.0.2211.0\WixVSExtension.dll" />
+            </Component>
             <Directory Id="WixBinaries.3.0.doc" Name="doc">
               <Component Id="WixBinaries.3.0.doc" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3009">
-                <File Id="v3_WiX.chm" Name="WiX.chm" src="..\wix-3.0.1719.0\doc\WiX.chm" />
-                <File Id="v3_wix.xsd" Name="wix.xsd" src="..\wix-3.0.1719.0\doc\wix.xsd" />
-                <File Id="v3_wixloc.xsd" Name="wixloc.xsd" src="..\wix-3.0.1719.0\doc\wixloc.xsd" />
+                <File Id="v3_WiX.chm" Name="WiX.chm" src="..\wix-3.0.2211.0\doc\WiX.chm" />
+                <File Id="v3_wix.xsd" Name="wix.xsd" src="..\wix-3.0.2211.0\doc\wix.xsd" />
+                <File Id="v3_wixloc.xsd" Name="wixloc.xsd" src="..\wix-3.0.2211.0\doc\wixloc.xsd" />
+                <File Id="v3_vs.xsd" Name="vs.xsd" src="..\wix-3.0.2211.0\doc\vs.xsd" />
+                <File Id="v3_util.xsd" Name="util.xsd" src="..\wix-3.0.2211.0\doc\util.xsd" />
+                <File Id="v3_sql.xsd" Name="sql.xsd" src="..\wix-3.0.2211.0\doc\sql.xsd" />
+                <File Id="v3_netfx.xsd" Name="netfx.xsd" src="..\wix-3.0.2211.0\doc\netfx.xsd" />
+                <File Id="v3_iis.xsd" Name="iis.xsd" src="..\wix-3.0.2211.0\doc\iis.xsd" />
+                <File Id="v3_difxapp.xsd" Name="difxapp.xsd" src="..\wix-3.0.2211.0\doc\difxapp.xsd" />
               </Component>
-            </Directory>
-            <Directory Id="WixBinaries.3.0.lib" Name="lib">
-              <Component Id="WixBinaries.3.0.lib" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3010">
-                <File Id="v3_dutil.lib" Name="dutil.lib" src="..\wix-3.0.1719.0\lib\dutil.lib" />
-              </Component>
-              <Component Id="WixBinaries.3.0.ui" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3011">
-                <File Id="v3_wixui_featuretree.wixlib" Name="WIXUI_FT.WIX" LongName="wixui_featuretree.wixlib" src="..\wix-3.0.1719.0\lib\wixui_featuretree.wixlib" />
-                <File Id="v3_wixui_minimal.wixlib" Name="WIXUI_MI.WIX" LongName="wixui_minimal.wixlib" src="..\wix-3.0.1719.0\lib\wixui_minimal.wixlib" />
-                <File Id="v3_wixui_mondo.wixlib" Name="WIXUI_MO.WIX" LongName="wixui_mondo.wixlib" src="..\wix-3.0.1719.0\lib\wixui_mondo.wixlib" />
-              </Component>
-              <Component Id="WixBinaries.3.0.ui.bitmaps" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3012">
-                <File Id="v3_bannrbmp.bmp" Name="bannrbmp.bmp" src="..\wix-3.0.1719.0\lib\bannrbmp.bmp" />
-                <File Id="v3_dlgbmp.bmp" Name="dlgbmp.bmp" src="..\wix-3.0.1719.0\lib\dlgbmp.bmp" />
-                <File Id="v3_exclamic.ico" Name="exclamic.ico" src="..\wix-3.0.1719.0\lib\exclamic.ico" />
-                <File Id="v3_info.ico" Name="info.ico" src="..\wix-3.0.1719.0\lib\info.ico" />
-                <File Id="v3_New.ico" Name="New.ico" src="..\wix-3.0.1719.0\lib\New.ico" />
-                <File Id="v3_Up.ico" Name="Up.ico" src="..\wix-3.0.1719.0\lib\Up.ico" />
-              </Component>
-              <Component Id="WixBinaries.3.0.ui.Language" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3015">
-                <File Id="v3_WixUI_en_us.wxl" Name="WIXUI_1.wxl" LongName="WixUI_en-us.wxl" src="..\wix-3.0.1719.0\lib\WixUI_en-us.wxl" />
-              </Component>
-              <Component Id="WixBinaries.3.0.ui.License" DiskId="1" Guid="DEADBEEF-DEAD-BEEF-DEAD-BEEFDEAD3016">
-                <File Id="v3_License.rtf" Name="License.rtf" src="..\wix-3.0.1719.0\lib\License.rtf" />
-              </Component>
-              <Directory Id="WixBinaries.3.0.ui.bitmaps" Name="Bitmaps">
-              </Directory>
             </Directory>
           </Directory>
           <Directory Id="Templates" Name="template" LongName="templates">
@@ -284,15 +272,10 @@
       <ComponentRef Id="WixBinaries.2.0.ui.Language" />
       <ComponentRef Id="WixBinaries.2.0.ui.License" />
     </Feature>
-    <Feature Id="WixBinariesFeature.3.0" Level="110" Title="Wix 3.0.1719.0" Description="The Wix 3.0 binaries." Absent="allow" AllowAdvertise="no">
+    <Feature Id="WixBinariesFeature.3.0" Level="110" Title="Wix 3.0.2211.0" Description="The Wix 3.0 binaries." Absent="allow" AllowAdvertise="no">
       <ComponentRef Id="WixBinaries.3.0" />
-      <ComponentRef Id="WixBinaries.3.0.ca" />
+      <ComponentRef Id="WixBinaries.3.0.Extensions" />
       <ComponentRef Id="WixBinaries.3.0.doc" />
-      <ComponentRef Id="WixBinaries.3.0.lib" />
-      <ComponentRef Id="WixBinaries.3.0.ui" />
-      <ComponentRef Id="WixBinaries.3.0.ui.bitmaps" />
-      <ComponentRef Id="WixBinaries.3.0.ui.Language" />
-      <ComponentRef Id="WixBinaries.3.0.ui.License" />
     </Feature>
     <Upgrade Id="5D5D3F6C-20FE-487e-9836-542950FD7921">
       <!-- Upgrading everything before this version. -->

@@ -54,7 +54,7 @@ namespace WixEdit.Settings {
         private void InitializeComponent() {
             Text = "WiX Edit Settings";
             Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
-            ClientSize = new System.Drawing.Size(500, 400); 
+            ClientSize = new System.Drawing.Size(500, 450); 
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.Sizable;
             MinimizeBox = false;

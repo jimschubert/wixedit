@@ -430,7 +430,7 @@ namespace WixEdit.Settings {
         }
 
         public string GetWixXsdLocation() {
-            return Path.Combine(data.XsdsLocation, "wix.xsd");
+            return Path.Combine(WixBinariesDirectory.Xsds, "wix.xsd");
         }
 
         [
