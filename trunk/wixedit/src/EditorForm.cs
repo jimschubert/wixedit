@@ -1044,12 +1044,15 @@ namespace WixEdit {
                     while (formInstances.Count != 1) {
                         Thread.Sleep(100);
                     }
+    
+                    // and reload xsds.
+                    WixFiles.ReloadXsd();
+    
+                    MessageBox.Show("Settings applied successfully.", "Apply settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                } else {
+                    // and reload xsds.
+                    WixFiles.ReloadXsd();
                 }
-
-                // and reload xsds.
-                WixFiles.ReloadXsd();
-
-                MessageBox.Show("Settings applied successfully.", "Apply settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
