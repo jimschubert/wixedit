@@ -78,6 +78,12 @@ namespace WixEdit {
         }
 
         public static string GetShortFileName(FileInfo fileInfo, WixFiles wixFiles, XmlNode componentElement) {
+
+            string ShortName = "ShortName";
+            if (WixEditSettings.Instance.IsUsingWix2()) {
+                ShortName = "Name";
+            }
+
             string nameStart = Path.GetFileNameWithoutExtension(fileInfo.Name).ToUpper().Replace(" ", "");
             int tooShort = 0;
             if (nameStart.Length > 7) {
@@ -91,10 +97,9 @@ namespace WixEdit {
                 nameExtension = nameExtension.Substring(0, 4);
             }
                     
-            int i = 1;
-            string shortFileName = String.Format("{0}{1}{2}", nameStart, i, nameExtension);
-
-            while (componentElement.SelectSingleNode(String.Format("wix:File[@Name={0}]", XPathHelper.EscapeXPathInputString(shortFileName)), wixFiles.WxsNsmgr) != null) {
+            int i = 0;
+            string shortFileName = String.Format("{0}{1}", nameStart, nameExtension);
+            while (componentElement.SelectSingleNode(String.Format("wix:File[@{0}={1}]", ShortName, XPathHelper.EscapeXPathInputString(shortFileName)), wixFiles.WxsNsmgr) != null) {
                 if (i%10 == 9) {
                     if (tooShort > 0) {
                         tooShort--;
@@ -113,6 +118,11 @@ namespace WixEdit {
         }
 
         public static string GetShortDirectoryName(DirectoryInfo directoryInfo, WixFiles wixFiles, XmlNode componentElement) {
+            string ShortName = "ShortName";
+            if (WixEditSettings.Instance.IsUsingWix2()) {
+                ShortName = "Name";
+            }
+
             string nameStart = directoryInfo.Name;
             int tooShort = 0;
             if (nameStart.Length > 7) {
@@ -124,7 +134,7 @@ namespace WixEdit {
             int i = 1;
             string shortDirectoryName = String.Format("{0}{1}", nameStart, i);
 
-            while (componentElement.SelectSingleNode(String.Format("wix:Directory[@Name={0}]", XPathHelper.EscapeXPathInputString(shortDirectoryName)), wixFiles.WxsNsmgr) != null) {
+            while (componentElement.SelectSingleNode(String.Format("wix:Directory[@{0}={1}]", ShortName, XPathHelper.EscapeXPathInputString(shortDirectoryName)), wixFiles.WxsNsmgr) != null) {
                 if (i%10 == 9) {
                     if (tooShort > 0) {
                         tooShort--;

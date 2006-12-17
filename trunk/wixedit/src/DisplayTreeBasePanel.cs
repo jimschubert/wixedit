@@ -589,21 +589,9 @@ namespace WixEdit {
 
             currTreeViewContextMenu.MenuItems.Clear();
 
-            ArrayList newElementStrings = new ArrayList();
-            XmlNodeList xmlSubElements = WixFiles.XsdDocument.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType//xs:element", node.Name), WixFiles.XsdNsmgr);
-            foreach (XmlNode xmlSubElement in xmlSubElements) {
-                XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
-                if (refAtt != null) {
-                    if (refAtt.Value != null && refAtt.Value.Length > 0) {
-                        if (SkipElements.Contains(refAtt.Value)) {
-                            continue;
-                        }
-                        newElementStrings.Add(refAtt.Value);
-                    }
-                }
-            }
-
+            ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Name);
             newElementStrings.Sort();
+
             foreach (string newElementString in newElementStrings) {
                 IconMenuItem subMenuItem = new IconMenuItem(newElementString);
                 subMenuItem.Click += new EventHandler(NewElement_Click);
@@ -654,7 +642,7 @@ namespace WixEdit {
 
             WixFiles.UndoManager.BeginNewCommandRange();
 
-            XmlElement newElement = node.OwnerDocument.CreateElement(typeName, WixFiles.WixNamespaceUri);
+            XmlElement newElement = node.OwnerDocument.CreateElement(typeName, WixFiles.GetNamespaceUri(typeName));
             TreeNode control = new TreeNode(typeName);
             control.Tag = newElement;
 

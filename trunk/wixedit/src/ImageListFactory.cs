@@ -43,8 +43,7 @@ namespace WixEdit {
         private static StringCollection GetTypes() {
             StringCollection types = new StringCollection();
 
-            XmlNodeList xmlElements = WixFiles.GetXsdDocument().SelectNodes("/xs:schema/xs:element", WixFiles.GetXsdNsmgr());
-
+            ArrayList xmlElements = WixFiles.GetXsdAllElements();
             foreach (XmlNode xmlElement in xmlElements) {
                 XmlAttribute nameAtt = xmlElement.Attributes["name"];
                 if (nameAtt != null) {
@@ -92,7 +91,14 @@ namespace WixEdit {
         public static int GetImageIndex(string imageName) {
             int ret = imageTypes.IndexOf(imageName);
             if (ret < 0) {
-                ret = imageTypes.Count;
+                int colonPos = imageName.IndexOf(":");
+                if (colonPos > 0) {
+                    ret = imageTypes.IndexOf(imageName.Substring(colonPos+1));
+                }
+
+                if (ret < 0) {
+                    ret = imageTypes.Count;
+                }
             }
 
             return ret;

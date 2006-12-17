@@ -24,6 +24,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
+using WixEdit.Settings;
 
 namespace WixEdit.Import {
     /// <summary>
@@ -33,21 +34,33 @@ namespace WixEdit.Import {
         WixFiles wixFiles;
         FileInfo fileInfo;
         XmlNode componentElement;
+
+        string ShortName;
+        string LongName;
+
         public FileImport(WixFiles wixFiles, FileInfo fileInfo, XmlNode componentElement) {
             this.wixFiles = wixFiles;
             this.fileInfo = fileInfo;
             this.componentElement = componentElement;
+
+            if (WixEditSettings.Instance.IsUsingWix2()) {
+                this.ShortName = "Name";
+                this.LongName = "LongName";
+            } else {
+                this.ShortName = "ShortName";
+                this.LongName = "Name";
+            }
         }
 
         public void Import(TreeNode treeNode) {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
             newElement.SetAttribute("Id", GenerateValidIdentifier(fileInfo.Name));
-            newElement.SetAttribute("LongName", GenerateValidLongName(fileInfo.Name));
-            newElement.SetAttribute("Name", GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement)));
+            newElement.SetAttribute(LongName, GenerateValidLongName(fileInfo.Name));
+            newElement.SetAttribute(ShortName, GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement)));
             newElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
-            TreeNode newNode = new TreeNode(newElement.GetAttribute("LongName"));
+            TreeNode newNode = new TreeNode(newElement.GetAttribute(LongName));
             newNode.Tag = newElement;
             
             int imageIndex = ImageListFactory.GetImageIndex("File");

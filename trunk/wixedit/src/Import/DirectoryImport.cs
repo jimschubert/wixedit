@@ -24,6 +24,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
+using WixEdit.Settings;
 
 namespace WixEdit.Import {
     /// <summary>
@@ -35,10 +36,21 @@ namespace WixEdit.Import {
         XmlNode directoryElement;
         TreeNode firstShowableNode;
 
+        string ShortName;
+        string LongName;
+
         public DirectoryImport(WixFiles wixFiles, string[] folders, XmlNode directoryElement) {
             this.wixFiles = wixFiles;
             this.folders = folders;
             this.directoryElement = directoryElement;
+
+            if (WixEditSettings.Instance.IsUsingWix2()) {
+                this.ShortName = "Name";
+                this.LongName = "LongName";
+            } else {
+                this.ShortName = "ShortName";
+                this.LongName = "Name";
+            }
         }
 
         public void Import(TreeNode treeNode) {
@@ -75,10 +87,11 @@ namespace WixEdit.Import {
                 XmlElement newElement = parentDirectoryElement.OwnerDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
 
                 newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name));
-                newElement.SetAttribute("LongName", FileImport.GenerateValidLongName(dirInfo.Name));
-                newElement.SetAttribute("Name", FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
-                
-                TreeNode newNode = new TreeNode(newElement.GetAttribute("LongName"));
+
+                newElement.SetAttribute(LongName, FileImport.GenerateValidLongName(dirInfo.Name));
+                newElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
+            
+                TreeNode newNode = new TreeNode(newElement.GetAttribute(LongName));
                 newNode.Tag = newElement;
 
                 if (firstShowableNode == null) {
@@ -140,11 +153,11 @@ namespace WixEdit.Import {
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
                 newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name));
-                newFileElement.SetAttribute("LongName", FileImport.GenerateValidLongName(fileInfo.Name));
-                newFileElement.SetAttribute("Name", FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
+                newFileElement.SetAttribute(LongName, FileImport.GenerateValidLongName(fileInfo.Name));
+                newFileElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
-                TreeNode newFileNode = new TreeNode(newFileElement.GetAttribute("LongName"));
+                TreeNode newFileNode = new TreeNode(newFileElement.GetAttribute(LongName));
                 newFileNode.Tag = newFileElement;
             
                 imageIndex = ImageListFactory.GetImageIndex("File");

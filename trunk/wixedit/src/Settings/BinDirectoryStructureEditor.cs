@@ -110,7 +110,7 @@ namespace WixEdit.Settings {
             if(result == DialogResult.OK) {
                 value.BinDirectory = dialog.SelectedPath;
                 value.Candle = null;
-                value.Xsd = null;
+                value.Xsds = null;
                 value.Dark = null;
             }
 
