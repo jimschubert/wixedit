@@ -522,6 +522,14 @@ namespace WixEdit {
             }
         }
 
+        public void ForceClose() {
+            HandlePendingChanges(null, true);
+
+            CloseWxsFile();
+
+            this.Close();
+        }
+
         private void fileClose_Click(object sender, System.EventArgs e) {
             if (HandlePendingChanges() == false) {
                 return;
@@ -1004,8 +1012,45 @@ namespace WixEdit {
         }
 
         private void toolsOptions_Click(object sender, System.EventArgs e) {
+            // Track changes to Xsd or Bin path or version, if it changes we need to restart/reload.
+            string xsds = WixEditSettings.Instance.WixBinariesDirectory.Xsds;
+            string version = WixEditSettings.Instance.WixBinariesVersion.Substring(0,1);
+
             SettingsForm frm = new SettingsForm();
             frm.ShowDialog();
+
+            if (xsds != WixEditSettings.Instance.WixBinariesDirectory.Xsds || 
+                version != WixEditSettings.Instance.WixBinariesVersion.Substring(0,1)) {
+                // Close all files...
+                if (wixFiles != null || formInstances.Count > 1) {
+                    MessageBox.Show("You must close all files first before the new setting can be applied.", "Apply settings", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    HandlePendingChanges(null, true);
+
+                    this.CloseWxsFile();
+
+                    EditorForm[] constEditorArray = new EditorForm[formInstances.Count];
+                    formInstances.CopyTo(constEditorArray);
+                    for (int i = 0; i < constEditorArray.Length; i++) {
+                        EditorForm edit = constEditorArray[i];
+        
+                        if (edit == this) {
+                            continue;
+                        }
+        
+                        edit.Invoke(new VoidVoidDelegate(edit.ForceClose));
+                    }
+
+                    while (formInstances.Count != 1) {
+                        Thread.Sleep(100);
+                    }
+                }
+
+                // and reload xsds.
+                WixFiles.ReloadXsd();
+
+                MessageBox.Show("Settings applied successfully.", "Apply settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void helpTutorial_Click(object sender, System.EventArgs e) {
@@ -1069,16 +1114,26 @@ namespace WixEdit {
         }
 
         private bool HandlePendingChanges() {
-            return HandlePendingChanges(null);
+            return HandlePendingChanges(null, false);
         }
+
         private bool HandlePendingChanges(string message) {
+            return HandlePendingChanges(message, false);
+        }
+
+        private bool HandlePendingChanges(string message, bool force) {
             if (wixFiles != null && wixFiles.HasChanges() == true) {
                 string messageText = "";
                 if (message != null) {
                     messageText = message + "\r\n\r\n";
                 }
 
-                DialogResult result = MessageBox.Show(messageText + "Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
+                if (force) {
+                    buttons = MessageBoxButtons.YesNo;
+                }
+
+                DialogResult result = MessageBox.Show(messageText + "Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", buttons, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes) {
                     Save();
                 } else if (result == DialogResult.Cancel) {
@@ -1108,7 +1163,9 @@ namespace WixEdit {
             } catch (UnauthorizedAccessException) {
                 MessageBox.Show(String.Format("Access is denied. ({0}))", file.Name), "Acces denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch (XmlException ex) {
-                MessageBox.Show(String.Format("Failed to open file. ({0}) The xml is not valid:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+                MessageBox.Show(String.Format("Failed to open file. ({0}) The xml is not valid:\r\n\r\n{1}", file.Name, ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+            } catch (WixEditException ex) {
+                MessageBox.Show(String.Format("Cannot to open file:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch {
                 MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             }
@@ -1293,7 +1350,7 @@ namespace WixEdit {
                 if (xmlFile != null && xmlFile.Length > 0) {
                     if (File.Exists(xmlFile)) {
                         fileToOpen = xmlFile;
-                    } else if (xmlFile == "-last") {
+                    } else if (xmlFile == "-last" || xmlFile == "/last") {
                         string[] recentFiles = WixEditSettings.Instance.GetRecentlyUsedFiles();
                         if (recentFiles.Length > 0) {
                             fileToOpen = recentFiles[0];
@@ -1393,7 +1450,7 @@ namespace WixEdit {
                         }
                         SetForegroundWindow(foundForm.Handle);
                     } else {
-                        if (wixFiles == null) {
+                        if (wixFiles == null || WixEditSettings.Instance.UseInstanceOnly) {
                             LoadWxsFile(argument);
                         } else {
                             NewInstanceStarter starter = new NewInstanceStarter(argument);

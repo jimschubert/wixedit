@@ -49,7 +49,8 @@ namespace WixEdit.PropertyGridExtensions {
 
         public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
             this.xmlNode = xmlNode;
-            xmlNodeElement = wixFiles.XsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", xmlNode.Name), wixFiles.XsdNsmgr);
+
+            xmlNodeElement = WixFiles.GetXsdElementNode(xmlNode.Name);
 
             if (xmlNodeElement == null) {
                 if (xmlNode.NodeType != XmlNodeType.ProcessingInstruction) {

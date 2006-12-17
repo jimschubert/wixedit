@@ -1,4 +1,3 @@
-
 // Copyright (c) 2005 J.Keuper (j.keuper@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -216,7 +215,11 @@ namespace WixEdit {
         /// <param name="parentElement">Parent node which gets the new element as child</param>
         /// <param name="newElement">The new element which gets inserted as child of the parent element.</param>
         protected virtual void InsertNewXmlNode(XmlNode parentElement, XmlNode newElement) {
-            XmlNodeList sameNodes = parentElement.SelectNodes("wix:" + newElement.Name, WixFiles.WxsNsmgr);
+            string newName = newElement.Name;
+            if (newName.IndexOf(":") < 0) {
+                newName = "wix:" + newElement.Name;
+            }
+            XmlNodeList sameNodes = parentElement.SelectNodes(newName, WixFiles.WxsNsmgr);
             if (sameNodes.Count > 0) {
                 parentElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
             } else {

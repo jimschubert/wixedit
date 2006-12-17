@@ -96,36 +96,35 @@ namespace WixEdit.Settings {
 
         [
         DefaultValueAttribute(true),
-        Editor(typeof(FilteredFileNameEditor), typeof(System.Drawing.Design.UITypeEditor)),
-        FilteredFileNameEditor.Filter("wix.xsd |wix.xsd"),
-        Description("The location of the The Windows Installer XML Xml Schema Definition")
+        Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor)),
+        Description("The location of the The Windows Installer XML Xml Schema Definitions")
         ]
-        public string Xsd {
+        public string Xsds {
             get {
-                if (wixEditData.XsdLocation == null || wixEditData.XsdLocation.Length == 0) {
+                if (wixEditData.XsdsLocation == null || wixEditData.XsdsLocation.Length == 0) {
                     if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
                         return String.Empty;
                     }
-                    return Path.Combine(wixEditData.BinDirectory, "doc\\wix.xsd");
+                    return Path.Combine(wixEditData.BinDirectory, "doc");
                 } else {
-                    return wixEditData.XsdLocation;
+                    return wixEditData.XsdsLocation;
                 }
             }
-            set { wixEditData.XsdLocation = value; }
+            set { wixEditData.XsdsLocation = value; }
         }
 
         public bool HasSameBinDirectory() {
-            if (wixEditData.CandleLocation == null && wixEditData.DarkLocation == null && wixEditData.LightLocation == null && wixEditData.XsdLocation == null) {
+            if (wixEditData.CandleLocation == null && wixEditData.DarkLocation == null && wixEditData.LightLocation == null && wixEditData.XsdsLocation == null) {
                 return true;
             }
 
-            if (Candle == null || Dark == null || Light == null || Xsd == null) {
+            if (Candle == null || Dark == null || Light == null || Xsds == null) {
                 return false;
             }
 
             return (new FileInfo(Candle).Directory.FullName == new FileInfo(Dark).Directory.FullName && 
                     new FileInfo(Candle).Directory.FullName == new FileInfo(Light).Directory.FullName && 
-                new FileInfo(Xsd).Directory.FullName.StartsWith(new FileInfo(Candle).Directory.FullName));
+                    Xsds.StartsWith(new FileInfo(Candle).Directory.FullName));
         }
 
         /// <summary>
@@ -179,7 +178,7 @@ namespace WixEdit.Settings {
                 data.CandleLocation = String.Empty;
                 data.LightLocation = String.Empty;
                 data.DarkLocation = String.Empty;
-                data.XsdLocation = String.Empty;
+                data.XsdsLocation = String.Empty;
 
                 return new BinDirectoryStructure(data);
             }

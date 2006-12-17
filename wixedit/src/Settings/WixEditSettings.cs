@@ -55,6 +55,7 @@ namespace WixEdit.Settings {
             public WixEditData() {
                 UseRelativeOrAbsolutePaths = PathHandling.UseRelativePathsWhenPossible;
                 ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+                UseInstanceOnly = false;
 
                 RecentOpenedFiles = new string[] {};
 
@@ -75,7 +76,16 @@ namespace WixEdit.Settings {
                 DarkLocation = oldVersion.DarkLocation;
                 CandleLocation = oldVersion.CandleLocation;
                 LightLocation = oldVersion.LightLocation;
-                XsdLocation = oldVersion.XsdLocation;
+
+                if (oldVersion.XsdsLocation == null) {
+                    XmlNode node = rawData.SelectSingleNode("/WixEdit/XsdLocation");
+                    if (node != null && node.InnerText.Length > 0) {
+                        XsdsLocation = Path.GetDirectoryName(node.InnerText);
+                    }
+                } else {
+                    XsdsLocation = oldVersion.XsdsLocation;
+                }
+
                 TemplateDirectory = oldVersion.TemplateDirectory;
                 DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
                 UseRelativeOrAbsolutePaths = oldVersion.UseRelativeOrAbsolutePaths;
@@ -85,7 +95,9 @@ namespace WixEdit.Settings {
                     ExternalXmlEditor = oldVersion.ExternalXmlEditor;
                 }
 
-                if (oldVersion.IgnoreFilesAndDirectories != null) {
+                UseInstanceOnly = oldVersion.UseInstanceOnly;
+
+                if (oldVersion.IgnoreFilesAndDirectories != null && oldVersion.IgnoreFilesAndDirectories.Count > 0) {
                     IgnoreFilesAndDirectories = oldVersion.IgnoreFilesAndDirectories;
                 } else {
                     ArrayList oldValues = new ArrayList();
@@ -121,9 +133,10 @@ namespace WixEdit.Settings {
             public string DarkLocation;
             public string CandleLocation;
             public string LightLocation;
-            public string XsdLocation;
+            public string XsdsLocation;
             public string TemplateDirectory;
             public string ExternalXmlEditor;
+            public bool UseInstanceOnly;
             public string DefaultProjectDirectory;
             public string Version;
             public PathHandling UseRelativeOrAbsolutePaths;
@@ -304,7 +317,7 @@ namespace WixEdit.Settings {
         ]
         public BinDirectoryStructure WixBinariesDirectory {
             get {
-                if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.LightLocation == null && data.XsdLocation == null) {
+                if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.LightLocation == null && data.XsdsLocation == null) {
                     // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
                     // relative to the WixEdit binary.
                     DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
@@ -329,7 +342,7 @@ namespace WixEdit.Settings {
                     data.CandleLocation = value.Candle;
                     data.LightLocation = value.Light;
                     data.DarkLocation = value.Dark;
-                    data.XsdLocation = value.Xsd;
+                    data.XsdsLocation = value.Xsds;
                     data.BinDirectory = value.BinDirectory;
                 }
             }
@@ -414,6 +427,10 @@ namespace WixEdit.Settings {
 
         public bool IsUsingWix3() {
             return WixBinariesVersion.StartsWith("3");
+        }
+
+        public string GetWixXsdLocation() {
+            return Path.Combine(data.XsdsLocation, "wix.xsd");
         }
 
         [
@@ -530,6 +547,19 @@ namespace WixEdit.Settings {
             }
             set {
                 data.DisplayFullPathInTitlebar = value;
+            }
+        }
+
+        [
+        Category("View Options"), 
+        Description("Use one instance or spawn a new instance of WixEdit for each file."), 
+        ]
+        public bool UseInstanceOnly {
+            get {
+                return data.UseInstanceOnly;
+            }
+            set {
+                data.UseInstanceOnly = value;
             }
         }
 
