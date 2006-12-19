@@ -246,8 +246,9 @@ namespace WixEdit {
                 return;
             }
 
-            if(Directory.Exists(Path.Combine(directoryName.Text, wixFileName.Text)) == false) {
-                Directory.CreateDirectory(Path.Combine(directoryName.Text, wixFileName.Text));
+            string projectDir = Path.Combine(directoryName.Text, wixFileName.Text);
+            if(Directory.Exists(projectDir) == false) {
+                Directory.CreateDirectory(projectDir);
             }
 
             DialogResult = DialogResult.OK;
@@ -292,12 +293,12 @@ namespace WixEdit {
                     }
     
                     FileInfo info = new FileInfo(file);
-                    info.CopyTo(Path.Combine(directoryName.Text, info.Name), true);
+                    info.CopyTo(Path.Combine(projectDir, info.Name), true);
                 }
     
                 foreach (string subDir in Directory.GetDirectories(currentTemplateDir)) {
                     DirectoryInfo info = new DirectoryInfo(subDir);
-                    CopyDirectory(subDir, Path.Combine(directoryName.Text, info.Name));
+                    CopyDirectory(subDir, Path.Combine(projectDir, info.Name));
                 }
             }
 

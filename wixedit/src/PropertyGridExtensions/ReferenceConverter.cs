@@ -37,7 +37,13 @@ namespace WixEdit.PropertyGridExtensions {
             string nodeNameRef = xmlNode.Name;
             if (nodeNameRef.EndsWith("Ref")) {
                 string nodeName = nodeNameRef.Remove(nodeNameRef.Length-3, 3);
-                XmlNodeList referencedNodes = xmlNode.OwnerDocument.SelectNodes(String.Format("//wix:{0}", nodeName), adapter.WixFiles.WxsNsmgr);
+
+                XmlNodeList referencedNodes = null;
+                if (nodeName.IndexOf(":") < 0) {
+                    referencedNodes = xmlNode.OwnerDocument.SelectNodes(String.Format("//wix:{0}", nodeName), adapter.WixFiles.WxsNsmgr);
+                } else {
+                    referencedNodes = xmlNode.OwnerDocument.SelectNodes(String.Format("//{0}", nodeName), adapter.WixFiles.WxsNsmgr);
+                }
 
 
                 ArrayList strings = new ArrayList();
