@@ -20,8 +20,10 @@
 
 
 using System;
+using System.Drawing;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace WixEdit {
@@ -29,7 +31,11 @@ namespace WixEdit {
     /// Panel to edit global data.
     /// </summary>
     public class EditGlobalDataPanel : DisplayTreeBasePanel {
-        public EditGlobalDataPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*", "Id") {
+        VoidVoidDelegate reloadAllPanels;
+
+        public EditGlobalDataPanel(WixFiles wixFiles, VoidVoidDelegate reloadAll) : base(wixFiles, "/wix:Wix/*", "Id") {
+            reloadAllPanels = reloadAll;
+
             LoadData();
         }
 
@@ -62,7 +68,33 @@ namespace WixEdit {
         protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e){
             //clear menu and add import menu
             base.PopupPanelContextMenu(sender,e);
-            //add custom menu, index has to be used!!!
+
+            if (currTreeView.Nodes.Count == 0) {
+                //add custom menu, index has to be used!!!
+                IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                IconMenuItem subSubMenuItem1 = new IconMenuItem("Product");
+                IconMenuItem subSubMenuItem2 = new IconMenuItem("Module");
+    
+                subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
+                subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);
+    
+                subMenuItem.MenuItems.Add(subSubMenuItem1);
+                subMenuItem.MenuItems.Add(subSubMenuItem2);
+    
+                PanelContextMenu.MenuItems.Add(0,subMenuItem);
+            }
+        }
+
+        protected override void OnDeleted(XmlNode node) {
+            if (node.Name == "Product" ||
+                node.Name == "Module") {
+                reloadAllPanels();
+            }
+        }
+
+        protected override void NewCustomElement_Click(object sender, System.EventArgs e) {
+            MenuItem item = (MenuItem) sender;
+            CreateNewCustomElement(item.Text);
         }
 
         /// <summary>
@@ -80,7 +112,7 @@ namespace WixEdit {
                     parentElement.AppendChild(newElement);
                 }
             } else {
-                base.InsertNewXmlNode (parentElement, newElement);
+                base.InsertNewXmlNode(parentElement, newElement);
             }
         }
     }

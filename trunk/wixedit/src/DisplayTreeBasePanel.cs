@@ -171,8 +171,8 @@ namespace WixEdit {
         }
 
         public override XmlNode GetShowingNode() {
-            if (currentGrid.SelectedGridItem != null) {
-                CustomXmlPropertyDescriptorBase desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
+            if (currentGrid.SelectedGridItem != null && currentGrid.SelectedGridItem.PropertyDescriptor != null) {
+                CustomXmlPropertyDescriptorBase desc = currentGrid.SelectedGridItem.PropertyDescriptor as CustomXmlPropertyDescriptorBase;
                 if (desc.XmlElement is XmlAttribute) {
                     return desc.XmlElement;
                 } else if (desc.XmlElement.Attributes[currentGrid.SelectedGridItem.Label] != null) {
@@ -391,7 +391,7 @@ namespace WixEdit {
                     typeString = CurrentGrid.SelectedGridItem.PropertyDescriptor.GetType().ToString();
                 }
 
-                throw new Exception(String.Format("Expected XmlAttributePropertyDescriptor, but got {0} in OnDeletePropertyGridItem", typeString));
+                throw new Exception(String.Format("Expected XmlAttributePropertyDescriptor, but got {0} in GetSelectedProperty", typeString));
             }
 
             return element;
@@ -667,7 +667,7 @@ namespace WixEdit {
             WixFiles.UndoManager.BeginNewCommandRange();
 
             if (CurrentParent == null) {
-                MessageBox.Show("No location found to add UI element, need element like module or product!");
+                MessageBox.Show(String.Format("No location found to add \"{0}\" element, need element like module or product!", elementName));
                 return;
             }
 
@@ -746,31 +746,6 @@ namespace WixEdit {
             }
         }
 
-        private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) {
-            if(e.KeyCode == Keys.Delete) {
-                if (currTreeView.SelectedNode == null) {
-                    return;
-                }
-
-                XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
-                if (node == null) {
-                    return;
-                }
-
-                WixFiles.UndoManager.BeginNewCommandRange();
-      
-                node.ParentNode.RemoveChild(node);
-      
-                currTreeView.Nodes.Remove(currTreeView.SelectedNode);
-      
-                if (currTreeView.SelectedNode != null) {
-                    ShowProperties(currTreeView.SelectedNode.Tag as XmlNode);
-                } else {
-                    ShowProperties(null);
-                }
-            }
-        }
-
         private void OnAfterSelect(object sender, TreeViewEventArgs e) {
             XmlNode node = e.Node.Tag as XmlNode;
             if (node != null) {
@@ -790,6 +765,16 @@ namespace WixEdit {
         }
 
         private void DeleteElement_Click(object sender, System.EventArgs e) {
+            DeleteSelectedNode();
+        }
+
+        private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) {
+            if(e.KeyCode == Keys.Delete) {
+                DeleteSelectedNode();
+            }
+        }
+
+        protected void DeleteSelectedNode() {
             if (currTreeView.SelectedNode == null) {
                 return;
             }
@@ -800,14 +785,20 @@ namespace WixEdit {
             }
 
             WixFiles.UndoManager.BeginNewCommandRange();
-
+  
             node.ParentNode.RemoveChild(node);
+  
             currTreeView.Nodes.Remove(currTreeView.SelectedNode);
             if (currTreeView.SelectedNode == null) {
                 ShowProperties(null);
             } else {
                 ShowProperties(currTreeView.SelectedNode.Tag as XmlNode);
             }
+
+            OnDeleted(node);
+        }
+
+        protected virtual void OnDeleted(XmlNode node) {
         }
 
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
