@@ -121,6 +121,11 @@ namespace WixEdit {
         }
 
         public virtual void OnNewPropertyGridItem(object sender, EventArgs e) {
+            if (CurrentParent == null) {
+                MessageBox.Show(String.Format("No location found to add \"{0}\" element, need element like module or product!", CurrentElementName));
+                return;
+            }
+
             EnterStringForm frm = new EnterStringForm();
             frm.Text = "Enter Resource Name";
             if (DialogResult.OK == frm.ShowDialog()) {

@@ -542,8 +542,6 @@ namespace WixEdit {
             }
         }
 
-        public delegate void VoidVoidDelegate();
-
         private void fileExit_Click(object sender, System.EventArgs e) {
             EditorForm[] constEditorArray = new EditorForm[formInstances.Count];
             formInstances.CopyTo(constEditorArray);
@@ -715,11 +713,17 @@ namespace WixEdit {
         private void editUndo_Click(object sender, System.EventArgs e) {
             XmlNode node = wixFiles.UndoManager.Undo();
 
+            // This could slow things down, but make sure every panel is up-to-date.
+            ReloadAll();
+
             ShowNode(node, true);
         }
 
         private void editRedo_Click(object sender, System.EventArgs e) {
             XmlNode node = wixFiles.UndoManager.Redo();
+
+            // This could slow things down, but make sure every panel is up-to-date.
+            ReloadAll();
 
             ShowNode(node, true);
         }
@@ -1193,7 +1197,7 @@ namespace WixEdit {
             tabButtonControl.Visible = true;
 
             // Add Global tab
-            editGlobalDataPanel = new EditGlobalDataPanel(wixFiles);
+            editGlobalDataPanel = new EditGlobalDataPanel(wixFiles, new VoidVoidDelegate(ReloadAll));
             editGlobalDataPanel.Dock = DockStyle.Fill;
 
             tabButtonControl.AddTab("Global", editGlobalDataPanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.global.png")));
@@ -1487,7 +1491,12 @@ namespace WixEdit {
                     panel.BeginInvoke(new InvokeShowNodeDelegate(panel.ShowNode), new object[] { current });
                 }
             } catch (Exception ex) {
-                MessageBox.Show("Error with reloading: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string message = "Error with reloading all views, please press OK to report this error to the WixEdit website, so this error can be fixed.";
+                ExceptionForm form = new ExceptionForm(message, ex);
+                if (form.ShowDialog() == DialogResult.OK) {
+                    ErrorReporter reporter = new ErrorReporter();
+                    reporter.Report(ex);
+                }
             }
         }
 

@@ -95,6 +95,9 @@ namespace WixEdit {
         /// </summary>
         protected XmlNode CurrentParent {
             get {
+                if (currentParent == null) {
+                    AssignParentNode();
+                }
                 return currentParent;
             }
             set {

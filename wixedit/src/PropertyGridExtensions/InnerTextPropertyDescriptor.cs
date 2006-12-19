@@ -28,16 +28,12 @@ namespace WixEdit.PropertyGridExtensions {
     /// </summary>
     /// <remarks>Do not use CustomXmlPropertyDescriptorBase as base class, because this is no XmlAttribute or XmlNode, 
     /// but the innerText.</remarks>
-    public class InnerTextPropertyDescriptor : CustomPropertyDescriptorBase {
+    public class InnerTextPropertyDescriptor : CustomXmlPropertyDescriptorBase {
         XmlNode node;
 
         public InnerTextPropertyDescriptor(WixFiles wixFiles, XmlNode node, Attribute[] attrs) :
-            base(wixFiles, "InnerText", attrs) {
+            base(wixFiles, node, "InnerText", attrs) {
             this.node = node;
-        }
-
-        public XmlNode Node {
-            get { return node; }
         }
 
         public override object GetValue(object component) {
