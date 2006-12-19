@@ -589,7 +589,7 @@ namespace WixEdit {
 
             currTreeViewContextMenu.MenuItems.Clear();
 
-            ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Name);
+            ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Name, SkipElements);
             newElementStrings.Sort();
 
             foreach (string newElementString in newElementStrings) {
