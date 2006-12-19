@@ -258,7 +258,7 @@ namespace WixEdit.Settings {
                         // Ok, watch out.
                         if (current.CompareTo(old) < 0) {
                             // This is a config file of a future version.
-                            MessageBox.Show("The version of the configuration file is newer than the version of this application, if any problems occur remove the WixEditSettings.xml from the %APPDATA%\\WixEdit directory.", "Configuration file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show(String.Format("The version of the configuration file is newer than the version of this application, if any problems occur remove the settings file: {0}.", SettingsFile), "Configuration file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             data = new WixEditData(data, rawData);
                         } else {
                             // This is a config file of an old version.
