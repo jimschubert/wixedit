@@ -43,7 +43,7 @@ namespace WixEdit {
         private static StringCollection GetTypes() {
             StringCollection types = new StringCollection();
 
-            ArrayList xmlElements = WixFiles.GetXsdAllElements();
+            ArrayList xmlElements = WixFiles.GetXsdAllElementNames();
             foreach (XmlNode xmlElement in xmlElements) {
                 XmlAttribute nameAtt = xmlElement.Attributes["name"];
                 if (nameAtt != null) {

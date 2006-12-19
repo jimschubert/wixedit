@@ -54,6 +54,10 @@ namespace WixEdit {
         static Hashtable xsdExtensions;
         static Hashtable xsdExtensionNsmgrs;
         static Hashtable xsdExtensionTargetNamespaces;
+        static Hashtable xsdExtensionTargetNamespacesReverseMap;
+
+        Hashtable xsdExtensionPrefixesMap;
+        Hashtable xsdExtensionPrefixesReverseMap;
 
 
         public static string WixNamespaceUri {
@@ -62,12 +66,11 @@ namespace WixEdit {
                     return WixNamespaceUri_V3;
                 } else if (WixEditSettings.Instance.IsUsingWix2()) {
                     return WixNamespaceUri_V2;
-                } else {
-                    return WixNamespaceUri_Default;
+                } else { // Default is WiX 2.0, because 3.0 is unstable.
+                    return WixNamespaceUri_V2;
                 }
             }
         }
-        public static string WixNamespaceUri_Default = WixNamespaceUri_V2;
         public static string WixNamespaceUri_V2 = "http://schemas.microsoft.com/wix/2003/01/wi";
         public static string WixNamespaceUri_V3 = "http://schemas.microsoft.com/wix/2006/wi";
 
@@ -82,12 +85,6 @@ namespace WixEdit {
             
             LoadWxsFile();
 
-            wxsNsmgr = new XmlNamespaceManager(wxsDocument.NameTable);
-            wxsNsmgr.AddNamespace("wix", wxsDocument.DocumentElement.NamespaceURI);
-            foreach (DictionaryEntry entry in xsdExtensionTargetNamespaces) {
-                wxsNsmgr.AddNamespace((string) entry.Key, (string) entry.Value);
-            }
-
             undoManager = new UndoManager(this, wxsDocument);
 
             wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
@@ -96,12 +93,12 @@ namespace WixEdit {
             wxsWatcher.EnableRaisingEvents = true;
         }
 
-        public static string GetNamespaceUri(string elementName) {
+        public string GetNamespaceUri(string elementName) {
             int nodeColonPos = elementName.IndexOf(":");
             if (nodeColonPos < 0) {
                 return WixNamespaceUri;
             } else {
-                string theNodeNamespace = elementName.Substring(0, nodeColonPos);
+                string theNodeNamespace = LookupExtensionName(elementName.Substring(0, nodeColonPos));
 
                 return (string) xsdExtensionTargetNamespaces[theNodeNamespace];
             }
@@ -178,11 +175,38 @@ namespace WixEdit {
 
             includeManager = new IncludeManager(this, wxsDocument);
 
+            xsdExtensionPrefixesMap = new Hashtable();
+            xsdExtensionPrefixesReverseMap = new Hashtable();
+            foreach (XmlAttribute att in wxsDocument.DocumentElement.Attributes) {
+                string attName = att.Name;
+                if (attName.StartsWith("xmlns:")) {
+                    if (xsdExtensionTargetNamespacesReverseMap.ContainsKey(att.Value)) {
+                        string existingNamespaceName = (string) xsdExtensionTargetNamespacesReverseMap[att.Value];
+                        string namespaceName = attName.Substring(6);
+                        if (namespaceName != existingNamespaceName) {
+                            xsdExtensionPrefixesMap.Add(namespaceName, existingNamespaceName);
+                            xsdExtensionPrefixesReverseMap.Add(existingNamespaceName, namespaceName);
+                        }
+                    }
+                }
+            }
+
             foreach (DictionaryEntry entry in xsdExtensionTargetNamespaces) {
-                wxsDocument.DocumentElement.SetAttribute("xmlns:" + (string) entry.Key, (string) entry.Value);
+                if (xsdExtensionPrefixesMap.ContainsValue(entry.Key) == false) {
+                    xsdExtensionPrefixesMap.Add(entry.Key, entry.Key);
+                    xsdExtensionPrefixesReverseMap.Add(entry.Key, entry.Key);
+
+                    wxsDocument.DocumentElement.SetAttribute("xmlns:" + (string) entry.Key, (string) entry.Value);
+                }
             }
 
             wxsDocument.LoadXml(wxsDocument.OuterXml);
+
+            wxsNsmgr = new XmlNamespaceManager(wxsDocument.NameTable);
+            wxsNsmgr.AddNamespace("wix", wxsDocument.DocumentElement.NamespaceURI);
+            foreach (DictionaryEntry entry in xsdExtensionTargetNamespaces) {
+                wxsNsmgr.AddNamespace(LookupExtensionNameReverse((string) entry.Key), (string) entry.Value);
+            }
         }
 
         public UndoManager UndoManager {
@@ -213,7 +237,23 @@ namespace WixEdit {
             ReloadExtensionXsds();
         }
 
-        public static XmlNode GetXsdElementNode(string nodeName) {
+        private string LookupExtensionName(string name) {
+            if (xsdExtensionPrefixesMap.ContainsKey(name)) {
+                return (string) xsdExtensionPrefixesMap[name];
+            }
+
+            return null;
+        }
+
+        private string LookupExtensionNameReverse(string name) {
+            if (xsdExtensionPrefixesReverseMap.ContainsKey(name)) {
+                return (string) xsdExtensionPrefixesReverseMap[name];
+            }
+
+            return null;
+        }
+
+        public XmlNode GetXsdElementNode(string nodeName) {
             XmlNode ret = null;
 
             int nodeColonPos = nodeName.IndexOf(":");
@@ -221,17 +261,22 @@ namespace WixEdit {
                 ret = xsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", nodeName), xsdNsmgr);
             } else {
                 string theNodeName = nodeName.Substring(nodeColonPos+1);
-                string theNodeNamespace = nodeName.Substring(0, nodeColonPos);
+                string theNodeNamespace = LookupExtensionName(nodeName.Substring(0, nodeColonPos));
 
                 XmlDocument extensionXsdDocument = xsdExtensions[theNodeNamespace] as XmlDocument;
                 XmlNamespaceManager extensionXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
-                ret = extensionXsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", theNodeName), extensionXsdNsmgr);
+
+                if (extensionXsdDocument == null || extensionXsdNsmgr == null) {
+                    ret = null;
+                } else {
+                    ret = extensionXsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", theNodeName), extensionXsdNsmgr);
+                }
             }
 
             return ret;
         }
 
-        public static ArrayList GetXsdAllElements() {
+        public static ArrayList GetXsdAllElementNames() {
             ArrayList ret = new ArrayList();
             XmlNodeList nodes = xsdDocument.SelectNodes("/xs:schema/xs:element", WixFiles.GetXsdNsmgr());
             foreach (XmlNode node in nodes) {
@@ -251,11 +296,11 @@ namespace WixEdit {
             return ret;
         }
 
-        public static ArrayList GetXsdSubElements(string elementName) {
+        public ArrayList GetXsdSubElements(string elementName) {
             return GetXsdSubElements(elementName, new StringCollection());
         }
 
-        public static ArrayList GetXsdSubElements(string elementName, StringCollection skipElements) {
+        public ArrayList GetXsdSubElements(string elementName, StringCollection skipElements) {
             ArrayList ret = new ArrayList();
 
             int nodeColonPos = elementName.IndexOf(":");
@@ -274,17 +319,20 @@ namespace WixEdit {
                 }
 
                 foreach (string extensionName in xsdExtensionNames) {
+                    string displayNamespaceName = LookupExtensionNameReverse(extensionName);
+
                     XmlDocument extXsd = xsdExtensions[extensionName] as XmlDocument;
                     XmlNamespaceManager extXsdNsmgr = xsdExtensionNsmgrs[extensionName] as XmlNamespaceManager;
 
                     XmlNodeList subNodes = extXsd.SelectNodes(String.Format("/xs:schema/xs:element[xs:annotation/xs:appinfo/xse:parent/@ref='{0}']", elementName), extXsdNsmgr);
                     foreach (XmlElement subNode in subNodes) {
-                        ret.Add(String.Format("{0}:{1}", extensionName, subNode.GetAttribute("name")));
+                        ret.Add(String.Format("{0}:{1}", displayNamespaceName, subNode.GetAttribute("name")));
                     }
                 }
             } else {
                 string theNodeName = elementName.Substring(nodeColonPos+1);
-                string theNodeNamespace = elementName.Substring(0, nodeColonPos);
+                string theNodeDisplayNamespace = elementName.Substring(0, nodeColonPos);
+                string theNodeNamespace = LookupExtensionName(theNodeDisplayNamespace);
 
                 XmlDocument extXsd = xsdExtensions[theNodeNamespace] as XmlDocument;
                 XmlNamespaceManager extXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
@@ -297,7 +345,7 @@ namespace WixEdit {
                             if (skipElements.Contains(refAtt.Value)) {
                                 continue;
                             }
-                            ret.Add(String.Format("{0}:{1}", theNodeNamespace, refAtt.Value));
+                            ret.Add(String.Format("{0}:{1}", theNodeDisplayNamespace, refAtt.Value));
                         }
                     }
                 }
@@ -311,34 +359,39 @@ namespace WixEdit {
             xsdExtensions = new Hashtable();
             xsdExtensionNsmgrs = new Hashtable();
             xsdExtensionTargetNamespaces = new Hashtable();
+            xsdExtensionTargetNamespacesReverseMap = new Hashtable();
             xsdExtensionNames = new ArrayList();
 
             // WiX uses extensions after version 2.
-            if (WixEditSettings.Instance.IsUsingWix2() == false) {
+            if (WixEditSettings.Instance.IsUsingWix2() == false && 
+                WixEditSettings.Instance.WixBinariesDirectory.Xsds != null && WixEditSettings.Instance.WixBinariesDirectory.Xsds.Length > 0) {
                 DirectoryInfo xsdInfo = new DirectoryInfo(WixEditSettings.Instance.WixBinariesDirectory.Xsds);
-                foreach (FileInfo extensionFileInfo in xsdInfo.GetFiles("*.xsd")) {
-                    string extension = Path.GetFileNameWithoutExtension(extensionFileInfo.Name);
-                    if (extension.ToLower() == "wix" || extension.ToLower() == "wixloc") {
-                        continue;
+                if (xsdInfo.Exists) {
+                    foreach (FileInfo extensionFileInfo in xsdInfo.GetFiles("*.xsd")) {
+                        string extension = Path.GetFileNameWithoutExtension(extensionFileInfo.Name);
+                        if (extension.ToLower() == "wix" || extension.ToLower() == "wixloc") {
+                            continue;
+                        }
+        
+                        xsdExtensionNames.Add(extension);
+        
+                        XmlDocument extensionXsdDocument = new XmlDocument();
+                        extensionXsdDocument.Load(extensionFileInfo.FullName);
+                        
+                        xsdExtensions.Add(extension, extensionXsdDocument);
+        
+                        XmlNamespaceManager extensionXsdNsmgr = new XmlNamespaceManager(extensionXsdDocument.NameTable);
+                        extensionXsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+                        extensionXsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
+        
+                        xsdExtensionNsmgrs.Add(extension, extensionXsdNsmgr);
+        
+                        XmlNode targetNamespaceAtt = extensionXsdDocument.SelectSingleNode("/xs:schema/@targetNamespace", extensionXsdNsmgr);
+                        string targetNamespace = targetNamespaceAtt.Value;
+        
+                        xsdExtensionTargetNamespaces.Add(extension, targetNamespace);
+                        xsdExtensionTargetNamespacesReverseMap.Add(targetNamespace, extension);
                     }
-    
-                    xsdExtensionNames.Add(extension);
-    
-                    XmlDocument extensionXsdDocument = new XmlDocument();
-                    extensionXsdDocument.Load(extensionFileInfo.FullName);
-                    
-                    xsdExtensions.Add(extension, extensionXsdDocument);
-    
-                    XmlNamespaceManager extensionXsdNsmgr = new XmlNamespaceManager(extensionXsdDocument.NameTable);
-                    extensionXsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
-                    extensionXsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
-    
-                    xsdExtensionNsmgrs.Add(extension, extensionXsdNsmgr);
-    
-                    XmlNode targetNamespaceAtt = extensionXsdDocument.SelectSingleNode("/xs:schema/@targetNamespace", extensionXsdNsmgr);
-                    string targetNamespace = targetNamespaceAtt.Value;
-    
-                    xsdExtensionTargetNamespaces.Add(extension, targetNamespace);
                 }
             }
         }
@@ -477,6 +530,8 @@ namespace WixEdit {
 
             // Handle extension namespaces. Remove all those which are not used in the file.
             foreach (string ext in xsdExtensionNames) {
+                string theNodeNamespace = LookupExtensionNameReverse(ext);
+
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
                 if (list.Count > 0) {
                     ret.AppendFormat(" -ext Wix{0}Extension ", ext);
@@ -590,9 +645,11 @@ namespace WixEdit {
 
             // Handle extension namespaces. Remove all those which are not used in the file.
             foreach (string ext in xsdExtensionNames) {
-                XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
+                string theNodeNamespace = LookupExtensionNameReverse(ext);
+
+                XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", theNodeNamespace), wxsNsmgr);
                 if (list.Count == 0) {
-                    wxsDocument.DocumentElement.RemoveAttribute(String.Format("xmlns:{0}", ext));
+                    wxsDocument.DocumentElement.RemoveAttribute(String.Format("xmlns:{0}", theNodeNamespace));
                 }
             }
 
