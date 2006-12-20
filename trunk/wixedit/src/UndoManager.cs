@@ -44,6 +44,7 @@ namespace WixEdit {
         DateTime timeCheck;
 
         WixFiles wixFiles;
+        int docIsSavedUndoCount;
 
         public UndoManager(WixFiles wixFiles, XmlDocument wxsDocument) {
             undoCommands = new ArrayList();
@@ -53,6 +54,7 @@ namespace WixEdit {
 
             this.wxsDocument = wxsDocument;
             this.wixFiles = wixFiles;
+            this.docIsSavedUndoCount = 0;
 
             nodeChangedHandler  = new XmlNodeChangedEventHandler(OnNodeChanged); 
             nodeChangingHandler = new XmlNodeChangedEventHandler(OnNodeChanging);
@@ -111,6 +113,9 @@ namespace WixEdit {
         public void OnNodeChanged(Object src, XmlNodeChangedEventArgs args) {
             // Get new value and node
             redoCommands.Clear();
+            if (docIsSavedUndoCount > undoCommands.Count) {
+                docIsSavedUndoCount = -1;
+            }
 
             CheckTime();
 
@@ -136,6 +141,9 @@ namespace WixEdit {
             }
 
             redoCommands.Clear();
+            if (docIsSavedUndoCount > undoCommands.Count) {
+                docIsSavedUndoCount = -1;
+            }
 
             CheckTime();
 
@@ -152,6 +160,9 @@ namespace WixEdit {
         public void OnNodeRemoving(Object src, XmlNodeChangedEventArgs args) {
             // Get parent node and node
             redoCommands.Clear();
+            if (docIsSavedUndoCount > undoCommands.Count) {
+                docIsSavedUndoCount = -1;
+            }
 
             CheckTime();
 
@@ -215,6 +226,11 @@ namespace WixEdit {
         public void Clear() {
             undoCommands.Clear();
             redoCommands.Clear();
+            docIsSavedUndoCount = -1;
+        }
+
+        public void DocumentIsSaved() {
+            docIsSavedUndoCount = undoCommands.Count;
         }
 
         public bool CanRedo() {
@@ -226,7 +242,11 @@ namespace WixEdit {
         }
 
         public bool HasChanges() {
-            return CanUndo();
+            if (docIsSavedUndoCount == undoCommands.Count) {
+                return false;
+            }
+
+            return true;
         }
 
         public XmlNode Redo() {
