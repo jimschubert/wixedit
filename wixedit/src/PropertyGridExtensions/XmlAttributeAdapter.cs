@@ -139,7 +139,9 @@ namespace WixEdit.PropertyGridExtensions {
 
                     // If there is no attibute present, create one.
                     if (xmlAttribute == null) {
-                        wixFiles.UndoManager.BeginNewCommandRange();
+                        // Do not call UndoManager.BeginNewCommandRange here, because this can happen after 
+                        // an undo/redo action when viewing some node. That would mess up the undo mechanism.
+                        // So the adding of mandatory attributes will be added to the last undo command sequence.
 
                         xmlAttribute = xmlNode.OwnerDocument.CreateAttribute(xmlAttributeDefinition.Attributes["name"].Value);
                         xmlNode.Attributes.Append(xmlAttribute);
@@ -152,6 +154,7 @@ namespace WixEdit.PropertyGridExtensions {
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
                 attrs.Add(new TypeConverterAttribute(GetAttributeTypeConverter(xmlAttributeDefinition)));
 
+                // Get some documentation
                 XmlNode deprecated = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:appinfo/xse:deprecated", wixFiles.XsdNsmgr);
                 XmlNode documentation = xmlAttributeDefinition.SelectSingleNode("xs:annotation/xs:documentation", wixFiles.XsdNsmgr);
                 if(deprecated != null || documentation != null) {
@@ -183,28 +186,13 @@ namespace WixEdit.PropertyGridExtensions {
                     string attName = xmlNodeElement.Attributes["name"].Value;
 
                     if (xmlAttributeDefinition.Attributes["name"].Value == "SourceFile") {
-                        if (attName == "UpgradeImage" ||
-                            attName == "TargetImage" ||
-                            attName == "Merge" ||
-                            attName == "Binary" ||
-                            attName == "Icon" ||
-                            attName == "Text") {
-                            needsBrowse = true;
-                        }
+                        needsBrowse = true;
                     } else if (xmlAttributeDefinition.Attributes["name"].Value == "Source") {
-                        if (attName == "ExternalFile" ||
-                            attName == "File") {
-                            needsBrowse = true;
-                        }
+                        needsBrowse = true;
                     } else if (xmlAttributeDefinition.Attributes["name"].Value == "FileSource") {
-                        if (attName == "Directory" ||
-                            attName == "DirectoryRef") {
-                            needsBrowse = true;
-                        }
+                        needsBrowse = true;
                     } else if (xmlAttributeDefinition.Attributes["name"].Value == "Layout") {
-                        if (attName == "Media") {
-                            needsBrowse = true;
-                        }
+                        needsBrowse = true;
                     } else if (xmlAttributeDefinition.Attributes["name"].Value == "src") {
                         needsBrowse = true;
                     }

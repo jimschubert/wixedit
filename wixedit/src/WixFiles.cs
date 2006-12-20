@@ -649,6 +649,9 @@ namespace WixEdit {
 
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", theNodeNamespace), wxsNsmgr);
                 if (list.Count == 0) {
+                    // Error reports show that a NullReferenceException occurs on the next line now, how can this be?
+                    // The wxsDocument.DocumentElement is null.
+#warning DocumentElement is null sometimes, maybe add a bugreport dialog here in the next release
                     wxsDocument.DocumentElement.RemoveAttribute(String.Format("xmlns:{0}", theNodeNamespace));
                 }
             }
@@ -694,7 +697,7 @@ namespace WixEdit {
 
             wxsWatcher.EnableRaisingEvents = true;
 
-            undoManager.Clear();
+            undoManager.DocumentIsSaved();
             UndoManager.RegisterHandlers();
         }
 
@@ -711,6 +714,7 @@ namespace WixEdit {
             if (result == DialogResult.Yes) {
                 LoadWxsFile();
                 UndoManager.Clear();
+                UndoManager.DocumentIsSaved();
 
                 if (wxsChanged != null) {
                     wxsChanged(this, new EventArgs());

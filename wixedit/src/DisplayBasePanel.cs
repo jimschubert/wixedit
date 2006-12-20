@@ -194,7 +194,7 @@ namespace WixEdit {
         /// <returns>Parent node which can be shown.</returns>
         protected virtual XmlNode GetShowableNode(XmlNode node) {
             XmlNode showableNode = node;
-            while (showableNode.NodeType != XmlNodeType.Element) {
+            while (showableNode != null && showableNode.NodeType != XmlNodeType.Element) {
                 if (showableNode.NodeType == XmlNodeType.Attribute) {
                     showableNode = ((XmlAttribute) showableNode).OwnerElement;
                 } else {

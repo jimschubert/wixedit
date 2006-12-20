@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.10.3077"
+        ProductVersion = "7.10.6030"
         SchemaVersion = "2.0"
         ProjectGuid = "{34D47764-B2F0-4BB6-BD84-C47DD3DCA20F}"
     >
@@ -839,6 +839,11 @@
                 />
                 <File
                     RelPath = "src\UndoManager.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\VoidVoidDelegate.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
