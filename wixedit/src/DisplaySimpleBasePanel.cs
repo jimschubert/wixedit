@@ -158,7 +158,7 @@ namespace WixEdit {
         public virtual void OnAddFilePropertyGridItem(object sender, EventArgs e) {
             string filePath = string.Empty;
             OpenFileDialog openDialog = new OpenFileDialog();
-            openDialog.InitialDirectory = WixFiles.WxsDirectory.FullName;
+            openDialog.RestoreDirectory = true;
             if(openDialog.ShowDialog() == DialogResult.OK) {
                 filePath = openDialog.FileName;
                 EnterStringForm frm;
