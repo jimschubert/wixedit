@@ -260,7 +260,9 @@ namespace WixEdit.PropertyGridExtensions {
 
             switch (xmlAttributeDefinition.Attributes["type"].Value.ToLower()) {
                 case "uuid":
+                case "guid":
                 case "autogenuuid":
+                case "autogenguid":
                 case "uuidorexample":
                 case "componentguid":
                     return typeof(GuidUITypeEditor);
