@@ -29,12 +29,14 @@ namespace WixEdit.Controls {
         ContextMenu contextMenu;
         IconMenuItem copyMenuItem;
         IconMenuItem selectAllMenuItem;
+        IconMenuItem wordWrapMenuItem;
 
         public OutputTextbox() : base() {
             SetStyle(ControlStyles.StandardClick, true);
             this.ReadOnly = true;
             this.HideSelection = false;
             this.DetectUrls = false;
+            this.WordWrap = false;
 
             copyMenuItem = new IconMenuItem("&Copy");
             copyMenuItem.Click += new EventHandler(copyMenuItem_Click);
@@ -42,7 +44,10 @@ namespace WixEdit.Controls {
             selectAllMenuItem = new IconMenuItem("Select &All");
             selectAllMenuItem.Click += new EventHandler(selectAllMenuItem_Click);
 
-            contextMenu = new ContextMenu(new IconMenuItem[] { copyMenuItem, selectAllMenuItem });
+            wordWrapMenuItem = new IconMenuItem("&Word Wrap");
+            wordWrapMenuItem.Click += new EventHandler(wordWrapMenuItem_Click);
+
+            contextMenu = new ContextMenu(new IconMenuItem[] { copyMenuItem, selectAllMenuItem, wordWrapMenuItem });
             contextMenu.Popup += new EventHandler(contextMenu_Popup);
 
             this.ContextMenu = contextMenu;
@@ -117,9 +122,15 @@ namespace WixEdit.Controls {
             SelectAll();
         }
 
+        private void wordWrapMenuItem_Click(object sender, EventArgs e) {
+            this.WordWrap = !this.WordWrap;
+        }
+
         private void contextMenu_Popup(object sender, EventArgs e) {
             this.copyMenuItem.Enabled = (this.SelectedText.Length > 0);
             this.selectAllMenuItem.Enabled = (this.TextLength > 0);
+            
+            this.wordWrapMenuItem.Checked = (this.WordWrap);
         }
     }
 }

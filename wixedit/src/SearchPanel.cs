@@ -37,6 +37,7 @@ using System.Threading;
 using System.Xml.Xsl;
 
 using WixEdit.Controls;
+using WixEdit.Settings;
 
 namespace WixEdit {
     /// <summary>
@@ -88,7 +89,7 @@ namespace WixEdit {
 
             outputTextBox.Dock = DockStyle.Fill;
             outputTextBox.ScrollBars = RichTextBoxScrollBars.Both;
-            outputTextBox.WordWrap = false;
+            outputTextBox.WordWrap = WixEditSettings.Instance.WordWrapInResultsPanel;
             outputTextBox.AllowDrop = false;
 
             Controls.Add(outputTextBox);
@@ -225,18 +226,21 @@ namespace WixEdit {
 
             // Obtain the character index at which the mouse cursor was clicked at.
             int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
-            int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
+            int currentLine = 0;
+            int beginLineIndex = 0;
+
+            foreach (string line in outputTextBox.Lines) {
+                if (beginLineIndex < currentIndex && currentIndex < beginLineIndex + line.Length + 1) {
+                    break;
+                }
+                beginLineIndex += line.Length + 1;
+                currentLine++;
+            }
 
             int lineCount = outputTextBox.Lines.Length;
 
-            int beginLineIndex = currentIndex;
             if (currentLine == 0) {
                 beginLineIndex = 0;
-            } else {
-                while (currentLine == outputTextBox.GetLineFromCharIndex(beginLineIndex - 1) && 
-                       currentLine != 0) {
-                    beginLineIndex--;
-                }
             }
 
             outputTextBox.SuspendLayout();
@@ -256,6 +260,8 @@ namespace WixEdit {
                     outputTextBox.Select(oldSelectionStart, oldSelectionLength);
                 }
             }
+
+            
 
             if (currentLine < lastNodes.Count) {
                 currentSelectionStart = beginLineIndex;

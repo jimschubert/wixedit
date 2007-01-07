@@ -56,6 +56,7 @@ namespace WixEdit.Settings {
                 UseRelativeOrAbsolutePaths = PathHandling.UseRelativePathsWhenPossible;
                 ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
                 UseInstanceOnly = false;
+                WordWrapInResultsPanel = false;
 
                 RecentOpenedFiles = new string[] {};
 
@@ -96,6 +97,7 @@ namespace WixEdit.Settings {
                 }
 
                 UseInstanceOnly = oldVersion.UseInstanceOnly;
+                WordWrapInResultsPanel = oldVersion.WordWrapInResultsPanel;
 
                 if (oldVersion.IgnoreFilesAndDirectories != null && oldVersion.IgnoreFilesAndDirectories.Count > 0) {
                     IgnoreFilesAndDirectories = oldVersion.IgnoreFilesAndDirectories;
@@ -137,6 +139,7 @@ namespace WixEdit.Settings {
             public string TemplateDirectory;
             public string ExternalXmlEditor;
             public bool UseInstanceOnly;
+            public bool WordWrapInResultsPanel;
             public string DefaultProjectDirectory;
             public string Version;
             public PathHandling UseRelativeOrAbsolutePaths;
@@ -560,6 +563,19 @@ namespace WixEdit.Settings {
             }
             set {
                 data.UseInstanceOnly = value;
+            }
+        }
+
+        [
+        Category("View Options"), 
+        Description("Use Word Wrap in the result panels as default. (Search & Output panels)"),
+        ]
+        public bool WordWrapInResultsPanel {
+            get {
+                return data.WordWrapInResultsPanel;
+            }
+            set {
+                data.WordWrapInResultsPanel = value;
             }
         }
 

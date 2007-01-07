@@ -80,8 +80,8 @@
             }
         }
         function ShowError() {
-            if (location.hash) {
-                var anchorString = location.hash.substring(1, location.hash.length);
+            if (location.search) {
+                var anchorString = location.search.substring(1, location.search.length);
                 var anchorStringArray = anchorString.split(',');
                 
                 var i = 0;
