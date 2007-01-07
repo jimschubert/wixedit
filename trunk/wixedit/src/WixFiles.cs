@@ -638,11 +638,15 @@ namespace WixEdit {
                 commentElement = wxsDocument.CreateComment(commentBuilder.ToString());
 
                 XmlNode firstElement = wxsDocument.FirstChild;
-                if (firstElement.NodeType == XmlNodeType.XmlDeclaration) {
-                    firstElement = wxsDocument.FirstChild.NextSibling;
+                if (firstElement != null) {
+                    if (firstElement.NodeType == XmlNodeType.XmlDeclaration) {
+                        firstElement = wxsDocument.FirstChild.NextSibling;
+                    }
+    
+                    wxsDocument.InsertBefore(commentElement, firstElement);
+                } else {
+                    wxsDocument.AppendChild(commentElement);
                 }
-
-                wxsDocument.InsertBefore(commentElement, firstElement);
             }
 
             // Handle extension namespaces. Remove all those which are not used in the file.

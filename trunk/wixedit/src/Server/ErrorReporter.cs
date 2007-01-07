@@ -50,7 +50,7 @@ namespace WixEdit {
             buffer.Append("Content-Disposition: form-data; name=\"");
             buffer.Append(formFieldName).Append("\"\r\n\r\n");
             buffer.Append("Version ").Append(WixEditSettings.Instance.ApplicationVersion).Append("\r\n");
-            buffer.Append("LastModified ").Append(File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")).Append("\r\n");
+            buffer.Append("LastModified ").Append(File.GetLastWriteTimeUtc(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-ddTHH:mm:ssZ")).Append("\r\n");
             buffer.Append("DateTime ").Append(DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")).Append("\r\n\r\n");
             buffer.Append(exception.ToString()).Append("\r\n");
             
