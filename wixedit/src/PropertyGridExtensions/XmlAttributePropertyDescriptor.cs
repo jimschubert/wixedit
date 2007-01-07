@@ -61,16 +61,18 @@ namespace WixEdit.PropertyGridExtensions {
                 string stringValue = value.ToString();
 
                 XmlAttributeAdapter adapter = component as XmlAttributeAdapter;
-                XmlNode simpleType;
+                XmlNode simpleType = null;
 
-                XmlAttribute typeAttrib = AttributeDescription.Attributes["type"];
-                if (typeAttrib == null) {
-                    simpleType = AttributeDescription.SelectSingleNode("xs:simpleType", adapter.WixFiles.XsdNsmgr);
-                } else {
-                    string simpleTypeString = AttributeDescription.Attributes["type"].Value;
-                    string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']", simpleTypeString);
-    
-                    simpleType = AttributeDescription.OwnerDocument.SelectSingleNode(selectString, adapter.WixFiles.XsdNsmgr);
+                if (AttributeDescription != null) {
+                    XmlAttribute typeAttrib = AttributeDescription.Attributes["type"];
+                    if (typeAttrib == null) {
+                        simpleType = AttributeDescription.SelectSingleNode("xs:simpleType", adapter.WixFiles.XsdNsmgr);
+                    } else {
+                        string simpleTypeString = AttributeDescription.Attributes["type"].Value;
+                        string selectString = String.Format("/xs:schema/xs:simpleType[@name='{0}']", simpleTypeString);
+        
+                        simpleType = AttributeDescription.OwnerDocument.SelectSingleNode(selectString, adapter.WixFiles.XsdNsmgr);
+                    }
                 }
 
                 if (simpleType != null) {
