@@ -716,7 +716,7 @@ namespace WixEdit {
             // This could slow things down, but make sure every panel is up-to-date.
             ReloadAll();
 
-            ShowNode(node, true);
+            ShowNode(node, false);
         }
 
         private void editRedo_Click(object sender, System.EventArgs e) {
@@ -725,7 +725,7 @@ namespace WixEdit {
             // This could slow things down, but make sure every panel is up-to-date.
             ReloadAll();
 
-            ShowNode(node, true);
+            ShowNode(node, false);
         }
 
         private void helpStateBrowser_Click(object sender, System.EventArgs e) {

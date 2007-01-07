@@ -38,6 +38,8 @@ namespace WixEdit.PropertyGridExtensions {
         protected XmlNode xmlNodeElement;
         protected bool showInnerTextIfEmpty;
 
+        private static ArrayList warnedNodeNames = new ArrayList();
+
         public bool ShowInnerTextIfEmpty {
             get {
                 return showInnerTextIfEmpty;
@@ -54,7 +56,10 @@ namespace WixEdit.PropertyGridExtensions {
 
             if (xmlNodeElement == null) {
                 if (xmlNode.NodeType != XmlNodeType.ProcessingInstruction) {
-                    MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (warnedNodeNames.Contains(xmlNode.Name) == false) {
+                        MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        warnedNodeNames.Add(xmlNode.Name);
+                    }
                 }
             } else {
                 if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
@@ -121,7 +126,30 @@ namespace WixEdit.PropertyGridExtensions {
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             if (xmlNodeDefinition == null) {
-                return new PropertyDescriptorCollection(new PropertyDescriptor[] {});
+                // maybe the existing properties can be edited?
+                ArrayList properties = new ArrayList();
+                foreach (XmlAttribute xmlAttribute in xmlNode.Attributes) {
+                    // We could add an UITypeEditor if desired
+                    ArrayList attrs = new ArrayList();
+                    attrs.Add(new EditorAttribute(typeof(UITypeEditor), typeof(UITypeEditor)));
+                    attrs.Add(new CategoryAttribute("WXS Attribute"));
+                    attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
+    
+                
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+    
+                    // Create and add PropertyDescriptor
+                    XmlAttributePropertyDescriptor pd = new XmlAttributePropertyDescriptor(wixFiles, xmlAttribute, null,
+                        xmlAttribute.Name, attrArray);
+    
+                    properties.Add(pd);
+                }
+
+
+                PropertyDescriptor[] propertiesArray = properties.ToArray(typeof(PropertyDescriptor)) as PropertyDescriptor[];
+
+                return new PropertyDescriptorCollection(propertiesArray);
             }
 
             ArrayList props = new ArrayList();

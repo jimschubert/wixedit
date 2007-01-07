@@ -263,13 +263,15 @@ namespace WixEdit {
                 string theNodeName = nodeName.Substring(nodeColonPos+1);
                 string theNodeNamespace = LookupExtensionName(nodeName.Substring(0, nodeColonPos));
 
-                XmlDocument extensionXsdDocument = xsdExtensions[theNodeNamespace] as XmlDocument;
-                XmlNamespaceManager extensionXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
-
-                if (extensionXsdDocument == null || extensionXsdNsmgr == null) {
-                    ret = null;
-                } else {
-                    ret = extensionXsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", theNodeName), extensionXsdNsmgr);
+                if (theNodeNamespace != null) {
+                    XmlDocument extensionXsdDocument = xsdExtensions[theNodeNamespace] as XmlDocument;
+                    XmlNamespaceManager extensionXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
+    
+                    if (extensionXsdDocument == null || extensionXsdNsmgr == null) {
+                        ret = null;
+                    } else {
+                        ret = extensionXsdDocument.SelectSingleNode(String.Format("//xs:element[@name='{0}']", theNodeName), extensionXsdNsmgr);
+                    }
                 }
             }
 
