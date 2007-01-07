@@ -605,10 +605,12 @@ namespace WixEdit {
             currTreeViewContextMenu.MenuItems.Add(item2);
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
-            XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
-            if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
-                currTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
-                currTreeViewContextMenu.MenuItems.Add(item3);
+            if (attAdapter != null) {
+                XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
+                if (docManager.HasDocumentation(attAdapter.XmlNodeDefinition)) {
+                    currTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
+                    currTreeViewContextMenu.MenuItems.Add(item3);
+                }
             }
 
             AddCustomTreeViewContextMenuItems(node, currTreeViewContextMenu);
@@ -780,7 +782,7 @@ namespace WixEdit {
             }
 
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
-            if (node == null) {
+            if (node == null || node.ParentNode == null) {
                 return;
             }
 

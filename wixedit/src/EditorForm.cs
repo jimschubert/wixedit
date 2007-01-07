@@ -1477,7 +1477,10 @@ namespace WixEdit {
 
         private void ReloadAll() {
             try {
-                XmlNode current = ((DisplayBasePanel)tabButtonControl.SelectedPanel).GetShowingNode();
+                XmlNode current = null;
+                if (tabButtonControl != null && tabButtonControl.SelectedPanel != null) {
+                    current = ((DisplayBasePanel)tabButtonControl.SelectedPanel).GetShowingNode();
+                }
 
                 foreach (DisplayBasePanel panel in panels) {
                     if (panel == null) {
