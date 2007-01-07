@@ -37,6 +37,7 @@ using System.Threading;
 using System.Xml.Xsl;
 
 using WixEdit.Controls;
+using WixEdit.Settings;
 
 namespace WixEdit {
     /// <summary>
@@ -82,7 +83,7 @@ namespace WixEdit {
 
             outputTextBox.Dock = DockStyle.Fill;
             outputTextBox.ScrollBars = RichTextBoxScrollBars.Both;
-            outputTextBox.WordWrap = false;
+            outputTextBox.WordWrap = WixEditSettings.Instance.WordWrapInResultsPanel;
             outputTextBox.AllowDrop = false;
 
             Controls.Add(outputTextBox);
@@ -145,22 +146,24 @@ namespace WixEdit {
 
             // Obtain the character index at which the mouse cursor was clicked at.
             int currentIndex = outputTextBox.GetCharIndexFromPosition(new Point(x, y));
-            int currentLine = outputTextBox.GetLineFromCharIndex(currentIndex);
+            int currentLine = 0;
+            int beginLineIndex = 0;
+            foreach (string line in outputTextBox.Lines) {
+                if (beginLineIndex < currentIndex && currentIndex < beginLineIndex + line.Length + 1) {
+                    break;
+                }
+                beginLineIndex += line.Length + 1;
+                currentLine++;
+            }
+
             int lineCount = outputTextBox.Lines.Length;
 
             if (lineCount <= currentLine || outputTextBox.Lines[currentLine] == null) {
                 return;
             }
 
-
-            int beginLineIndex = currentIndex;
             if (currentLine == 0) {
                 beginLineIndex = 0;
-            } else {
-                while (currentLine == outputTextBox.GetLineFromCharIndex(beginLineIndex - 1) && 
-                       currentLine != 0) {
-                    beginLineIndex--;
-                }
             }
 
             outputTextBox.SuspendLayout();
@@ -176,8 +179,8 @@ namespace WixEdit {
             
             string text = outputTextBox.Lines[currentLine];
 
-            int bracketStart = text.IndexOf("(");
-            int bracketEnd = text.IndexOf(")");
+            int bracketEnd = text.IndexOf(") : ");
+            int bracketStart = text.LastIndexOf("(", bracketEnd, bracketEnd);
 
             if (bracketStart == -1 || bracketEnd == -1) {
                 // outputTextBox.Select(start, length);
@@ -341,7 +344,7 @@ namespace WixEdit {
             anchorBuilder.Remove(anchorBuilder.Length-1, 1);
 
             xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
-            xmlDisplayForm.ShowFile(String.Format("{0}#{1}", outputFile, anchorBuilder.ToString()));
+            xmlDisplayForm.ShowFile(String.Format("{0}?{1}#a{1}", outputFile, anchorBuilder.ToString()));
             xmlDisplayForm.Show();
         }
 
