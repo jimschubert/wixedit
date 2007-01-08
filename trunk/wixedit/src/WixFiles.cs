@@ -336,22 +336,23 @@ namespace WixEdit {
                 string theNodeDisplayNamespace = elementName.Substring(0, nodeColonPos);
                 string theNodeNamespace = LookupExtensionName(theNodeDisplayNamespace);
 
-                XmlDocument extXsd = xsdExtensions[theNodeNamespace] as XmlDocument;
-                XmlNamespaceManager extXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
-
-                XmlNodeList xmlSubElements = extXsd.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType//xs:element", theNodeName), extXsdNsmgr);
-                foreach (XmlNode xmlSubElement in xmlSubElements) {
-                    XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
-                    if (refAtt != null) {
-                        if (refAtt.Value != null && refAtt.Value.Length > 0) {
-                            if (skipElements.Contains(refAtt.Value)) {
-                                continue;
+                if (theNodeNamespace != null && xsdExtensions.ContainsKey(theNodeNamespace)) {
+                    XmlDocument extXsd = xsdExtensions[theNodeNamespace] as XmlDocument;
+                    XmlNamespaceManager extXsdNsmgr = xsdExtensionNsmgrs[theNodeNamespace] as XmlNamespaceManager;
+    
+                    XmlNodeList xmlSubElements = extXsd.SelectNodes(String.Format("/xs:schema/xs:element[@name='{0}']/xs:complexType//xs:element", theNodeName), extXsdNsmgr);
+                    foreach (XmlNode xmlSubElement in xmlSubElements) {
+                        XmlAttribute refAtt = xmlSubElement.Attributes["ref"];
+                        if (refAtt != null) {
+                            if (refAtt.Value != null && refAtt.Value.Length > 0) {
+                                if (skipElements.Contains(refAtt.Value)) {
+                                    continue;
+                                }
+                                ret.Add(String.Format("{0}:{1}", theNodeDisplayNamespace, refAtt.Value));
                             }
-                            ret.Add(String.Format("{0}:{1}", theNodeDisplayNamespace, refAtt.Value));
                         }
                     }
                 }
-
             }
 
             return ret;
@@ -532,8 +533,6 @@ namespace WixEdit {
 
             // Handle extension namespaces. Remove all those which are not used in the file.
             foreach (string ext in xsdExtensionNames) {
-                string theNodeNamespace = LookupExtensionNameReverse(ext);
-
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
                 if (list.Count > 0) {
                     ret.AppendFormat(" -ext Wix{0}Extension ", ext);
