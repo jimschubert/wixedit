@@ -180,7 +180,10 @@ namespace WixEdit {
             string text = outputTextBox.Lines[currentLine];
 
             int bracketEnd = text.IndexOf(") : ");
-            int bracketStart = text.LastIndexOf("(", bracketEnd, bracketEnd);
+            int bracketStart = -1;
+            if (bracketEnd > -1) {
+                bracketStart = text.LastIndexOf("(", bracketEnd, bracketEnd);
+            }
 
             if (bracketStart == -1 || bracketEnd == -1) {
                 // outputTextBox.Select(start, length);
