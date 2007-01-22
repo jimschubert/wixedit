@@ -618,11 +618,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "src\AssemblyVersionInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "src\BasePanel.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
