@@ -86,7 +86,7 @@ namespace WixEdit.Import {
 
                 XmlElement newElement = parentDirectoryElement.OwnerDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
 
-                newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name));
+                newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name, newElement, wixFiles));
 
                 newElement.SetAttribute(LongName, FileImport.GenerateValidLongName(dirInfo.Name));
                 newElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
@@ -126,7 +126,7 @@ namespace WixEdit.Import {
         private void AddFiles(string[] files, TreeNode treeNode, XmlNode parentDirectoryElement, DirectoryInfo dirInfo) {
             XmlElement newComponentElement = parentDirectoryElement.OwnerDocument.CreateElement("Component", WixFiles.WixNamespaceUri);
 
-            newComponentElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name));
+            newComponentElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name, newComponentElement, wixFiles));
             newComponentElement.SetAttribute("DiskId", "1");
             newComponentElement.SetAttribute("Guid", Guid.NewGuid().ToString().ToUpper());
 
@@ -152,7 +152,7 @@ namespace WixEdit.Import {
                 
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-                newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name));
+                newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name, newFileElement, wixFiles));
                 newFileElement.SetAttribute(LongName, FileImport.GenerateValidLongName(fileInfo.Name));
                 newFileElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));

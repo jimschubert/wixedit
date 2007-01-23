@@ -131,8 +131,8 @@ namespace WixEdit {
                 tooShort = 7 - nameStart.Length;
             }
 
-            int i = 1;
-            string shortDirectoryName = String.Format("{0}{1}", nameStart, i);
+            int i = 0;
+            string shortDirectoryName = String.Format("{0}", nameStart);
 
             while (componentElement.SelectSingleNode(String.Format("wix:Directory[@{0}={1}]", ShortName, XPathHelper.EscapeXPathInputString(shortDirectoryName)), wixFiles.WxsNsmgr) != null) {
                 if (i%10 == 9) {

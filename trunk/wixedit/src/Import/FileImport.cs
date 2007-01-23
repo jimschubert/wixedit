@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
 using WixEdit.Settings;
+using System.Xml.XPath;
 
 namespace WixEdit.Import {
     /// <summary>
@@ -55,7 +56,7 @@ namespace WixEdit.Import {
         public void Import(TreeNode treeNode) {
             XmlElement newElement = componentElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
-            newElement.SetAttribute("Id", GenerateValidIdentifier(fileInfo.Name));
+            newElement.SetAttribute("Id", GenerateValidIdentifier(fileInfo.Name, newElement, wixFiles));
             newElement.SetAttribute(LongName, GenerateValidLongName(fileInfo.Name));
             newElement.SetAttribute(ShortName, GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, componentElement)));
             newElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
@@ -85,12 +86,9 @@ namespace WixEdit.Import {
         /// </summary>
         /// <remarks>http://msdn.microsoft.com/library/en-us/msi/setup/identifier.asp</remarks>
         /// <param name="filename">Name of file to generate Id from</param>
+        /// <param name="wixDocument">The xmldocument containing the file or directory.</param>
         /// <returns>A valid Id.</returns>
-        public static string GenerateValidIdentifier(string filename) {
-            if (Regex.Match(filename, "^[A-Za-z_][A-Za-z0-9_.]*$").Length > 0) {
-                return filename;
-            }
-
+        public static string GenerateValidIdentifier(string filename, XmlElement newElement, WixFiles wixFiles) {
             string newId = filename;
             newId = Regex.Replace(newId, "[^A-Za-z0-9_.]", "_");
 
@@ -98,7 +96,19 @@ namespace WixEdit.Import {
                 newId = "_" + newId;
             }
 
-            return newId;
+            XmlDocument owner = newElement.OwnerDocument;
+            if (owner.SelectSingleNode(String.Format("//wix:{0}[@Id='{1}']", newElement.Name, newId), wixFiles.WxsNsmgr) == null) {
+                return newId;
+            }
+
+            string exp = String.Format("//wix:{0}[@Id='{1}_{{0}}']", newElement.Name, newId);
+            int index = 1;
+
+            while (owner.SelectSingleNode(String.Format(exp, index), wixFiles.WxsNsmgr) != null) {
+                index++;
+            }
+
+            return newId + "_" + index;
         }
 
         /// <summary>
