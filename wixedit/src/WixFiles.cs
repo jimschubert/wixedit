@@ -173,8 +173,6 @@ namespace WixEdit {
                 projectSettings = new ProjectSettings(String.Empty, String.Empty);
             }
 
-            includeManager = new IncludeManager(this, wxsDocument);
-
             xsdExtensionPrefixesMap = new Hashtable();
             xsdExtensionPrefixesReverseMap = new Hashtable();
             foreach (XmlAttribute att in wxsDocument.DocumentElement.Attributes) {
@@ -207,6 +205,9 @@ namespace WixEdit {
             foreach (DictionaryEntry entry in xsdExtensionTargetNamespaces) {
                 wxsNsmgr.AddNamespace(LookupExtensionNameReverse((string) entry.Key), (string) entry.Value);
             }
+
+            // Init IncludeManager after all doc.LoadXml(doc.OuterXml), because all references to nodes would dissapear!
+            includeManager = new IncludeManager(this, wxsDocument);
         }
 
         public UndoManager UndoManager {
@@ -682,9 +683,9 @@ namespace WixEdit {
                 XmlTextWriter writer = new XmlTextWriter(fs, new System.Text.UTF8Encoding());
                 writer.Formatting = Formatting.Indented;
                 writer.Indentation = WixEditSettings.Instance.XmlIndentation;
-    
+
                 wxsDocument.Save(writer);
-    
+
                 writer.Close();
                 fs.Close();
             }
