@@ -57,5 +57,78 @@ namespace WixEdit {
         protected override object GetPropertyAdapter(){
             return new PropertyElementAdapter(CurrentList, WixFiles);
         }
+
+        public override void OnPropertyGridPopupContextMenu(object sender, EventArgs e) {
+            if (CurrentGrid.SelectedObject == null) {
+                return;
+            }
+
+            base.OnPropertyGridPopupContextMenu(sender, e);
+
+            if (CurrentGrid.SelectedGridItem.PropertyDescriptor != null) {
+                XmlNode selectedElement = GetSelectedGridObject();
+                XmlNodeList selectedSubElements = selectedElement.SelectNodes("*", WixFiles.WxsNsmgr);
+
+                MenuItem menuItemSeparator1 = new IconMenuItem("-");
+                CurrentGridContextMenu.MenuItems.Add(1, menuItemSeparator1);
+
+                if (selectedSubElements.Count == 0) {
+                    MenuItem subMenuItem = new IconMenuItem("Insert", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                    CurrentGridContextMenu.MenuItems.Add(1, subMenuItem);
+    
+                    XmlNode definition = WixFiles.GetXsdElementNode("Property");
+                    XmlNodeList subElements = definition.SelectNodes("xs:complexType/xs:sequence/xs:element", WixFiles.XsdNsmgr);
+                    foreach (XmlNode sub in subElements) {
+                        string subName = sub.Attributes["ref"].Value;
+    
+                        MenuItem subSubMenuItem = new IconMenuItem(subName);
+                        subSubMenuItem.Click += new EventHandler(OnNewSubPropertyGridItem);
+    
+                        subMenuItem.MenuItems.Add(subSubMenuItem);
+                    }
+                } else if (selectedSubElements.Count == 1) {
+                    MenuItem subMenuItem = new IconMenuItem("Remove " + selectedSubElements[0].Name, new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                    CurrentGridContextMenu.MenuItems.Add(1, subMenuItem);
+
+                    subMenuItem.Click += new EventHandler(OnRemoveSubPropertyGridItem);
+                } else {
+                    MenuItem subMenuItem = new IconMenuItem("Multiple subitems in property are unsupported!", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                    subMenuItem.Enabled = false;
+                    CurrentGridContextMenu.MenuItems.Add(1, subMenuItem);
+                }
+
+                MenuItem menuItemSeparator2 = new IconMenuItem("-");
+                CurrentGridContextMenu.MenuItems.Add(1, menuItemSeparator2);
+            }
+        }
+
+        public void OnRemoveSubPropertyGridItem(object sender, EventArgs e) {
+            XmlNode selectedElement = GetSelectedGridObject();
+
+            WixFiles.UndoManager.BeginNewCommandRange();
+  
+            selectedElement.RemoveChild(selectedElement.FirstChild);
+
+            RefreshGrid();
+        }
+
+        public void OnNewSubPropertyGridItem(object sender, EventArgs e) {
+            XmlElement selectedElement = (XmlElement) GetSelectedGridObject();
+
+            WixFiles.UndoManager.BeginNewCommandRange();
+            
+            MenuItem menuItem = sender as MenuItem;
+            string typeName = menuItem.Text;
+
+            XmlElement newElement = selectedElement.OwnerDocument.CreateElement(typeName, WixFiles.GetNamespaceUri(typeName));
+            selectedElement.AppendChild(newElement);
+
+            // Remove the value attribute.
+            if (selectedElement.HasAttribute("Value")) {
+                selectedElement.RemoveAttribute("Value");
+            }
+
+            RefreshGrid();
+        }
     }
 }

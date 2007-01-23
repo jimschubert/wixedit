@@ -113,7 +113,7 @@ namespace WixEdit.Import {
         /// <returns>A valid Id.</returns>
         public static string GenerateValidLongName(string filename) {
             string newId = filename;
-            newId = Regex.Replace(newId, "[\\?|><:/*\" ]", "_");
+            newId = Regex.Replace(newId, "[\\?|><:/*\"]", "_");
 
             if (Regex.Match(newId, "~[0-9]").Length > 0) {
                 newId = newId.Replace("~", "_");
@@ -134,7 +134,7 @@ namespace WixEdit.Import {
         /// <returns>A valid Id.</returns>
         public static string GenerateValidShortName(string filename) {
             string newId = GenerateValidLongName(filename);
-            newId = Regex.Replace(newId, "[\\+,;=\\[\\]]", "_");
+            newId = Regex.Replace(newId, "[\\+,;=\\[\\] ]", "_");
 
             if (Regex.Match(newId, "~[0-9]").Length > 0) {
                 newId = newId.Replace("~", "_");

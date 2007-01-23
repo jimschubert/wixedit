@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
@@ -62,15 +63,30 @@ namespace WixEdit.PropertyGridExtensions {
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
                 attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
 
-                // Make Attribute array
-                Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+                XmlNodeList subNodes = propertyNode.SelectNodes("*", WixFiles.WxsNsmgr);
+                if (subNodes.Count >= 1) {
+                    if (subNodes.Count == 1) {
+                        attrs.Add(new EditorAttribute(typeof(SearchElementTypeEditor), typeof(UITypeEditor)));
+                    }
+        
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
+                    // Create and add PropertyDescriptor
+                    PropertySearchElementPropertyDescriptor pd = new PropertySearchElementPropertyDescriptor (wixFiles, propertyNode,
+                        propertyNode.Attributes["Id"].Value, attrArray);
+                    
+                    props.Add(pd);
+                } else {
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
-                // Create and add PropertyDescriptor
-                PropertyElementPropertyDescriptor pd = new PropertyElementPropertyDescriptor (wixFiles, propertyNode,
-                    propertyNode.Attributes["Id"].Value, attrArray);
-                
-                props.Add(pd);
+                    // Create and add PropertyDescriptor
+                    PropertyElementPropertyDescriptor pd = new PropertyElementPropertyDescriptor (wixFiles, propertyNode,
+                        propertyNode.Attributes["Id"].Value, attrArray);
+                    
+                    props.Add(pd);
+                }
             }
 
             PropertyDescriptor[] propArray = props.ToArray(typeof(PropertyDescriptor)) as PropertyDescriptor[];

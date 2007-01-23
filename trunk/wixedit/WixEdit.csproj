@@ -957,6 +957,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\PropertyGridExtensions\ElementEditForm.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\PropertyGridExtensions\ErrorElementAdapter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1017,7 +1022,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "src\PropertyGridExtensions\PropertySearchElementPropertyDescriptor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "src\PropertyGridExtensions\ReferenceConverter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\SearchElementObject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "src\PropertyGridExtensions\SearchElementTypeEditor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
