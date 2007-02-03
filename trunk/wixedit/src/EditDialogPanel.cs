@@ -37,7 +37,7 @@ using System.Reflection;
 using WixEdit.Controls;
 using WixEdit.PropertyGridExtensions;
 using WixEdit.Settings;
- 
+
 namespace WixEdit {
     /// <summary>
     /// Editing of dialogs.
@@ -102,7 +102,7 @@ namespace WixEdit {
             InitializeComponent();
         }
 
-        private void OnResizeWxsDialogs(object sender, System.EventArgs e) {
+        private void OnResizeWxsDialogs(object sender, EventArgs e) {
             if (wxsDialogs.Columns.Count > 0 && wxsDialogs.Columns[0] != null) {
                 wxsDialogs.Columns[0].Width = wxsDialogs.ClientSize.Width - 4;
             }
@@ -154,25 +154,25 @@ namespace WixEdit {
             // 
             Opacity100.Index = 0;
             Opacity100.Text = "Set Opacity 100%";
-            Opacity100.Click += new System.EventHandler(Opacity_Click);
+            Opacity100.Click += new EventHandler(Opacity_Click);
             // 
             // Opacity75
             // 
             Opacity75.Index = 1;
             Opacity75.Text = "Set Opacity 75%";
-            Opacity75.Click += new System.EventHandler(Opacity_Click);
+            Opacity75.Click += new EventHandler(Opacity_Click);
             // 
             // Opacity50
             // 
             Opacity50.Index = 2;
             Opacity50.Text = "Set Opacity 50%";
-            Opacity50.Click += new System.EventHandler(Opacity_Click);
+            Opacity50.Click += new EventHandler(Opacity_Click);
             // 
             // Opacity25
             // 
             Opacity25.Index = 3;
             Opacity25.Text = "Set Opacity 25%";
-            Opacity25.Click += new System.EventHandler(Opacity_Click);
+            Opacity25.Click += new EventHandler(Opacity_Click);
             //
             // Separator
             //
@@ -182,20 +182,20 @@ namespace WixEdit {
             // 
             AlwaysOnTop.Index = 5;
             AlwaysOnTop.Text = "Always on top";
-            AlwaysOnTop.Click += new System.EventHandler(AlwaysOnTop_Click);
+            AlwaysOnTop.Click += new EventHandler(AlwaysOnTop_Click);
             AlwaysOnTop.Checked = WixEditSettings.Instance.AlwaysOnTop;
             // 
             // SnapToGrid
             // 
             SnapToGrid.Index = 6;
             SnapToGrid.Text = "Snap to grid";
-            SnapToGrid.Click += new System.EventHandler(SnapToGrid_Click);
+            SnapToGrid.Click += new EventHandler(SnapToGrid_Click);
             // 
             // Scale
             // 
             DialogScale.Index = 6;
             DialogScale.Text = "Scale Dialog";
-            DialogScale.Click += new System.EventHandler(DialogScale_Click);
+            DialogScale.Click += new EventHandler(DialogScale_Click);
             // 
             // dialogTreeView
             // 
@@ -218,7 +218,7 @@ namespace WixEdit {
 
             foreach (string controlType in controlTypes) {
                 MenuItem menuItem = new MenuItem(controlType);
-                menuItem.Click += new System.EventHandler(NewControlElement_Click);
+                menuItem.Click += new EventHandler(NewControlElement_Click);
                 newControlElementMenu.MenuItems.Add(menuItem);
             }
 
@@ -226,29 +226,29 @@ namespace WixEdit {
             newControlElementMenu.MenuItems.Add(dashMenuItem);
 
             otherMenuItem = new MenuItem("Other...");
-            otherMenuItem.Click += new System.EventHandler(NewControlElement_Click);
+            otherMenuItem.Click += new EventHandler(NewControlElement_Click);
             newControlElementMenu.MenuItems.Add(otherMenuItem);
 
 
             newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
             newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("elements.text.bmp")));
-            newTextElementMenu.Click += new System.EventHandler(NewTextElement_Click);
+            newTextElementMenu.Click += new EventHandler(NewTextElement_Click);
 
             newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp")));
-            newPublishElementMenu.Click += new System.EventHandler(NewPublishElement_Click);
+            newPublishElementMenu.Click += new EventHandler(NewPublishElement_Click);
 
             newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp")));
-            newConditionElementMenu.Click += new System.EventHandler(NewConditionElement_Click);
+            newConditionElementMenu.Click += new EventHandler(NewConditionElement_Click);
 
             newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
-            newSubscribeElementMenu.Click += new System.EventHandler(NewSubscribeElement_Click);
+            newSubscribeElementMenu.Click += new EventHandler(NewSubscribeElement_Click);
 
             deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            deleteCurrentElementMenu.Click += new System.EventHandler(DeleteElement_Click);
+            deleteCurrentElementMenu.Click += new EventHandler(DeleteElement_Click);
 
             infoAboutCurrentElementMenu = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
-            infoAboutCurrentElementMenu.Click += new System.EventHandler(InfoAboutCurrentElement_Click);
+            infoAboutCurrentElementMenu.Click += new EventHandler(InfoAboutCurrentElement_Click);
 
             // 
             // propertyGridContextMenu
@@ -258,7 +258,7 @@ namespace WixEdit {
             // propertyGrid
             //
             propertyGrid.Dock = DockStyle.Fill;
-            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            propertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
             propertyGrid.Location = new Point(140, 0);
             propertyGrid.Name = "propertyGrid";
             propertyGrid.Size = new Size(250, 266);
@@ -272,7 +272,7 @@ namespace WixEdit {
             // wxsDialogs
             // 
             wxsDialogs.Dock = DockStyle.Left;
-            wxsDialogs.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            wxsDialogs.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
             wxsDialogs.Location = new Point(0, 0);
             wxsDialogs.Name = "wxsDialogs";
             wxsDialogs.Size = new Size(140, 264);
@@ -282,7 +282,7 @@ namespace WixEdit {
             wxsDialogs.HideSelection = false;
             wxsDialogs.FullRowSelect = true;
             wxsDialogs.GridLines = false;
-            wxsDialogs.SelectedIndexChanged += new System.EventHandler(OnSelectedDialogChanged);
+            wxsDialogs.SelectedIndexChanged += new EventHandler(OnSelectedDialogChanged);
             wxsDialogs.ContextMenu = wxsDialogsContextMenu;
 
             wxsDialogsContextMenu.Popup += new EventHandler(OnWxsDialogsPopupContextMenu);
@@ -321,7 +321,7 @@ namespace WixEdit {
             Controls.Add(panel1);
             Controls.Add(splitter1);
             Controls.Add(wxsDialogs);
-            Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
             
             Name = "EditorForm";
             Text = "Wix Dialog Editor";
@@ -884,30 +884,27 @@ namespace WixEdit {
             }
 
             // Show dialog to choose from available items.
-            string newAttributeName = frm.SelectedString;
-
-            if (newAttributeName == "InnerText") {
-                attAdapter.ShowInnerTextIfEmpty = true;
-            } else {
-                WixFiles.UndoManager.BeginNewCommandRange();
-
-                // Get the XmlAttribute from the PropertyDescriptor
-                XmlAttributePropertyDescriptor desc = CurrentGrid.SelectedGridItem.PropertyDescriptor as XmlAttributePropertyDescriptor;
-                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
-    
-                // resetting the propertyGrid.
-                CurrentGrid.SelectedObject = null;
-    
-                // Add the attribute
-                attAdapter.XmlNode.Attributes.Append(att);
+            XmlAttribute att = null;
+            for (int i = 0; i < frm.SelectedStrings.Length; i++) {
+                string newAttributeName = frm.SelectedStrings[i];
+                if (string.Equals(newAttributeName,"InnerText")) {
+                    attAdapter.ShowInnerTextIfEmpty = true;
+                } else {
+                    WixFiles.UndoManager.BeginNewCommandRange();
+                    
+                    att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
+                    attAdapter.XmlNode.Attributes.Append(att);
+                }
             }
 
+            CurrentGrid.SelectedObject = null;
             // Update the propertyGrid.
             CurrentGrid.SelectedObject = attAdapter;
             CurrentGrid.Update();
 
+            string firstNewAttributeName = frm.SelectedStrings[0];
             foreach (GridItem it in CurrentGrid.SelectedGridItem.Parent.GridItems) {
-                if (it.Label == newAttributeName) {
+                if (it.Label == firstNewAttributeName) {
                     CurrentGrid.SelectedGridItem = it;
                     break;
                 }
@@ -939,7 +936,7 @@ namespace WixEdit {
 
         int prevSelectedIndex = -1;
 
-        private void OnSelectedDialogChanged(object sender, System.EventArgs e) {
+        private void OnSelectedDialogChanged(object sender, EventArgs e) {
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 string currentDialogId = wxsDialogs.SelectedItems[0].Text;
                 XmlNode dialog = GetDialogNode(currentDialogId);
@@ -1114,7 +1111,7 @@ namespace WixEdit {
             }
         }
 
-        private void TreeViewMouseDown(object sender, System.Windows.Forms.MouseEventArgs e) {
+        private void TreeViewMouseDown(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Right) {
                 TreeNode node = dialogTreeView.GetNodeAt(e.X, e.Y);
                 if (node == null) {
@@ -1127,7 +1124,7 @@ namespace WixEdit {
             }
         }
 
-        protected void PopupDialogTreeViewContextMenu(System.Object sender, System.EventArgs e) {
+        protected void PopupDialogTreeViewContextMenu(Object sender, EventArgs e) {
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1164,11 +1161,11 @@ namespace WixEdit {
             }
         }
 
-        private void OnPropertyDoubleClick(object sender, System.EventArgs e) {
+        private void OnPropertyDoubleClick(object sender, EventArgs e) {
             // Edit here?
         }
 
-        private void NewControlElement_Click(object sender, System.EventArgs e) {
+        private void NewControlElement_Click(object sender, EventArgs e) {
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1238,23 +1235,23 @@ namespace WixEdit {
             }
         }
 
-        private void NewTextElement_Click(object sender, System.EventArgs e) {
+        private void NewTextElement_Click(object sender, EventArgs e) {
             CreateNewControlSubElement("Text", 3);
         }
 
-        private void NewConditionElement_Click(object sender, System.EventArgs e) {
+        private void NewConditionElement_Click(object sender, EventArgs e) {
             CreateNewControlSubElement("Condition", 4);
         }
 
-        private void NewSubscribeElement_Click(object sender, System.EventArgs e) {
+        private void NewSubscribeElement_Click(object sender, EventArgs e) {
             CreateNewControlSubElement("Subscribe", 5);
         }
 
-        private void NewPublishElement_Click(object sender, System.EventArgs e) {
+        private void NewPublishElement_Click(object sender, EventArgs e) {
             CreateNewControlSubElement("Publish", 6);
         }
 
-        private void DeleteElement_Click(object sender, System.EventArgs e) {
+        private void DeleteElement_Click(object sender, EventArgs e) {
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1269,7 +1266,7 @@ namespace WixEdit {
             ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
         }
 
-        private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
+        private void InfoAboutCurrentElement_Click(object sender, EventArgs e) {
             XmlNode xmlNode = (XmlNode) dialogTreeView.SelectedNode.Tag;
 
             XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
@@ -1281,7 +1278,7 @@ namespace WixEdit {
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void Opacity_Click(object sender, System.EventArgs e) {
+        private void Opacity_Click(object sender, EventArgs e) {
             UncheckOpacityMenu();
 
             MenuItem item = sender as MenuItem;
@@ -1297,7 +1294,7 @@ namespace WixEdit {
             }
         }
 
-        private void AlwaysOnTop_Click(object sender, System.EventArgs e) {
+        private void AlwaysOnTop_Click(object sender, EventArgs e) {
             AlwaysOnTop.Checked = !AlwaysOnTop.Checked;
 
             WixEditSettings.Instance.AlwaysOnTop = AlwaysOnTop.Checked;
@@ -1308,7 +1305,7 @@ namespace WixEdit {
             }
         }
 
-        private void SnapToGrid_Click(object sender, System.EventArgs e) {
+        private void SnapToGrid_Click(object sender, EventArgs e) {
             EnterIntegerForm form = new EnterIntegerForm();
             form.Text = "Enter number of pixels to snap to:";
             form.SelectedInteger = WixEditSettings.Instance.SnapToGrid;
@@ -1320,7 +1317,7 @@ namespace WixEdit {
             }
         }
 
-        private void DialogScale_Click(object sender, System.EventArgs e) {
+        private void DialogScale_Click(object sender, EventArgs e) {
             EnterIntegerForm form = new EnterIntegerForm();
             form.Text = "Enter percentage to scale to:";
             form.SelectedInteger = (int) (WixEditSettings.Instance.Scale*100);

@@ -17,30 +17,23 @@
 
 using System;
 using System.Drawing;
-using System.Collections;
-using System.ComponentModel;
 using System.Windows.Forms;
-using System.Data;
-using System.Xml;
-using System.IO;
-using System.Resources;
-using System.Reflection;
 
 namespace WixEdit {
-	/// <summary>
-	/// Form to enter strings.
-	/// </summary>
-	public class SelectStringForm : Form {
+    /// <summary>
+    /// Form to enter strings.
+    /// </summary>
+    public class SelectStringForm : Form {
         protected Button ButtonOk;
         protected Button ButtonCancel;
         protected ListBox StringList;
 
-        protected string selectedString;
+        protected string[] selectedStrings;
         protected string[] possibleStrings;
 
-		public SelectStringForm() {
-			InitializeComponent();
-		}
+        public SelectStringForm() {
+            InitializeComponent();
+        }
 
         private void InitializeComponent() {
             Text = "New Attribute Name";
@@ -62,7 +55,7 @@ namespace WixEdit {
 
             StringList = new ListBox();
             StringList.Dock = DockStyle.Top;
-            StringList.SelectionMode = SelectionMode.One;
+            StringList.SelectionMode = SelectionMode.MultiSimple;
             StringList.DoubleClick += new EventHandler(OnDoubleClickList);
             StringList.SelectedValueChanged += new EventHandler(OnSelectionChanged);
             Controls.Add(StringList);
@@ -103,14 +96,14 @@ namespace WixEdit {
             } else {
                 ButtonOk.Enabled = true;
             }
-        }        
+        }
 
-        public string SelectedString {
+        public string[] SelectedStrings {
             get {
-                return selectedString;
+                return selectedStrings;
             }
             set {
-                selectedString = value;
+                selectedStrings = value;
             }
         }
 
@@ -124,17 +117,27 @@ namespace WixEdit {
         }
 
         private void OnOk(object sender, EventArgs e) {
-            selectedString = StringList.SelectedItem.ToString();
+            selectedStrings = FillSelectedString();
             DialogResult = DialogResult.OK;
         }
 
         private void OnDoubleClickList(object sender, EventArgs e) {
             // Cannot determine if an item is double clicked or not.
-            // but just pretend if we do... ;)
-            if (StringList.SelectedItem != null) {
-                selectedString = StringList.SelectedItem.ToString();
+            // but just pretend if we do... ;) and only with one item.
+            if (StringList.SelectedItem != null && StringList.SelectedItems.Count == 1) {
+                selectedStrings = FillSelectedString();
                 DialogResult = DialogResult.OK;
             }
+        }
+
+        private string[] FillSelectedString() {
+            string[] strArray = new string[StringList.SelectedItems.Count];
+            int i = 0;
+            foreach(string s in StringList.SelectedItems) {
+                strArray.SetValue(s,i);
+                i++;
+            }
+            return strArray;
         }
     }
 }
