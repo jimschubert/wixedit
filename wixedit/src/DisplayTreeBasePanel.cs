@@ -20,18 +20,12 @@
 
 
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Drawing;
 using System.Windows.Forms;
-using System.Data;
-using System.Xml;
 using System.IO;
-using System.Resources;
-using System.Reflection;
+using System.Xml;
 
 using WixEdit.PropertyGridExtensions;
 
@@ -317,26 +311,25 @@ namespace WixEdit {
             }
 
             // Show dialog to choose from available items.
-            string newAttributeName = frm.SelectedString;
-
-            if (newAttributeName == "InnerText") {
-                attAdapter.ShowInnerTextIfEmpty = true;
-            } else {
-                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
-    
-                // resetting the CurrentGrid.
-                CurrentGrid.SelectedObject = null;
-    
-                // Add the attribute
-                attAdapter.XmlNode.Attributes.Append(att);
+            XmlAttribute att = null;
+            for (int i = 0; i < frm.SelectedStrings.Length; i++) {
+                string newAttributeName = frm.SelectedStrings[i];
+                if (string.Equals(newAttributeName,"InnerText")) {
+                    attAdapter.ShowInnerTextIfEmpty = true;
+                } else {
+                    att = WixFiles.WxsDocument.CreateAttribute(newAttributeName);
+                    attAdapter.XmlNode.Attributes.Append(att);
+                }
             }
-
+            
+            CurrentGrid.SelectedObject = null;
             // Update the CurrentGrid.
             CurrentGrid.SelectedObject = attAdapter;
             CurrentGrid.Update();
 
+            string firstNewAttributeName = frm.SelectedStrings[0];
             foreach (GridItem it in CurrentGrid.SelectedGridItem.Parent.GridItems) {
-                if (it.Label == newAttributeName) {
+                if (it.Label == firstNewAttributeName) {
                     CurrentGrid.SelectedGridItem = it;
                     break;
                 }

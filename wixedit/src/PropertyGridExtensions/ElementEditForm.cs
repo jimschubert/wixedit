@@ -16,23 +16,17 @@
 
 
 using System;
-using System.Drawing;
 using System.Collections;
-using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
-using System.Data;
 using System.Xml;
-using System.IO;
-using System.Resources;
-using System.Reflection;
-
 using WixEdit.PropertyGridExtensions;
 
 namespace WixEdit {
-	/// <summary>
-	/// ElementEditForm edits the Attributes of an element.
-	/// </summary>
-	public class ElementEditForm : Form {
+    /// <summary>
+    /// ElementEditForm edits the Attributes of an element.
+    /// </summary>
+    public class ElementEditForm : Form {
         protected Button buttonOk;
         protected ContextMenu elementPropertyGridContextMenu;
         protected PropertyGrid elementPropertyGrid;
@@ -40,12 +34,12 @@ namespace WixEdit {
         protected XmlNode elementNode;
         protected WixFiles wixFiles;
 
-		public ElementEditForm(XmlNode elementNode, WixFiles wixFiles) {
+        public ElementEditForm(XmlNode elementNode, WixFiles wixFiles) {
             this.elementNode = elementNode;
             this.wixFiles = wixFiles;
 
-			InitializeComponent();
-		}
+            InitializeComponent();
+        }
 
         private void InitializeComponent() {
             Text = elementNode.Name + " Properties";
@@ -62,7 +56,7 @@ namespace WixEdit {
             elementPropertyGridContextMenu = new ContextMenu();
 
             elementPropertyGrid = new CustomPropertyGrid();
-            elementPropertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+            elementPropertyGrid.Font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((Byte)(0)));
             elementPropertyGrid.Name = "propertyGrid";
             elementPropertyGrid.TabIndex = 1;
             elementPropertyGrid.PropertySort = PropertySort.Alphabetical;
@@ -219,26 +213,26 @@ namespace WixEdit {
             }
 
             // Show dialog to choose from available items.
-            string newAttributeName = frm.SelectedString;
-
-            if (newAttributeName == "InnerText") {
-                attAdapter.ShowInnerTextIfEmpty = true;
-            } else {
-                XmlAttribute att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
-    
-                // resetting the elementPropertyGrid.
-                elementPropertyGrid.SelectedObject = null;
-    
-                // Add the attribute
-                attAdapter.XmlNode.Attributes.Append(att);
+            XmlAttribute att = null;
+            for (int i = 0; i < frm.SelectedStrings.Length; i++) {
+                string newAttributeName = frm.SelectedStrings[i];
+                if (string.Equals(newAttributeName,"InnerText")) {
+                    attAdapter.ShowInnerTextIfEmpty = true;
+                } else {
+                    att = wixFiles.WxsDocument.CreateAttribute(newAttributeName);
+                    attAdapter.XmlNode.Attributes.Append(att);
+                }
             }
-
+    
+            // resetting the elementPropertyGrid.
+            elementPropertyGrid.SelectedObject = null;
             // Update the elementPropertyGrid.
             elementPropertyGrid.SelectedObject = attAdapter;
             elementPropertyGrid.Update();
 
+            string firstNewAttributeName = frm.SelectedStrings[0];
             foreach (GridItem it in elementPropertyGrid.SelectedGridItem.Parent.GridItems) {
-                if (it.Label == newAttributeName) {
+                if (it.Label == firstNewAttributeName) {
                     elementPropertyGrid.SelectedGridItem = it;
                     break;
                 }
