@@ -203,7 +203,7 @@ namespace WixEdit {
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
             if (attAdapter.XmlNodeDefinition == null) {
                 string noDefName = "";
-                XmlElement el = attAdapter.XmlNodeElement;
+                XmlNode el = attAdapter.XmlNodeElement;
                 if (el != null) {
                     noDefName = el.Name;
                 }
