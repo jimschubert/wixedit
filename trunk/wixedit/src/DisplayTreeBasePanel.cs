@@ -202,8 +202,15 @@ namespace WixEdit {
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
             if (attAdapter.XmlNodeDefinition == null) {
+                string noDefName = "";
+                XmlElement el = attAdapter.XmlNodeElement;
+                if (el != null) {
+                    noDefName = el.Name;
+                }
+
                 // How can this happen? Just trow an exception so it can be reported to the WixEdit website.
-                throw new Exception(String.Format("XmlAttributeAdapter.XmlNodeDefinition is null of \"{0}\" in {1}", attAdapter.GetType(), this.GetType()));
+                // Maybe this exception shouldn't be thrown, and just be ignored?
+                throw new Exception(String.Format("XmlAttributeAdapter.XmlNodeDefinition is null of \"{0}\" with name \"{1}\" in {2}", attAdapter.GetType(), noDefName, this.GetType()));
             }
             
             // Need to change "Delete" to "Clear" for required items.
