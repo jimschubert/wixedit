@@ -19,7 +19,9 @@
 // IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace WixEdit {
@@ -34,6 +36,8 @@ namespace WixEdit {
         private const uint SHGFI_LINKOVERLAY = 0x8000;
 
         private const uint FILE_ATTRIBUTE_NORMAL = 0x00000080; 
+
+        private static Hashtable extensionList = new Hashtable();
 
         [StructLayout(LayoutKind.Sequential)]
         private struct ShFileInfo {
@@ -55,6 +59,11 @@ namespace WixEdit {
         }
 
         public static Icon GetFileIcon(string filePath, bool isLink) {
+            string ext = Path.GetExtension(filePath).ToUpper();
+            if (extensionList.ContainsKey(ext)) {
+                return (Icon) extensionList[ext];
+            }
+
             try {
                 uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | SHGFI_SMALLICON;
                 if (isLink) {
@@ -72,9 +81,13 @@ namespace WixEdit {
                 Icon icon = (Icon)Icon.FromHandle(shellFileInfo.hIcon).Clone();
 
                 DestroyIcon(shellFileInfo.hIcon);    
-        
+
+                extensionList[ext] = icon;
+
                 return icon;
             } catch {
+                extensionList[ext] = null;
+
                 return null;
             }
         }
