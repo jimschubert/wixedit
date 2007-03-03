@@ -46,6 +46,7 @@ namespace WixEdit {
 
         protected AboutForm splash;
         protected bool splashIsDone = false;
+        protected static bool xsdWarningIsDone = false;
         protected EventHandler splashScreenHandler;
 
         protected Panel mainPanel;
@@ -111,10 +112,22 @@ namespace WixEdit {
 
         public EditorForm() {
             InitializeComponent();
+
+            if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
+                xsdWarningIsDone = true;
+                MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+            }
         }
 
         public EditorForm(string fileToOpen) {
             InitializeComponent();
+
+            if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
+                xsdWarningIsDone = true;
+                MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+
+                return;
+            }
 
             FileInfo xmlFileInfo = new FileInfo(fileToOpen);
             if (xmlFileInfo.Exists) {
@@ -560,8 +573,15 @@ namespace WixEdit {
         }
 
         private void fileMenu_Popup(object sender, System.EventArgs e) {
+            bool xsdPresent = WixFiles.CheckForXsd();
+            fileNew.Enabled = xsdPresent;
+            fileLoad.Enabled = xsdPresent;
+            fileRecent.Enabled = xsdPresent;
+
             if (wixFiles != null) {
                 fileSave.Enabled = wixFiles.HasChanges();
+            } else {
+                fileSave.Enabled = false;
             }
         }
 
@@ -1056,6 +1076,11 @@ namespace WixEdit {
                 } else {
                     // and reload xsds.
                     WixFiles.ReloadXsd();
+                }
+
+                if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
+                    xsdWarningIsDone = true;
+                    MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
                 }
             }
         }
