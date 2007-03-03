@@ -227,15 +227,17 @@ namespace WixEdit {
 
             if (File.Exists(WixEditSettings.Instance.GetWixXsdLocation())) {
                 xsdDocument.Load(WixEditSettings.Instance.GetWixXsdLocation());
-            } else {
-                xsdDocument.Load(GetResourceStream("wix.xsd"));
-            }
-        
-            xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
-            xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
-            xsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
 
-            ReloadExtensionXsds();
+                xsdNsmgr = new XmlNamespaceManager(xsdDocument.NameTable);
+                xsdNsmgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+                xsdNsmgr.AddNamespace("xse", "http://schemas.microsoft.com/wix/2005/XmlSchemaExtension");
+    
+                ReloadExtensionXsds();
+            }
+        }
+
+        public static bool CheckForXsd() {
+            return File.Exists(WixEditSettings.Instance.GetWixXsdLocation());
         }
 
         private string LookupExtensionName(string name) {
