@@ -100,7 +100,7 @@ namespace WixEdit {
             int i = 0;
             string shortFileName = String.Format("{0}{1}", nameStart, nameExtension);
             while (componentElement.SelectSingleNode(String.Format("wix:File[@{0}={1}]", ShortName, XPathHelper.EscapeXPathInputString(shortFileName)), wixFiles.WxsNsmgr) != null) {
-                if (i%10 == 9) {
+                if (i%10 == 0 && Math.Log10(i)%1 == 0.00) {
                     if (tooShort > 0) {
                         tooShort--;
                     } else {
@@ -135,7 +135,7 @@ namespace WixEdit {
             string shortDirectoryName = String.Format("{0}", nameStart);
 
             while (componentElement.SelectSingleNode(String.Format("wix:Directory[@{0}={1}]", ShortName, XPathHelper.EscapeXPathInputString(shortDirectoryName)), wixFiles.WxsNsmgr) != null) {
-                if (i%10 == 9) {
+                if (i%10 == 0 && Math.Log10(i)%1 == 0.00) {
                     if (tooShort > 0) {
                         tooShort--;
                     } else {
