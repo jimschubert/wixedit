@@ -350,6 +350,8 @@ namespace WixEdit {
             CurrentGridContextMenu = propertyGridContextMenu;
 
             LoadData();
+
+            CurrentGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(OnPropertyGridValueChanged);
         }
 
         #endregion
@@ -549,6 +551,22 @@ namespace WixEdit {
 
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
                 wxsDialogsContextMenu.MenuItems.Add(menuItem2);
+            }
+        }
+
+        public void OnPropertyGridValueChanged(object sender, PropertyValueChangedEventArgs e) {
+            if (e.ChangedItem.Label == "Id") {
+                if (wxsDialogs.SelectedItems.Count > 0) {
+                    ListViewItem it = wxsDialogs.SelectedItems[0];
+                    it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
+                } else {
+                    foreach (ListViewItem it in wxsDialogs.Items) {
+                        if (it.Text == e.OldValue) {
+                            it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
