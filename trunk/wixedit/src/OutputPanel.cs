@@ -349,6 +349,7 @@ namespace WixEdit {
             xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
             xmlDisplayForm.ShowFile(String.Format("{0}?{1}#a{1}", outputFile, anchorBuilder.ToString()));
             xmlDisplayForm.Show();
+            xmlDisplayForm.Activate();
         }
 
         public bool IsBusy {
