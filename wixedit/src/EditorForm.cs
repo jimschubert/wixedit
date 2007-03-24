@@ -1197,7 +1197,7 @@ namespace WixEdit {
             } catch (XmlException ex) {
                 MessageBox.Show(String.Format("Failed to open file. ({0}) The xml is not valid:\r\n\r\n{1}", file.Name, ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch (WixEditException ex) {
-                MessageBox.Show(String.Format("Cannot to open file:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
+                MessageBox.Show(String.Format("Cannot open file:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch {
                 MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             }
