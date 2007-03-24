@@ -561,7 +561,7 @@ namespace WixEdit {
                     it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
                 } else {
                     foreach (ListViewItem it in wxsDialogs.Items) {
-                        if (it.Text == e.OldValue) {
+                        if (it.Text == (string) e.OldValue) {
                             it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
                             break;
                         }
