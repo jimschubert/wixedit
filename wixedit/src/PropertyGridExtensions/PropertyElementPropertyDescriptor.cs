@@ -44,18 +44,21 @@ namespace WixEdit.PropertyGridExtensions {
 
             wixFiles.UndoManager.StartPropertyGridEdit();
 
+            XmlNode node = this.XmlElement;
+
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                if (XmlElement.Attributes["Value"] != null) {
-                    XmlElement.Attributes["Value"].Value = String.Empty;
-                } else {
-                    XmlElement.InnerText = String.Empty;
-                }
+                node.InnerText = String.Empty;
             } else {
-                if (XmlElement.Attributes["Value"] != null) {
-                    XmlElement.Attributes["Value"].Value = value.ToString();
+                if (node.FirstChild != null && 
+                    node.FirstChild.NodeType == XmlNodeType.CDATA) {
+                    if (node.FirstChild.FirstChild != null) {
+                        node.FirstChild.AppendChild(node.OwnerDocument.CreateTextNode(value.ToString()));
+                    } else {
+                        node.FirstChild.InnerText = value.ToString();
+                    }
                 } else {
-                    XmlElement.InnerText = value.ToString();
+                    node.InnerText = value.ToString();
                 }
             }
 

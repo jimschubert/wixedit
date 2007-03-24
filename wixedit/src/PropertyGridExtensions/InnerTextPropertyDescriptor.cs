@@ -49,7 +49,16 @@ namespace WixEdit.PropertyGridExtensions {
             if (value == null) {
                 node.InnerText = String.Empty;
             } else {
-                node.InnerText = value.ToString();
+                if (node.FirstChild != null && 
+                    node.FirstChild.NodeType == XmlNodeType.CDATA) {
+                    if (node.FirstChild.FirstChild != null) {
+                        node.FirstChild.AppendChild(node.OwnerDocument.CreateTextNode(value.ToString()));
+                    } else {
+                        node.FirstChild.InnerText = value.ToString();
+                    }
+                } else {
+                    node.InnerText = value.ToString();
+                }
             }
 
             wixFiles.UndoManager.EndPropertyGridEdit();
