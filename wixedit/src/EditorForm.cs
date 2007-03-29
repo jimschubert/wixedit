@@ -1188,6 +1188,7 @@ namespace WixEdit {
 
             if (wixFiles != null) {
                 wixFiles.Dispose();
+                wixFiles = null;
             }
 
             try {
