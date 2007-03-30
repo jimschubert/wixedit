@@ -1434,9 +1434,14 @@ namespace WixEdit {
 
         private static Process FindOtherProcess() {
             Process otherProcess = null;
-            Process thisProcess = Process.GetCurrentProcess();
+            string processName = "WixEdit.exe";
             
-            string processName = thisProcess.ProcessName;
+            try {
+                Process thisProcess = Process.GetCurrentProcess();
+            
+                processName = thisProcess.ProcessName;
+            } catch {}
+
             Process[] processes = Process.GetProcessesByName(processName);
             
             if (processes.Length > 1) {
