@@ -1444,16 +1444,18 @@ namespace WixEdit {
 
             Process[] processes = Process.GetProcessesByName(processName);
             
-            if (processes.Length > 1) {
-                for (int i = 0; i < processes.Length; i++) {
-                    Process aProcess = processes[i];
-                    if (aProcess != null && aProcess.MainWindowHandle != IntPtr.Zero) {
-                        otherProcess = aProcess;
+            try {
+                if (processes.Length > 1) {
+                    for (int i = 0; i < processes.Length; i++) {
+                        Process aProcess = processes[i];
+                        if (aProcess != null && aProcess.MainWindowHandle != IntPtr.Zero) {
+                            otherProcess = aProcess;
+                        }
                     }
+    
+                    return otherProcess;
                 }
-
-                return otherProcess;
-            }
+            } catch {}
 
             return null;
         }
