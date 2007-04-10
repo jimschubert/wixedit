@@ -895,6 +895,8 @@ namespace WixEdit {
                 }
             }
 
+            attributes.Sort();
+
             SelectStringForm frm = new SelectStringForm();
             frm.PossibleStrings = attributes.ToArray(typeof(String)) as String[];
             if (DialogResult.OK != frm.ShowDialog()) {
