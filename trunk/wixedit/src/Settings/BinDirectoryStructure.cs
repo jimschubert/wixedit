@@ -155,8 +155,12 @@ namespace WixEdit.Settings {
                     BinDirectoryStructure bd = (BinDirectoryStructure)value;
 
                     if (bd.HasSameBinDirectory()) {
-                        bd.BinDirectory = new FileInfo(bd.Candle).Directory.FullName;
-                        return bd.BinDirectory;
+                        if (bd.Candle == String.Empty || bd.Candle == null) {
+                            return null;
+                        } else {
+                            bd.BinDirectory = new FileInfo(bd.Candle).Directory.FullName;
+                            return bd.BinDirectory;
+                        }
                     } else {
                         return "...";
                     }
