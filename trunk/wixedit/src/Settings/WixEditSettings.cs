@@ -245,7 +245,10 @@ namespace WixEdit.Settings {
 
             XmlDocument rawData = new XmlDocument();
             try {
-                rawData.Load(SettingsFile);
+                xmlStream = new FileStream(SettingsFile, FileMode.Open);
+                using (xmlStream) {
+                    rawData.Load(xmlStream);
+                }
             } catch {
                 rawData = null;
             }
@@ -314,7 +317,7 @@ namespace WixEdit.Settings {
 
         [
         Category("Locations"), 
-        Description("The directory where the WiX binaries are located. The wix.xsd is also being located by this path."), 
+        Description("The directory where the WiX binaries are located. The wix.xsd is also located by this path."), 
         Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor)),
         TypeConverter(typeof(BinDirectoryStructure.BinDirectoryExpandableObjectConverter))
         ]

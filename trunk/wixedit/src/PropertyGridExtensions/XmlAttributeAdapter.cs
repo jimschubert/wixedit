@@ -57,11 +57,23 @@ namespace WixEdit.PropertyGridExtensions {
             if (xmlNodeElement == null) {
                 if (xmlNode.NodeType != XmlNodeType.ProcessingInstruction) {
                     if (warnedNodeNames.Contains(xmlNode.Name) == false) {
-                        MessageBox.Show(String.Format("\"{0}\" is not supported!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(String.Format("\"{0}\" is not supported in version {1} of WiX!\r\n\r\nPossibly this type is supported in another version of WiX and wix.xsd.", xmlNode.Name, WixEditSettings.Instance.WixBinariesVersion), xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         warnedNodeNames.Add(xmlNode.Name);
                     }
                 }
             } else {
+                XmlNode deprecated = xmlNodeElement.SelectSingleNode("xs:annotation/xs:appinfo/xse:deprecated", wixFiles.XsdNsmgr);
+                if (deprecated != null) {
+                    if (warnedNodeNames.Contains(xmlNode.Name) == false) {
+                        string msg = String.Format("\"{0}\" is deprecated in version {1} of WiX.", xmlNode.Name, WixEditSettings.Instance.WixBinariesVersion);
+                        if (deprecated.Attributes["ref"] != null) {
+                            msg = String.Format("{0}\r\n\r\nPlease use \"{1}\" instead.", msg, deprecated.Attributes["ref"].Value);
+                        }
+                        MessageBox.Show(msg, xmlNode.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        warnedNodeNames.Add(xmlNode.Name);
+                    }
+                }
+
                 if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null) {
                     xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
                     if (xmlNodeDefinition == null) {

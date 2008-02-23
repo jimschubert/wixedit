@@ -70,8 +70,20 @@ namespace WixEdit {
         IconMenuItem cancelMenuItem;
 
         public delegate void OnCompleteDelegate(bool isCancelled);
+		private delegate void DelegateClearRtf();
+		private delegate void DelegateOutput     (String line);
+		private delegate void DelegateOutputLine (string message, bool bold);
+		private delegate void DelegateOutputStart(ProcessStartInfo processStartInfo, DateTime start);
+		private delegate void DelegateOutputDone(Process process, DateTime start);
+		private delegate void DelegateProcessDone();
 
-        OnCompleteDelegate onCompletedOutput;
+		OnCompleteDelegate onCompletedOutput;
+		DelegateClearRtf    invokeClearRTF;
+		DelegateOutput      invokeOutput;
+		DelegateOutputLine  invokeOutputLine;
+		DelegateOutputStart invokeOutputStart;
+		DelegateOutputDone  invokeOutputDone;
+		DelegateProcessDone invokeProcessDone;
 
         public OutputPanel(EditorForm editorForm, IconMenuItem buildMenu) {
             this.editorForm = editorForm;
@@ -382,65 +394,77 @@ namespace WixEdit {
             wixFiles = theWixFiles;
             onCompletedOutput = onComplete;
 
-            isCancelled = false;
+			invokeClearRTF     = new DelegateClearRtf(ClearRtf);
+			invokeOutput       = new DelegateOutput(Output);
+			invokeOutputLine   = new DelegateOutputLine(OutputLine);
+			invokeOutputStart  = new DelegateOutputStart(OutputStart);
+			invokeOutputDone   = new DelegateOutputDone(OutputDone);
+			invokeProcessDone  = new DelegateProcessDone(ProcessDone);
 
-            buildMenu.MenuItems.Add(cancelMenuItem);
-            outputTextBox.Cursor = Cursors.WaitCursor;
+			isCancelled = false;
 
-            currentProcessStartInfos = processStartInfos;
+			buildMenu.MenuItems.Add(cancelMenuItem);
+			outputTextBox.Cursor = Cursors.WaitCursor;
 
-            currentProcessThread = new Thread(new ThreadStart(InternalThreadRunMultiple));
-            currentProcessThread.Start();
-        }
-        
-        private void InternalThreadRunMultiple() {
-            outputTextBox.Rtf = "";
+			currentProcessStartInfos = processStartInfos;
 
-            DateTime start = DateTime.Now;
+			currentProcessThread = new Thread(new ThreadStart(InternalThreadRunMultiple));
+			currentProcessThread.Start();
+		}
 
-            foreach (ProcessStartInfo processStartInfo in currentProcessStartInfos) {
-                DateTime subStart = DateTime.Now;
-                OutputStart(processStartInfo, subStart);
-                
-                activeProcess = Process.Start(processStartInfo);
-                
-                ReadStandardOut();
-    
-                activeProcess.WaitForExit();
+		private void InternalThreadRunMultiple() {
+			Invoke(invokeClearRTF);
 
-                if (activeProcess.ExitCode != 0) {
-                    break;
-                }
+			DateTime start = DateTime.Now;
 
-                if (isCancelled) {
-                    break;
-                }
+			foreach (ProcessStartInfo processStartInfo in currentProcessStartInfos) {
+				DateTime subStart = DateTime.Now;
+				Invoke(invokeOutputStart, new object[] { processStartInfo, subStart });
 
-                OutputDone(activeProcess, subStart);
-            }
+				activeProcess = Process.Start(processStartInfo);
 
-            if (isCancelled) {
-                OutputLine("Aborted...", true);
-            } else {
-                OutputLine("", true);
-                OutputLine("----- Finished", true);
-                OutputLine("", false);
+				ReadStandardOut();
 
-                if (activeProcess.ExitCode != 0) {
-                    OutputLine("Error in " + Path.GetFileNameWithoutExtension(activeProcess.StartInfo.FileName), true);
-                } else {
-                    OutputLine(String.Format("Finished in: {0} seconds", activeProcess.ExitTime.Subtract(start).Seconds.ToString()), true);
-                }
-            }
+				activeProcess.WaitForExit();
 
-            buildMenu.MenuItems.Remove(cancelMenuItem);
-            outputTextBox.Cursor = Cursors.IBeam;
-            
-            if (onCompletedOutput != null) {
-                onCompletedOutput(isCancelled);
-            }
-        }
-        
+				if (activeProcess.ExitCode != 0) {
+					break;
+				}
+
+				if (isCancelled) {
+					break;
+				}
+
+				Invoke(invokeOutputDone, new object[] { activeProcess, start });
+			}
+
+			if (isCancelled) {
+				Invoke(invokeOutputLine, new object[] { "Aborted...", true });
+			} else {
+				Invoke(invokeOutputLine, new object[] { "", true });
+				Invoke(invokeOutputLine, new object[] { "----- Finished", true });
+				Invoke(invokeOutputLine, new object[] { "", false });
+
+				if (activeProcess.ExitCode != 0) {
+					Invoke(invokeOutputLine, new object[] { "Error in " + Path.GetFileNameWithoutExtension(activeProcess.StartInfo.FileName), true });
+				} else {
+					Invoke(
+						invokeOutputLine, 
+							new object[] 
+								{ 
+									String.Format("Finished in: {0} seconds", activeProcess.ExitTime.Subtract(start).Seconds.ToString()), true	
+								}
+							);
+				}
+			}
+
+			Invoke(invokeProcessDone);
+
+			if (onCompletedOutput != null) {
+				onCompletedOutput(isCancelled);
+			}
+		}
+
         public void Run(ProcessStartInfo processStartInfo) {
             Run(processStartInfo, null, null);
         }
@@ -472,30 +496,29 @@ namespace WixEdit {
             currentProcessThread.Start();
         }
         
-        private void InternalThreadRunSingle() {
-            DateTime start = DateTime.Now;
+		private void InternalThreadRunSingle() {
+			DateTime start = DateTime.Now;
 
-            OutputStart(currentProcessStartInfo, start);
-            
-            activeProcess = Process.Start(currentProcessStartInfo);
-            
-            ReadStandardOut();
+			Invoke(invokeOutputStart, new object[] { currentProcessStartInfo, start });
 
-            activeProcess.WaitForExit();
+			activeProcess = Process.Start(currentProcessStartInfo);
 
-            if (isCancelled) {
-                OutputLine("Aborted...", true);
-            } else {
-                OutputDone(activeProcess, start);
-            }
+			ReadStandardOut();
 
-            buildMenu.MenuItems.Remove(cancelMenuItem);
-            outputTextBox.Cursor = Cursors.IBeam;
+			activeProcess.WaitForExit();
 
-            if (onCompletedOutput != null) {
-                onCompletedOutput(isCancelled);
-            }
-        }
+			if (isCancelled) {
+				Invoke(invokeOutputLine, new object[] { "Aborted...", true });
+			} else {
+				Invoke(invokeOutputDone, new object[] { activeProcess, start });
+			}
+
+			Invoke(invokeProcessDone);
+
+			if (onCompletedOutput != null) {
+				onCompletedOutput(isCancelled);
+			}
+		}
 
         public void RunWithLogFile(ProcessStartInfo processStartInfo, string logFile) {
             if (IsBusy) {
@@ -514,34 +537,33 @@ namespace WixEdit {
             currentProcessThread.Start();
         }
 
-        private void InternalThreadRunSingleWithLogFile() {
-            DateTime start = DateTime.Now;
+		private void InternalThreadRunSingleWithLogFile() {
+			DateTime start = DateTime.Now;
 
-            OutputStart(currentProcessStartInfo, start);
-            
-            activeProcess = Process.Start(currentProcessStartInfo);
-            
-            while(activeProcess.WaitForExit(100) == false) {
-                if (File.Exists(currentLogFile)) {
-                    ReadLogFile(currentLogFile);
-                    break;
-                }
-                Application.DoEvents();
-            }
+			Invoke(invokeOutputStart, new object[] { currentProcessStartInfo, start });
 
-            if (isCancelled) {
-                OutputLine("Aborted...", true);
-            } else {
-                OutputDone(activeProcess, start);
-            }
+			activeProcess = Process.Start(currentProcessStartInfo);
 
-            buildMenu.MenuItems.Remove(cancelMenuItem);
-            outputTextBox.Cursor = Cursors.IBeam;
-            
-            if (onCompletedOutput != null) {
-                onCompletedOutput(isCancelled);
-            }
-        }
+			while (activeProcess.WaitForExit(100) == false) {
+				if (File.Exists(currentLogFile)) {
+					ReadLogFile(currentLogFile);
+					break;
+				}
+				Application.DoEvents();
+			}
+
+			if (isCancelled) {
+				Invoke(invokeOutputLine, new object[] { "Aborted...", true });
+			} else {
+				Invoke(invokeOutputDone, new object[] { activeProcess, start });
+			}
+			
+			Invoke(invokeProcessDone);
+
+			if (onCompletedOutput != null) {
+				onCompletedOutput(isCancelled);
+			}
+		}
 
         private void ReadLogFile(string logFile) {
             FileInfo log = new FileInfo(logFile);
@@ -575,29 +597,30 @@ namespace WixEdit {
                                 } catch {}
     
                                 if (line != null) {
-                                    Output(line);
-                                }
-                            }
+									Invoke(invokeOutput, new object[]{line});
+								}
+							}
                         } catch (IOException) {
-                        }
+						}
 
-                        Application.DoEvents();
-                    }
-                }
-            }
-        }
+						Application.DoEvents();
+					}
+				}
+			}
+		}
 
-       
+
         private void ReadStandardOut() {
             if ( activeProcess != null ) {
                 string line;
                 using (StreamReader sr = activeProcess.StandardOutput) {
-                    while ((line = sr.ReadLine()) != null && isCancelled == false) {
-                        OutputLine(line, false);
-                    }
-                }
-            }
-        }
+					while ((line = sr.ReadLine()) != null && isCancelled == false && activeProcess.HasExited == false)
+					{
+						Invoke(invokeOutputLine, new object[] { line, false });
+					}
+				}
+			}
+		}
 
         private void Output(string message) {
             if (message == null || message.Length == 0) {
@@ -615,6 +638,10 @@ namespace WixEdit {
             outputTextBox.Focus();
             outputTextBox.ScrollToCaret();
         }
+
+		private void ClearRtf() {
+			outputTextBox.Rtf = "";
+		}
 
         private void OutputLine(string message, bool bold) {
             string output;
@@ -649,6 +676,11 @@ namespace WixEdit {
             OutputLine("", true);
         }
 
+		private void ProcessDone() {
+			buildMenu.MenuItems.Remove(cancelMenuItem);
+			outputTextBox.Cursor = Cursors.IBeam;
+		}
+
         public void Clear() {
             outputTextBox.Text = "";
             wixFiles = null;
@@ -666,7 +698,7 @@ namespace WixEdit {
         }
 
         private void cancelMenuItem_Click(object sender, System.EventArgs e) {
-            Cancel();
-        }
-    }
+			Cancel();
+		}
+	}
 }

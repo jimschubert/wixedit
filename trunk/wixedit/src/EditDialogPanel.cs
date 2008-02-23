@@ -66,10 +66,6 @@ namespace WixEdit {
         private IconMenuItem newControlElementMenu;
         private MenuItem otherMenuItem;
         private IconMenuItem newControlSubElementsMenu;
-        private IconMenuItem newTextElementMenu;
-        private IconMenuItem newPublishElementMenu;
-        private IconMenuItem newConditionElementMenu;
-        private IconMenuItem newSubscribeElementMenu;
         private IconMenuItem deleteCurrentElementMenu;
 
         private IconMenuItem infoAboutCurrentElementMenu;
@@ -231,18 +227,6 @@ namespace WixEdit {
 
 
             newControlSubElementsMenu = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-
-            newTextElementMenu = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("elements.text.bmp")));
-            newTextElementMenu.Click += new EventHandler(NewTextElement_Click);
-
-            newPublishElementMenu = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp")));
-            newPublishElementMenu.Click += new EventHandler(NewPublishElement_Click);
-
-            newConditionElementMenu = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp")));
-            newConditionElementMenu.Click += new EventHandler(NewConditionElement_Click);
-
-            newSubscribeElementMenu = new IconMenuItem("Subsribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
-            newSubscribeElementMenu.Click += new EventHandler(NewSubscribeElement_Click);
 
             deleteCurrentElementMenu = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             deleteCurrentElementMenu.Click += new EventHandler(DeleteElement_Click);
@@ -491,6 +475,27 @@ namespace WixEdit {
         }
         #endregion
 
+        private int GetImageIndex(string name)
+        {
+            switch (name.ToLower())
+            {
+                case "dialog":
+                    return 1;
+                case "control":
+                    return 2;
+                case "text":
+                    return 3;
+                case "condition":
+                    return 4;
+                case "subscribe":
+                    return 5;
+                case "publish":
+                    return 6;
+                default:
+                    return 2;
+            }
+        }
+
         private ImageList GetDialogTreeViewImageList() {
             ImageList images = new ImageList(); 
 
@@ -535,12 +540,11 @@ namespace WixEdit {
 
         public void OnWxsDialogsPopupContextMenu(object sender, EventArgs e) {
             MenuItem menuItem1 = new IconMenuItem("&New Dialog", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            MenuItem menuItemCopy = new IconMenuItem("&Copy Dialog", new Bitmap(WixFiles.GetResourceStream("bmp.paste.bmp")));
             MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             MenuItem menuItem3 = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
 
-            
             menuItem1.Click += new EventHandler(OnNewWxsDialogsItem);
-            menuItem2.Click += new EventHandler(OnDeleteWxsDialogsItem);
             menuItem3.Click += new EventHandler(OnImportWxsDialogsItem);
 
             wxsDialogsContextMenu.MenuItems.Clear();
@@ -548,23 +552,60 @@ namespace WixEdit {
             wxsDialogsContextMenu.MenuItems.Add(menuItem1);
             wxsDialogsContextMenu.MenuItems.Add(menuItem3);
 
-
             if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null) {
+                menuItem2.Click += new EventHandler(OnDeleteWxsDialogsItem);
                 wxsDialogsContextMenu.MenuItems.Add(menuItem2);
+                menuItemCopy.Click += new EventHandler(OnCopyWxsDialogsItem);
+                wxsDialogsContextMenu.MenuItems.Add(menuItemCopy);
             }
         }
 
         public void OnPropertyGridValueChanged(object sender, PropertyValueChangedEventArgs e) {
             if (e.ChangedItem.Label == "Id") {
-                if (wxsDialogs.SelectedItems.Count > 0) {
-                    ListViewItem it = wxsDialogs.SelectedItems[0];
-                    it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
-                } else {
-                    foreach (ListViewItem it in wxsDialogs.Items) {
-                        if (it.Text == (string) e.OldValue) {
-                            it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
-                            break;
+                XmlAttributeAdapter attAdapter = (XmlAttributeAdapter)CurrentGrid.SelectedObject;          
+                if (attAdapter.XmlNode.Name == "Dialog") {
+                    if (wxsDialogs.SelectedItems.Count > 0) {
+                        ListViewItem it = wxsDialogs.SelectedItems[0];
+                        it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
+                    } else {
+                        foreach (ListViewItem it in wxsDialogs.Items) {
+                            if (it.Text == (string) e.OldValue) {
+                                it.Text = ((XmlNode) it.Tag).Attributes["Id"].Value;
+                                break;
+                            }
                         }
+                    }
+                } else {
+                    XmlNode node = null;
+                    if (dialogTreeView.SelectedNode != null)
+                    {
+                        node = dialogTreeView.SelectedNode.Tag as XmlNode;
+                    }
+                    if (node == null)
+                    {
+                        return;
+                    }
+
+                    if (node.Attributes["Id"] != null && 
+                        node.Attributes["Id"].Value != string.Empty) {
+                        dialogTreeView.SelectedNode.Text = node.Attributes["Id"].Value;
+                    }
+                }
+            }
+            else if (e.ChangedItem.Label == "Property") {
+                XmlElement node = null;
+                if (dialogTreeView.SelectedNode != null) {
+                    node = dialogTreeView.SelectedNode.Tag as XmlElement;
+                }
+                if (node == null) {
+                    return;
+                }
+                foreach (XmlNode child in node.ChildNodes) {
+                    XmlElement childEl = (XmlElement) child;
+                    if (node.HasAttribute("Type") &&
+                        child.Name == node.Attributes["Type"].Value) { // Already have a node named as the control type
+                        childEl.SetAttribute("Property", node.GetAttribute("Property"));
+                        return;
                     }
                 }
             }
@@ -630,16 +671,8 @@ namespace WixEdit {
 
         }
 
-        public void SetDefaultValues(XmlNode node) {
-            if (node.Name.ToLower() == "dialog") {
-                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Width");
-                att.Value = "370";
-                node.Attributes.Append(att);
-
-                att = WixFiles.WxsDocument.CreateAttribute("Height");
-                att.Value = "270";
-                node.Attributes.Append(att);
-            } else if (node.Name.ToLower() == "control") {
+        public void SetDefaultValues(XmlNode node, XmlNode parentNode) {
+            if (node.Name.ToLower() == "control") {
                 int left = 0;
                 int top = 0;
                 int width = 50;
@@ -648,51 +681,9 @@ namespace WixEdit {
                 XmlAttribute typeAtt = node.Attributes["Type"];
                 if (typeAtt != null && typeAtt.Value.Length > 0) {
                     switch (typeAtt.Value.ToLower()) {
-                        case "Billboard":
-                            break;
-                        case "Bitmap":
-                            break;
-                        case "CheckBox":
-                            break;
-                        case "ComboBox":
-                            break;
-                        case "DirectoryCombo":
-                            break;
-                        case "DirectoryList":
-                            break;
-                        case "Edit":
-                            break;
-                        case "GroupBox":
-                            break;
-                        case "Icon":
-                            break;
-                        case "Line":
-                            break;
-                        case "ListBox":
-                            break;
-                        case "ListView":
-                            break;
-                        case "MaskedEdit":
-                            break;
-                        case "PathEdit":
-                            break;
-                        case "ProgressBar":
-                            break;
                         case "PushButton":
                             width = 56;
                             height = 17;
-                            break;
-                        case "RadioButtonGroup":
-                            break;
-                        case "ScrollableText":
-                            break;
-                        case "SelectionTree":
-                            break;
-                        case "Text":
-                            break;
-                        case "VolumeCostList":
-                            break;
-                        case "VolumeSelectCombo":
                             break;
                         default:
                             break;
@@ -715,9 +706,52 @@ namespace WixEdit {
                 att.Value = top.ToString();
                 node.Attributes.Append(att);
             }
+            else { // A sub-node
+                int width = 50;
+                int height = 17;
+                int left = 0;
+                int top = parentNode.ChildNodes.Count * height * 3 / 2;
+                XmlAttributeAdapter attAdapter = new XmlAttributeAdapter(node, WixFiles);
+
+                XmlNodeList xmlAttributes = attAdapter.XmlNodeDefinition.SelectNodes("xs:attribute", WixFiles.XsdNsmgr);
+                foreach (XmlNode at in xmlAttributes) {
+                    string attName = at.Attributes["name"].Value;
+                    // Add only required attributes
+                    if ((at.Attributes["use"] != null &&
+                        at.Attributes["use"].Value == "required") ||
+                        (attName == "Value")) {
+                        XmlAttribute att = WixFiles.WxsDocument.CreateAttribute(attName);
+                        switch (attName) {
+                            case "Width":
+                                att.Value = width.ToString();
+                            break;
+                            case "Height":
+                                att.Value = height.ToString();
+                                // Give the parent more room to display this item
+                                parentNode.ParentNode.Attributes["Height"].Value = (top + height).ToString();
+                            break;
+                            case "X":
+                                att.Value = left.ToString();
+                            break;
+                            case "Y":
+                                att.Value = top.ToString();
+                            break;
+                            default:
+                                att.Value = parentNode.ChildNodes.Count.ToString();
+                            break;
+                        }
+                        node.Attributes.Append(att);
+                    }
+                }
+            }
         }
 
         public void OnNewWxsDialogsItem(object sender, EventArgs e) {
+            CopyDialogItem(null);
+        }
+
+        public void CopyDialogItem(XmlNode dialogToCopy)
+        {
             EnterStringForm frm = new EnterStringForm();
             frm.Text = "Enter new Dialog name";
             if (DialogResult.OK == frm.ShowDialog()) {
@@ -737,12 +771,24 @@ namespace WixEdit {
                     return;
                 }
 
-                dialog = WixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
-                SetDefaultValues(dialog);
+                if (dialogToCopy == null) {
+                    dialog = WixFiles.WxsDocument.CreateElement("Dialog", WixFiles.WixNamespaceUri);
 
-                XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Id");
-                att.Value = frm.SelectedString;
-                dialog.Attributes.Append(att);
+                    XmlAttribute att = WixFiles.WxsDocument.CreateAttribute("Id");
+                    att.Value = frm.SelectedString;
+                    dialog.Attributes.Append(att);
+
+                    att = WixFiles.WxsDocument.CreateAttribute("Width");
+                    att.Value = "370";
+                    dialog.Attributes.Append(att);
+
+                    att = WixFiles.WxsDocument.CreateAttribute("Height");
+                    att.Value = "270";
+                    dialog.Attributes.Append(att);
+                } else {
+                    dialog = WixFiles.WxsDocument.ImportNode(dialogToCopy, true);
+                    dialog.Attributes["Id"].Value = frm.SelectedString;
+                }
                 
                 InsertNewXmlNode(ui, dialog);
 
@@ -865,6 +911,21 @@ namespace WixEdit {
                     wxsDialogs.Items[currentIndex].Selected = true;
                     wxsDialogs.Focus();
                 }
+            }
+        }
+
+        public void OnCopyWxsDialogsItem(object sender, EventArgs e)
+        {
+            if (wxsDialogs.SelectedItems.Count > 0 && wxsDialogs.SelectedItems[0] != null)
+            {
+                string currentDialogId = wxsDialogs.SelectedItems[0].Text;
+                XmlNode dialog = GetDialogNode(currentDialogId);
+                if (dialog == null)
+                {
+                    throw new Exception(String.Format("Unable to copy dialog \"{0}\", the dialog could not be found in the source file.", currentDialogId));
+                }
+
+                CopyDialogItem(dialog);
             }
         }
 
@@ -1098,9 +1159,17 @@ namespace WixEdit {
                     child.SelectedImageIndex = 6;
                     break;
                 default:
-                    child.ImageIndex = 0;
-                    child.SelectedImageIndex = 0;
-                    break;
+                    {
+                        XmlAttribute attr = xmlNodeToAdd.ParentNode.Attributes["Type"];
+                        if ((attr != null) && (treeNodeName == attr.Value)) {
+                            foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes)
+                                AddControlSubTreeItems(parent, xmlChildNode);
+                            return;
+                        }
+                        child.ImageIndex = 2;
+                        child.SelectedImageIndex = 2;
+                        break;
+                    }
             }
 
             child.Tag = xmlNodeToAdd;
@@ -1159,10 +1228,55 @@ namespace WixEdit {
                 case "Control":
                     newControlSubElementsMenu.MenuItems.Clear();
                     dialogTreeViewContextMenu.MenuItems.Add(newControlSubElementsMenu);
-                    newControlSubElementsMenu.MenuItems.Add(newTextElementMenu);
-                    newControlSubElementsMenu.MenuItems.Add(newPublishElementMenu);
-                    newControlSubElementsMenu.MenuItems.Add(newConditionElementMenu);
-                    newControlSubElementsMenu.MenuItems.Add(newSubscribeElementMenu);
+                    ArrayList newControlSubElementStrings = WixFiles.GetXsdSubElements(node.Name);
+                    newControlSubElementStrings.Sort();
+
+                    foreach (string newControlSubElementString in newControlSubElementStrings)
+                    {
+                        // Do not show properties and binaries. 
+                        // There is a separate place to add those.
+                        if (newControlSubElementString == "Binary" ||
+                            newControlSubElementString == "Property") {
+                            continue;
+                        }
+
+                        IconMenuItem subMenuItem = null;
+                        switch (newControlSubElementString) {
+                            case "Text":
+                                subMenuItem = new IconMenuItem("Text", new Bitmap(WixFiles.GetResourceStream("elements.text.bmp")));
+                                break;
+                            case "Publish":
+                                subMenuItem = new IconMenuItem("Publish", new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp")));
+                                break;
+                            case "Condition":
+                                subMenuItem = new IconMenuItem("Condition", new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp")));
+                                break;
+                            case "Subscribe":
+                                subMenuItem = new IconMenuItem("Subscribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
+                                break;
+                            default:
+                                subMenuItem = new IconMenuItem(newControlSubElementString);
+                                break;
+                        }
+
+                        subMenuItem.Click += new EventHandler(NewSubElement_Click);
+                        newControlSubElementsMenu.MenuItems.Add(subMenuItem);
+                    }
+
+                    ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Attributes["Type"].Value);
+                    newElementStrings.Sort();
+
+                    if (newControlSubElementStrings.Count > 0 &&
+                        newElementStrings.Count > 0) {
+                            newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
+                    }
+
+
+                    foreach (string newElementString in newElementStrings) {
+                        IconMenuItem subMenuItem = new IconMenuItem(newElementString);
+                        subMenuItem.Click += new EventHandler(NewControlElement_Click);
+                        newControlSubElementsMenu.MenuItems.Add(subMenuItem);
+                    }
                     break;
                 default:
                     break;
@@ -1191,42 +1305,73 @@ namespace WixEdit {
                 return;
             }
 
-            // Name should be dialog...
-            if (node.Name == "Dialog") {
-                // Get new name, and add control
-                EnterStringForm frm = new EnterStringForm();
-                frm.Text = "Enter new Control name";
-                if (DialogResult.OK == frm.ShowDialog()) {
-                    WixFiles.UndoManager.BeginNewCommandRange();
+            // Get new name, and add control
+            EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter new Control name";
+            if (DialogResult.OK == frm.ShowDialog()) {
+                WixFiles.UndoManager.BeginNewCommandRange();
 
-                    XmlElement newControl = node.OwnerDocument.CreateElement("Control", WixFiles.WixNamespaceUri);
-
-                    MenuItem item = sender as MenuItem;
+                MenuItem item = sender as MenuItem;
+                XmlElement newControl = null;
+                XmlNode parentNode = node;
+                if (node.Name == "Dialog") {
+                    newControl = node.OwnerDocument.CreateElement("Control", WixFiles.WixNamespaceUri);
                     if (item != otherMenuItem) {
                         XmlAttribute newAttr = node.OwnerDocument.CreateAttribute("Type");
                         newAttr.Value = item.Text;
                         newControl.Attributes.Append(newAttr);
-                    }
 
-                    SetDefaultValues(newControl);
+                        ArrayList newElementStrings = WixFiles.GetXsdSubElements(item.Text);
+                        if (newElementStrings.Count > 0) {
+                            newAttr = WixFiles.WxsDocument.CreateAttribute("Property");
+                            newAttr.Value = frm.SelectedString + "_Prop";
+                            newControl.Attributes.Append(newAttr);
+                        }
+                    }
 
                     XmlAttribute idAttr = node.OwnerDocument.CreateAttribute("Id");
                     idAttr.Value = frm.SelectedString;
                     newControl.Attributes.Append(idAttr);
-
-                    InsertNewXmlNode(node, newControl);
-
-                    TreeNode control = new TreeNode(frm.SelectedString);
-                    control.Tag = newControl;
-                    control.ImageIndex = 2;
-                    control.SelectedImageIndex = 2;
-
-                    dialogTreeView.TopNode.Nodes.Add(control);
-                    dialogTreeView.SelectedNode = control;
-
-                    ShowWixProperties(newControl);
-                    ShowWixDialog(node);
                 }
+                else { // Find or create the type node (array)
+                    string strType = node.Attributes["Type"].Value;
+                    ArrayList newElementStrings = WixFiles.GetXsdSubElements(strType);
+                    if (newElementStrings.Count <= 0)  // Shouldn't happen!
+                        return;
+                    parentNode = null;
+                    foreach (XmlNode child in node.ChildNodes) {
+                        if (child.Name == strType) { // Already have a node named as the control type
+                            parentNode = child;
+                            break;
+                        }
+                    }
+                    if (parentNode == null) {
+                        parentNode = node.OwnerDocument.CreateElement(strType, WixFiles.WixNamespaceUri);
+                        XmlAttribute newAttr = node.OwnerDocument.CreateAttribute("Property");
+                        newAttr.Value = node.Attributes["Property"].Value;
+                        parentNode.Attributes.Append(newAttr);
+                        InsertNewXmlNode(node, parentNode);
+                    }
+                    newControl = node.OwnerDocument.CreateElement(item.Text, WixFiles.WixNamespaceUri);
+                    XmlAttribute idAttr = node.OwnerDocument.CreateAttribute("Text");
+                    idAttr.Value = frm.SelectedString;
+                    newControl.Attributes.Append(idAttr);
+                }
+
+                SetDefaultValues(newControl, parentNode);
+
+                InsertNewXmlNode(parentNode, newControl);
+
+                TreeNode control = new TreeNode(frm.SelectedString);
+                control.Tag = newControl;
+                control.ImageIndex = 2;
+                control.SelectedImageIndex = 2;
+
+                dialogTreeView.SelectedNode.Nodes.Add(control);
+                dialogTreeView.SelectedNode = control;
+
+                ShowWixProperties(newControl);
+                ShowWixDialog(node);
             }
         }
 
@@ -1254,6 +1399,15 @@ namespace WixEdit {
                 ShowWixProperties(newElement);
             }
         }
+
+        private void NewSubElement_Click(object sender, EventArgs e) {
+            MenuItem item = sender as MenuItem;
+            if (item != null)
+            {
+                CreateNewControlSubElement(item.Text, GetImageIndex(item.Text));
+            }
+        }
+
 
         private void NewTextElement_Click(object sender, EventArgs e) {
             CreateNewControlSubElement("Text", 3);

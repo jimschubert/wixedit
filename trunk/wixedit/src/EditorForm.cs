@@ -74,6 +74,7 @@ namespace WixEdit {
         protected IconMenuItem editMenu;
         protected IconMenuItem editUndo;
         protected IconMenuItem editRedo;
+        protected IconMenuItem editWizard;
 
         protected IconMenuItem helpStateBrowser;
         protected Assembly stateBrowserAssm;
@@ -91,6 +92,7 @@ namespace WixEdit {
         protected IconMenuItem helpAbout;
         protected IconMenuItem helpTutorial;
         protected IconMenuItem helpMSIReference;
+        protected IconMenuItem helpWiXReference;
         
         protected ResultsPanel resultsPanel;
         protected SearchPanel searchPanel;
@@ -104,7 +106,7 @@ namespace WixEdit {
         const int panelCount = 6;
         BasePanel[] panels = new BasePanel[panelCount];
 
-        protected WixFiles wixFiles;
+        internal WixFiles wixFiles;
 
         protected static ArrayList formInstances = new ArrayList();
 
@@ -227,6 +229,7 @@ namespace WixEdit {
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
             editFind = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.find.bmp")));
+            editWizard = new IconMenuItem();
 
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
@@ -252,12 +255,19 @@ namespace WixEdit {
             editFind.Shortcut = Shortcut.CtrlF;
             editFind.ShowShortcut = true;
 
+
+            editWizard.Text = "Start Wizard";
+            editWizard.Click += new EventHandler(editWizard_Click);
+
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
             editMenu.MenuItems.Add(3, editFind);
+            // Wizard is not yet finished...
+            // editMenu.MenuItems.Add(4, new IconMenuItem("-"));
+            // editMenu.MenuItems.Add(5, editWizard);
 
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -323,6 +333,7 @@ namespace WixEdit {
             helpMenu = new IconMenuItem();
             helpTutorial = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
             helpMSIReference = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.web.bmp")));
+            helpWiXReference = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.wix.bmp")));
             helpAbout = new IconMenuItem(new Icon(WixFiles.GetResourceStream("dialog.source.ico"), 16, 16));
             helpStateBrowser = new IconMenuItem();
 
@@ -332,16 +343,24 @@ namespace WixEdit {
             helpMSIReference.Text = "Windows Installer Reference";
             helpMSIReference.Click += new EventHandler(helpMSIReference_Click);
 
+            helpWiXReference.Text = "WiX Reference";
+            helpWiXReference.Click += new EventHandler(helpWiXReference_Click);
+
             helpAbout.Text = "&About";
             helpAbout.Click += new EventHandler(helpAbout_Click);
 
             helpMenu.Text = "&Help";
-            helpMenu.MenuItems.Add(0, helpTutorial);
-            helpMenu.MenuItems.Add(1, helpMSIReference);
-            helpMenu.MenuItems.Add(2, new IconMenuItem("-"));
-            helpMenu.MenuItems.Add(3, helpAbout);
+            helpMenu.MenuItems.Add(helpTutorial);
+            helpMenu.MenuItems.Add(helpMSIReference);
+            string xsdDir = WixEditSettings.Instance.WixBinariesDirectory.Xsds;
+            if (xsdDir != String.Empty &&
+                File.Exists(Path.Combine(xsdDir, "WiX.chm"))) {
+                helpMenu.MenuItems.Add(helpWiXReference);
+            }
+            helpMenu.MenuItems.Add(new IconMenuItem("-"));
+            helpMenu.MenuItems.Add(helpAbout);
 
-            mainMenu.MenuItems.Add(4, helpMenu);
+            mainMenu.MenuItems.Add(helpMenu);
 
             // Object browser for debug purposes, just drop the statebrowser assembly next to 
             // the WixEdit assembly and select the "Browse Application State" in the help menu.
@@ -354,8 +373,8 @@ namespace WixEdit {
                 helpStateBrowser.Text = "&Browse Application State";
                 helpStateBrowser.Click += new EventHandler(helpStateBrowser_Click);
 
-                helpMenu.MenuItems.Add(4, new IconMenuItem("-"));
-                helpMenu.MenuItems.Add(5, helpStateBrowser);
+                helpMenu.MenuItems.Add(new IconMenuItem("-"));
+                helpMenu.MenuItems.Add(helpStateBrowser);
             }
 
             Menu = mainMenu;
@@ -390,6 +409,14 @@ namespace WixEdit {
             if (formInstances.Count > 1) {
                 splashIsDone = true;
             }
+        }
+
+        void editWizard_Click(object sender, EventArgs e)
+        {
+            Wizard.WizardForm frm = new WixEdit.Wizard.WizardForm(wixFiles);
+            frm.ShowDialog();
+
+            ReloadAll();
         }
 
         private void EditorForm_Activated(object sender, System.EventArgs e) {
@@ -666,6 +693,7 @@ namespace WixEdit {
             }
 
             editFind.Enabled = (wixFiles != null && searchPanel.IsBusy == false);
+            editWizard.Enabled = (wixFiles != null);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -1103,8 +1131,28 @@ namespace WixEdit {
             }
         }
 
+        private void helpWiXReference_Click(object sender, System.EventArgs e) {
+            string xsdDir = WixEditSettings.Instance.WixBinariesDirectory.Xsds;
+            string target = Path.Combine(xsdDir, "WiX.chm");
+            
+            // Navigate to it.
+            try {
+                Process.Start(target);
+            } catch (Win32Exception) {
+                // Workaround for:
+                // "Win32Exception: The requested lookup key was not found in any active activation context"   
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe"; // Win2K+
+                process.StartInfo.Arguments = "/c start " + target;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.Start();
+            }
+        }
+
         private void helpMSIReference_Click(object sender, System.EventArgs e) {
-            string target = "http://msdn.microsoft.com/library/en-us/msi/setup/windows_installer_reference.asp";
+            string target = "http://msdn2.microsoft.com/en-us/library/aa372860.aspx";
+            //old: "http://msdn.microsoft.com/library/en-us/msi/setup/windows_installer_reference.asp";
 
             // Navigate to it.
             try {
@@ -1440,11 +1488,9 @@ namespace WixEdit {
                 Process thisProcess = Process.GetCurrentProcess();
             
                 processName = thisProcess.ProcessName;
-            } catch {}
+ 
+                Process[] processes = Process.GetProcessesByName(processName);
 
-            Process[] processes = Process.GetProcessesByName(processName);
-            
-            try {
                 if (processes.Length > 1) {
                     for (int i = 0; i < processes.Length; i++) {
                         Process aProcess = processes[i];

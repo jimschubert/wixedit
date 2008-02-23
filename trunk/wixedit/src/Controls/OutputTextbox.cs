@@ -33,6 +33,7 @@ namespace WixEdit.Controls {
 
         public OutputTextbox() : base() {
             SetStyle(ControlStyles.StandardClick, true);
+            this.BackColor = Color.White;
             this.ReadOnly = true;
             this.HideSelection = false;
             this.DetectUrls = false;

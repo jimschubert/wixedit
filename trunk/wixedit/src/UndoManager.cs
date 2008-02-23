@@ -362,6 +362,10 @@ namespace WixEdit {
 
             return ((IReversibleCommand) redoCommands[redoCommands.Count-1]).GetDisplayActionString();
         }
+
+        public int UndoCount {
+            get { return undoCommands.Count; }
+        }
     }
 
     public interface IReversibleCommand {

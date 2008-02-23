@@ -89,7 +89,9 @@ namespace WixEdit.Import {
                 newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name, newElement, wixFiles));
 
                 newElement.SetAttribute(LongName, FileImport.GenerateValidLongName(dirInfo.Name));
-                newElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
+                if (WixEditSettings.Instance.IsUsingWix2()) {
+                    newElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
+                }
             
                 TreeNode newNode = new TreeNode(newElement.GetAttribute(LongName));
                 newNode.Tag = newElement;
@@ -154,7 +156,9 @@ namespace WixEdit.Import {
 
                 newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name, newFileElement, wixFiles));
                 newFileElement.SetAttribute(LongName, FileImport.GenerateValidLongName(fileInfo.Name));
-                newFileElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
+                if (WixEditSettings.Instance.IsUsingWix2()) {
+                    newFileElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
+                }
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
                 TreeNode newFileNode = new TreeNode(newFileElement.GetAttribute(LongName));

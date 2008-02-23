@@ -48,9 +48,19 @@ namespace WixEdit.PropertyGridExtensions {
 
             // Object can be a Int or DateTime or String. Etc.
             if (value == null) {
-                node.InnerText = String.Empty;
+	            if (node.Attributes["Value"] != null) {
+	                node.Attributes["Value"].Value = String.Empty;
+	            }
+                if (node.InnerText != String.Empty) {
+	                node.InnerText = String.Empty;
+	            }
             } else {
-                if (node.FirstChild != null && 
+                if (node.Attributes["Value"] != null) {
+	                node.Attributes["Value"].Value = value.ToString();
+                    if (node.InnerText != String.Empty) {
+                        node.InnerText = String.Empty;
+                    }
+	            } else if (node.FirstChild != null && 
                     node.FirstChild.NodeType == XmlNodeType.CDATA) {
                     if (node.FirstChild.FirstChild != null) {
                         node.FirstChild.AppendChild(node.OwnerDocument.CreateTextNode(value.ToString()));

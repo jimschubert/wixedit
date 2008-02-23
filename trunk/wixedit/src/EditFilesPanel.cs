@@ -62,7 +62,7 @@ namespace WixEdit {
         }
 
         //I changed a menu, because it's simple to implement further and it follows menu like in UISeq., 
-        //means we should keep one desing way of UI. Lets suppose use New and its submenu for it in every case where are more then one possibilities
+        //means we should keep one design way of UI. Lets suppose use New and its submenu for it in every case where are more then one possibilities
         //
         protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
             //clear menu and add import menu

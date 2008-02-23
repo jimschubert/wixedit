@@ -111,7 +111,9 @@ namespace WixEdit {
                     }
                 }
 
-                shortFileName = String.Format("{0}{1}{2}", nameStart, ++i, nameExtension);
+                shortFileName = String.Format("{0}{1}{2}", nameStart, i, nameExtension);
+                
+                i++;
             }
 
             return shortFileName;

@@ -428,45 +428,31 @@ namespace WixEdit {
             TreeNode node = new TreeNode(GetDisplayName(file));
             node.Tag = file;
 
-            if (file.Name == "File" && file.Attributes["Source"] != null) {
-                string filePath = Path.Combine(WixFiles.WxsDirectory.FullName, file.Attributes["Source"].Value);
-
-                if (File.Exists(filePath)) {
-                    Icon ico = FileIconFactory.GetFileIcon(filePath);
-                    if (ico != null) {
-                        try {
-                            currTreeView.ImageList.Images.Add(ico);
-        
-                            node.ImageIndex = currTreeView.ImageList.Images.Count - 1;
-                            node.SelectedImageIndex = currTreeView.ImageList.Images.Count - 1;
-                        } catch {
-                            int imageIndex = ImageListFactory.GetImageIndex(file.Name);
-                            if (imageIndex >= 0) {
-                                node.ImageIndex = imageIndex;
-                                node.SelectedImageIndex = imageIndex;
-                            }
-                        }
-                    } else {
-                        int imageIndex = ImageListFactory.GetImageIndex(file.Name);
-                        if (imageIndex >= 0) {
-                            node.ImageIndex = imageIndex;
-                            node.SelectedImageIndex = imageIndex;
-                        }
-                    }
-                } else {
-                    int imageIndex = ImageListFactory.GetImageIndex(file.Name);
-                    if (imageIndex >= 0) {
-                        node.ImageIndex = imageIndex;
-                        node.SelectedImageIndex = imageIndex;
-                    }
-                }
-            } else {
-                int imageIndex = ImageListFactory.GetImageIndex(file.Name);
-                if (imageIndex >= 0) {
-                    node.ImageIndex = imageIndex;
-                    node.SelectedImageIndex = imageIndex;
-                }
-            }
+			int imageIndex = -1;
+			if (file.Name == "File" && file.Attributes["Source"] != null) {
+				string filePath = Path.Combine(WixFiles.WxsDirectory.FullName, file.Attributes["Source"].Value);
+				if (File.Exists(filePath)) {
+					string key = Path.GetExtension(filePath).ToUpper();
+					imageIndex = currTreeView.ImageList.Images.IndexOfKey(key);
+					if (imageIndex < 0) {
+						try {
+							Icon ico = FileIconFactory.GetFileIcon(filePath);
+							if (ico != null) {
+								currTreeView.ImageList.Images.Add(key, ico);
+								imageIndex = currTreeView.ImageList.Images.Count - 1;
+							}
+						} // if icon retrieved from icon factory
+						catch { }
+					} // if image not already in tree image list
+				} // if file exists
+			} // node is a file and Source attribute is not null
+			if (imageIndex < 0) {
+				imageIndex = ImageListFactory.GetImageIndex(file.Name);
+			}
+			if (imageIndex >= 0) {
+				node.ImageIndex = imageIndex;
+				node.SelectedImageIndex = imageIndex;
+			}
 
             nodes.Add(node);
 
@@ -517,6 +503,35 @@ namespace WixEdit {
 
                         displayName = root + "\\" + key;
                         break;
+                    case "RegistryValue":
+                        if (element.Attributes["Root"] == null ||
+                            element.Attributes["Key"] == null) {
+                            if (element.Attributes["Name"] != null) {
+                                displayName = element.Attributes["Name"].Value;
+                            } else {
+                                displayName = element.Name;
+                            }
+                        } else {
+                            string valueRoot = element.Attributes["Root"].Value;
+                            string valueKey = element.Attributes["Key"].Value;
+
+                            displayName = valueRoot + "\\" + valueKey;
+                            if (element.Attributes["Name"] != null) {
+                                displayName = valueRoot + "\\" + valueKey + "\\" + element.Attributes["Name"].Value;
+                            }
+                        }
+                        break;
+                    case "RegistryKey":
+                        if (element.Attributes["Root"] == null ||
+                            element.Attributes["Key"] == null) {
+                            displayName = element.Name;
+                        } else {
+                            string keyRoot = element.Attributes["Root"].Value;
+                            string keyKey = element.Attributes["Key"].Value;
+
+                            displayName = keyRoot + "\\" + keyKey;
+                        }
+                        break;
                     case "Component":
                     case "CustomAction":
                     case "Feature":
@@ -557,6 +572,10 @@ namespace WixEdit {
                         break;
                 }
             } catch {
+                displayName = element.Name;
+            }
+
+            if (displayName == null || displayName == "") {
                 displayName = element.Name;
             }
 
