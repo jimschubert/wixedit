@@ -118,7 +118,7 @@ namespace WixEdit {
             if (wxsDocument == null) {
                 wxsDocument = new XmlDocument();
             }
-            
+			
             FileMode mode = FileMode.Open;
             using(FileStream fs = new FileStream(wxsFile.FullName, mode, FileAccess.Read, FileShare.Read)) {
                 wxsDocument.Load(fs);
@@ -573,6 +573,16 @@ namespace WixEdit {
             get { return wxsFile.Directory; }
         }
 
+        public static bool HasResource(string resourceName) {
+            string resourceNamespace = "WixEdit.res.";
+            Assembly assembly = Assembly.GetAssembly(typeof(WixFiles));
+            if (assembly.GetManifestResourceInfo(resourceNamespace + resourceName) == null) {
+                return false;
+            }
+
+            return true;
+        }
+
         public static Stream GetResourceStream(string resourceName) {
             string resourceNamespace = "WixEdit.res.";
             Assembly assembly = Assembly.GetAssembly(typeof(WixFiles));
@@ -714,9 +724,11 @@ namespace WixEdit {
 
             DialogResult result = DialogResult.None;
             if (undoManager.HasChanges()) {
-                result = MessageBox.Show(String.Format("An external program changed \"{0}\", do you want to load the changes from disk and ignore the changes in memory?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                Form mainForm = FindForm();
+                result = MessageBox.Show(mainForm, String.Format("An external program changed \"{0}\", do you want to load the changes from disk and ignore the changes in memory?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             } else {
-                result = MessageBox.Show(String.Format("An external program changed \"{0}\", do you want to load the changes from disk?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                Form mainForm = FindForm();
+                result = MessageBox.Show(mainForm, String.Format("An external program changed \"{0}\", do you want to load the changes from disk?", wxsFile.Name), "Reload?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             if (result == DialogResult.Yes) {
@@ -730,6 +742,23 @@ namespace WixEdit {
             }
 
             wxsWatcher.EnableRaisingEvents = true;
+        }
+
+        private Form FindForm()
+        {
+            foreach (Form f in Application.OpenForms)
+            {
+                if (f is EditorForm)
+                {
+                    EditorForm mainForm = f as EditorForm;
+                    if (mainForm.wixFiles.WxsFile.FullName == this.WxsFile.FullName)
+                    {
+                        return mainForm;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 

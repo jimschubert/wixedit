@@ -89,7 +89,6 @@ namespace WixEdit {
                 } else if (selectedSubElements.Count == 1) {
                     MenuItem subMenuItem = new IconMenuItem("Remove " + selectedSubElements[0].Name, new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
                     CurrentGridContextMenu.MenuItems.Add(1, subMenuItem);
-
                     subMenuItem.Click += new EventHandler(OnRemoveSubPropertyGridItem);
                 } else {
                     MenuItem subMenuItem = new IconMenuItem("Multiple subitems in property are unsupported!", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
@@ -114,19 +113,33 @@ namespace WixEdit {
 
         public void OnNewSubPropertyGridItem(object sender, EventArgs e) {
             XmlElement selectedElement = (XmlElement) GetSelectedGridObject();
-
-            WixFiles.UndoManager.BeginNewCommandRange();
-            
             MenuItem menuItem = sender as MenuItem;
             string typeName = menuItem.Text;
 
-            XmlElement newElement = selectedElement.OwnerDocument.CreateElement(typeName, WixFiles.GetNamespaceUri(typeName));
-            selectedElement.AppendChild(newElement);
-
             // Remove the value attribute.
             if (selectedElement.HasAttribute("Value")) {
+                if (selectedElement.GetAttribute("Value") != string.Empty) {
+                    if (DialogResult.No == MessageBox.Show(String.Format("The property has the value \"{0}\", adding an element {1} will remove this value.\r\n\r\nContinue adding the sub element {1}?", selectedElement.GetAttribute("Value"), typeName), "Remove existing property value?", MessageBoxButtons.YesNo)) {
+                        return;
+                    }
+                }
+                WixFiles.UndoManager.BeginNewCommandRange();
+
                 selectedElement.RemoveAttribute("Value");
+            } else if (selectedElement.InnerText != string.Empty) {
+                if (DialogResult.No == MessageBox.Show(String.Format("The property has the value \"{0}\", adding an element {1} will remove this value.\r\n\r\nContinue adding the sub element {1}?", selectedElement.InnerText, typeName), "Remove existing property value?", MessageBoxButtons.YesNo)) {
+                    return;
+                }
+                
+                WixFiles.UndoManager.BeginNewCommandRange();
+
+                selectedElement.InnerText = string.Empty;
+            } else {
+                WixFiles.UndoManager.BeginNewCommandRange();
             }
+
+            XmlElement newElement = selectedElement.OwnerDocument.CreateElement(typeName, WixFiles.GetNamespaceUri(typeName));
+            selectedElement.AppendChild(newElement);
 
             RefreshGrid();
         }

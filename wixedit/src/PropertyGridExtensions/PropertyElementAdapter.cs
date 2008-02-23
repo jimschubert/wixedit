@@ -82,9 +82,9 @@ namespace WixEdit.PropertyGridExtensions {
                     Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
                     // Create and add PropertyDescriptor
-                    PropertyElementPropertyDescriptor pd = new PropertyElementPropertyDescriptor (wixFiles, propertyNode,
-                        propertyNode.Attributes["Id"].Value, attrArray);
-                    
+                    PropertyElementPropertyDescriptor pd = 
+                        new PropertyElementPropertyDescriptor (wixFiles, propertyNode,
+                            propertyNode.Attributes["Id"].Value, attrArray);                    
                     props.Add(pd);
                 }
             }

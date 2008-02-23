@@ -151,10 +151,18 @@ namespace WixEdit {
                 Rectangle backRect = e.Bounds;
                 backRect.X += 1;
 
-                if (IsSelected(e.State) && Enabled) {
-                    DrawSelection(e.Graphics, backRect);
+                if (IsSelected(e.State)) {
+                    if (Enabled) {
+                        DrawSelection(e.Graphics, backRect);
+                    } else {
+                        DrawDisabledSelection(e.Graphics, backRect);
+                    }
                     if (HasIcon()) {
-                        DrawSelectedIcon(e.Graphics, e.Bounds);
+                        if (Enabled) {
+                            DrawSelectedIcon(e.Graphics, e.Bounds);
+                        } else {
+                            DrawDisabledIcon(e.Graphics, e.Bounds);
+                        }
                     }
                 } else {
                     DrawClear(e.Graphics, backRect);
@@ -220,6 +228,10 @@ namespace WixEdit {
         private void DrawSelection(Graphics graphics, Rectangle dest) {
             Brush br = new LinearGradientBrush(dest, selectedGradientLeft, selectedGradientRight, 0F);
             graphics.FillRectangle(br, dest.X, dest.Y , dest.Width - 1, dest.Height - 1);
+            graphics.DrawRectangle(Pens.Gray, dest.X - 1, dest.Y , dest.Width - 1, dest.Height - 1);
+        }
+
+        private void DrawDisabledSelection(Graphics graphics, Rectangle dest) {
             graphics.DrawRectangle(Pens.Gray, dest.X - 1, dest.Y , dest.Width - 1, dest.Height - 1);
         }
 

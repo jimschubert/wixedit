@@ -268,7 +268,12 @@ namespace WixEdit {
                 if (propertyNode != null) {
                     value = value.Replace(String.Format("[{0}]", propName), propertyNode.InnerText);
                 } else {
-                    value = value.Replace(String.Format("[{0}]", propName), getSpecialWixProperty(propName));
+                    string specialProp = GetSpecialWixProperty(propName);
+                    if (specialProp != String.Empty) {
+                        value = value.Replace(String.Format("[{0}]", propName), specialProp);
+                    } else {
+                        posStart++;
+                    }
                 }
 
                 posStart = value.IndexOf("[", posStart);               
@@ -277,20 +282,30 @@ namespace WixEdit {
             return value;
         }
 
-        private string getSpecialWixProperty(string propname) {
+        private string GetSpecialWixProperty(string propname) {
             switch (propname) {
                 case "ProductName":
-                    return GetProductName();
+                    return GetProductAttributeValue("Name");
+                case "ProductCode":
+                    return GetProductAttributeValue("Id");
+                case "ProductLanguage":
+                    return GetProductAttributeValue("Language");
+                case "ProductVersion":
+                    return GetProductAttributeValue("Version");
+                case "Manufacturer":
+                    return GetProductAttributeValue("Manufacturer");
+                case "UpgradeCode":
+                    return GetProductAttributeValue("UpgradeCode");
                 default:
                     return String.Empty;
             }
         }
 
-        private string GetProductName() {
+        private string GetProductAttributeValue(string attributeName) {
             string returnValue = String.Empty;
 
             XmlNode productyNode = wixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", wixFiles.WxsNsmgr);
-            XmlAttribute nameAttribute = productyNode.Attributes["Name"];
+            XmlAttribute nameAttribute = productyNode.Attributes[attributeName];
             if (nameAttribute != null) {
                 returnValue = nameAttribute.Value;
             }
