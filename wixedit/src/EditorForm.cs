@@ -266,8 +266,8 @@ namespace WixEdit {
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
             editMenu.MenuItems.Add(3, editFind);
             // Wizard is not yet finished...
-            // editMenu.MenuItems.Add(4, new IconMenuItem("-"));
-            // editMenu.MenuItems.Add(5, editWizard);
+            editMenu.MenuItems.Add(4, new IconMenuItem("-"));
+            editMenu.MenuItems.Add(5, editWizard);
 
             mainMenu.MenuItems.Add(1, editMenu);
 

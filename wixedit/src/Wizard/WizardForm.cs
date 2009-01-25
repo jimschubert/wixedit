@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Collections;
 using System.Xml;
+using WixEdit.Settings;
 
 namespace WixEdit.Wizard
 {
@@ -34,7 +35,8 @@ namespace WixEdit.Wizard
 
             XmlDocument doc = new XmlDocument();
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-            doc.Load(@"E:\WixEdit 0.6.1762-rel\wizard\Create Virtual Directory\template.xml");
+            
+            doc.Load(@"D:\Develop\DEVROOT\WixEdit - Laptop laatste\wizard\Create Virtual Directory\template.xml");
             XmlElement template = (XmlElement)doc.SelectSingleNode("/Template");
 
             // WizardSheet sheet = new WizardSheet();
