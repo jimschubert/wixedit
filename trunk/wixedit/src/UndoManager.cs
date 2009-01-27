@@ -229,6 +229,11 @@ namespace WixEdit {
             docIsSavedUndoCount = -1;
         }
 
+        public void ClearRedo()
+        {
+            redoCommands.Clear();
+        }
+
         public void DocumentIsSaved() {
             docIsSavedUndoCount = undoCommands.Count;
         }

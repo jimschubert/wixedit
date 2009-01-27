@@ -61,6 +61,7 @@ namespace WixEdit {
         protected MainMenu mainMenu;
         protected IconMenuItem fileMenu;
         protected IconMenuItem fileNew;
+        protected IconMenuItem fileWizard;
         protected IconMenuItem fileLoad;
         protected IconMenuItem fileRecent;
         protected IconMenuItem fileRecentEmpty;
@@ -74,8 +75,7 @@ namespace WixEdit {
         protected IconMenuItem editMenu;
         protected IconMenuItem editUndo;
         protected IconMenuItem editRedo;
-        protected IconMenuItem editWizard;
-
+        
         protected IconMenuItem helpStateBrowser;
         protected Assembly stateBrowserAssm;
 
@@ -111,6 +111,20 @@ namespace WixEdit {
         protected static ArrayList formInstances = new ArrayList();
 
         string decompiledWxs;
+
+        string emptyWxs = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Wix xmlns=""http://schemas.microsoft.com/wix/2006/wi"">
+  <Product Id=""DEAFBEEF-DEAD-DEAD-DEAD-DEADBEEF0001"" Name=""TestProduct"" Language=""1033"" Version=""0.0.0.1"" Manufacturer=""WixEdit"">
+    <Package Id=""DEAFBEEF-DEAD-DEAD-DEAD-DEADBEEF0002"" Description=""Test file in a Product"" Comments=""Simple test"" InstallerVersion=""200"" Compressed=""yes"" />
+    <Media Id=""1"" Cabinet=""simple.cab"" EmbedCab=""yes"" />
+    <Directory Id=""TARGETDIR"" Name=""SourceDir"">
+      <Directory Id=""ProgramFilesFolder"" Name=""PFiles"" />
+    </Directory>
+    <Feature Id=""TestProductFeature"" Title=""Test"" Level=""1"">
+    </Feature>
+    <UI />
+  </Product>
+</Wix>";
 
         public EditorForm() {
             InitializeComponent();
@@ -150,6 +164,7 @@ namespace WixEdit {
             mainMenu = new MainMenu();
             fileMenu = new IconMenuItem();
             fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            fileWizard = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.wizard.bmp")));
             fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.open.bmp")));
             fileRecent = new IconMenuItem();
             fileRecentEmpty = new IconMenuItem();
@@ -165,6 +180,10 @@ namespace WixEdit {
             fileNew.Click += new EventHandler(fileNew_Click);
             fileNew.Shortcut = Shortcut.CtrlN;
             fileNew.ShowShortcut = true;
+
+            fileWizard.Text = "New with Wizard";
+            fileWizard.Click += new EventHandler(fileWizard_Click);
+            fileWizard.ShowShortcut = true;
 
             fileLoad.Text = "&Open";
             fileLoad.Click += new EventHandler(fileLoad_Click);
@@ -214,13 +233,14 @@ namespace WixEdit {
             fileMenu.Text = "&File";
             fileMenu.Popup += new EventHandler(fileMenu_Popup);
             fileMenu.MenuItems.Add(0, fileNew);
-            fileMenu.MenuItems.Add(1, fileLoad);
-            fileMenu.MenuItems.Add(2, fileRecent);
-            fileMenu.MenuItems.Add(3, fileSave);
-            fileMenu.MenuItems.Add(4, fileSaveAs);
-            fileMenu.MenuItems.Add(5, fileClose);
-            fileMenu.MenuItems.Add(6, fileSeparator);
-            fileMenu.MenuItems.Add(7, fileExit);
+            fileMenu.MenuItems.Add(1, fileWizard);
+            fileMenu.MenuItems.Add(2, fileLoad);
+            fileMenu.MenuItems.Add(3, fileRecent);
+            fileMenu.MenuItems.Add(4, fileSave);
+            fileMenu.MenuItems.Add(5, fileSaveAs);
+            fileMenu.MenuItems.Add(6, fileClose);
+            fileMenu.MenuItems.Add(7, fileSeparator);
+            fileMenu.MenuItems.Add(8, fileExit);
             
             mainMenu.MenuItems.Add(0, fileMenu);
 
@@ -229,7 +249,6 @@ namespace WixEdit {
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
             editFind = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.find.bmp")));
-            editWizard = new IconMenuItem();
 
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
@@ -255,19 +274,12 @@ namespace WixEdit {
             editFind.Shortcut = Shortcut.CtrlF;
             editFind.ShowShortcut = true;
 
-
-            editWizard.Text = "Start Wizard";
-            editWizard.Click += new EventHandler(editWizard_Click);
-
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
             editMenu.MenuItems.Add(3, editFind);
-            // Wizard is not yet finished...
-            editMenu.MenuItems.Add(4, new IconMenuItem("-"));
-            editMenu.MenuItems.Add(5, editWizard);
 
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -411,14 +423,6 @@ namespace WixEdit {
             }
         }
 
-        void editWizard_Click(object sender, EventArgs e)
-        {
-            Wizard.WizardForm frm = new WixEdit.Wizard.WizardForm(wixFiles);
-            frm.ShowDialog();
-
-            ReloadAll();
-        }
-
         private void EditorForm_Activated(object sender, System.EventArgs e) {
             if (splashIsDone) {
                 HideSplash();
@@ -460,8 +464,14 @@ namespace WixEdit {
                 }
             }
         }
+
         private void fileNew_Click(object sender, System.EventArgs e) {
             NewFile();
+        }
+
+        private void fileWizard_Click(object sender, System.EventArgs e)
+        {
+            NewWizard();
         }
 
         private void NewFile() {
@@ -478,6 +488,28 @@ namespace WixEdit {
 
                 ShowProductProperties();               
             }
+        }
+
+        private void NewWizard()
+        {
+            if (HandlePendingChanges() == false)
+            {
+                return;
+            }
+
+            WixFiles newWixFiles = new WixFiles(emptyWxs);
+
+            Wizard.WizardForm frm = new WixEdit.Wizard.WizardForm(newWixFiles);
+            if (frm.ShowDialog() == DialogResult.OK)
+            {
+                CloseWxsFile();
+
+                LoadWxsFile(newWixFiles);
+
+                ShowProductProperties();
+            }
+
+            ReloadAll();
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
@@ -544,6 +576,10 @@ namespace WixEdit {
         }
 
         private void fileSaveAs_Click(object sender, System.EventArgs e) {
+            SaveAs();
+        }
+
+        private bool SaveAs() {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.OverwritePrompt = true;
             dlg.FileName = wixFiles.WxsFile.FullName;
@@ -559,7 +595,11 @@ namespace WixEdit {
                 WixEditSettings.Instance.SaveChanges();
 
                 UpdateTitlebar();
+
+                return true;
             }
+
+            return false;
         }
 
         public void ForceClose() {
@@ -606,7 +646,7 @@ namespace WixEdit {
             fileRecent.Enabled = xsdPresent;
 
             if (wixFiles != null) {
-                fileSave.Enabled = wixFiles.HasChanges();
+                fileSave.Enabled = !wixFiles.ReadOnly() && wixFiles.HasChanges();
             } else {
                 fileSave.Enabled = false;
             }
@@ -693,7 +733,6 @@ namespace WixEdit {
             }
 
             editFind.Enabled = (wixFiles != null && searchPanel.IsBusy == false);
-            editWizard.Enabled = (wixFiles != null);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -1215,7 +1254,14 @@ namespace WixEdit {
 
                 DialogResult result = MessageBox.Show(messageText + "Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", buttons, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes) {
-                    Save();
+                    if (wixFiles.ReadOnly())
+                    {
+                        return SaveAs();
+                    }
+                    else
+                    {
+                        Save();
+                    }
                 } else if (result == DialogResult.Cancel) {
                     return false;
                 }   
@@ -1234,13 +1280,10 @@ namespace WixEdit {
                 return;
             }
 
-            if (wixFiles != null) {
-                wixFiles.Dispose();
-                wixFiles = null;
-            }
+            WixFiles newWixFiles = null;
 
             try {
-                wixFiles = new WixFiles(file);
+                newWixFiles = new WixFiles(file);
             } catch (UnauthorizedAccessException) {
                 MessageBox.Show(String.Format("Access is denied. ({0}))", file.Name), "Acces denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             } catch (XmlException ex) {
@@ -1251,14 +1294,26 @@ namespace WixEdit {
                 MessageBox.Show(String.Format("Failed to open file. ({0}))", file.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation); 
             }
 
-            if (wixFiles == null) {
+            if (newWixFiles == null) {
                 return;
             }
 
-            wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
-
             WixEditSettings.Instance.AddRecentlyUsedFile(file);
             WixEditSettings.Instance.SaveChanges();
+
+            LoadWxsFile(newWixFiles);
+        }
+
+        private void LoadWxsFile(WixFiles newWixFiles)
+        {
+            if (wixFiles != null)
+            {
+                wixFiles.Dispose();
+                wixFiles = null;
+            }
+
+            wixFiles = newWixFiles;
+            wixFiles.wxsChanged += new EventHandler(wixFiles_wxsChanged);
 
             tabButtonControl = new TabButtonControl();
             tabButtonControl.Dock = DockStyle.Fill;
@@ -1344,9 +1399,17 @@ namespace WixEdit {
         private void UpdateTitlebar() {
             if (wixFiles == null) {
                 Text = "WiX Edit";
-            } else if (WixEditSettings.Instance.DisplayFullPathInTitlebar) {
+            }
+            else if (wixFiles.IsNew)
+            {
+                Text = "WiX Edit";
+            }
+            else if (WixEditSettings.Instance.DisplayFullPathInTitlebar)
+            {
                 Text = "WiX Edit - " + wixFiles.WxsFile.FullName;
-            } else {
+            }
+            else 
+            {
                 Text = "WiX Edit - " + wixFiles.WxsFile.Name;
             }
         }

@@ -16,30 +16,53 @@ namespace WixEdit.Wizard
         WixFiles wixFiles;
         int undoCountBefore = 0;
         List<BaseSheet> sheets = new List<BaseSheet>();
+        FinishSheet endSheet = null;
         int currentSheetIndex = -1;
 
         public WizardForm(WixFiles editWixFiles)
         {
             wixFiles = editWixFiles;
             undoCountBefore = wixFiles.UndoManager.UndoCount;
-
+            
             InitializeComponent();
 
             IntroductionSheet welcome = new IntroductionSheet("WixEdit wizard", "The WixEdit wizard helps you creating MSI files. The wizard allows you to add functionality to your MSI file.\r\n\r\nFor example:\r\nAdd files, Create shortcuts, Create virual directories, etc.\r\n\r\n\r\nClick \"Next\" to continue or \"Cancel\" to exit the WixEdit wizard.", this);
-
             AddSheet(welcome);
 
             FileSheet files = new FileSheet(this);
-
             AddSheet(files);
 
+            SelectTemplatesSheet selectTemplates = new SelectTemplatesSheet(this);
+            AddSheet(selectTemplates);
+
+            endSheet = new FinishSheet(this);
+            contentPanel.Controls.Add(endSheet);
+            endSheet.Visible = false;
+        }
+
+        public void RemoveLastAddedTemplate()
+        {
+            for (int i = sheets.Count - 1; i >= 0; i--)
+            {
+                BaseSheet sheet = sheets[i];
+                if (sheet is IntroductionSheet)
+                {
+                    sheets.RemoveAt(i);
+                    break;
+                }
+
+                sheets.RemoveAt(i);
+            }
+        }
+
+        public void AddTemplate(string templateLocation)
+        {
             XmlDocument doc = new XmlDocument();
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-            
-            doc.Load(@"D:\Develop\DEVROOT\WixEdit - Laptop laatste\wizard\Create Virtual Directory\template.xml");
+
+            doc.Load(templateLocation);
             XmlElement template = (XmlElement)doc.SelectSingleNode("/Template");
 
-            // WizardSheet sheet = new WizardSheet();
             IntroductionSheet intro = new IntroductionSheet(template, this);
 
             AddSheet(intro);
@@ -84,27 +107,24 @@ namespace WixEdit.Wizard
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
-            // while (undoCountBefore != WixFiles.UndoManager.UndoCount)
-            // {
-            //    WixFiles.UndoManager.Undo();
-            // }
+            // Undo all our actions.
+            while (undoCountBefore != WixFiles.UndoManager.UndoCount)
+            {
+                WixFiles.UndoManager.Undo();
+            }
 
-            MessageBox.Show("Cancel does NOT undo changes made by the wizard!");
+            // Redo should be cleared here.
+            WixFiles.UndoManager.ClearRedo();
 
             this.Close();
         }
 
         private void nextButton_Click(object sender, EventArgs e)
         {
-            if (currentSheetIndex + 1 == sheets.Count)
+            if (currentSheetIndex == sheets.Count)
             {
-                if (sheets[currentSheetIndex].OnNext() == false)
-                {
-                    MessageBox.Show("The values entered are not all correct.");
-
-                    return;
-                }
-                
+                // This is the finish sheet, we're done.
+                this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             else
@@ -117,10 +137,16 @@ namespace WixEdit.Wizard
                 }
 
                 sheets[currentSheetIndex].Visible = false;
-                sheets[++currentSheetIndex].Visible = true;
-                if (currentSheetIndex + 1 == sheets.Count)
+                currentSheetIndex++;
+                if (currentSheetIndex == sheets.Count)
                 {
+                    endSheet.Visible = true;
                     nextButton.Text = "Finish";
+                    cancelButton.Enabled = false;
+                }
+                else
+                {
+                    sheets[currentSheetIndex].Visible = true;
                 }
 
                 backButton.Enabled = true;
@@ -135,14 +161,23 @@ namespace WixEdit.Wizard
             }
             else
             {
-                if (sheets[currentSheetIndex].OnBack() == false)
+                if (currentSheetIndex == sheets.Count)
                 {
-                    MessageBox.Show("Not able to go back.");
+                    endSheet.Visible = false;
+                    cancelButton.Enabled = true;
+                }
+                else
+                {
+                    if (sheets[currentSheetIndex].OnBack() == false)
+                    {
+                        MessageBox.Show("Not able to go back.");
 
-                    return;
+                        return;
+                    }
+
+                    sheets[currentSheetIndex].Visible = false;
                 }
 
-                sheets[currentSheetIndex].Visible = false;
                 sheets[--currentSheetIndex].Visible = true;
                 sheets[currentSheetIndex].UndoNext();
                 if (currentSheetIndex == 0)

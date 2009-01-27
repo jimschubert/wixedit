@@ -238,6 +238,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="res\bmp\wix.bmp" />
     <EmbeddedResource Include="res\dlgbmp.bmp" />
+    <EmbeddedResource Include="res\bmp\wizard.bmp" />
     <Content Include="src\App.ico" />
     <Compile Include="src\About\AboutForm.cs">
       <SubType>Form</SubType>
@@ -530,13 +531,18 @@
     <Compile Include="src\Wizard\FileSheet.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="src\Wizard\FinishSheet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="src\Wizard\IntroductionSheet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="src\Wizard\SelectTemplatesSheet.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="src\Wizard\StepSheet.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="src\Wizard\TestClass.cs" />
     <Compile Include="src\Wizard\WizardForm.cs">
       <SubType>Form</SubType>
     </Compile>

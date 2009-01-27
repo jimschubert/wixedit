@@ -54,14 +54,24 @@ namespace WixEdit {
             return (documentation != null);
         }
 
-        public string GetDocumentation(XmlNode xmlNodeDefinition) {
+        public string GetDocumentation(XmlNode xmlNodeDefinition)
+        {
+            return GetDocumentation(xmlNodeDefinition, false);
+        }
+
+        public string GetDocumentation(XmlNode xmlNodeDefinition, bool allowEmpty) {
             StringCollection selectQueries = new StringCollection();
 
-            if(xmlNodeDefinition.ParentNode.ParentNode.Name == "xs:element") {
-                selectQueries.Add("../../xs:annotation/xs:documentation");
-            }
-            if(xmlNodeDefinition.ParentNode.Name == "xs:element") {
-                selectQueries.Add("../xs:annotation/xs:documentation");
+            if (xmlNodeDefinition.Name != "xs:attribute")
+            {
+                if (xmlNodeDefinition.ParentNode.ParentNode.Name == "xs:element")
+                {
+                    selectQueries.Add("../../xs:annotation/xs:documentation");
+                }
+                if (xmlNodeDefinition.ParentNode.Name == "xs:element")
+                {
+                    selectQueries.Add("../xs:annotation/xs:documentation");
+                }
             }
             selectQueries.Add("xs:annotation/xs:documentation");
             selectQueries.Add("xs:simpleContent/xs:extension/xs:annotation/xs:documentation");
@@ -100,11 +110,58 @@ namespace WixEdit {
                 }
                 messageBuilder.Remove(messageBuilder.Length-4, 4);
                 message = messageBuilder.ToString();
-            } else {
+            }
+            else if (!allowEmpty)
+            {
                 message = "No documentation found.";
             }
 
             return message;
+        }
+
+        public XmlNode GetXmlNodeDefinition(XmlNode xmlNode)
+        {
+            XmlNode xmlNodeDefinition = null;
+            XmlNode xmlNodeElement = null;
+            if (xmlNode is XmlAttribute)
+            {
+                xmlNodeElement = wixFiles.GetXsdElementNode(((XmlAttribute)xmlNode).OwnerElement.Name);
+
+                if (xmlNodeElement != null)
+                {
+                    xmlNodeDefinition = xmlNodeElement.SelectSingleNode(String.Format("xs:complexType/xs:attribute[@name='{0}']", xmlNode.Name), wixFiles.XsdNsmgr);
+                }
+
+                return xmlNodeDefinition;
+            }
+            else
+            {
+                xmlNodeElement = wixFiles.GetXsdElementNode(xmlNode.Name);
+            }
+
+            if (xmlNodeElement.Attributes["type"] != null && xmlNodeElement.Attributes["type"].Value != null)
+            {
+                xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']/xs:simpleContent/xs:extension", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                if (xmlNodeDefinition == null)
+                {
+                    xmlNodeDefinition = wixFiles.XsdDocument.SelectSingleNode(String.Format("/xs:schema/xs:complexType[@name='{0}']", xmlNodeElement.Attributes["type"].Value), wixFiles.XsdNsmgr);
+                }
+            }
+            else
+            {
+                xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType/xs:simpleContent/xs:extension", wixFiles.XsdNsmgr);
+                if (xmlNodeDefinition == null)
+                {
+                    xmlNodeDefinition = xmlNodeElement.SelectSingleNode("xs:complexType", wixFiles.XsdNsmgr);
+                    if (xmlNodeDefinition == null)
+                    {
+                        // Nothing?
+                        xmlNodeDefinition = xmlNodeElement;
+                    }
+                }
+            }
+
+            return xmlNodeDefinition;
         }
     }
 }
