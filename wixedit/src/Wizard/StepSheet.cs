@@ -10,6 +10,7 @@ namespace WixEdit.Wizard
 {
     class StepSheet : BaseSheet
     {
+        ErrorProvider errorProvider;
         Label titleLabel;
         Label descriptionLabel;
         Label lineLabel;
@@ -21,6 +22,12 @@ namespace WixEdit.Wizard
         {
             this.stepElement = step;
             this.AutoScroll = true;
+
+            errorProvider = new ErrorProvider();
+            errorProvider.ContainerControl = this;
+            errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            Bitmap b = new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp"));
+            errorProvider.Icon = Icon.FromHandle(b.GetHicon());
 
             titleLabel = new Label();
             titleLabel.Text = step.SelectSingleNode("Title").InnerText;
@@ -101,6 +108,11 @@ namespace WixEdit.Wizard
 
             foreach (XmlElement edit in step.SelectNodes("Edit"))
             {
+                if (edit.GetAttribute("Mode") == "GenerateGuid")
+                {
+                    continue;
+                }
+
                 string refAtt = edit.GetAttribute("Ref");
                 ExtractNamespaces(edit, xmlnsmgr, refAtt);
 
@@ -108,7 +120,11 @@ namespace WixEdit.Wizard
                 label.Width = this.Width - 10;
                 label.Height = 14;
                 label.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                label.Text = edit.GetAttribute("Name");
+                label.Text = edit.GetAttribute("Description");
+                if (label.Text == String.Empty)
+                {
+                    label.Text = edit.GetAttribute("Name");
+                }
                 if (label.Text == String.Empty)
                 {
                     label.Text = refAtt.Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Replace(':', ' ').Replace('@', ' ').Replace("  ", " ");
@@ -120,7 +136,24 @@ namespace WixEdit.Wizard
                 TextBox text = new TextBox();
                 text.Width = this.Width - 14;
                 text.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                text.Text = step.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr).Value;
+                XmlNode theNode = step.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
+                text.Text = theNode.Value;
+
+                XmlDocumentationManager mgr = new XmlDocumentationManager(this.Wizard.WixFiles);
+                XmlNode xmlNodeDefinition = mgr.GetXmlNodeDefinition(theNode);
+                if (xmlNodeDefinition != null)
+                {
+                    string docu = mgr.GetDocumentation(xmlNodeDefinition, true);
+                    if (!string.IsNullOrEmpty(docu)) 
+                    {
+                        text.Width = text.Width - 18;
+                        errorProvider.SetError(text, docu);
+                        errorProvider.SetIconPadding(text, 4);
+                    }
+                }
+
+                step.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
+
                 text.Top = prevControl.Bottom + label.Height + 4;
                 text.Left = 7;
                 text.Name = refAtt;
@@ -183,9 +216,20 @@ namespace WixEdit.Wizard
                 foreach (XmlElement edit in stepElementClone.SelectNodes("Edit"))
                 {
                     string refAtt = edit.GetAttribute("Ref");
+                    XmlNode theNode = stepElementClone.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
 
-                    Control ctrl = Controls.Find(refAtt, true)[0];
-                    stepElementClone.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr).Value = ctrl.Text;
+                    if (edit.GetAttribute("Mode") == "GenerateGuid")
+                    {
+                        theNode.Value = Guid.NewGuid().ToString("B");
+                    }
+                    else
+                    {
+                        Control ctrl = Controls.Find(refAtt, true)[0];
+                        if (ctrl != null)
+                        {
+                            theNode.Value = ctrl.Text;
+                        }
+                    }
                 }
 
                 foreach (XmlNode templateNode in stepElementClone.SelectNodes("TemplatePart"))

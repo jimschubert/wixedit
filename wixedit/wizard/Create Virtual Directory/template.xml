@@ -20,11 +20,11 @@ xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
     			<iis:WebAddress Id="AllUnassigned" Port="80" />
     		</iis:WebSite>
     	</TemplatePart>
-    	<Edit Ref="iis:WebDirProperties/@Execute" />
-    	<Edit Ref="iis:WebDirProperties/@Script" />
-    	<Edit Ref="iis:WebDirProperties/@Read" />
-    	<Edit Ref="iis:WebDirProperties/@WindowsAuthentication" />
-    	<Edit Ref="iis:WebDirProperties/@AnonymousAccess" />
+    	<Edit Ref="iis:WebDirProperties/@Execute" Description="Scripts, such as ASP scripts, can be run." />
+    	<Edit Ref="iis:WebDirProperties/@Script" Description="Executable can be executed." />
+    	<Edit Ref="iis:WebDirProperties/@Read" Description="To allow users to read or download files or directories and their associated properties." />
+    	<Edit Ref="iis:WebDirProperties/@WindowsAuthentication" Description="Enables integrated Windows authentication to be used on the site." />
+    	<Edit Ref="iis:WebDirProperties/@AnonymousAccess" Description="Enables anonymous acces to be allowed to the site." />
     </Step>
     <Step Sequence="2">
     	<Title>Configure default website</Title>
@@ -37,16 +37,16 @@ xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
     		<wix:Property Id="TARGETVDIR" Value="VirtualDirectoryName" />
     	</TemplatePart>
     	<TemplatePart SelectionTarget="//wix:Directory|//wix:DirectoryRef">
-    		<wix:Component Id="C_VirtualDirComponent" Guid="{A598E09C-B770-4df2-BE08-E069A718B938}">
+    		<wix:Component Id="C_VirtualDirComponent" Guid="{00000000-0000-0000-0000-000000000000}">
     		      <iis:WebVirtualDir Id="VirtualDir" Alias="[TARGETVDIR]" Directory="TARGETDIR" WebSite="DefaultWebSite" DirProperties="WebVirtualDirProperties" >
     		            <iis:WebApplication Id="WebApplication" Name="[TARGETVDIR]" WebAppPool="C_MyAppPool"/>
     		      </iis:WebVirtualDir>
     		</wix:Component>
     	</TemplatePart>
-    	<Edit Ref="wix:Property/@Value" />
-    	<Edit Ref="wix:Component/@Id" />
+    	<Edit Ref="wix:Property/@Value" Description="Name of the virtual directory" />
+    	<!--Edit Ref="wix:Component/@Id" / -->
     	<Edit Ref="wix:Component/@Guid" Mode="GenerateGuid" />
-    	<Edit Ref="wix:Component/iis:WebVirtualDir/@Id" />
-    	<Edit Ref="wix:Component/iis:WebVirtualDir/@Directory" Mode="Select" Selection="//wix:Directory/@Id|//wix:DirectoryRef/@Id"/>
+    	<!-- Edit Ref="wix:Component/iis:WebVirtualDir/@Id" / -->
+    	<Edit Ref="wix:Component/iis:WebVirtualDir/@Directory" Mode="Select" Selection="//wix:Directory/@Id|//wix:DirectoryRef/@Id" Description="The directory where the virtual directory should be created." />
     </Step>
 </Template>
