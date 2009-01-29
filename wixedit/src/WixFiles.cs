@@ -814,7 +814,6 @@ namespace WixEdit {
                 if (list.Count == 0) {
                     // Error reports show that a NullReferenceException occurs on the next line now, how can this be?
                     // The wxsDocument.DocumentElement is null.
-#warning DocumentElement is null sometimes, maybe add a bugreport dialog here in the next release
                     wxsDocument.DocumentElement.RemoveAttribute(String.Format("xmlns:{0}", theNodeNamespace));
                 }
             }

@@ -95,7 +95,7 @@ namespace WixEdit.Controls {
         [DllImport("User32.dll")]
         private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref CharFormat2 lParem);
     
-        public Color SelectionBackColor {
+        public new Color SelectionBackColor {
             get {
                 IntPtr HWND = Handle;
                 CharFormat2 Format = new CharFormat2();

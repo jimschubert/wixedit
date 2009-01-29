@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Language="1033" Id="878DBBDE-8551-4151-811A-686A7E4BD66B" Name="UISample" Manufacturer="Microsoft Corporation" Version="0.0.0.0">
     <Package Id="878DBBDE-8551-4151-811A-686A7E4BD66A" Keywords="Installer,MSI,Database" Description="Put Product Name here" Comments="Contact:  Your local administrator" Manufacturer="Microsoft Corporation" InstallerVersion="100" Languages="1033" Compressed="yes" SummaryCodepage="1252" />

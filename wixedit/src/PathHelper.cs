@@ -40,16 +40,16 @@ namespace WixEdit {
                 return path;
             }
 
-            Uri newBinaryPath = new Uri(path, true);
+            Uri newBinaryPath = new Uri(path);
 
             string binaries = wixFiles.WxsDirectory.FullName;
             if (binaries.EndsWith(sepCharString) == false) {
                 binaries = binaries + sepCharString;
             }
 
-            Uri binariesPath = new Uri(binaries, true);
+            Uri binariesPath = new Uri(binaries);
             
-            string relativeValue = binariesPath.MakeRelative(newBinaryPath);
+            string relativeValue = binariesPath.MakeRelativeUri(newBinaryPath).ToString();
             relativeValue = relativeValue.Replace("/", sepCharString);
             
             FileInfo testRelativeValue = null;

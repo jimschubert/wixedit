@@ -8,6 +8,7 @@ using System.Xml;
 using WixEdit.Import;
 using WixEdit.Server;
 using System.IO;
+using WixEdit.Settings;
 
 namespace WixEdit.Wizard
 {
@@ -17,7 +18,6 @@ namespace WixEdit.Wizard
         Label descriptionLabel;
         Label lineLabel;
         ListView listView;
-        ContextMenu contextMenu;
 
         public SelectTemplatesSheet(WizardForm creator)
             : base(creator)
@@ -72,7 +72,8 @@ namespace WixEdit.Wizard
 
             this.Controls.Add(listView);
 
-            DirectoryInfo templateDir = new DirectoryInfo(@"D:\Develop\DEVROOT\WixEdit - Laptop laatste\wizard"); // Zonder slash!
+            DirectoryInfo oldTemplateDir = new DirectoryInfo(WixEditSettings.Instance.TemplateDirectory);
+            DirectoryInfo templateDir = new DirectoryInfo(Path.Combine(oldTemplateDir.Parent.FullName, "wizard"));
 
             FileInfo[] files = templateDir.GetFiles("template.xml", SearchOption.AllDirectories);
 
