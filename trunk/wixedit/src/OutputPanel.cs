@@ -114,6 +114,13 @@ namespace WixEdit {
             cancelMenuItem.Click += new EventHandler(cancelMenuItem_Click);
             cancelMenuItem.Shortcut = Shortcut.CtrlC;
             cancelMenuItem.ShowShortcut = true;
+
+            invokeClearRTF = new DelegateClearRtf(ClearRtf);
+            invokeOutput = new DelegateOutput(Output);
+            invokeOutputLine = new DelegateOutputLine(OutputLine);
+            invokeOutputStart = new DelegateOutputStart(OutputStart);
+            invokeOutputDone = new DelegateOutputDone(OutputDone);
+            invokeProcessDone = new DelegateProcessDone(ProcessDone);
         }
 
         public RichTextBox RichTextBox {
@@ -332,7 +339,7 @@ namespace WixEdit {
                 return;
             }
 
-            XslTransform transform = new XslTransform();
+            XslCompiledTransform transform = new XslCompiledTransform();
             using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
                  XmlTextReader xr = new XmlTextReader(strm);
                 transform.Load(xr, null, null);
@@ -345,7 +352,7 @@ namespace WixEdit {
                 ( File.GetLastWriteTimeUtc(outputFile).CompareTo(File.GetLastWriteTimeUtc(Assembly.GetExecutingAssembly().Location)) > 0 ) ) == false
                ) {
                 File.Delete(outputFile);
-                transform.Transform(filename, outputFile, null);
+                transform.Transform(filename, outputFile);
             }
 
             if (xmlDisplayForm.Visible == false) {
@@ -393,13 +400,6 @@ namespace WixEdit {
 
             wixFiles = theWixFiles;
             onCompletedOutput = onComplete;
-
-			invokeClearRTF     = new DelegateClearRtf(ClearRtf);
-			invokeOutput       = new DelegateOutput(Output);
-			invokeOutputLine   = new DelegateOutputLine(OutputLine);
-			invokeOutputStart  = new DelegateOutputStart(OutputStart);
-			invokeOutputDone   = new DelegateOutputDone(OutputDone);
-			invokeProcessDone  = new DelegateProcessDone(ProcessDone);
 
 			isCancelled = false;
 
@@ -461,7 +461,7 @@ namespace WixEdit {
 			Invoke(invokeProcessDone);
 
 			if (onCompletedOutput != null) {
-				onCompletedOutput(isCancelled);
+                Invoke(onCompletedOutput, new object[] { isCancelled });
 			}
 		}
 
@@ -516,7 +516,7 @@ namespace WixEdit {
 			Invoke(invokeProcessDone);
 
 			if (onCompletedOutput != null) {
-				onCompletedOutput(isCancelled);
+                Invoke(onCompletedOutput, new object[] { isCancelled });
 			}
 		}
 
@@ -561,7 +561,7 @@ namespace WixEdit {
 			Invoke(invokeProcessDone);
 
 			if (onCompletedOutput != null) {
-				onCompletedOutput(isCancelled);
+                Invoke(onCompletedOutput, new object[] { isCancelled }); 
 			}
 		}
 

@@ -48,6 +48,7 @@ namespace WixEdit {
 
         private System.Windows.Forms.Timer doubleClickTimer = new System.Windows.Forms.Timer();
         private bool isFirstClick = true;
+        private bool isSecondClick = true;
         private int milliseconds = 0;
 
         private int currentSelectionStart = 0;
@@ -208,7 +209,8 @@ namespace WixEdit {
 
                     // Start the double click timer.
                     doubleClickTimer.Start();
-                } else { // This is the second mouse click.
+                } else if (isSecondClick) { // This is the second mouse click.
+                    isSecondClick = false;
                     // Verify that the mouse click is within the double click
                     // rectangle and is within the system-defined double 
                     // click period.
@@ -219,6 +221,66 @@ namespace WixEdit {
             }
         }
 
+        int lastLineY = -1;
+        public bool HasResultSelected
+        {
+            get
+            {
+                return lastNodes != null;
+            }
+        }
+
+        public void FindNext()
+        {
+            if (lastLineY >= 0)
+            {
+                int charIndex = outputTextBox.GetCharIndexFromPosition(new Point(1, lastLineY));
+                int line = outputTextBox.GetLineFromCharIndex(charIndex) + 1;
+                int newCharIndex = outputTextBox.GetFirstCharIndexFromLine(line);
+
+                Point p = outputTextBox.GetPositionFromCharIndex(newCharIndex);
+
+                OpenLine(p.X, p.Y);
+            }
+            else
+            {
+                OpenLine(1, 1);
+            }
+        }
+
+        public void FindPrev()
+        {
+            if (lastLineY >= 0)
+            {
+                int charIndex = outputTextBox.GetCharIndexFromPosition(new Point(1, lastLineY));
+                int line = outputTextBox.GetLineFromCharIndex(charIndex) - 1;
+                if (line >= 0)
+                {
+                    int newCharIndex = outputTextBox.GetFirstCharIndexFromLine(line);
+
+                    Point p = outputTextBox.GetPositionFromCharIndex(newCharIndex);
+
+                    OpenLine(p.X, p.Y);
+                }
+                else
+                {
+                    OpenLine(-1, -1);
+                }
+            }
+            else
+            {
+                int line = outputTextBox.GetLineFromCharIndex(outputTextBox.Text.Length) - 3;
+                if (line >= 0)
+                {
+                    int newCharIndex = outputTextBox.GetFirstCharIndexFromLine(line);
+
+                    Point p = outputTextBox.GetPositionFromCharIndex(newCharIndex);
+
+                    OpenLine(p.X, p.Y);
+                }
+            }
+        }
+        
         private void OpenLine(int x, int y) {
             if (lastNodes == null) {
                 return;
@@ -230,7 +292,7 @@ namespace WixEdit {
             int beginLineIndex = 0;
 
             foreach (string line in outputTextBox.Lines) {
-                if (beginLineIndex < currentIndex && currentIndex < beginLineIndex + line.Length + 1) {
+                if (beginLineIndex <= currentIndex && currentIndex < beginLineIndex + line.Length + 1) {
                     break;
                 }
                 beginLineIndex += line.Length + 1;
@@ -261,19 +323,26 @@ namespace WixEdit {
                 }
             }
 
-            
 
-            if (currentLine < lastNodes.Count) {
+
+            if (currentLine < lastNodes.Count && y > 0)
+            {
+                lastLineY = y;
+
                 currentSelectionStart = beginLineIndex;
                 currentSelectionLength = outputTextBox.Lines[currentLine].Length + 1;
-    
+
                 outputTextBox.Select(beginLineIndex, outputTextBox.Lines[currentLine].Length + 1);
                 outputTextBox.SelectionBackColor = Color.DarkBlue; //SystemColors.Highlight; // HighLight colors seem not to be working.
                 outputTextBox.SelectionColor = Color.White; //SystemColors.HighlightText;
-                
+
                 outputTextBox.Select(beginLineIndex, 0);
 
                 editorForm.ShowNode(lastNodes[currentLine]);
+            }
+            else
+            {
+                lastLineY = -1;
             }
         }
 
@@ -286,6 +355,8 @@ namespace WixEdit {
 
                 // Allow the MouseDown event handler to process clicks again.
                 isFirstClick = true;
+                isSecondClick = true;
+
                 milliseconds = 0;
             }
         }
@@ -319,6 +390,7 @@ namespace WixEdit {
         public void Clear() {
             outputTextBox.Text = "";
             lastNodes = null;
+            lastLineY = -1;
         }
 
         public void Cancel() {

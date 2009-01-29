@@ -1,4 +1,4 @@
-<Include>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <UI>
     <Property Id="ErrorDialog"><![CDATA[ErrorDlg]]></Property>
     <Property Id="DefaultUIFont"><![CDATA[DlgFont8]]></Property>
@@ -23,7 +23,7 @@
     <Dialog Id="ExitDialog" Width="370" Height="270" Title="[ProductName] [Setup]" NoMinimize="yes">
       <Control Id="Finish" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="[ButtonText_Finish]">
         <Publish Event="EndDialog" Value="Return"><![CDATA[1]]></Publish>
-        <Publish Event='DoAction' Value='LaunchFile'>(NOT Installed) AND (LaunchApp = 1)</Publish>
+        <Publish Event="DoAction" Value="LaunchFile">(NOT Installed) AND (LaunchApp = 1)</Publish>
       </Control>
       <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Disabled="yes" Text="[ButtonText_Cancel]" />
       <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="[DialogBitmap]" />
@@ -123,9 +123,9 @@
       </Control>
     </Dialog>
     <Dialog Id="AdminBrowseDlg" Width="370" Height="270" Title="[ProductName] [Setup]" NoMinimize="yes">
-      <Control Id="PathEdit" Type="PathEdit" X="84" Y="202" Width="261" Height="17" Property="TARGETDIR" />
+      <Control Id="PathEdit" Type="PathEdit" X="84" Y="202" Width="261" Height="17" Property="INSTALLDIR" />
       <Control Id="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Default="yes" Text="[ButtonText_OK]">
-        <Publish Event="SetTargetPath" Value="TARGETDIR"><![CDATA[1]]></Publish>
+        <Publish Event="SetTargetPath" Value="INSTALLDIR"><![CDATA[1]]></Publish>
         <Publish Event="EndDialog" Value="Return"><![CDATA[1]]></Publish>
       </Control>
       <Control Id="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Cancel="yes" Text="[ButtonText_Cancel]">
@@ -133,7 +133,7 @@
         <Publish Event="EndDialog" Value="Return"><![CDATA[1]]></Publish>
       </Control>
       <Control Id="ComboLabel" Type="Text" X="25" Y="58" Width="44" Height="10" TabSkip="no" Text="&amp;Look in:" />
-      <Control Id="DirectoryCombo" Type="DirectoryCombo" X="70" Y="55" Width="220" Height="80" Property="TARGETDIR" Removable="yes" Fixed="yes" Remote="yes">
+      <Control Id="DirectoryCombo" Type="DirectoryCombo" X="70" Y="55" Width="220" Height="80" Property="INSTALLDIR" Removable="yes" Fixed="yes" Remote="yes">
         <Subscribe Event="IgnoreChange" Attribute="IgnoreChange" />
       </Control>
       <Control Id="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" ToolTip="Up One Level" Icon="yes" FixedSize="yes" IconSize="16" Text="Up">
@@ -142,7 +142,7 @@
       <Control Id="NewFolder" Type="PushButton" X="325" Y="55" Width="19" Height="19" ToolTip="Create A New Folder" Icon="yes" FixedSize="yes" IconSize="16" Text="New">
         <Publish Event="DirectoryListNew" Value="0"><![CDATA[1]]></Publish>
       </Control>
-      <Control Id="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Property="TARGETDIR" Sunken="yes" TabSkip="no" />
+      <Control Id="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Property="INSTALLDIR" Sunken="yes" TabSkip="no" />
       <Control Id="PathLabel" Type="Text" X="25" Y="205" Width="59" Height="10" TabSkip="no" Text="&amp;Folder name:" />
       <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="[BannerBitmap]" />
       <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
@@ -158,7 +158,7 @@
       <Control Id="Text" Type="Text" X="25" Y="80" Width="320" Height="10" TabSkip="no">
         <Text>&amp;Enter a new network location or click Browse to browse to one.</Text>
       </Control>
-      <Control Id="PathEdit" Type="PathEdit" X="25" Y="93" Width="320" Height="18" Property="TARGETDIR" />
+      <Control Id="PathEdit" Type="PathEdit" X="25" Y="93" Width="320" Height="18" Property="INSTALLDIR" />
       <Control Id="Browse" Type="PushButton" X="289" Y="119" Width="56" Height="17" Text="[ButtonText_Browse]">
         <Publish Event="SpawnDialog" Value="AdminBrowseDlg"><![CDATA[1]]></Publish>
       </Control>
@@ -166,7 +166,7 @@
         <Publish Event="NewDialog" Value="AdminRegistrationDlg"><![CDATA[1]]></Publish>
       </Control>
       <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="[ButtonText_Next]">
-        <Publish Event="SetTargetPath" Value="TARGETDIR"><![CDATA[1]]></Publish>
+        <Publish Event="SetTargetPath" Value="INSTALLDIR"><![CDATA[1]]></Publish>
         <Publish Event="NewDialog" Value="VerifyReadyDlg"><![CDATA[1]]></Publish>
       </Control>
       <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="[ButtonText_Cancel]">
@@ -396,7 +396,7 @@
       </Control>
       <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="[BannerBitmap]" />
       <Control Id="AgreementText" Type="ScrollableText" X="20" Y="60" Width="330" Height="160" Sunken="yes" TabSkip="no">
-        <Text src="license.rtf" />
+        <Text SourceFile="license.rtf" />
       </Control>
       <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
       <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
@@ -648,7 +648,7 @@
         <Publish Event="NewDialog" Value="SetupTypeDlg"><![CDATA[InstallMode = "Typical" OR InstallMode = "Complete"]]></Publish>
       </Control>
       <Control Id="Text" Type="Text" X="25" Y="70" Width="320" Height="20">
-        <Text>Click Install to begin the installation to [TARGETDIR]. If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.</Text>
+        <Text>Click Install to begin the installation to [INSTALLDIR]. If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.</Text>
       </Control>
       <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
       <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
@@ -743,7 +743,6 @@
         <Text>{\VerdanaBold13}Welcome to the [ProductName] Install [Wizard]</Text>
         <Condition Action="hide"><![CDATA[OLDERVERSIONFOUND]]></Condition>
       </Control>
-
       <Control Id="DescriptionUpgrade" Type="Text" X="135" Y="70" Width="220" Height="30" Transparent="yes" NoPrefix="yes">
         <Text>The [Wizard] will upgrade [ProductName] to a newer version. Click Next to continue or Cancel to exit the [Wizard].</Text>
         <Condition Action="hide"><![CDATA[NOT OLDERVERSIONFOUND]]></Condition>
@@ -1045,7 +1044,6 @@
     <InstallUISequence>
       <FindRelatedProducts Sequence="51" />
       <Custom Action="NewVersionError" Sequence="52">NEWERVERSIONFOUND</Custom>
-
       <Show Dialog="FatalError" OnExit="error" />
       <Show Dialog="UserExit" OnExit="cancel" />
       <Show Dialog="ExitDialog" OnExit="success" />
@@ -1074,7 +1072,6 @@
   <Property Id="RemoveIcon"><![CDATA[removico]]></Property>
   <Property Id="ButtonText_Yes"><![CDATA[&Yes]]></Property>
   <Property Id="ButtonText_Ignore"><![CDATA[&Ignore]]></Property>
-  <Property Id="ProductID"><![CDATA[none]]></Property>
   <Property Id="ButtonText_Reset"><![CDATA[&Reset]]></Property>
   <Property Id="ButtonText_Remove"><![CDATA[&Remove]]></Property>
   <Property Id="ShowUserRegistrationDlg"><![CDATA[0]]></Property>
@@ -1096,11 +1093,8 @@
   <Property Id="BannerBitmap"><![CDATA[bannrbmp]]></Property>
   <Property Id="DialogBitmap"><![CDATA[dlgbmp]]></Property>
   <Property Id="LaunchApp">1</Property>
-
   <!-- Property Id="ARPHELPLINK"><![CDATA[http://www.microsoft.com/management]]></Property -->
-
   <AdminExecuteSequence />
-
   <InstallExecuteSequence>
     <!-- RemoveExistingProducts:
     Between InstallValidate action and the InstallInitialize action. (http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/removeexistingproducts_action.asp)
@@ -1109,17 +1103,15 @@
     <!--RemoveExistingProducts Before="InstallFinalize" /-->
     <RemoveExistingProducts After="InstallValidate" />
   </InstallExecuteSequence>
-
-  <Binary Id="bannrbmp" src="Binary\bannrbmp.bmp" />
-  <Binary Id="completi" src="Binary\completi.ico" />
-  <Binary Id="custicon" src="Binary\custicon.ico" />
-  <Binary Id="dlgbmp" src="Binary\dlgbmp.bmp" />
-  <Binary Id="exclamic" src="Binary\exclamic.ico" />
-  <Binary Id="info" src="Binary\info.ico" />
-  <Binary Id="insticon" src="Binary\insticon.ico" />
-  <Binary Id="New" src="Binary\New.ico" />
-  <Binary Id="removico" src="Binary\removico.ico" />
-  <Binary Id="repairic" src="Binary\repairic.ico" />
-  <Binary Id="Up" src="Binary\Up.ico" />
+  <Binary Id="bannrbmp" SourceFile="Binary\bannrbmp.bmp" />
+  <Binary Id="completi" SourceFile="Binary\completi.ico" />
+  <Binary Id="custicon" SourceFile="Binary\custicon.ico" />
+  <Binary Id="dlgbmp" SourceFile="Binary\dlgbmp.bmp" />
+  <Binary Id="exclamic" SourceFile="Binary\exclamic.ico" />
+  <Binary Id="info" SourceFile="Binary\info.ico" />
+  <Binary Id="insticon" SourceFile="Binary\insticon.ico" />
+  <Binary Id="New" SourceFile="Binary\New.ico" />
+  <Binary Id="removico" SourceFile="Binary\removico.ico" />
+  <Binary Id="repairic" SourceFile="Binary\repairic.ico" />
+  <Binary Id="Up" SourceFile="Binary\Up.ico" />
 </Include>
-

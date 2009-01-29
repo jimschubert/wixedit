@@ -80,6 +80,8 @@ namespace WixEdit {
         protected Assembly stateBrowserAssm;
 
         protected IconMenuItem editFind;
+        protected IconMenuItem editFindNext;
+        protected IconMenuItem editFindPrev;
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsExternal;
         protected IconMenuItem toolsOptions;
@@ -249,6 +251,8 @@ namespace WixEdit {
             editUndo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.undo.bmp")));
             editRedo = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.redo.bmp")));
             editFind = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.find.bmp")));
+            editFindNext = new IconMenuItem();
+            editFindPrev = new IconMenuItem();
 
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
@@ -274,12 +278,24 @@ namespace WixEdit {
             editFind.Shortcut = Shortcut.CtrlF;
             editFind.ShowShortcut = true;
 
+            editFindNext.Text = "Find &Next";
+            editFindNext.Click += new EventHandler(editFindNext_Click);
+            editFindNext.Shortcut = Shortcut.F3;
+            editFindNext.ShowShortcut = true;
+
+            editFindPrev.Text = "Find &Previous";
+            editFindPrev.Click += new EventHandler(editFindPrev_Click);
+            editFindPrev.Shortcut = Shortcut.ShiftF3;
+            editFindPrev.ShowShortcut = true;
+
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
             editMenu.MenuItems.Add(0, editUndo);
             editMenu.MenuItems.Add(1, editRedo);
             editMenu.MenuItems.Add(2, new IconMenuItem("-"));
             editMenu.MenuItems.Add(3, editFind);
+            editMenu.MenuItems.Add(4, editFindNext);
+            editMenu.MenuItems.Add(5, editFindPrev);
 
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -733,6 +749,8 @@ namespace WixEdit {
             }
 
             editFind.Enabled = (wixFiles != null && searchPanel.IsBusy == false);
+            editFindNext.Enabled = (wixFiles != null && searchPanel.HasResultSelected);
+            editFindPrev.Enabled = (wixFiles != null && searchPanel.HasResultSelected);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -857,7 +875,26 @@ namespace WixEdit {
             }
         }
 
-        private void toolsExternal_Click(object sender, System.EventArgs e) {
+        private void editFindNext_Click(object sender, System.EventArgs e)
+        {
+            if (searchPanel.HasResultSelected)
+            {
+                ShowSearchPanel();
+                searchPanel.FindNext();
+            }
+        }
+
+        private void editFindPrev_Click(object sender, System.EventArgs e)
+        {
+            if (searchPanel.HasResultSelected)
+            {
+                ShowSearchPanel();
+                searchPanel.FindPrev();
+            }
+        }
+
+        private void toolsExternal_Click(object sender, System.EventArgs e)
+        {
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
                 File.Exists(WixEditSettings.Instance.ExternalXmlEditor) == false) {
