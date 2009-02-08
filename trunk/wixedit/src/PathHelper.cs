@@ -40,23 +40,24 @@ namespace WixEdit {
                 return path;
             }
 
-            Uri newBinaryPath = new Uri(path, true);
+            Uri newPathUri = new Uri(path);
 
-            string binaries = wixFiles.WxsDirectory.FullName;
-            if (binaries.EndsWith(sepCharString) == false) {
-                binaries = binaries + sepCharString;
+            string wxsDirectory = wixFiles.WxsDirectory.FullName;
+            if (wxsDirectory.EndsWith(sepCharString) == false) {
+                wxsDirectory = wxsDirectory + sepCharString;
             }
 
-            Uri binariesPath = new Uri(binaries, true);
+            Uri wxsDirectoryUri = new Uri(wxsDirectory);
             
-            string relativeValue = binariesPath.MakeRelativeUri(newBinaryPath).ToString();
+            string relativeValue = wxsDirectoryUri.MakeRelativeUri(newPathUri).ToString();
+            relativeValue = Uri.UnescapeDataString(relativeValue);
             relativeValue = relativeValue.Replace("/", sepCharString);
             
             FileInfo testRelativeValue = null;
 
             try {
                 if (Path.IsPathRooted(relativeValue) == false) {
-                    testRelativeValue = new FileInfo(Path.Combine(binaries, relativeValue));
+                    testRelativeValue = new FileInfo(Path.Combine(wxsDirectory, relativeValue));
                 } else {
                     if (relativeValue.StartsWith("file:")) {
                         relativeValue.Remove(0, 5);
@@ -71,7 +72,7 @@ namespace WixEdit {
             }
             
             if (WixEditSettings.Instance.UseRelativeOrAbsolutePaths == PathHandling.ForceRelativePaths && Path.IsPathRooted(relativeValue) == true) {
-                throw new WixEditException(String.Format("{0} is invalid. {1} should be relative to {2}, or change your preference in the WixEdit settings.", relativeValue, path, binaries));
+                throw new WixEditException(String.Format("{0} is invalid. {1} should be relative to {2}, or change your preference in the WixEdit settings.", relativeValue, path, wxsDirectory));
             }
 
             return relativeValue;
