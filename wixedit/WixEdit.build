@@ -66,7 +66,6 @@
         		<include name="*.dll" />
         	</references>
         </csc>
-        <copy file="${project.source}\${project::get-name()}.exe.manifest" todir="${project.build}" />  
         <copy todir="${project.build}">  
         	<fileset basedir="${project.lib}" >
         		<include name="*.dll" />
