@@ -24,7 +24,6 @@
           </Component>
           <Directory Id="Binaries" Name="binaries">
             <Component Id="Binaries" DiskId="1" KeyPath="yes" Guid="89962590-24E4-4E05-BA3F-2C98866D54BC">
-              <File Id="manifest" Name="WixEdit.exe.manifest" Source="..\build\WixEdit.exe.manifest" />
               <File Id="WixEditExe" Name="WixEdit.exe" Source="..\build\WixEdit.exe" />
               <!-- Include pdb so error reporting shows line numbers. -->
               <File Id="pdb" Name="WixEdit.pdb" Source="..\build\WixEdit.pdb" />

@@ -558,7 +558,6 @@
     <Compile Include="src\XPathHelper.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="src\WixEdit.exe.manifest" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
