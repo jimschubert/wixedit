@@ -43,9 +43,9 @@ namespace WixEdit {
             //add custom menu, index has to be used!!!
             IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             
-            IconMenuItem subSubMenuItem1 = new IconMenuItem("InstallExecuteSequence");
-            IconMenuItem subSubMenuItem2 = new IconMenuItem("AdminExecuteSequence");
-            IconMenuItem subSubMenuItem3 = new IconMenuItem("AdvertiseExecuteSequence");
+            MenuItem subSubMenuItem1 = new MenuItem("InstallExecuteSequence");
+            MenuItem subSubMenuItem2 = new MenuItem("AdminExecuteSequence");
+            MenuItem subSubMenuItem3 = new MenuItem("AdvertiseExecuteSequence");
             
             subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
             subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);

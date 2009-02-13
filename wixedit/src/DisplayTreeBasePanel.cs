@@ -609,10 +609,16 @@ namespace WixEdit {
             currTreeViewContextMenu.MenuItems.Clear();
 
             ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Name, SkipElements);
-            newElementStrings.Sort();
 
+            bool isExtention = false;
             foreach (string newElementString in newElementStrings) {
-                IconMenuItem subMenuItem = new IconMenuItem(newElementString);
+                if (!isExtention && newElementString.Contains(":"))
+                {
+                    item1.MenuItems.Add(new MenuItem("-"));
+                    isExtention = true;
+                }
+
+                MenuItem subMenuItem = new MenuItem(newElementString);
                 subMenuItem.Click += new EventHandler(NewElement_Click);
                 item1.MenuItems.Add(subMenuItem);
             }
