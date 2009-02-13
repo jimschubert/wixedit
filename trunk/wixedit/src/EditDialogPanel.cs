@@ -1229,7 +1229,6 @@ namespace WixEdit {
                     newControlSubElementsMenu.MenuItems.Clear();
                     dialogTreeViewContextMenu.MenuItems.Add(newControlSubElementsMenu);
                     ArrayList newControlSubElementStrings = WixFiles.GetXsdSubElements(node.Name);
-                    newControlSubElementStrings.Sort();
 
                     foreach (string newControlSubElementString in newControlSubElementStrings)
                     {
@@ -1264,15 +1263,21 @@ namespace WixEdit {
                     }
 
                     ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Attributes["Type"].Value);
-                    newElementStrings.Sort();
 
                     if (newControlSubElementStrings.Count > 0 &&
                         newElementStrings.Count > 0) {
                             newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
                     }
 
+                    bool isExtention = false;
+                    foreach (string newElementString in newElementStrings)
+                    {
+                        if (!isExtention && newElementString.Contains(":"))
+                        {
+                            newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
+                            isExtention = true;
+                        }
 
-                    foreach (string newElementString in newElementStrings) {
                         IconMenuItem subMenuItem = new IconMenuItem(newElementString);
                         subMenuItem.Click += new EventHandler(NewControlElement_Click);
                         newControlSubElementsMenu.MenuItems.Add(subMenuItem);

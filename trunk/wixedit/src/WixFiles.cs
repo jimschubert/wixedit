@@ -446,6 +446,7 @@ namespace WixEdit {
 
         public ArrayList GetXsdSubElements(string elementName, StringCollection skipElements) {
             ArrayList ret = new ArrayList();
+            ArrayList retExt = new ArrayList();
 
             int nodeColonPos = elementName.IndexOf(":");
             if (nodeColonPos < 0) {
@@ -470,7 +471,7 @@ namespace WixEdit {
 
                     XmlNodeList subNodes = extXsd.SelectNodes(String.Format("/xs:schema/xs:element[xs:annotation/xs:appinfo/xse:parent/@ref='{0}']", elementName), extXsdNsmgr);
                     foreach (XmlElement subNode in subNodes) {
-                        ret.Add(String.Format("{0}:{1}", displayNamespaceName, subNode.GetAttribute("name")));
+                        retExt.Add(String.Format("{0}:{1}", displayNamespaceName, subNode.GetAttribute("name")));
                     }
                 }
             } else {
@@ -490,12 +491,17 @@ namespace WixEdit {
                                 if (skipElements.Contains(refAtt.Value)) {
                                     continue;
                                 }
-                                ret.Add(String.Format("{0}:{1}", theNodeDisplayNamespace, refAtt.Value));
+                                retExt.Add(String.Format("{0}:{1}", theNodeDisplayNamespace, refAtt.Value));
                             }
                         }
                     }
                 }
             }
+
+            ret.Sort();
+            retExt.Sort();
+            ret.AddRange(retExt);
+
 
             return ret;
         }
