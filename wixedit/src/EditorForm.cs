@@ -36,6 +36,7 @@ using System.Threading;
 using WixEdit.About;
 using WixEdit.Controls;
 using WixEdit.Settings;
+using System.Text;
 
 namespace WixEdit {
     /// <summary>
@@ -1278,18 +1279,31 @@ namespace WixEdit {
         }
 
         private bool HandlePendingChanges(string message, bool force) {
-            if (wixFiles != null && wixFiles.HasChanges() == true) {
-                string messageText = "";
+            if (wixFiles != null && wixFiles.HasChanges())
+            {
+                StringBuilder messageText = new StringBuilder();
                 if (message != null) {
-                    messageText = message + "\r\n\r\n";
+                    messageText.Append(message);
+                    messageText.AppendLine();
+                    messageText.AppendLine();
+                }
+
+                if (wixFiles.IsNew)
+                {
+                    messageText.AppendFormat("Save the newly created file?");
+                }
+                else
+                {
+                    messageText.AppendFormat("Save the changes you made to \"{0}\"?", wixFiles.WxsFile.Name);
                 }
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                if (force) {
+                if (force)
+                {
                     buttons = MessageBoxButtons.YesNo;
                 }
 
-                DialogResult result = MessageBox.Show(messageText + "Save the changes you made to \""+ wixFiles.WxsFile.Name +"\"?", "Save changes?", buttons, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(messageText.ToString(), "Save changes?", buttons, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes) {
                     if (wixFiles.ReadOnly())
                     {
