@@ -112,8 +112,16 @@ namespace WixEdit.PropertyGridExtensions {
                 } else {
                     ((XmlAttribute) xmlElement).Value = "";
                 }
-            } else {
-                xmlElement.ParentNode.RemoveChild(xmlElement);
+            } else { // Is inner text
+                //if (showInnerTextIfEmpty)
+                //{
+                //    xmlElement.RemoveChild(xmlElement.FirstChild);
+                //}
+                //else 
+                if (xmlElement.ChildNodes.Count > 0)
+                {
+                    xmlElement.RemoveChild(xmlElement.FirstChild);
+                }
             }
         }
 

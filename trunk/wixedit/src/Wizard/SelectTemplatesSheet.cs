@@ -72,20 +72,40 @@ namespace WixEdit.Wizard
 
             this.Controls.Add(listView);
 
-            DirectoryInfo oldTemplateDir = new DirectoryInfo(WixEditSettings.Instance.TemplateDirectory);
-            DirectoryInfo templateDir = new DirectoryInfo(Path.Combine(oldTemplateDir.Parent.FullName, "wizard"));
+            DirectoryInfo oldTemplateDir = null;
+            DirectoryInfo templateDir = null;
 
-            FileInfo[] files = templateDir.GetFiles("template.xml", SearchOption.AllDirectories);
-
-            foreach (FileInfo file in files)
+            if (!String.IsNullOrEmpty(WixEditSettings.Instance.TemplateDirectory))
             {
-                if (file.Directory.Parent.FullName == templateDir.FullName)
-                {
-                    ListViewItem item = new ListViewItem(file.Directory.Name);
-                    item.Tag = file.FullName;
+                oldTemplateDir = new DirectoryInfo(WixEditSettings.Instance.TemplateDirectory);
+                templateDir = new DirectoryInfo(Path.Combine(oldTemplateDir.Parent.FullName, "wizard"));
+            }
 
-                    listView.Items.Add(item);
+            if (templateDir != null && 
+                templateDir.Exists)
+            {
+                FileInfo[] files = templateDir.GetFiles("template.xml", SearchOption.AllDirectories);
+
+                foreach (FileInfo file in files)
+                {
+                    if (file.Directory.Parent.FullName == templateDir.FullName)
+                    {
+                        ListViewItem item = new ListViewItem(file.Directory.Name);
+                        item.Tag = file.FullName;
+
+                        listView.Items.Add(item);
+                    }
                 }
+            }
+            else
+            {
+                StringBuilder message = new StringBuilder("Directory containing the templates could not be found. Please reinstall WixEdit.");
+                if (templateDir != null)
+                {
+                    message.AppendFormat("\r\n\r\nDirectory:\r\n{0}", templateDir.FullName);
+                }
+
+                MessageBox.Show(message.ToString(), "Templates not found");
             }
         }
 

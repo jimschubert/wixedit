@@ -761,7 +761,7 @@ namespace WixEdit {
         #endregion
 
         public bool HasChanges() {
-            return (UndoManager.HasChanges() || projectSettings.HasChanges());
+            return (UndoManager.HasChanges() || projectSettings.HasChanges() || IsNew);
         }
 
         public void SaveAs(string newFile) {
