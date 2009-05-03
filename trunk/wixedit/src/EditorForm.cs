@@ -117,8 +117,8 @@ namespace WixEdit {
 
         string emptyWxs = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Wix xmlns=""http://schemas.microsoft.com/wix/2006/wi"">
-  <Product Id=""DEAFBEEF-DEAD-DEAD-DEAD-DEADBEEF0001"" Name=""TestProduct"" Language=""1033"" Version=""0.0.0.1"" Manufacturer=""WixEdit"">
-    <Package Id=""DEAFBEEF-DEAD-DEAD-DEAD-DEADBEEF0002"" Description=""Test file in a Product"" Comments=""Simple test"" InstallerVersion=""200"" Compressed=""yes"" />
+  <Product Id=""{0}"" Name=""TestProduct"" Language=""1033"" Version=""0.0.0.1"" Manufacturer=""WixEdit"">
+    <Package Id=""{1}"" Description=""Test file in a Product"" Comments=""Simple test"" InstallerVersion=""200"" Compressed=""yes"" />
     <Media Id=""1"" Cabinet=""simple.cab"" EmbedCab=""yes"" />
     <Directory Id=""TARGETDIR"" Name=""SourceDir"">
       <Directory Id=""ProgramFilesFolder"" Name=""PFiles"" />
@@ -514,7 +514,7 @@ namespace WixEdit {
                 return;
             }
 
-            WixFiles newWixFiles = new WixFiles(emptyWxs);
+            WixFiles newWixFiles = new WixFiles(String.Format(emptyWxs, Guid.NewGuid().ToString().ToUpper(), Guid.NewGuid().ToString().ToUpper()));
 
             Wizard.WizardForm frm = new WixEdit.Wizard.WizardForm(newWixFiles);
             if (frm.ShowDialog() == DialogResult.OK)
@@ -599,7 +599,13 @@ namespace WixEdit {
         private bool SaveAs() {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.OverwritePrompt = true;
-            dlg.FileName = wixFiles.WxsFile.FullName;
+            
+            if (wixFiles.IsNew) {
+                dlg.FileName = "untitled.wxs";
+            } else {
+                dlg.FileName = wixFiles.WxsFile.FullName;
+            }
+
             dlg.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
             if (dlg.ShowDialog(this) == DialogResult.OK) {
                 string newName = dlg.FileName;

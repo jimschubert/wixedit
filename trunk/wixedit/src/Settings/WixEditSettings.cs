@@ -62,7 +62,7 @@ namespace WixEdit.Settings {
 
                 DisplayFullPathInTitlebar = false;
 
-                XmlIndentation = 2;
+                XmlIndentation = 4;
 
                 EditDialog = new EditDialogData();
 
