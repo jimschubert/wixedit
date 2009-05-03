@@ -220,7 +220,7 @@ namespace WixEdit.Wizard
 
                     if (edit.GetAttribute("Mode") == "GenerateGuid")
                     {
-                        theNode.Value = Guid.NewGuid().ToString("B");
+                        theNode.Value = Guid.NewGuid().ToString().ToUpper();
                     }
                     else
                     {

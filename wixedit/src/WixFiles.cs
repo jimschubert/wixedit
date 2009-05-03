@@ -766,7 +766,7 @@ namespace WixEdit {
 
         public void SaveAs(string newFile) {
             wxsFile = new FileInfo(newFile);
-
+            
             if (wxsWatcher != null)
             {
                 wxsWatcher.EnableRaisingEvents = false;
@@ -777,10 +777,13 @@ namespace WixEdit {
             wxsWatcher.Changed += wxsWatcher_ChangedHandler;
             
             Save();
+
+            // After saving make sure this is not a "new" file anymore
+            isTempNewFile = false;
         }
 
         public void Save() {
-            if (ReadOnly()) {
+            if (!IsNew && ReadOnly()) {
                 MessageBox.Show(String.Format("\"{0}\" is read-only, cannot save this file.", wxsFile.Name), "Read Only!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
