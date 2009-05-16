@@ -687,6 +687,12 @@ namespace WixEdit {
                 }
             }
 
+            XmlNodeList uiRefList = wxsDocument.SelectNodes("//wix:UIRef", wxsNsmgr);
+            if (uiRefList.Count > 0)
+            {
+                ret.Append(" -ext WixUIExtension ");
+            }
+
             return ret.ToString();
         }
 
@@ -765,7 +771,9 @@ namespace WixEdit {
         }
 
         public void SaveAs(string newFile) {
+            // Save as, is like creating a new file...
             wxsFile = new FileInfo(newFile);
+            isTempNewFile = true;
             
             if (wxsWatcher != null)
             {
@@ -773,13 +781,13 @@ namespace WixEdit {
                 wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
             }
 
-            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
-            wxsWatcher.Changed += wxsWatcher_ChangedHandler;
-            
             Save();
 
             // After saving make sure this is not a "new" file anymore
             isTempNewFile = false;
+
+            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
+            wxsWatcher.Changed += wxsWatcher_ChangedHandler;
         }
 
         public void Save() {
