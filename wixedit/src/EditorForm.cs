@@ -585,10 +585,17 @@ namespace WixEdit {
         }
 
         private void Save() {
-            try {
-                wixFiles.Save();
-            } catch (System.UnauthorizedAccessException ex) {
-                MessageBox.Show("Failed to save " + wixFiles.WxsFile.Name + ":\r\n\r\n" + ex.Message, "Failed to save", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (!wixFiles.IsNew) {
+                try
+                {
+                    wixFiles.Save();
+                }
+                catch (System.UnauthorizedAccessException ex)
+                {
+                    MessageBox.Show("Failed to save " + wixFiles.WxsFile.Name + ":\r\n\r\n" + ex.Message, "Failed to save", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            } else {
+                SaveAs();
             }
         }
 
@@ -669,7 +676,7 @@ namespace WixEdit {
             fileRecent.Enabled = xsdPresent;
 
             if (wixFiles != null) {
-                fileSave.Enabled = !wixFiles.ReadOnly() && wixFiles.HasChanges();
+                fileSave.Enabled = (wixFiles.IsNew || (!wixFiles.ReadOnly() && wixFiles.HasChanges()));
             } else {
                 fileSave.Enabled = false;
             }
@@ -763,7 +770,7 @@ namespace WixEdit {
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
             bool hasExternalEditor = (WixEditSettings.Instance.ExternalXmlEditor != null && File.Exists(WixEditSettings.Instance.ExternalXmlEditor));
 
-            if (wixFiles == null || hasExternalEditor == false) {
+            if (wixFiles == null || wixFiles.IsNew || hasExternalEditor == false) {
                 toolsExternal.Enabled = false;
             } else {
                 toolsExternal.Enabled = true;

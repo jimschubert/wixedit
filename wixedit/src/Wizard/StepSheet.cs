@@ -133,33 +133,80 @@ namespace WixEdit.Wizard
                 label.Left = 5;
                 this.Controls.Add(label);
 
-                TextBox text = new TextBox();
-                text.Width = this.Width - 14;
-                text.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 XmlNode theNode = step.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
-                text.Text = theNode.Value;
-
                 XmlDocumentationManager mgr = new XmlDocumentationManager(this.Wizard.WixFiles);
                 XmlNode xmlNodeDefinition = mgr.GetXmlNodeDefinition(theNode);
+
+                switch (edit.GetAttribute("Mode"))
+                {
+                    case "Select":
+                        ComboBox select = new ComboBox();
+                        select.DropDownStyle = ComboBoxStyle.DropDownList;
+                        select.Width = this.Width - 14;
+                        select.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+
+                        String selectionTarget = edit.GetAttribute("Selection");
+
+                        foreach (XmlNode dir in Wizard.WixFiles.WxsDocument.SelectNodes(selectionTarget, Wizard.WixFiles.WxsNsmgr))
+                        {
+                            select.Items.Add(dir);
+                        }
+
+                        select.DisplayMember = "Value";
+                        select.Top = prevControl.Bottom + label.Height + 4;
+                        select.Left = 7;
+                        select.Name = refAtt;
+                        this.Controls.Add(select);
+
+                        prevControl = select;
+                        break;
+                    case "Dropdown":
+                        ComboBox combo = new ComboBox();
+                        combo.DropDownStyle = ComboBoxStyle.DropDownList;
+                        combo.Width = this.Width - 14;
+                        combo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                        combo.DisplayMember = "InnerText";
+                        foreach (XmlNode optionNode in edit.SelectNodes("Option"))
+                        {
+                            XmlElement optionElement = (XmlElement)optionNode;
+                            combo.Items.Add(optionNode);
+                            if (optionElement.GetAttribute("Value") == theNode.InnerText)
+                            {
+                                combo.SelectedItem = optionNode;
+                            }
+                        }
+
+                        combo.Top = prevControl.Bottom + label.Height + 4;
+                        combo.Left = 7;
+                        combo.Name = refAtt;
+                        this.Controls.Add(combo);
+
+                        prevControl = combo;
+                        break;
+                    default:
+                        TextBox text = new TextBox();
+                        text.Width = this.Width - 14;
+                        text.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                        text.Text = theNode.Value;
+                        text.Top = prevControl.Bottom + label.Height + 4;
+                        text.Left = 7;
+                        text.Name = refAtt;
+                        this.Controls.Add(text);
+
+                        prevControl = text;
+                        break;
+                }
+
                 if (xmlNodeDefinition != null)
                 {
                     string docu = mgr.GetDocumentation(xmlNodeDefinition, true);
-                    if (!string.IsNullOrEmpty(docu)) 
+                    if (!string.IsNullOrEmpty(docu))
                     {
-                        text.Width = text.Width - 18;
-                        errorProvider.SetError(text, docu);
-                        errorProvider.SetIconPadding(text, 4);
+                        prevControl.Width = prevControl.Width - 18;
+                        errorProvider.SetError(prevControl, docu);
+                        errorProvider.SetIconPadding(prevControl, 4);
                     }
                 }
-
-                step.SelectSingleNode("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
-
-                text.Top = prevControl.Bottom + label.Height + 4;
-                text.Left = 7;
-                text.Name = refAtt;
-                this.Controls.Add(text);
-
-                prevControl = text;
             }
 
         }
@@ -221,6 +268,18 @@ namespace WixEdit.Wizard
                     if (edit.GetAttribute("Mode") == "GenerateGuid")
                     {
                         theNode.Value = Guid.NewGuid().ToString().ToUpper();
+                    }
+                    else if (edit.GetAttribute("Mode") == "Dropdown")
+                    {
+                        ComboBox combo = Controls.Find(refAtt, true)[0] as ComboBox;
+                        if (combo != null)
+                        {
+                            XmlElement item = combo.SelectedItem as XmlElement;
+                            if (item != null)
+                            {
+                                theNode.Value = item.GetAttribute("Value");
+                            }
+                        }
                     }
                     else
                     {

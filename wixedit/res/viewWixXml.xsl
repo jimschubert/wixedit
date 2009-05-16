@@ -85,7 +85,7 @@
                 var anchorStringArray = anchorString.split(',');
                 
                 var i = 0;
-                for (; i &lt; anchorStringArray.length; i++) {
+                for (; i != anchorStringArray.length; i++) {
                     var anchor = document.getElementById('a'+anchorStringArray[i]);
                     if (anchor) {
                         anchor.style.backgroundColor = '#ffff00';
