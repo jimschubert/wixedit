@@ -41,6 +41,7 @@ namespace WixEdit.Controls {
         private static event EventHandler OnLosesSelection;
 
         public event SelectionOverlayItemHandler ItemChanged;
+        public event SelectionOverlayItemHandler ItemDeleted;
         public event SelectionOverlayItemHandler SelectionChanged;
 
         static SelectionOverlay() {
@@ -62,6 +63,7 @@ namespace WixEdit.Controls {
             control.MouseMove += new MouseEventHandler(OnMouseMoveControl);
             control.MouseDown += new MouseEventHandler(OnMouseDownControl);
             control.MouseUp += new MouseEventHandler(OnMouseUpControl);
+            control.KeyDown += new KeyEventHandler(OnKeyDownControl);
 
             Controls.Add(control);
 
@@ -72,6 +74,18 @@ namespace WixEdit.Controls {
             SetStyle(ControlStyles.Opaque, false); // optional
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.FromArgb(0,0,0,0);
+        }
+
+        void OnKeyDownControl(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                if (ItemDeleted != null)
+                {
+                    ItemDeleted(xmlNode);
+                    e.Handled = true;
+                }
+            }
         }
 
         public bool IsSelected {
@@ -345,6 +359,10 @@ namespace WixEdit.Controls {
             Point clientPoint = PointToClient(screenPoint);
             int clientX = clientPoint.X;
             int clientY = clientPoint.Y;
+            int controlWidth = control.Width;
+            int controlHeight = control.Height;
+            int oldWidth = Width;
+            int oldHeight = Height;
 
             switch (sizingDirection) {
                 case SizingDirection.SizingSE:
@@ -393,6 +411,13 @@ namespace WixEdit.Controls {
                     Width -= clientX;
                     control.Width -= clientX;
                     break;
+            }
+
+            if (controlWidth == control.Width) {
+                Width = oldWidth;
+            }
+            if (controlHeight == control.Height) {
+                Height = oldHeight;
             }
 
             Invalidate();
