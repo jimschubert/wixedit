@@ -207,6 +207,7 @@ namespace WixEdit {
             dialogTreeViewContextMenu = new ContextMenu();
             dialogTreeViewContextMenu.Popup += new EventHandler(PopupDialogTreeViewContextMenu);
             dialogTreeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
+            dialogTreeView.KeyDown += new KeyEventHandler(TreeViewKeyDown);
 
             dialogTreeView.ImageList = GetDialogTreeViewImageList();
 
@@ -267,6 +268,7 @@ namespace WixEdit {
             wxsDialogs.FullRowSelect = true;
             wxsDialogs.GridLines = false;
             wxsDialogs.SelectedIndexChanged += new EventHandler(OnSelectedDialogChanged);
+            wxsDialogs.KeyDown += new KeyEventHandler(OnDialogKeyDown);
             wxsDialogs.ContextMenu = wxsDialogsContextMenu;
 
             wxsDialogsContextMenu.Popup += new EventHandler(OnWxsDialogsPopupContextMenu);
@@ -528,6 +530,14 @@ namespace WixEdit {
             images.Images.Add(bmp);
 
             return images;
+        }
+
+        private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) 
+        {
+            if (e.KeyCode == Keys.Delete) 
+            {
+                DeleteElement_Click(this, new EventArgs());
+            }
         }
 
         public void OnPropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
@@ -1030,6 +1040,14 @@ namespace WixEdit {
             }
         }
 
+        private void OnDialogKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                OnDeleteWxsDialogsItem(this, new EventArgs());
+            }
+        }
+
         private void OnDialogItemChanged(XmlNode changedItem) {
             TreeNode node = FindTreeNode(changedItem, dialogTreeView.Nodes);
             if (node != null) {
@@ -1039,7 +1057,28 @@ namespace WixEdit {
             ShowWixProperties(changedItem);
         }
 
-        private void OnDialogSelectionChanged(XmlNode selectedItem) {
+        private void OnDialogItemDeleted(XmlNode deletedItem) {
+            TreeNode treeNode = FindTreeNode(deletedItem, dialogTreeView.Nodes);
+            XmlNode node = treeNode.Tag as XmlNode;
+            if (node == null)
+            {
+                return;
+            }
+
+            WixFiles.UndoManager.BeginNewCommandRange();
+
+            node.ParentNode.RemoveChild(node);
+
+            dialogTreeView.Nodes.Remove(dialogTreeView.SelectedNode);
+
+            ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
+
+            string currentDialogId = wxsDialogs.SelectedItems[0].Text;
+            ShowWixDialog(GetDialogNode(currentDialogId));
+        }
+
+        private void OnDialogSelectionChanged(XmlNode selectedItem)
+        {
             TreeNode node = FindTreeNode(selectedItem, dialogTreeView.Nodes);
             if (node != null) {
                 dialogTreeView.SelectedNode = node;
@@ -1077,6 +1116,7 @@ namespace WixEdit {
     
                 if (currentDialog != null) {
                     currentDialog.ItemChanged += new DesignerFormItemHandler(OnDialogItemChanged);
+                    currentDialog.ItemDeleted += new DesignerFormItemHandler(OnDialogItemDeleted);
                     currentDialog.SelectionChanged += new DesignerFormItemHandler(OnDialogSelectionChanged);
 
                     currentDialog.Left = prevLeft;
@@ -1084,7 +1124,10 @@ namespace WixEdit {
         
                     currentDialog.Opacity = GetOpacity();
                     currentDialog.TopMost = AlwaysOnTop.Checked;
-        
+
+                    currentDialog.NewControl += new DesignerFormNewItemHandler(EditDialog_NewControl);
+                    currentDialog.NewControls = controlTypes;
+
                     currentDialog.Show();
                 }
             }
@@ -1095,6 +1138,54 @@ namespace WixEdit {
             }
 
             wxsDialogs.Focus();
+        }
+
+        void EditDialog_NewControl(XmlNode item, Point position, string controlType)
+        {
+            // Get new name, and add control
+            EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter new Control name";
+            if (DialogResult.OK == frm.ShowDialog(this)){
+                WixFiles.UndoManager.BeginNewCommandRange();
+
+                XmlElement newControl = null;
+                XmlNode parentNode = item;
+
+                newControl = item.OwnerDocument.CreateElement("Control", WixFiles.WixNamespaceUri);
+                XmlAttribute newAttr = item.OwnerDocument.CreateAttribute("Type");
+                newAttr.Value = controlType;
+                newControl.Attributes.Append(newAttr);
+
+                ArrayList newElementStrings = WixFiles.GetXsdSubElements(controlType);
+                if (newElementStrings.Count > 0)
+                {
+                    newAttr = WixFiles.WxsDocument.CreateAttribute("Property");
+                    newAttr.Value = frm.SelectedString + "_Prop";
+                    newControl.Attributes.Append(newAttr);
+                }
+
+                XmlAttribute idAttr = item.OwnerDocument.CreateAttribute("Id");
+                idAttr.Value = frm.SelectedString;
+                newControl.Attributes.Append(idAttr);
+
+                SetDefaultValues(newControl, parentNode);
+                
+                newControl.SetAttribute("X", DialogGenerator.PixelsToDialogUnitsWidth(position.X).ToString());
+                newControl.SetAttribute("Y", DialogGenerator.PixelsToDialogUnitsHeight(position.Y).ToString());
+                
+                InsertNewXmlNode(parentNode, newControl);
+
+                TreeNode control = new TreeNode(frm.SelectedString);
+                control.Tag = newControl;
+                control.ImageIndex = 2;
+                control.SelectedImageIndex = 2;
+
+                dialogTreeView.Nodes[0].Nodes.Add(control);
+                dialogTreeView.SelectedNode = control;
+
+                ShowWixProperties(newControl);
+                ShowWixDialog(item);
+            }
         }
 
         private void ShowWixDialogTree(XmlNode dialog) {
@@ -1443,6 +1534,9 @@ namespace WixEdit {
             dialogTreeView.Nodes.Remove(dialogTreeView.SelectedNode);
 
             ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
+
+            string currentDialogId = wxsDialogs.SelectedItems[0].Text;
+            ShowWixDialog(GetDialogNode(currentDialogId));
         }
 
         private void InfoAboutCurrentElement_Click(object sender, EventArgs e) {

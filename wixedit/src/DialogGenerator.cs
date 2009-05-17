@@ -96,7 +96,7 @@ namespace WixEdit {
 
         int parentHwnd;
         public DesignerForm GenerateDialog(XmlNode dialog, Control parent) {
-            DesignerForm newDialog = new DesignerForm(wixFiles);
+            DesignerForm newDialog = new DesignerForm(wixFiles, dialog);
 
             parentHwnd = (int)parent.Handle;
 

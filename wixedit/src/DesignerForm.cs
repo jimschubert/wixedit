@@ -36,18 +36,65 @@ using WixEdit.Controls;
 
 namespace WixEdit {
     public delegate void DesignerFormItemHandler(XmlNode item);
+    public delegate void DesignerFormNewItemHandler(XmlNode item, Point position, string controlType);
 
     public class DesignerForm : Form {
         Hashtable controlMap;
         WixFiles wixFiles;
+        XmlNode dialogElement;
         string selectedNodeId;
 
         public event DesignerFormItemHandler ItemChanged;
+        public event DesignerFormItemHandler ItemDeleted;
         public event DesignerFormItemHandler SelectionChanged;
+        public event DesignerFormNewItemHandler NewControl;
 
-        public DesignerForm(WixFiles wixFiles) {
+
+        public DesignerForm(WixFiles wixFiles, XmlNode dialog) {
+            dialogElement = dialog;
             controlMap = new Hashtable();
             this.wixFiles = wixFiles;
+            this.MouseClick += new MouseEventHandler(DesignerForm_MouseClick);
+        }
+
+        string[] newControls;
+        ContextMenu newContextMenu;
+        IconMenuItem newControlElementMenu;
+
+        public string[] NewControls
+        {
+            set
+            {
+                newControls = value;
+                newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("elements.control.bmp")));
+
+                foreach (string controlType in newControls)
+                {
+                    MenuItem menuItem = new MenuItem(controlType);
+                    menuItem.Click += new EventHandler(NewControlElement_Click);
+                    newControlElementMenu.MenuItems.Add(menuItem);
+                }
+
+                newContextMenu = new ContextMenu(new MenuItem[] { newControlElementMenu });
+            }
+        }
+
+        Point contextMenuClickPosition;
+
+        void DesignerForm_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                contextMenuClickPosition = e.Location;
+                newContextMenu.Show(this, contextMenuClickPosition);
+            }
+        }
+
+        private void NewControlElement_Click(object sender, EventArgs e) {
+            if (NewControl != null) {
+                MenuItem item = sender as MenuItem;
+                NewControl(dialogElement, contextMenuClickPosition, item.Text);
+            }
         }
 
         public XmlNode SelectedNode {
@@ -92,6 +139,7 @@ namespace WixEdit {
             Controls.Add(overlay);
 
             overlay.ItemChanged += new SelectionOverlayItemHandler(OnItemChanged);
+            overlay.ItemDeleted += new SelectionOverlayItemHandler(OnItemDeleted);
             overlay.SelectionChanged += new SelectionOverlayItemHandler(OnSelectionChanged);
 
             String nodeId = controlDefinition.Attributes["Id"].Value;
@@ -104,6 +152,16 @@ namespace WixEdit {
         private void OnItemChanged(XmlNode item) {
             if (ItemChanged != null) {
                 ItemChanged(item);
+            }
+        }
+
+        /// <summary>
+        /// EventHandler for when a SelectionOverlay object is deleted
+        /// </summary>
+        private void OnItemDeleted(XmlNode item)
+        {
+            if (ItemDeleted != null) {
+                ItemDeleted(item);
             }
         }
 
