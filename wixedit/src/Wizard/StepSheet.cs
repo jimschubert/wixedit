@@ -5,12 +5,13 @@ using System.Xml;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using WixEdit.Controls;
 
 namespace WixEdit.Wizard
 {
     class StepSheet : BaseSheet
     {
-        ErrorProvider errorProvider;
+        ErrorProviderFixed errorProvider;
         Label titleLabel;
         Label descriptionLabel;
         Label lineLabel;
@@ -23,8 +24,9 @@ namespace WixEdit.Wizard
             this.stepElement = step;
             this.AutoScroll = true;
 
-            errorProvider = new ErrorProvider();
+            errorProvider = new ErrorProviderFixed();
             errorProvider.ContainerControl = this;
+            errorProvider.AutoPopDelay = 20000;
             errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             Bitmap b = new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp"));
             errorProvider.Icon = Icon.FromHandle(b.GetHicon());

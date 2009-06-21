@@ -6,7 +6,6 @@ xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
     	<Title>Configure default website</Title>
     	<Description>Specify the properties of the XML file modification you want to make.</Description>
     	<TemplatePart SelectionTarget="//wix:Directory|//wix:DirectoryRef">
-    		<!-- Web site is only created if it doesn't already exist -->
                 <wix:Component Id="C_ConfigFile" Guid="{00000000-0000-0000-0000-000000000000}">
                    <util:XmlFile Id="ModifyXmlFile" 
                                  Action="setValue"
