@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Language="1033" Id="878DBBDE-8551-4151-811A-686A7E4BD66B" Name="UISample" Manufacturer="Microsoft Corporation" Version="0.0.0.0">
-    <Package Id="878DBBDE-8551-4151-811A-686A7E4BD66A" Keywords="Installer,MSI,Database" Description="Put Product Name here" Comments="Contact:  Your local administrator" Manufacturer="Microsoft Corporation" InstallerVersion="100" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+  <Product Language="1033" Id="878DBBDE-8551-4151-811A-686A7E4BD66B" Name="UISample" Manufacturer="Microsoft Corporation" Version="0.0.0.0" UpgradeCode="CAB45634-9010-4B36-A9BB-4D4F976F96FA">
+    <Package Keywords="Installer,MSI,Database" Description="Put Product Name here" Comments="Contact:  Your local administrator" Manufacturer="Microsoft Corporation" InstallerVersion="100" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
     <UI>
       <Property Id="ErrorDialog"><![CDATA[ErrorDlg]]></Property>
       <Property Id="DefaultUIFont"><![CDATA[DlgFont8]]></Property>
@@ -1062,7 +1062,6 @@
     <Property Id="RemoveIcon"><![CDATA[removico]]></Property>
     <Property Id="ButtonText_Yes"><![CDATA[&Yes]]></Property>
     <Property Id="ButtonText_Ignore"><![CDATA[&Ignore]]></Property>
-    <Property Id="ProductID"><![CDATA[none]]></Property>
     <Property Id="ButtonText_Reset"><![CDATA[&Reset]]></Property>
     <Property Id="ButtonText_Remove"><![CDATA[&Remove]]></Property>
     <Property Id="ShowUserRegistrationDlg"><![CDATA[1]]></Property>
@@ -1089,16 +1088,16 @@
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
-    <Binary Id="bannrbmp" src="Binary\bannrbmp.ibd" />
-    <Binary Id="completi" src="Binary\completi.ibd" />
-    <Binary Id="custicon" src="Binary\custicon.ibd" />
-    <Binary Id="dlgbmp" src="Binary\dlgbmp.ibd" />
-    <Binary Id="exclamic" src="Binary\exclamic.ibd" />
-    <Binary Id="info" src="Binary\info.ibd" />
-    <Binary Id="insticon" src="Binary\insticon.ibd" />
-    <Binary Id="New" src="Binary\New.ibd" />
-    <Binary Id="removico" src="Binary\removico.ibd" />
-    <Binary Id="repairic" src="Binary\repairic.ibd" />
-    <Binary Id="Up" src="Binary\Up.ibd" />
+    <Binary Id="bannrbmp" SourceFile="Binary\bannrbmp.ibd" />
+    <Binary Id="completi" SourceFile="Binary\completi.ibd" />
+    <Binary Id="custicon" SourceFile="Binary\custicon.ibd" />
+    <Binary Id="dlgbmp" SourceFile="Binary\dlgbmp.ibd" />
+    <Binary Id="exclamic" SourceFile="Binary\exclamic.ibd" />
+    <Binary Id="info" SourceFile="Binary\info.ibd" />
+    <Binary Id="insticon" SourceFile="Binary\insticon.ibd" />
+    <Binary Id="New" SourceFile="Binary\New.ibd" />
+    <Binary Id="removico" SourceFile="Binary\removico.ibd" />
+    <Binary Id="repairic" SourceFile="Binary\repairic.ibd" />
+    <Binary Id="Up" SourceFile="Binary\Up.ibd" />
   </Product>
 </Wix>
