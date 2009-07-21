@@ -113,18 +113,12 @@ namespace WixEdit.PropertyGridExtensions {
                     ((XmlAttribute) xmlElement).Value = "";
                 }
             } else { // Is inner text
-                //if (showInnerTextIfEmpty)
-                //{
-                //    xmlElement.RemoveChild(xmlElement.FirstChild);
-                //}
-                //else 
                 if (xmlElement.ChildNodes.Count > 0)
                 {
                     xmlElement.RemoveChild(xmlElement.FirstChild);
                 }
             }
         }
-
 
         public XmlNode XmlNode {
             get { 

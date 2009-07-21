@@ -970,7 +970,8 @@ namespace WixEdit {
 
             SelectStringForm frm = new SelectStringForm();
             frm.PossibleStrings = attributes.ToArray(typeof(String)) as String[];
-            if (DialogResult.OK != frm.ShowDialog()) {
+            if (DialogResult.OK != frm.ShowDialog() || frm.SelectedStrings.Length == 0)
+            {
                 return;
             }
 

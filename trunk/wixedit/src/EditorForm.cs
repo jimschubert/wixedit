@@ -672,6 +672,7 @@ namespace WixEdit {
         private void fileMenu_Popup(object sender, System.EventArgs e) {
             bool xsdPresent = WixFiles.CheckForXsd();
             fileNew.Enabled = xsdPresent;
+            fileWizard.Enabled = xsdPresent;
             fileLoad.Enabled = xsdPresent;
             fileRecent.Enabled = xsdPresent;
 
