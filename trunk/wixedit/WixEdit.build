@@ -38,7 +38,7 @@
 
     <property name="project.output" value="${project.build}\${project::get-name()}.exe"/>
 
-    <property name="project.wix" value="${project::get-base-directory()}\wix-3.0.4805.0"/>
+    <property name="project.wix" value="${project::get-base-directory()}\wix-3.0.5419.0"/>
 
     <target name="all" depends="clean,build" />
 
