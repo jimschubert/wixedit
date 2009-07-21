@@ -190,17 +190,17 @@
               </Component>
             </Directory>
             <Directory Id="Add_Startmenu_Shortcut" Name="Add Startmenu Shortcut">
-              <Component Id="Add_Startmenu_Shortcut" DiskId="1" Guid="50D0B592-784C-4C5D-9ADE-F69660ACE3E9">
+              <Component Id="Templates.Add_Startmenu_Shortcut" DiskId="1" Guid="50D0B592-784C-4C5D-9ADE-F69660ACE3E9">
                 <File Id="template.xml_2" Name="template.xml" Source="..\wizard\Add Startmenu Shortcut\template.xml" />
               </Component>
             </Directory>
             <Directory Id="Add_Userinterface" Name="Add Userinterface">
-              <Component Id="Add_Userinterface" DiskId="1" Guid="833F6FC4-8A1E-43AC-BC20-C7BE18A8B69A">
+              <Component Id="Templates.Add_Userinterface" DiskId="1" Guid="833F6FC4-8A1E-43AC-BC20-C7BE18A8B69A">
                 <File Id="template.xml_3" Name="template.xml" Source="..\wizard\Add Userinterface\template.xml" />
               </Component>
             </Directory>
             <Directory Id="Add_Desktop_Shortcut" Name="Add Desktop Shortcut">
-              <Component Id="Add_Desktop_Shortcut" DiskId="1" Guid="3E0983B5-771F-403F-9FB7-84BDBCE12026">
+              <Component Id="Templates.Add_Desktop_Shortcut" DiskId="1" Guid="3E0983B5-771F-403F-9FB7-84BDBCE12026">
                 <File Id="template.xml_4" Name="template.xml" Source="..\wizard\Add Desktop Shortcut\template.xml" />
               </Component>
             </Directory>
@@ -227,6 +227,9 @@
         <ComponentRef Id="Templates.UISample.Binary" />
         <ComponentRef Id="Templates.Create_Virtual_Directory" />
         <ComponentRef Id="Templates.Edit_XML_file" />
+        <ComponentRef Id="Templates.Add_Startmenu_Shortcut" />
+        <ComponentRef Id="Templates.Add_Userinterface" />
+        <ComponentRef Id="Templates.Add_Desktop_Shortcut" />
       </Feature>
       <Feature Id="WixBinariesFeature.3.0" Level="1" Title="Wix 3.0.4805.0" Description="The Wix 3.0 binaries." AllowAdvertise="no">
         <ComponentRef Id="wix_3.0.4805.0" />
