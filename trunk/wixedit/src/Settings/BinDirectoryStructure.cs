@@ -105,7 +105,14 @@ namespace WixEdit.Settings {
                     if (wixEditData.BinDirectory == null || wixEditData.BinDirectory.Length == 0) {
                         return String.Empty;
                     }
-                    return Path.Combine(wixEditData.BinDirectory, "doc");
+                    DirectoryInfo retSubOfBin = new DirectoryInfo(Path.Combine(wixEditData.BinDirectory, "doc"));
+                    DirectoryInfo retEqualAtBin = new DirectoryInfo(Path.Combine(retSubOfBin.Parent.Parent.FullName, "doc"));
+                    string ret = retSubOfBin.FullName;
+                    if (retEqualAtBin.Exists) {
+                        ret = retEqualAtBin.FullName;
+                    }
+
+                    return ret;
                 } else {
                     return wixEditData.XsdsLocation;
                 }
