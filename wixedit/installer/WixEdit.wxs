@@ -86,8 +86,8 @@
               </Directory>
             </Directory>
           </Directory>
-          <Directory Id="wix_3.0.4805.0" Name="wix-3.0.5419.0">
-            <Component Id="wix_3.0.4805.0" DiskId="1" Guid="65A742CC-FFEB-4F98-A2AB-D07D54E55270">
+          <Directory Id="wix_3.0.5419.0" Name="wix-3.0.5419.0">
+            <Component Id="wix_3.0.5419.0" DiskId="1" Guid="65A742CC-FFEB-4F98-A2AB-D07D54E55270">
               <File Id="BlankFile.zip" Name="BlankFile.zip" Source="..\wix-3.0.5419.0\BlankFile.zip" />
               <File Id="candle.exe" Name="candle.exe" Source="..\wix-3.0.5419.0\candle.exe" />
               <File Id="candle.exe.config" Name="candle.exe.config" Source="..\wix-3.0.5419.0\candle.exe.config" />
@@ -231,8 +231,8 @@
         <ComponentRef Id="Templates.Add_Userinterface" />
         <ComponentRef Id="Templates.Add_Desktop_Shortcut" />
       </Feature>
-      <Feature Id="WixBinariesFeature.3.0" Level="1" Title="Wix 3.0.4805.0" Description="The Wix 3.0 binaries." AllowAdvertise="no">
-        <ComponentRef Id="wix_3.0.4805.0" />
+      <Feature Id="WixBinariesFeature.3.0" Level="1" Title="Wix 3.0.5419.0" Description="The Wix 3.0 binaries." AllowAdvertise="no">
+        <ComponentRef Id="wix_3.0.5419.0" />
         <ComponentRef Id="wix_doc" />
       </Feature>
     </Feature>

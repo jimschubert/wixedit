@@ -101,6 +101,11 @@
                 <include name="sample/DarkSample/*" />
                 <include name="sample/SimpleSample/*" />
                 <include name="templates/UISample/**/*" />
+                <include name="wizard/Add Desktop Shortcut/*" />
+                <include name="wizard/Add Startmenu Shortcut/*" />
+                <include name="wizard/Add Userinterface/*" />
+                <include name="wizard/Create Virtual Directory/*" />
+                <include name="wizard/Edit XML file/*" />
                 <exclude name="**/CVS/" />
             </fileset>
         </zip>
@@ -114,6 +119,11 @@
                 <include name="sample/DarkSample/*" />
                 <include name="sample/SimpleSample/*" />
                 <include name="templates/UISample/**/*" />
+                <include name="wizard/Add Desktop Shortcut/*" />
+                <include name="wizard/Add Startmenu Shortcut/*" />
+                <include name="wizard/Add Userinterface/*" />
+                <include name="wizard/Create Virtual Directory/*" />
+                <include name="wizard/Edit XML file/*" />
                 <include name="*.build" />
                 <include name="WixEdit.csproj" />
                 <exclude name="**/CVS/" />
@@ -170,6 +180,11 @@
                   <include name="sample/DarkSample/*" />
                   <include name="sample/SimpleSample/*" />
                   <include name="templates/UISample/**/*" />
+                  <include name="wizard/Add Desktop Shortcut/*" />
+                  <include name="wizard/Add Startmenu Shortcut/*" />
+                  <include name="wizard/Add Userinterface/*" />
+                  <include name="wizard/Create Virtual Directory/*" />
+                  <include name="wizard/Edit XML file/*" />
                   <include name="*.build" />
                   <include name="WixEdit.csproj" />
                   <exclude name="**/CVS/" />

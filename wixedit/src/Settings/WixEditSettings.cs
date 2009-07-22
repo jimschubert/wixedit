@@ -87,6 +87,38 @@ namespace WixEdit.Settings {
                     XsdsLocation = oldVersion.XsdsLocation;
                 }
 
+                // Some magic to deal with a new WixEdit installation including a newer WiX version...
+                if (!String.IsNullOrEmpty(BinDirectory) &&
+                    (String.IsNullOrEmpty(DarkLocation) && String.IsNullOrEmpty(CandleLocation) && String.IsNullOrEmpty(LightLocation) && String.IsNullOrEmpty(XsdsLocation)))
+                {
+                    if (!Directory.Exists(BinDirectory))
+                    {
+                        DirectoryInfo oldBinDirectory = new DirectoryInfo(BinDirectory);
+                        if (oldBinDirectory.Parent != null)
+                        {
+                            FileInfo[] files = oldBinDirectory.Parent.GetFiles("candle.exe", SearchOption.AllDirectories);
+                            if (files.Length == 0 && oldBinDirectory.Parent.Parent != null)
+                            {
+                                files = oldBinDirectory.Parent.Parent.GetFiles("candle.exe", SearchOption.AllDirectories);
+                            }
+
+                            if (files.Length == 1)
+                            {
+                                BinDirectory = files[0].Directory.FullName;
+                            } else if (files.Length > 1)
+                            {
+                                ArrayList directoryList = new ArrayList();
+                                foreach (FileInfo file in files) {
+                                    directoryList.Add(file.Directory.FullName);
+                                }
+                                directoryList.Sort();
+
+                                BinDirectory = (string)directoryList[directoryList.Count - 1];
+                            }
+                        }
+                    }
+                }
+
                 TemplateDirectory = oldVersion.TemplateDirectory;
                 DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
                 UseRelativeOrAbsolutePaths = oldVersion.UseRelativeOrAbsolutePaths;
