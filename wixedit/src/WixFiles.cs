@@ -779,6 +779,7 @@ namespace WixEdit {
             {
                 wxsWatcher.EnableRaisingEvents = false;
                 wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
+                wxsWatcher = null;
             }
 
             Save();
@@ -796,7 +797,10 @@ namespace WixEdit {
                 return;
             }
 
-            wxsWatcher.EnableRaisingEvents = false;
+            if (wxsWatcher != null)
+            {
+                wxsWatcher.EnableRaisingEvents = false;
+            }
 
             UndoManager.DeregisterHandlers();
 
@@ -874,7 +878,10 @@ namespace WixEdit {
                 wxsDocument.RemoveChild(commentElement);
             }
 
-            wxsWatcher.EnableRaisingEvents = true;
+            if (wxsWatcher != null)
+            {
+                wxsWatcher.EnableRaisingEvents = true;
+            }
 
             undoManager.DocumentIsSaved();
             UndoManager.RegisterHandlers();
