@@ -266,7 +266,13 @@ namespace WixEdit {
                 
                 XmlNode propertyNode = wixFiles.WxsDocument.SelectSingleNode(String.Format("//wix:Property[@Id='{0}']", propName), wixFiles.WxsNsmgr);
                 if (propertyNode != null) {
-                    value = value.Replace(String.Format("[{0}]", propName), propertyNode.InnerText);
+                    string propertyValue = String.Empty;
+                    if (propertyNode.Attributes["Value"] != null) {
+                        propertyValue = propertyNode.Attributes["Value"].Value;
+                    } else {
+                        propertyValue = propertyNode.InnerText;
+                    }
+                    value = value.Replace(String.Format("[{0}]", propName), propertyValue);
                 } else {
                     string specialProp = GetSpecialWixProperty(propName);
                     if (specialProp != String.Empty) {
@@ -802,7 +808,13 @@ namespace WixEdit {
             } else {
                 XmlNode text = textElement.SelectSingleNode("wix:"+propertyToGet, wixFiles.WxsNsmgr);
                 if (text != null) {
-                    textValue = ExpandWixProperties(text.InnerText);
+                    if (text.Attributes["Value"] != null) {
+                        textValue = text.Attributes["Value"].Value;
+                    } else {
+                        textValue = text.InnerText;
+                    }
+
+                    textValue = ExpandWixProperties(textValue);
                 }
             }
 
