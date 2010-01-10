@@ -124,64 +124,6 @@ namespace WixEdit {
             g.DrawLine(Pens.Black, 10, 8, 10, 11);
 
             return bmp;
-
-            //typeBmp.SetPixel(5, 14, Color.Black);
-            //typeBmp.SetPixel(15, 14, Color.Black);
-            //for (int i = 6; i <= 14; i++) {
-            //    typeBmp.SetPixel(i, 14, Color.Yellow);
-            //}
-
-            //typeBmp.SetPixel(6, 13, Color.Black);
-            //typeBmp.SetPixel(14, 13, Color.Black);
-            //for (int i = 7; i <= 13; i++) {
-            //    typeBmp.SetPixel(i, 13, Color.Yellow);
-            //}
-            //typeBmp.SetPixel(10, 13, Color.Black);
-            
-            //typeBmp.SetPixel(6, 12, Color.Black);
-            //typeBmp.SetPixel(14, 12, Color.Black);
-            //for (int i = 7; i <= 13; i++) {
-            //    typeBmp.SetPixel(i, 12, Color.Yellow);
-            //}
-
-            
-            //typeBmp.SetPixel(7, 11, Color.Black);
-            //typeBmp.SetPixel(13, 11, Color.Black);
-            //for (int i = 8; i <= 12; i++) {
-            //    typeBmp.SetPixel(i, 11, Color.Yellow);
-            //}
-            //typeBmp.SetPixel(10, 11, Color.Black);
-
-            //typeBmp.SetPixel(7, 10, Color.Black);
-            //typeBmp.SetPixel(13, 10, Color.Black);
-            //for (int i = 8; i <= 12; i++) {
-            //    typeBmp.SetPixel(i, 10, Color.Yellow);
-            //}
-            //typeBmp.SetPixel(10, 10, Color.Black);
-
-            //typeBmp.SetPixel(8, 9, Color.Black);
-            //typeBmp.SetPixel(12, 9, Color.Black);
-            //for (int i = 9; i <= 11; i++) {
-            //    typeBmp.SetPixel(i, 9, Color.Yellow);
-            //}
-            //typeBmp.SetPixel(10, 9, Color.Black);
-            
-            //typeBmp.SetPixel(8, 8, Color.Black);
-            //typeBmp.SetPixel(12, 8, Color.Black);
-            //for (int i = 9; i <= 11; i++) {
-            //    typeBmp.SetPixel(i, 8, Color.Yellow);
-            //}
-
-            //typeBmp.SetPixel(9, 7, Color.Black);
-            //typeBmp.SetPixel(10, 7, Color.Yellow);
-            //typeBmp.SetPixel(11, 7, Color.Black);
-
-            //typeBmp.SetPixel(9, 6, Color.Black);
-            //typeBmp.SetPixel(10, 6, Color.Yellow);
-            //typeBmp.SetPixel(11, 6, Color.Black);
-
-            //typeBmp.SetPixel(10, 5, Color.Black);
-
         }
 
         public static ImageList GetImageList()

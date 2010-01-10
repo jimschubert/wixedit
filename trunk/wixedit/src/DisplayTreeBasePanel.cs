@@ -39,13 +39,34 @@ namespace WixEdit {
         protected ContextMenu panelContextMenu;
         private Panel panel1;
         private Splitter splitter1;
+        private bool _expandTreeAtStart = true;
 
-        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName) : base(wixFiles, xpath, elementName, keyName) {
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName, bool expandTreeAtStart) : base(wixFiles, xpath, elementName, keyName) {
+            InitializeComponent();
+            CreateControl();
+
+            _expandTreeAtStart = expandTreeAtStart;
+        }
+
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName, bool expandTreeAtStart)
+            : base(wixFiles, xpath, keyName)
+        {
+            InitializeComponent();
+            CreateControl();
+
+            _expandTreeAtStart = expandTreeAtStart;
+        }
+
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName)
+            : base(wixFiles, xpath, elementName, keyName)
+        {
             InitializeComponent();
             CreateControl();
         }
 
-        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName) : base(wixFiles, xpath, keyName) {
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName)
+            : base(wixFiles, xpath, keyName)
+        {
             InitializeComponent();
             CreateControl();
         }
@@ -481,6 +502,7 @@ namespace WixEdit {
                     case "Directory":
                     case "DirectoryRef":
                     case "File":
+                    case "Shortcut":
                         XmlAttribute nameAtt = element.Attributes["LongName"];
                         if (nameAtt == null) {
                             nameAtt = element.Attributes["Name"];
@@ -732,7 +754,10 @@ namespace WixEdit {
                 AddTreeNodesRecursive(file, currTreeView.Nodes);
             }
 
-            currTreeView.ExpandAll();
+            if (_expandTreeAtStart)
+            {
+                currTreeView.ExpandAll();
+            }
 
             if (currTreeView.Nodes.Count > 0) {
                 currTreeView.SelectedNode = currTreeView.Nodes[0];

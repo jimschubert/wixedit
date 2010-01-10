@@ -83,6 +83,7 @@ namespace WixEdit {
         protected IconMenuItem editFind;
         protected IconMenuItem editFindNext;
         protected IconMenuItem editFindPrev;
+        protected IconMenuItem editWizard;
         protected IconMenuItem toolsMenu;
         protected IconMenuItem toolsExternal;
         protected IconMenuItem toolsOptions;
@@ -254,6 +255,7 @@ namespace WixEdit {
             editFind = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.find.bmp")));
             editFindNext = new IconMenuItem();
             editFindPrev = new IconMenuItem();
+            editWizard = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.wizard.bmp")));
 
             if (wixFiles == null ||
                 WixEditSettings.Instance.ExternalXmlEditor == null ||
@@ -289,6 +291,10 @@ namespace WixEdit {
             editFindPrev.Shortcut = Shortcut.ShiftF3;
             editFindPrev.ShowShortcut = true;
 
+            editWizard.Text = "Add features with Wizard";
+            editWizard.Click += new EventHandler(editWizard_Click);
+            editWizard.ShowShortcut = true;
+
             editMenu.Text = "&Edit";
             editMenu.Popup += new EventHandler(editMenu_Popup);
             editMenu.MenuItems.Add(0, editUndo);
@@ -297,6 +303,7 @@ namespace WixEdit {
             editMenu.MenuItems.Add(3, editFind);
             editMenu.MenuItems.Add(4, editFindNext);
             editMenu.MenuItems.Add(5, editFindPrev);
+            editMenu.MenuItems.Add(6, editWizard);
 
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -527,6 +534,15 @@ namespace WixEdit {
             }
 
             ReloadAll();
+        }
+
+        private void EditWizard()
+        {
+            Wizard.WizardForm frm = new WixEdit.Wizard.WizardForm(wixFiles);
+            if (frm.ShowDialog() == DialogResult.OK)
+            {
+                ReloadAll();
+            }
         }
 
         private void fileLoad_Click(object sender, System.EventArgs e) {
@@ -766,6 +782,7 @@ namespace WixEdit {
             editFind.Enabled = (wixFiles != null && searchPanel.IsBusy == false);
             editFindNext.Enabled = (wixFiles != null && searchPanel.HasResultSelected);
             editFindPrev.Enabled = (wixFiles != null && searchPanel.HasResultSelected);
+            editWizard.Enabled = (wixFiles != null);
         }
 
         private void toolsMenu_Popup(object sender, System.EventArgs e) {
@@ -906,6 +923,12 @@ namespace WixEdit {
                 ShowSearchPanel();
                 searchPanel.FindPrev();
             }
+        }
+
+
+        private void editWizard_Click(object sender, System.EventArgs e)
+        {
+            EditWizard();
         }
 
         private void toolsExternal_Click(object sender, System.EventArgs e)
