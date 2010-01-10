@@ -30,6 +30,7 @@ using System.Windows.Forms;
 
 using WixEdit.Import;
 using WixEdit.Server;
+using WixEdit.Controls;
 
 namespace WixEdit {
     /// <summary>
@@ -38,7 +39,7 @@ namespace WixEdit {
     public class EditFilesPanel : DisplayTreeBasePanel {          
         private TreeNode oldNode = null;
         
-        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Directory|/wix:Wix/*/wix:DirectoryRef", "Id") {
+        public EditFilesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Directory|/wix:Wix/*/wix:DirectoryRef", "Id", false) {
 
             LoadData();
 
@@ -183,6 +184,7 @@ namespace WixEdit {
             ofd.Filter = "All files (*.*)|*.*|Registration Files (*.reg)|*.REG" ;
             ofd.RestoreDirectory = true ;
             ofd.Multiselect = true;
+            ofd.DereferenceLinks = false;
             
             if (ofd.ShowDialog() == DialogResult.OK) {
                 string[] files = ofd.FileNames;
@@ -195,7 +197,7 @@ namespace WixEdit {
             TreeNode aNode = CurrentTreeView.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
-            FolderBrowserDialog  ofd = new FolderBrowserDialog ();
+            FolderSelectDialog ofd = new FolderSelectDialog();
             ofd.Description = "Select folder to import";
             ofd.ShowNewFolderButton = false;
             if (ofd.ShowDialog() == DialogResult.OK) {

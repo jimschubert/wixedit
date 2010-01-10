@@ -162,11 +162,10 @@ namespace WixEdit.Wizard
 
         protected void AddTreeNodesRecursive(XmlNode file, TreeNodeCollection nodes)
         {
-            //if (file.Name.StartsWith("#") ||
-            //    SkipElements.Contains(file.Name))
-            //{
-            //    return;
-            //}
+            if (file.Name.StartsWith("#"))
+            {
+                return;
+            }
 
             TreeNode node = new TreeNode(GetDisplayName(file));
             node.Tag = file;

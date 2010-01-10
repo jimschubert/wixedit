@@ -24,7 +24,9 @@
           </Component>
           <Directory Id="Binaries" Name="binaries">
             <Component Id="Binaries" DiskId="1" KeyPath="yes" Guid="89962590-24E4-4E05-BA3F-2C98866D54BC">
-              <File Id="WixEditExe" Name="WixEdit.exe" Source="..\build\WixEdit.exe" />
+              <File Id="WixEditExe" Name="WixEdit.exe" Source="..\build\WixEdit.exe">
+                <Shortcut Id="startmenuShortcut" Directory="ProgramMenuDir" Name="WixEdit" WorkingDirectory="INSTALLDIR" />
+              </File>
               <!-- Include pdb so error reporting shows line numbers. -->
               <File Id="pdb" Name="WixEdit.pdb" Source="..\build\WixEdit.pdb" />
               <File Id="AxSHDocVw.dll" Name="AxSHDocVw.dll" Source="..\build\AxSHDocVw.dll" />
@@ -206,6 +208,9 @@
             </Directory>
           </Directory>
         </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" Name="ProgramsMenu">
+        <Directory Id="ProgramMenuDir" Name="WixEdit" />
       </Directory>
     </Directory>
     <Feature Id="WixEditFeature" Level="1" Title="WixEdit" ConfigurableDirectory="INSTALLDIR" Absent="disallow" Description="The complete WixEdit program including source and samples." AllowAdvertise="no" Display="expand">

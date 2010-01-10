@@ -31,7 +31,7 @@ namespace WixEdit {
     /// Panel to edit features.
     /// </summary>
     public class EditFeaturesPanel : DisplayTreeBasePanel {
-        public EditFeaturesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Feature", "Feature", "Id") {
+        public EditFeaturesPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix/*/wix:Feature", "Feature", "Id", false) {
             LoadData();
 		}
 
