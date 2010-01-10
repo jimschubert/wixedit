@@ -228,10 +228,6 @@
     <EmbeddedResource Include="res\viewWixXml.xsl" />
     <EmbeddedResource Include="res\elements\registrykey.bmp" />
     <EmbeddedResource Include="res\elements\registryvalue.bmp" />
-    <EmbeddedResource Include="src\Controls\FolderSelectDialog.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>FolderSelectDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="src\Wizard\BaseSheet.resx">
       <SubType>Designer</SubType>
       <DependentUpon>BaseSheet.cs</DependentUpon>
