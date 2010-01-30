@@ -140,17 +140,21 @@ namespace WixEdit.Wizard
                 currentSheetIndex++;
                 if (currentSheetIndex == sheets.Count)
                 {
+                    endSheet.OnShow();
                     endSheet.Visible = true;
                     nextButton.Text = "Finish";
                     cancelButton.Enabled = false;
                 }
                 else
                 {
+                    sheets[currentSheetIndex].OnShow();
                     sheets[currentSheetIndex].Visible = true;
                 }
 
                 backButton.Enabled = true;
             }
+
+            nextButton.Focus();
         }
 
         private void backButton_Click(object sender, EventArgs e)

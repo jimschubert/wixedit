@@ -36,6 +36,9 @@ using WixEdit.Controls;
 using WixEdit.Settings;
 
 namespace WixEdit {
+    /// <summary>
+    /// TODO: Add billboards, but how?
+    /// </summary>
     public class DialogGenerator {
         private Hashtable definedFonts;
         private WixFiles wixFiles;
@@ -707,6 +710,28 @@ namespace WixEdit {
 
             if (pictureCtrl != null) {
                 pictureCtrl.Draw();
+            }
+        }
+
+        private void AddHyperlinks(DesignerForm newDialog, XmlNodeList hyperlinks)
+        {
+            foreach (XmlNode hyperlink in hyperlinks)
+            {
+                try
+                {
+                    Label label = new Label();
+                    SetControlAttributes(label, hyperlink);
+                    SetText(label, hyperlink);
+
+                    label.BackColor = Color.Transparent;
+                    label.ForeColor = Color.Blue;
+                    label.Font = new Font(label.Font, FontStyle.Underline);
+
+                    newDialog.AddControl(hyperlink, label);
+                }
+                catch
+                {
+                }
             }
         }
 

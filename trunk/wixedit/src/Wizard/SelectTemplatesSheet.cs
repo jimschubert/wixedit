@@ -90,7 +90,21 @@ namespace WixEdit.Wizard
                 {
                     if (file.Directory.Parent.FullName == templateDir.FullName)
                     {
-                        ListViewItem item = new ListViewItem(file.Directory.Name);
+                        string title = file.Directory.Name;
+
+                        XmlDocument doc = new XmlDocument();
+                        XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+
+                        doc.Load(file.FullName);
+                        XmlElement template = (XmlElement)doc.SelectSingleNode("/Template");
+                        string tempTitle = template.GetAttribute("Title");
+
+                        if (!String.IsNullOrEmpty(tempTitle))
+                        {
+                            title = tempTitle;
+                        }
+
+                        ListViewItem item = new ListViewItem(title);
                         item.Tag = file.FullName;
 
                         listView.Items.Add(item);

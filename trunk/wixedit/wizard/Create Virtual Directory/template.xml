@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Template Title="Add a virtual directory to IIS" Description="This helps you to create a simple virtual directory in IIS."
+<Template Title="Virtual directory in IIS" Description="This helps you to create a simple virtual directory in IIS."
 xmlns:iis="http://schemas.microsoft.com/wix/IIsExtension"
 xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
     <Step Sequence="1">
