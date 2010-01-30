@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Template Title="Add userinterface" Description="This helps you to add a userinterface to the installer."
+<Template Title="Add Userinterface" Description="This helps you to add a userinterface to the installer."
 xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
     <Step Sequence="1">
     	<Title>Add a userinterface</Title>

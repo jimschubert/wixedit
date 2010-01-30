@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using WixEdit.Wizard;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Xml;
+using System.IO;
+using WixEdit.Controls;
 using WixEdit.Import;
 using WixEdit.Server;
-using System.IO;
 
 namespace WixEdit.Wizard
 {
@@ -414,7 +414,7 @@ namespace WixEdit.Wizard
             TreeNode aNode = tree.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
-            FolderBrowserDialog ofd = new FolderBrowserDialog();
+            FolderSelectDialog ofd = new FolderSelectDialog();
             ofd.Description = "Select folder to import";
             ofd.ShowNewFolderButton = false;
             if (ofd.ShowDialog() == DialogResult.OK)

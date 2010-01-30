@@ -37,6 +37,7 @@ using System.Reflection;
 using WixEdit.Controls;
 using WixEdit.PropertyGridExtensions;
 using WixEdit.Settings;
+using System.Collections.Generic;
 
 namespace WixEdit {
     /// <summary>
@@ -93,6 +94,9 @@ namespace WixEdit {
                                                  "Text",
                                                  "VolumeCostList",
                                                  "VolumeSelectCombo" };
+
+        Dictionary<string, List<string>> controlTypeAttributeMap = new Dictionary<string, List<string>>();
+        
 
         public EditDialogPanel(WixFiles wixFiles) : base(wixFiles) {
             InitializeComponent();
@@ -644,8 +648,6 @@ namespace WixEdit {
                 }
             }
 
-
-
             MenuItem menuItemSeparator = new IconMenuItem("-");
 
             // Define the MenuItem objects to display for the TextBox.
@@ -944,10 +946,24 @@ namespace WixEdit {
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
 
             ArrayList attributes = new ArrayList();
+            
+            string typeAttributeValue = null;
+            XmlAttribute typeAttribute = attAdapter.XmlNode.Attributes["Type"];
+            if (typeAttribute != null)
+            {
+                typeAttributeValue = typeAttribute.Value;
+            }
+
 
             XmlNodeList xmlAttributes = attAdapter.XmlNodeDefinition.SelectNodes("xs:attribute", WixFiles.XsdNsmgr);
             foreach (XmlNode at in xmlAttributes) {
                 string attName = at.Attributes["name"].Value;
+                if (!String.IsNullOrEmpty(typeAttributeValue) &&
+                    !IsAttributeAllowedOnControlType(typeAttributeValue, attName))
+                {
+                    continue;
+                }
+
                 if (attAdapter.XmlNode.Attributes[attName] == null) {
                     attributes.Add(attName);
                 }
@@ -1322,6 +1338,13 @@ namespace WixEdit {
                     dialogTreeViewContextMenu.MenuItems.Add(newControlSubElementsMenu);
                     ArrayList newControlSubElementStrings = WixFiles.GetXsdSubElements(node.Name);
 
+                    string typeAttributeValue = null;
+                    XmlAttribute typeAttribute = node.Attributes["Type"];
+                    if (typeAttribute != null)
+                    {
+                        typeAttributeValue = typeAttribute.Value;
+                    }
+
                     foreach (string newControlSubElementString in newControlSubElementStrings)
                     {
                         // Do not show properties and binaries. 
@@ -1354,25 +1377,27 @@ namespace WixEdit {
                         newControlSubElementsMenu.MenuItems.Add(subMenuItem);
                     }
 
-                    ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Attributes["Type"].Value);
-
-                    if (newControlSubElementStrings.Count > 0 &&
-                        newElementStrings.Count > 0) {
-                            newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
-                    }
-
-                    bool isExtention = false;
-                    foreach (string newElementString in newElementStrings)
+                    if (typeAttributeValue != null)
                     {
-                        if (!isExtention && newElementString.Contains(":"))
-                        {
-                            newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
-                            isExtention = true;
+                        ArrayList newElementStrings = WixFiles.GetXsdSubElements(typeAttributeValue);
+                        if (newControlSubElementStrings.Count > 0 &&
+                            newElementStrings.Count > 0) {
+                                newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
                         }
 
-                        IconMenuItem subMenuItem = new IconMenuItem(newElementString);
-                        subMenuItem.Click += new EventHandler(NewControlElement_Click);
-                        newControlSubElementsMenu.MenuItems.Add(subMenuItem);
+                        bool isExtention = false;
+                        foreach (string newElementString in newElementStrings)
+                        {
+                            if (!isExtention && newElementString.Contains(":"))
+                            {
+                                newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
+                                isExtention = true;
+                            }
+
+                            IconMenuItem subMenuItem = new IconMenuItem(newElementString);
+                            subMenuItem.Click += new EventHandler(NewControlElement_Click);
+                            newControlSubElementsMenu.MenuItems.Add(subMenuItem);
+                        }
                     }
                     break;
                 default:
@@ -1390,6 +1415,48 @@ namespace WixEdit {
                 dialogTreeViewContextMenu.MenuItems.Add(new IconMenuItem("-"));
                 dialogTreeViewContextMenu.MenuItems.Add(infoAboutCurrentElementMenu);
             }
+        }
+
+        private bool IsAttributeAllowedOnControlType(string typeAttributeValue, string newAttributeString)
+        {
+            if (controlTypeAttributeMap.Count == 0)
+            {
+                controlTypeAttributeMap.Add("CheckBoxPropertyRef", new List<string>(new string[] { "CheckBox" }));
+                controlTypeAttributeMap.Add("CheckBoxValue", new List<string>(new string[] { "CheckBox" }));
+                controlTypeAttributeMap.Add("ComboList", new List<string>(new string[] { "ComboBox" }));
+                controlTypeAttributeMap.Add("Multiline", new List<string>(new string[] { "Edit" }));
+                controlTypeAttributeMap.Add("Password", new List<string>(new string[] { "Edit" }));
+                controlTypeAttributeMap.Add("Sorted", new List<string>(new string[] { "ListBox", "ListView", "ComboBox" }));
+                controlTypeAttributeMap.Add("ProgressBlocks", new List<string>(new string[] { "ProgressBar" }));
+                controlTypeAttributeMap.Add("ElevationShield", new List<string>(new string[] { "PushButton" }));
+                controlTypeAttributeMap.Add("PushLike", new List<string>(new string[] { "RadioButton Checkbox" }));
+                controlTypeAttributeMap.Add("Bitmap", new List<string>(new string[] { "RadioButton PushButton" }));
+                controlTypeAttributeMap.Add("Icon", new List<string>(new string[] { "RadioButton PushButton" }));
+                controlTypeAttributeMap.Add("HasBorder", new List<string>(new string[] { "RadioButton" }));
+                controlTypeAttributeMap.Add("FixedSize", new List<string>(new string[] { "RadioButton", "PushButton", "Icon" }));
+                controlTypeAttributeMap.Add("Image", new List<string>(new string[] { "RadioButton", "PushButton", "Icon" }));
+                controlTypeAttributeMap.Add("IconSize", new List<string>(new string[] { "RadioButton", "PushButton", "Icon" }));
+                controlTypeAttributeMap.Add("FormatSize", new List<string>(new string[] { "Text" }));
+                controlTypeAttributeMap.Add("NoPrefix", new List<string>(new string[] { "Text" }));
+                controlTypeAttributeMap.Add("NoWrap", new List<string>(new string[] { "Text" }));
+                controlTypeAttributeMap.Add("Transparent", new List<string>(new string[] { "Text" }));
+                controlTypeAttributeMap.Add("UserLanguage", new List<string>(new string[] { "Text" }));
+                controlTypeAttributeMap.Add("CDROM", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("Fixed", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("Floppy", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("RAMDisk", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("Remote", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("Removable", new List<string>(new string[] { "DirectoryCombo", "DirectoryList", "VolumeCostList", "VolumeSelectCombo" }));
+                controlTypeAttributeMap.Add("ShowRollbackCost", new List<string>(new string[] { "VolumeCostList" }));
+            }
+
+            if (controlTypeAttributeMap.ContainsKey(newAttributeString) &&
+                !controlTypeAttributeMap[newAttributeString].Contains(typeAttributeValue))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void OnPropertyDoubleClick(object sender, EventArgs e) {

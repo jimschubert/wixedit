@@ -126,31 +126,32 @@ namespace WixEdit.Import {
         }
 
         private void AddFiles(string[] files, TreeNode treeNode, XmlNode parentDirectoryElement, DirectoryInfo dirInfo) {
-            XmlElement newComponentElement = parentDirectoryElement.OwnerDocument.CreateElement("Component", WixFiles.WixNamespaceUri);
-
-            newComponentElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name, newComponentElement, wixFiles));
-            newComponentElement.SetAttribute("DiskId", "1");
-            newComponentElement.SetAttribute("Guid", Guid.NewGuid().ToString().ToUpper());
-
-            parentDirectoryElement.AppendChild(newComponentElement);
-
-            TreeNode newComponentNode = new TreeNode(newComponentElement.GetAttribute("Id"));
-            newComponentNode.Tag = newComponentElement;
-
-            int imageIndex = ImageListFactory.GetImageIndex("Component");
-            if (imageIndex >= 0) {
-                newComponentNode.ImageIndex = imageIndex;
-                newComponentNode.SelectedImageIndex = imageIndex;
-            }
-
-            treeNode.Nodes.Add(newComponentNode);
-
             foreach (string file in files) {
                 FileInfo fileInfo = new FileInfo(file);
 
                 if (NeedToIgnore(fileInfo.Name)) {
                     continue;
                 }
+
+                XmlElement newComponentElement = parentDirectoryElement.OwnerDocument.CreateElement("Component", WixFiles.WixNamespaceUri);
+
+                newComponentElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name, newComponentElement, wixFiles));
+                newComponentElement.SetAttribute("DiskId", "1");
+                newComponentElement.SetAttribute("Guid", Guid.NewGuid().ToString().ToUpper());
+
+                parentDirectoryElement.AppendChild(newComponentElement);
+
+                TreeNode newComponentNode = new TreeNode(newComponentElement.GetAttribute("Id"));
+                newComponentNode.Tag = newComponentElement;
+
+                int imageIndex = ImageListFactory.GetImageIndex("Component");
+                if (imageIndex >= 0)
+                {
+                    newComponentNode.ImageIndex = imageIndex;
+                    newComponentNode.SelectedImageIndex = imageIndex;
+                }
+
+                treeNode.Nodes.Add(newComponentNode);
                 
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 

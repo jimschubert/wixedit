@@ -29,6 +29,7 @@ using System.Xml;
 using System.Windows.Forms;
 
 using WixEdit.Settings;
+using System.Collections.Generic;
 
 namespace WixEdit {
     public class WixFiles : IDisposable {
@@ -678,19 +679,35 @@ namespace WixEdit {
 
         public string GetExtensionArguments() {
             StringBuilder ret = new StringBuilder();
+            bool hasNetFxExtension = false;
+
+            List<string> selectedExtensions = new List<string>();
 
             // Handle extension namespaces. Remove all those which are not used in the file.
             foreach (string ext in xsdExtensionNames) {
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
                 if (list.Count > 0) {
                     ret.AppendFormat(" -ext Wix{0}Extension ", ext);
+                    selectedExtensions.Add(ext);
                 }
             }
 
-            XmlNodeList uiRefList = wxsDocument.SelectNodes("//wix:UIRef", wxsNsmgr);
-            if (uiRefList.Count > 0)
+            if (!selectedExtensions.Contains("UI"))
             {
-                ret.Append(" -ext WixUIExtension ");
+                XmlNodeList uiRefList = wxsDocument.SelectNodes("//wix:UIRef", wxsNsmgr);
+                if (uiRefList.Count > 0)
+                {
+                    ret.Append(" -ext WixUIExtension ");
+                }
+            }
+
+            if (!selectedExtensions.Contains("NetFx"))
+            {
+                XmlNodeList propRefList = wxsDocument.SelectNodes("//wix:PropertyRef[starts-with(@Id, 'NETFRAMEWORK')]", wxsNsmgr);
+                if (propRefList.Count > 0)
+                {
+                    ret.Append(" -ext WixNetFxExtension ");
+                }
             }
 
             return ret.ToString();

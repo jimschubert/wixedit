@@ -39,22 +39,22 @@ namespace WixEdit {
         protected ContextMenu panelContextMenu;
         private Panel panel1;
         private Splitter splitter1;
-        private bool _expandTreeAtStart = true;
+        private bool _fullExpandTreeAtStart = true;
 
-        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName, bool expandTreeAtStart) : base(wixFiles, xpath, elementName, keyName) {
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName, bool fullExpandTreeAtStart) : base(wixFiles, xpath, elementName, keyName) {
             InitializeComponent();
             CreateControl();
 
-            _expandTreeAtStart = expandTreeAtStart;
+            _fullExpandTreeAtStart = fullExpandTreeAtStart;
         }
 
-        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName, bool expandTreeAtStart)
+        public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string keyName, bool fullExpandTreeAtStart)
             : base(wixFiles, xpath, keyName)
         {
             InitializeComponent();
             CreateControl();
 
-            _expandTreeAtStart = expandTreeAtStart;
+            _fullExpandTreeAtStart = fullExpandTreeAtStart;
         }
 
         public DisplayTreeBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName)
@@ -754,9 +754,16 @@ namespace WixEdit {
                 AddTreeNodesRecursive(file, currTreeView.Nodes);
             }
 
-            if (_expandTreeAtStart)
+            if (_fullExpandTreeAtStart)
             {
                 currTreeView.ExpandAll();
+            }
+            else
+            {
+                if (currTreeView.Nodes.Count > 0)
+                {
+                    currTreeView.Nodes[0].Expand();
+                }
             }
 
             if (currTreeView.Nodes.Count > 0) {

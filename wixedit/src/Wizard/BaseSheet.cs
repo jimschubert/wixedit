@@ -45,10 +45,13 @@ namespace WixEdit.Wizard
             return true;
         }
 
+        public virtual void OnShow()
+        {
+        }
+
         public virtual bool UndoNext()
         {
             return true;
         }
-
     }
 }
