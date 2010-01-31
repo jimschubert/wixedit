@@ -36,7 +36,7 @@ namespace WixEdit {
         public EditExecuteSequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallExecuteSequence|/wix:Wix//wix:AdminExecuteSequence|/wix:Wix//wix:AdvertiseExecuteSequence", "Id") {
             LoadData();
         }
-        
+
         protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
             //clear menu and add import menu
             base.PopupPanelContextMenu(sender,e);

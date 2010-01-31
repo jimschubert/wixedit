@@ -340,15 +340,7 @@ namespace WixEdit.Wizard
                         }
                         
                         XmlNode valueNode = target.SelectSingleNode(edit.GetAttribute("RelativePath"), xmlnsmgr);
-                        string formatString = edit.GetAttribute("FormatString");
-                        if (String.IsNullOrEmpty(formatString))
-                        {
-                            theNodeValue = valueNode.Value;
-                        }
-                        else
-                        {
-                            theNodeValue = String.Format(formatString, valueNode.Value);
-                        }
+                        theNodeValue = valueNode.Value;
                     }
                     else
                     {
@@ -366,6 +358,12 @@ namespace WixEdit.Wizard
                         }
                     }
 
+                    string formatString = edit.GetAttribute("FormatString");
+                    if (!String.IsNullOrEmpty(formatString))
+                    {
+                        theNodeValue = String.Format(formatString, theNodeValue);
+                    }
+
                     XmlNodeList theNodeList = stepElementClone.SelectNodes("TemplatePart/" + TranslateNamespace(refAtt), xmlnsmgr);
 
                     if (theNodeList.Count == 0)
@@ -374,15 +372,30 @@ namespace WixEdit.Wizard
                     }
                     else
                     {
-                        foreach (XmlNode theNode in theNodeList)
+                        if (String.IsNullOrEmpty(theNodeValue) &&
+                            String.Compare(edit.GetAttribute("RemoveEmptyAttribute"), "true", true) == 0)
                         {
-                            if (theNode.NodeType == XmlNodeType.Element)
+                            foreach (XmlNode theNode in theNodeList)
                             {
-                                theNode.InnerText = theNodeValue;
+                                XmlAttribute theAtt = theNode as XmlAttribute;
+                                if (theAtt != null)
+                                {
+                                    theAtt.OwnerElement.RemoveAttributeNode(theAtt);
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            foreach (XmlNode theNode in theNodeList)
                             {
-                                theNode.Value = theNodeValue;
+                                if (theNode.NodeType == XmlNodeType.Element)
+                                {
+                                    theNode.InnerText = theNodeValue;
+                                }
+                                else
+                                {
+                                    theNode.Value = theNodeValue;
+                                }
                             }
                         }
                     }

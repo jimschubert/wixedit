@@ -26,7 +26,13 @@ namespace WixEdit.Wizard
             
             InitializeComponent();
 
-            IntroductionSheet welcome = new IntroductionSheet("WixEdit wizard", "The WixEdit wizard helps you to create or edit MSI files. The wizard allows you to add functionality to your MSI file.\r\n\r\nFor example:\r\nAdd files, Create shortcuts, Create virual directories, etc.\r\n\r\n\r\nClick \"Next\" to continue or \"Cancel\" to exit the WixEdit wizard.", this);
+            string welcomeMessage = "The WixEdit wizard helps you to create or edit MSI files. The wizard allows you to easily add files and functionality to your MSI file.\r\n\r\nFor example:\r\nAdd files, Create shortcuts, Create virual directories, etc.\r\n\r\n\r\nClick \"Next\" to continue or \"Cancel\" to exit the WixEdit wizard.";
+            if (!editWixFiles.IsNew)
+            {
+                welcomeMessage += "\r\n\r\nNote: Existing complex installers may give problems with the wizard.";
+            }
+
+            IntroductionSheet welcome = new IntroductionSheet("WixEdit wizard", welcomeMessage, this);
             AddSheet(welcome);
 
             FileSheet files = new FileSheet(this);
