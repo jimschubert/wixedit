@@ -87,6 +87,8 @@ namespace WixEdit {
             LoadNewWxsFile(xml);
 
             undoManager = new UndoManager(this, wxsDocument);
+
+            wxsWatcher_ChangedHandler = new FileSystemEventHandler(wxsWatcher_Changed);
         }
 
         public WixFiles(FileInfo wxsFileInfo) {
@@ -96,8 +98,9 @@ namespace WixEdit {
 
             undoManager = new UndoManager(this, wxsDocument);
 
-            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
             wxsWatcher_ChangedHandler = new FileSystemEventHandler(wxsWatcher_Changed);
+
+            wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
             wxsWatcher.Changed += wxsWatcher_ChangedHandler;
             wxsWatcher.EnableRaisingEvents = true;
         }
@@ -679,20 +682,18 @@ namespace WixEdit {
 
         public string GetExtensionArguments() {
             StringBuilder ret = new StringBuilder();
-            bool hasNetFxExtension = false;
-
-            List<string> selectedExtensions = new List<string>();
+            List<string> selectedLowerCaseExtensions = new List<string>();
 
             // Handle extension namespaces. Remove all those which are not used in the file.
             foreach (string ext in xsdExtensionNames) {
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
                 if (list.Count > 0) {
                     ret.AppendFormat(" -ext Wix{0}Extension ", ext);
-                    selectedExtensions.Add(ext);
+                    selectedLowerCaseExtensions.Add(ext.ToLower());
                 }
             }
 
-            if (!selectedExtensions.Contains("UI"))
+            if (!selectedLowerCaseExtensions.Contains("ui"))
             {
                 XmlNodeList uiRefList = wxsDocument.SelectNodes("//wix:UIRef", wxsNsmgr);
                 if (uiRefList.Count > 0)
@@ -701,7 +702,7 @@ namespace WixEdit {
                 }
             }
 
-            if (!selectedExtensions.Contains("NetFx"))
+            if (!selectedLowerCaseExtensions.Contains("netfx"))
             {
                 XmlNodeList propRefList = wxsDocument.SelectNodes("//wix:PropertyRef[starts-with(@Id, 'NETFRAMEWORK')]", wxsNsmgr);
                 if (propRefList.Count > 0)
@@ -806,6 +807,7 @@ namespace WixEdit {
 
             wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
             wxsWatcher.Changed += wxsWatcher_ChangedHandler;
+            wxsWatcher.EnableRaisingEvents = true;
         }
 
         public void Save() {

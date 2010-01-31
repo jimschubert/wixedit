@@ -25,7 +25,7 @@ namespace WixEdit.Wizard
             this.AutoScroll = true;
 
             titleLabel = new Label();
-            titleLabel.Text = "Select Actions";
+            titleLabel.Text = "Select featues to add";
             titleLabel.Dock = DockStyle.Top;
             titleLabel.Height = 15;
             titleLabel.Left = 0;
@@ -39,7 +39,7 @@ namespace WixEdit.Wizard
             titleLabel.BackColor = Color.White;
 
             descriptionLabel = new Label();
-            descriptionLabel.Text = "Blablabla";
+            descriptionLabel.Text = "Select functionality you want to add to the installer";
             descriptionLabel.Dock = DockStyle.Top;
             descriptionLabel.Height = 50 - titleLabel.Height;
             descriptionLabel.Left = 0;

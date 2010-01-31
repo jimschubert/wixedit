@@ -19,13 +19,18 @@ namespace WixEdit.Wizard
         TreeView tree;
         ContextMenu contextMenu;
 
+        Button newFolderButton;
+        Button removeButton;
+        Button importDirectoryButton;
+        
+
         public FileSheet(WizardForm creator)
             : base(creator)
         {
             this.AutoScroll = true;
 
             titleLabel = new Label();
-            titleLabel.Text = "Add Files and Directories";
+            titleLabel.Text = "Add files and folders to install.";
             titleLabel.Dock = DockStyle.Top;
             titleLabel.Height = 15;
             titleLabel.Left = 0;
@@ -39,7 +44,7 @@ namespace WixEdit.Wizard
             titleLabel.BackColor = Color.White;
 
             descriptionLabel = new Label();
-            descriptionLabel.Text = "Blablabla";
+            descriptionLabel.Text = "Select Files and Directories you want to add to the installer";
             descriptionLabel.Dock = DockStyle.Top;
             descriptionLabel.Height = 50 - titleLabel.Height;
             descriptionLabel.Left = 0;
@@ -61,14 +66,45 @@ namespace WixEdit.Wizard
             this.Controls.Add(lineLabel);
 
             tree = new TreeView();
+            tree.HideSelection = false;
             tree.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tree.Location = new Point(4, titleLabel.Height + descriptionLabel.Height + lineLabel.Height + 4);
-            tree.Width = this.Width - 8;
+            tree.Width = this.Width - 8 - 100 - 8;
             tree.Height = this.Height - tree.Top - 4;
             tree.ImageList = ImageListFactory.GetImageList();
             tree.MouseDown += new MouseEventHandler(tree_MouseDown);
 
             this.Controls.Add(tree);
+
+            newFolderButton = new Button();
+            newFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            newFolderButton.Location = new Point(tree.Location.X + tree.Width + 8, tree.Top);
+            newFolderButton.Width = 100;
+            newFolderButton.Height = 23;
+            newFolderButton.Text = "New folder";
+            newFolderButton.Click += new EventHandler(newFolderButton_Click);
+
+            this.Controls.Add(newFolderButton);
+
+            removeButton = new Button();
+            removeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            removeButton.Location = new Point(tree.Location.X + tree.Width + 8, newFolderButton.Bottom + 8);
+            removeButton.Width = 100;
+            removeButton.Height = 23;
+            removeButton.Text = "Remove folder";
+            removeButton.Click += new EventHandler(removeButton_Click);
+
+            this.Controls.Add(removeButton);
+
+            importDirectoryButton = new Button();
+            importDirectoryButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            importDirectoryButton.Location = new Point(tree.Location.X + tree.Width + 8, removeButton.Bottom + 8);
+            importDirectoryButton.Width = 100;
+            importDirectoryButton.Height = 23;
+            importDirectoryButton.Text = "Import directory";
+            importDirectoryButton.Click += new EventHandler(importDirectoryButton_Click);
+
+            this.Controls.Add(importDirectoryButton);
 
             contextMenu = new ContextMenu();
             contextMenu.Popup += new EventHandler(contextMenu_Popup);
@@ -81,6 +117,86 @@ namespace WixEdit.Wizard
             TreeNodeCollection treeNodes = tree.Nodes;
 
             InitTreeView(dirNodes);
+        }
+
+        private void importDirectoryButton_Click(object sender, EventArgs e)
+        {
+            if (tree.SelectedNode == null ||
+                tree.SelectedNode.Tag == null ||
+                ((XmlNode)tree.SelectedNode.Tag).Name != "Directory")
+            {
+                MessageBox.Show("Please select a folder in the tree first.", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                ImportFolder();
+            }
+        }
+
+        private void importFilesButton_Click(object sender, EventArgs e)
+        {
+            if (tree.SelectedNode == null ||
+                tree.SelectedNode.Tag == null ||
+                ((XmlNode)tree.SelectedNode.Tag).Name != "Component")
+            {
+                MessageBox.Show("Please select a component in the tree first.", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                ImportFiles();
+            }
+        }
+
+        private void removeButton_Click(object sender, EventArgs e)
+        {
+            if (tree.SelectedNode == null)
+            {
+                MessageBox.Show("Please select an item in the tree first.", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                XmlNode node = tree.SelectedNode.Tag as XmlNode;
+                node.ParentNode.RemoveChild(node);
+                tree.SelectedNode.Remove();
+            }
+        }
+
+        private void newFolderButton_Click(object sender, EventArgs e)
+        {
+            if (tree.SelectedNode == null ||
+                tree.SelectedNode.Tag == null ||
+                ((XmlNode)tree.SelectedNode.Tag).Name != "Directory")
+            {
+                MessageBox.Show("Please select a folder in the tree first.", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                NewFolder();
+            }
+        }
+
+        private void NewFolder()
+        {
+            EnterStringForm form = new EnterStringForm();
+            EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter Directory Name";
+            if (DialogResult.OK == frm.ShowDialog())
+            {
+                XmlNode node = tree.SelectedNode.Tag as XmlNode;
+                XmlElement newDirectory = node.OwnerDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
+                newDirectory.SetAttribute("Name", frm.SelectedString);
+                newDirectory.SetAttribute("Id", FileImport.GenerateValidIdentifier(frm.SelectedString, newDirectory, Wizard.WixFiles));
+                node.AppendChild(newDirectory);
+
+                TreeNode treeNode = new TreeNode();
+                treeNode.Text = frm.SelectedString;
+                treeNode.ImageIndex = ImageListFactory.GetImageIndex("Directory");
+                treeNode.SelectedImageIndex = treeNode.ImageIndex;
+                treeNode.SelectedImageIndex = treeNode.ImageIndex;
+                treeNode.Tag = newDirectory;
+                tree.SelectedNode.Nodes.Add(treeNode);
+                tree.SelectedNode.Expand();
+            }
         }
 
         private void tree_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -128,9 +244,13 @@ namespace WixEdit.Wizard
             }
             else if (node.Name == "Directory")
             {
+                IconMenuItem newFolderMenu = new IconMenuItem("&New Folder", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+                newFolderMenu.Click += new System.EventHandler(NewFolder_Click);
+                contextMenu.MenuItems.Add(0, newFolderMenu);
+
                 IconMenuItem importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
                 importFolderMenu.Click += new System.EventHandler(ImportFolder_Click);
-                contextMenu.MenuItems.Add(0, importFolderMenu);
+                contextMenu.MenuItems.Add(1, importFolderMenu);
             }
         }
         private void InitTreeView(XmlNodeList dirNodes)
@@ -209,7 +329,7 @@ namespace WixEdit.Wizard
             {
                 TreeNode tooManyNodes = new TreeNode("<< Too many children to display >>");
                 node.ImageIndex = ImageListFactory.GetUnsupportedImageIndex();
-                node.SelectedImageIndex = ImageListFactory.GetUnsupportedImageIndex();
+                node.SelectedImageIndex = node.ImageIndex;
                 node.Nodes.Add(tooManyNodes);
 
                 return;
@@ -393,6 +513,11 @@ namespace WixEdit.Wizard
 
         private void ImportFiles_Click(object sender, System.EventArgs e)
         {
+            ImportFiles();
+        }
+
+        private void ImportFiles()
+        {
             TreeNode aNode = tree.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;
 
@@ -410,6 +535,17 @@ namespace WixEdit.Wizard
         }
 
         private void ImportFolder_Click(object sender, System.EventArgs e)
+        {
+            ImportFolder();
+        }
+
+
+        private void NewFolder_Click(object sender, System.EventArgs e)
+        {
+            NewFolder();
+        }
+
+        private void ImportFolder()
         {
             TreeNode aNode = tree.SelectedNode;
             XmlNode aNodeElement = aNode.Tag as XmlNode;

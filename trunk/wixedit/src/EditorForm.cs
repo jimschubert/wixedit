@@ -62,7 +62,6 @@ namespace WixEdit {
         protected MainMenu mainMenu;
         protected IconMenuItem fileMenu;
         protected IconMenuItem fileNew;
-        protected IconMenuItem fileWizard;
         protected IconMenuItem fileLoad;
         protected IconMenuItem fileRecent;
         protected IconMenuItem fileRecentEmpty;
@@ -168,7 +167,6 @@ namespace WixEdit {
             mainMenu = new MainMenu();
             fileMenu = new IconMenuItem();
             fileNew = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-            fileWizard = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.wizard.bmp")));
             fileLoad = new IconMenuItem(new Bitmap(WixFiles.GetResourceStream("bmp.open.bmp")));
             fileRecent = new IconMenuItem();
             fileRecentEmpty = new IconMenuItem();
@@ -184,10 +182,6 @@ namespace WixEdit {
             fileNew.Click += new EventHandler(fileNew_Click);
             fileNew.Shortcut = Shortcut.CtrlN;
             fileNew.ShowShortcut = true;
-
-            fileWizard.Text = "New with Wizard";
-            fileWizard.Click += new EventHandler(fileWizard_Click);
-            fileWizard.ShowShortcut = true;
 
             fileLoad.Text = "&Open";
             fileLoad.Click += new EventHandler(fileLoad_Click);
@@ -237,14 +231,13 @@ namespace WixEdit {
             fileMenu.Text = "&File";
             fileMenu.Popup += new EventHandler(fileMenu_Popup);
             fileMenu.MenuItems.Add(0, fileNew);
-            fileMenu.MenuItems.Add(1, fileWizard);
-            fileMenu.MenuItems.Add(2, fileLoad);
-            fileMenu.MenuItems.Add(3, fileRecent);
-            fileMenu.MenuItems.Add(4, fileSave);
-            fileMenu.MenuItems.Add(5, fileSaveAs);
-            fileMenu.MenuItems.Add(6, fileClose);
-            fileMenu.MenuItems.Add(7, fileSeparator);
-            fileMenu.MenuItems.Add(8, fileExit);
+            fileMenu.MenuItems.Add(1, fileLoad);
+            fileMenu.MenuItems.Add(2, fileRecent);
+            fileMenu.MenuItems.Add(3, fileSave);
+            fileMenu.MenuItems.Add(4, fileSaveAs);
+            fileMenu.MenuItems.Add(5, fileClose);
+            fileMenu.MenuItems.Add(6, fileSeparator);
+            fileMenu.MenuItems.Add(7, fileExit);
             
             mainMenu.MenuItems.Add(0, fileMenu);
 
@@ -291,7 +284,7 @@ namespace WixEdit {
             editFindPrev.Shortcut = Shortcut.ShiftF3;
             editFindPrev.ShowShortcut = true;
 
-            editWizard.Text = "Add features with Wizard";
+            editWizard.Text = "Add Functionality";
             editWizard.Click += new EventHandler(editWizard_Click);
             editWizard.ShowShortcut = true;
 
@@ -303,7 +296,8 @@ namespace WixEdit {
             editMenu.MenuItems.Add(3, editFind);
             editMenu.MenuItems.Add(4, editFindNext);
             editMenu.MenuItems.Add(5, editFindPrev);
-            editMenu.MenuItems.Add(6, editWizard);
+            editMenu.MenuItems.Add(6, new IconMenuItem("-"));
+            editMenu.MenuItems.Add(7, editWizard);
 
             mainMenu.MenuItems.Add(1, editMenu);
 
@@ -490,28 +484,7 @@ namespace WixEdit {
         }
 
         private void fileNew_Click(object sender, System.EventArgs e) {
-            NewFile();
-        }
-
-        private void fileWizard_Click(object sender, System.EventArgs e)
-        {
             NewWizard();
-        }
-
-        private void NewFile() {
-            if (HandlePendingChanges() == false) {
-                return;
-            }
-
-            NewProjectForm frm = new NewProjectForm();
-            if (frm.ShowDialog() == DialogResult.OK &&
-                frm.NewFileName != null) {
-                CloseWxsFile();
-
-                LoadWxsFile(frm.NewFileName);
-
-                ShowProductProperties();               
-            }
         }
 
         private void NewWizard()
@@ -688,7 +661,6 @@ namespace WixEdit {
         private void fileMenu_Popup(object sender, System.EventArgs e) {
             bool xsdPresent = WixFiles.CheckForXsd();
             fileNew.Enabled = xsdPresent;
-            fileWizard.Enabled = xsdPresent;
             fileLoad.Enabled = xsdPresent;
             fileRecent.Enabled = xsdPresent;
 
