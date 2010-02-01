@@ -1595,16 +1595,23 @@ namespace WixEdit {
                 return;
             }
 
-            WixFiles.UndoManager.BeginNewCommandRange();
+            if (node.Name == "Dialog")
+            {
+                OnDeleteWxsDialogsItem(sender, e);
+            }
+            else
+            {
+                WixFiles.UndoManager.BeginNewCommandRange();
 
-            node.ParentNode.RemoveChild(node);
+                node.ParentNode.RemoveChild(node);
 
-            dialogTreeView.Nodes.Remove(dialogTreeView.SelectedNode);
+                dialogTreeView.Nodes.Remove(dialogTreeView.SelectedNode);
 
-            ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
+                ShowWixProperties(dialogTreeView.SelectedNode.Tag as XmlNode);
 
-            string currentDialogId = wxsDialogs.SelectedItems[0].Text;
-            ShowWixDialog(GetDialogNode(currentDialogId));
+                string currentDialogId = wxsDialogs.SelectedItems[0].Text;
+                ShowWixDialog(GetDialogNode(currentDialogId));
+            }
         }
 
         private void InfoAboutCurrentElement_Click(object sender, EventArgs e) {
