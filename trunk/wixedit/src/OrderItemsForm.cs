@@ -11,8 +11,6 @@ namespace WixEdit
 {
     public partial class OrderItemsForm : Form
     {
-        string displayAttributeName;
-
         public OrderItemsForm()
         {
             InitializeComponent();
