@@ -25,7 +25,7 @@
             <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
             <Shortcut Id="UninstallProduct" Name="Uninstall WixEdit" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" Directory="ProgramMenuDir" Description="Uninstalls WixEdit" />
             <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
-            <File Id="WixEdit_Homepage.url" Name="WixEdit Homepage.url" Source="WixEdit Homepage.url" />
+            <File Id="WixEdit_Homepage.url" Name="WixEdit Homepage" Source="..\installer\WixEdit Homepage.url" />
           </Component>
         </Directory>
       </Directory>
