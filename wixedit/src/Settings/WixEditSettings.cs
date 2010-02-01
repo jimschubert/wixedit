@@ -120,7 +120,10 @@ namespace WixEdit.Settings {
                 }
 
                 TemplateDirectory = oldVersion.TemplateDirectory;
-                DefaultProjectDirectory = oldVersion.DefaultProjectDirectory;
+                if (!String.IsNullOrEmpty(TemplateDirectory))
+                {
+                    TemplateDirectory = TemplateDirectory.Replace("templates", "wizard");
+                }
                 UseRelativeOrAbsolutePaths = oldVersion.UseRelativeOrAbsolutePaths;
                 if (oldVersion.ExternalXmlEditor == null || oldVersion.ExternalXmlEditor.Length == 0) {
                     ExternalXmlEditor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
@@ -172,7 +175,6 @@ namespace WixEdit.Settings {
             public string ExternalXmlEditor;
             public bool UseInstanceOnly;
             public bool WordWrapInResultsPanel;
-            public string DefaultProjectDirectory;
             public string Version;
             public PathHandling UseRelativeOrAbsolutePaths;
 
@@ -482,11 +484,11 @@ namespace WixEdit.Settings {
                     return data.TemplateDirectory;
                 }
 
-                // With the installation of WixEdit the WixEdit Templates are installed in "..\templates", 
+                // With the installation of WixEdit the WixEdit Templates are installed in "..\wizard", 
                 // relative to the WixEdit binary.
                 DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
                 if (parent != null) {
-                    string templateDir = Path.Combine(parent.FullName, "templates");
+                    string templateDir = Path.Combine(parent.FullName, "wizard");
                     if (Directory.Exists(templateDir)) {
                         return templateDir;
                     }
@@ -515,20 +517,6 @@ namespace WixEdit.Settings {
             }
             set {
                 data.ExternalXmlEditor = value;
-            }
-        }
-
-        [
-        Category("Locations"), 
-        Description("The default directory where WixEdit creates projects."), 
-        Editor(typeof(BinDirectoryStructureEditor), typeof(System.Drawing.Design.UITypeEditor))
-        ]
-        public string DefaultProjectDirectory {
-            get {
-                return data.DefaultProjectDirectory;
-            }
-            set {
-                data.DefaultProjectDirectory = value;
             }
         }
 

@@ -25,6 +25,7 @@
             <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
             <Shortcut Id="UninstallProduct" Name="Uninstall WixEdit" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" Directory="ProgramMenuDir" Description="Uninstalls WixEdit" />
             <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
+            <File Id="WixEdit_Homepage.url" Name="WixEdit Homepage.url" Source="WixEdit Homepage.url" />
           </Component>
         </Directory>
       </Directory>
@@ -75,28 +76,6 @@
                 <File Id="SimpleSample.wxs" Name="SimpleSample.wxs" Source="..\sample\SimpleSample\SimpleSample.wxs" />
                 <File Id="Test.txt" Name="Test.txt" Source="..\sample\SimpleSample\Test.txt" />
               </Component>
-            </Directory>
-          </Directory>
-          <Directory Id="Templates" Name="templates">
-            <Directory Id="TemplatesUISample" Name="UISample">
-              <Component Id="Templates.UISample" DiskId="1" Guid="65797938-D4E9-4D61-B22E-2CF9C90C5CA4">
-                <File Id="Templates.UISample.wxi" Name="UISample.wxi" Source="..\templates\UISample\UISample.wxi" />
-              </Component>
-              <Directory Id="Templates.Binary" Name="Binary">
-                <Component Id="Templates.UISample.Binary" DiskId="1" Guid="C28204D4-6AAD-4EAD-9A6B-D17BBB4AB9D8">
-                  <File Id="Templates.bannrbmp.bmp" Name="bannrbmp.bmp" Source="..\templates\UISample\Binary\bannrbmp.bmp" />
-                  <File Id="Templates.completi.ico" Name="completi.ico" Source="..\templates\UISample\Binary\completi.ico" />
-                  <File Id="Templates.custicon.ico" Name="custicon.ico" Source="..\templates\UISample\Binary\custicon.ico" />
-                  <File Id="Templates.dlgbmp.bmp" Name="dlgbmp.bmp" Source="..\templates\UISample\Binary\dlgbmp.bmp" />
-                  <File Id="Templates.exclamic.ico" Name="exclamic.ico" Source="..\templates\UISample\Binary\exclamic.ico" />
-                  <File Id="Templates.info.ico" Name="info.ico" Source="..\templates\UISample\Binary\info.ico" />
-                  <File Id="Templates.insticon.ico" Name="insticon.ico" Source="..\templates\UISample\Binary\insticon.ico" />
-                  <File Id="Templates.New.ico" Name="New.ico" Source="..\templates\UISample\Binary\New.ico" />
-                  <File Id="Templates.removico.ico" Name="removico.ico" Source="..\templates\UISample\Binary\removico.ico" />
-                  <File Id="Templates.repairic.ico" Name="repairic.ico" Source="..\templates\UISample\Binary\repairic.ico" />
-                  <File Id="Templates.Up.ico" Name="Up.ico" Source="..\templates\UISample\Binary\Up.ico" />
-                </Component>
-              </Directory>
             </Directory>
           </Directory>
           <Directory Id="wix_3.0.5419.0" Name="wix-3.0.5419.0">
@@ -202,9 +181,9 @@
                 <File Id="template.xml_1" Name="template.xml" Source="..\wizard\Edit XML file\template.xml" />
               </Component>
             </Directory>
-            <Directory Id="Add_Startmenu_Shortcut" Name="Add Startmenu Shortcut">
-              <Component Id="Templates.Add_Startmenu_Shortcut" DiskId="1" Guid="50D0B592-784C-4C5D-9ADE-F69660ACE3E9">
-                <File Id="template.xml_2" Name="template.xml" Source="..\wizard\Add Startmenu Shortcut\template.xml" />
+            <Directory Id="Startmenu_Application_Shortcut" Name="Startmenu Application Shortcut">
+              <Component Id="Templates.Startmenu_Application_Shortcut" DiskId="1" Guid="50D0B592-784C-4C5D-9ADE-F69660ACE3E9">
+                <File Id="template.xml_2" Name="template.xml" Source="..\wizard\Startmenu Application Shortcut\template.xml" />
               </Component>
             </Directory>
             <Directory Id="Add_Userinterface" Name="Add Userinterface">
@@ -212,9 +191,29 @@
                 <File Id="template.xml_3" Name="template.xml" Source="..\wizard\Add Userinterface\template.xml" />
               </Component>
             </Directory>
-            <Directory Id="Add_Desktop_Shortcut" Name="Add Desktop Shortcut">
-              <Component Id="Templates.Add_Desktop_Shortcut" DiskId="1" Guid="3E0983B5-771F-403F-9FB7-84BDBCE12026">
-                <File Id="template.xml_4" Name="template.xml" Source="..\wizard\Add Desktop Shortcut\template.xml" />
+            <Directory Id="Desktop_Application_Shortcut" Name="Desktop Application Shortcut">
+              <Component Id="Templates.Desktop_Application_Shortcut" DiskId="1" Guid="3E0983B5-771F-403F-9FB7-84BDBCE12026">
+                <File Id="template.xml_4" Name="template.xml" Source="..\wizard\Desktop Application Shortcut\template.xml" />
+              </Component>
+            </Directory>
+            <Directory Id="Startmenu_Website_Shortcut" Name="Startmenu Website Shortcut">
+              <Component Id="Templates.Startmenu_Website_Shortcut" DiskId="1" Guid="EE147C5F-C34E-457E-B48E-A1CC289438CC">
+                <File Id="template.xml_5" Name="template.xml" Source="..\wizard\Startmenu Website Shortcut\template.xml" />
+              </Component>
+            </Directory>
+            <Directory Id="Check_.NET_Framework_Versions" Name="Check .NET Framework Versions">
+              <Component Id="Templates.Check_.NET_Framework_Versions" DiskId="1" Guid="0EC0F5C3-A33D-43A0-805E-8D90A3D58867">
+                <File Id="template.xml_6" Name="template.xml" Source="..\wizard\Check .NET Framework Versions\template.xml" />
+              </Component>
+            </Directory>
+            <Directory Id="NGen_Managed_Assemblies" Name="NGen Managed Assemblies">
+              <Component Id="Templates.NGen_Managed_Assemblies" DiskId="1" Guid="2B6D3FD2-6E93-42A2-ADE1-36096BE72C8B">
+                <File Id="template.xml_7" Name="template.xml" Source="..\wizard\NGen Managed Assemblies\template.xml" />
+              </Component>
+            </Directory>
+            <Directory Id="Startmenu_Uninstall_Shortcut" Name="Startmenu Uninstall Shortcut">
+              <Component Id="Templates.Startmenu_Uninstall_Shortcut" DiskId="1" Guid="7D4E86D9-4868-4211-9002-93CE194E1B21">
+                <File Id="template.xml_8" Name="template.xml" Source="..\wizard\Startmenu Uninstall Shortcut\template.xml" />
               </Component>
             </Directory>
           </Directory>
@@ -225,7 +224,7 @@
       <Feature Id="BinariesFeature" Level="1" Title="Binaries" Absent="disallow" Description="The WixEdit binaries." AllowAdvertise="no">
         <ComponentRef Id="Binaries" />
         <ComponentRef Id="StartMenuShortcuts" />
-<!--
+        <!--
         <ComponentRef Id="UninstallShortcut" />
 -->
       </Feature>
@@ -239,13 +238,15 @@
         <ComponentRef Id="Sample.SimpleSample" />
       </Feature>
       <Feature Id="TemplatesFeature" Level="1" Title="Templates" Absent="disallow" Description="The WixEdit Templates to create new WiX files." AllowAdvertise="no">
-        <ComponentRef Id="Templates.UISample" />
-        <ComponentRef Id="Templates.UISample.Binary" />
         <ComponentRef Id="Templates.Create_Virtual_Directory" />
         <ComponentRef Id="Templates.Edit_XML_file" />
-        <ComponentRef Id="Templates.Add_Startmenu_Shortcut" />
+        <ComponentRef Id="Templates.Startmenu_Application_Shortcut" />
         <ComponentRef Id="Templates.Add_Userinterface" />
-        <ComponentRef Id="Templates.Add_Desktop_Shortcut" />
+        <ComponentRef Id="Templates.Desktop_Application_Shortcut" />
+        <ComponentRef Id="Templates.Startmenu_Website_Shortcut" />
+        <ComponentRef Id="Templates.Check_.NET_Framework_Versions" />
+        <ComponentRef Id="Templates.NGen_Managed_Assemblies" />
+        <ComponentRef Id="Templates.Startmenu_Uninstall_Shortcut" />
       </Feature>
       <Feature Id="WixBinariesFeature.3.0" Level="1" Title="Wix 3.0.5419.0" Description="The Wix 3.0 binaries." AllowAdvertise="no">
         <ComponentRef Id="wix_3.0.5419.0" />

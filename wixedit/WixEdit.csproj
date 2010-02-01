@@ -397,9 +397,6 @@
     <Compile Include="src\NewInstanceStarter.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\NewProjectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="src\OrderItemsForm.cs">
       <SubType>Form</SubType>
     </Compile>
