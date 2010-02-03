@@ -27,6 +27,7 @@
     <property name="project.sample" value="${project::get-base-directory()}\sample"/>
     <property name="project.release" value="${project::get-base-directory()}\release"/>
     <property name="project.lib" value="${project::get-base-directory()}\lib"/>
+    <property name="project.tools" value="${project::get-base-directory()}\tools"/>
 
     <property name="project.installer" value="${project::get-base-directory()}\installer"/>
 
@@ -38,7 +39,7 @@
 
     <property name="project.output" value="${project.build}\${project::get-name()}.exe"/>
 
-    <property name="project.wix" value="${project::get-base-directory()}\wix-3.0.5419.0"/>
+    <property name="project.wix" value="${project.tools}\wix-3.5.1322.0"/>
 
     <target name="all" depends="clean,build" />
 
