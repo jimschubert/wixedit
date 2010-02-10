@@ -862,13 +862,16 @@ namespace WixEdit {
 
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
             XmlNode xmlNode = (XmlNode) currTreeView.SelectedNode.Tag;
-            XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
-            XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
+            if (xmlNode != null)
+            {
+                XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);
+                XmlAttributeAdapter attAdapter = (XmlAttributeAdapter)CurrentGrid.SelectedObject;
 
-            string title = String.Format("Info about '{0}' element", xmlNode.Name);
-            string message = docManager.GetDocumentation(attAdapter.XmlNodeDefinition);
+                string title = String.Format("Info about '{0}' element", xmlNode.Name);
+                string message = docManager.GetDocumentation(attAdapter.XmlNodeDefinition);
 
-            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }
