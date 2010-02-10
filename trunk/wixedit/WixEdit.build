@@ -102,11 +102,15 @@
                 <include name="sample/DarkSample/*" />
                 <include name="sample/SimpleSample/*" />
                 <include name="templates/UISample/**/*" />
-                <include name="wizard/Add Desktop Shortcut/*" />
-                <include name="wizard/Add Startmenu Shortcut/*" />
                 <include name="wizard/Add Userinterface/*" />
+                <include name="wizard/Check .NET Framework Versions/*" />
                 <include name="wizard/Create Virtual Directory/*" />
+                <include name="wizard/Desktop Application Shortcut/*" />
                 <include name="wizard/Edit XML file/*" />
+                <include name="wizard/NGen Managed Assemblies/*" />
+                <include name="wizard/Startmenu Application Shortcut/*" />
+                <include name="wizard/Startmenu Uninstall Shortcut/*" />
+                <include name="wizard/Startmenu Website Shortcut/*" />
                 <exclude name="**/CVS/" />
             </fileset>
         </zip>
@@ -120,11 +124,15 @@
                 <include name="sample/DarkSample/*" />
                 <include name="sample/SimpleSample/*" />
                 <include name="templates/UISample/**/*" />
-                <include name="wizard/Add Desktop Shortcut/*" />
-                <include name="wizard/Add Startmenu Shortcut/*" />
                 <include name="wizard/Add Userinterface/*" />
+                <include name="wizard/Check .NET Framework Versions/*" />
                 <include name="wizard/Create Virtual Directory/*" />
+                <include name="wizard/Desktop Application Shortcut/*" />
                 <include name="wizard/Edit XML file/*" />
+                <include name="wizard/NGen Managed Assemblies/*" />
+                <include name="wizard/Startmenu Application Shortcut/*" />
+                <include name="wizard/Startmenu Uninstall Shortcut/*" />
+                <include name="wizard/Startmenu Website Shortcut/*" />
                 <include name="*.build" />
                 <include name="WixEdit.csproj" />
                 <exclude name="${project.installer}\*.msi"/>
@@ -184,11 +192,15 @@
                   <include name="sample/DarkSample/*" />
                   <include name="sample/SimpleSample/*" />
                   <include name="templates/UISample/**/*" />
-                  <include name="wizard/Add Desktop Shortcut/*" />
-                  <include name="wizard/Add Startmenu Shortcut/*" />
                   <include name="wizard/Add Userinterface/*" />
+                  <include name="wizard/Check .NET Framework Versions/*" />
                   <include name="wizard/Create Virtual Directory/*" />
+                  <include name="wizard/Desktop Application Shortcut/*" />
                   <include name="wizard/Edit XML file/*" />
+                  <include name="wizard/NGen Managed Assemblies/*" />
+                  <include name="wizard/Startmenu Application Shortcut/*" />
+                  <include name="wizard/Startmenu Uninstall Shortcut/*" />
+                  <include name="wizard/Startmenu Website Shortcut/*" />
                   <include name="*.build" />
                   <include name="WixEdit.csproj" />
                   <exclude name="${project.installer}\*.msi"/>
