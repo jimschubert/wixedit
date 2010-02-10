@@ -139,46 +139,41 @@ namespace WixEdit.Controls {
         }
 
         protected override void OnMouseDown(MouseEventArgs e) {
-            base.OnMouseDown (e);
-
-            GotSelection();
+            base.OnMouseDown(e);
 
             Point currentPoint = PointToScreen(new Point(e.X, e.Y));
             
             if (e.Button == MouseButtons.Left) {
                 CheckMouseDown(currentPoint);
             }
+
+            GotSelection();
         }
 
         protected void OnMouseDownControl(object sender, MouseEventArgs e) {
-            GotSelection();
-
             Point currentPoint = control.PointToScreen(new Point(e.X, e.Y));
 
             if (e.Button == MouseButtons.Left) {
                 CheckMouseDown(currentPoint);
             }
+
+            GotSelection();
         }
 
         private void GotSelection() {
             OnLosesSelection(this, new EventArgs());
 
             if (isSelected == false) {
-                Parent.SuspendLayout();
+                SuspendLayout();
 
-                control.Left = 7;
-                this.Left -= 7;
-
-                control.Top = 7;
-                this.Top -= 7;
-
-                this.Width += 14;
-                this.Height += 14;
-
-                Parent.ResumeLayout();
+                Size = new Size(Width + 14, Height + 14);
+                Location = new Point(Left - 7, Top - 7);
+                control.Location = new Point(7, 7);
 
                 isSelected = true;
-    
+
+                ResumeLayout();
+
                 if (control is PictureControl || control is GroupBox) {
                     SendToBack();
                 } else {
@@ -189,8 +184,6 @@ namespace WixEdit.Controls {
                     PictureControl picControl = (PictureControl) control;
                     picControl.Redraw();
                 }
-
-                Invalidate();
 
                 if (SelectionChanged != null) {
                     SelectionChanged(xmlNode);
@@ -208,19 +201,15 @@ namespace WixEdit.Controls {
         
         private void LostSelection() {
             if (isSelected) {
-                control.Left = 0;
-                control.Top = 0;
+                SuspendLayout();
 
-                Width -= 14;
-                Height -= 14;
-
-                Invalidate();
-
-                Top += 7;
-                Left += 7;
-
+                Size = new Size(Width - 14, Height - 14);
+                Location = new Point(Left + 7, Top + 7);
+                control.Location = new Point(0, 0);
+                
                 isSelected = false;
-                Invalidate();
+
+                ResumeLayout();
             }
         }
 
@@ -442,7 +431,6 @@ namespace WixEdit.Controls {
                 Cursor = Cursors.SizeAll;
             }
         }
-
         
         public void DrawSelection(Control ctrl, Graphics formGraphics) {
             int size = 6;
