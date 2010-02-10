@@ -1,2 +1,2 @@
 @echo off
-tools\NAnt\NAnt.exe build
+tools\NAnt\NAnt.exe release -logfile:BuildLog.txt

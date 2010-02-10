@@ -127,6 +127,9 @@
                 <include name="wizard/Edit XML file/*" />
                 <include name="*.build" />
                 <include name="WixEdit.csproj" />
+                <exclude name="${project.installer}\*.msi"/>
+                <exclude name="${project.installer}\*.wixobj"/>
+                <exclude name="${project.installer}\*.wixpdb"/>
                 <exclude name="**/CVS/" />
             </fileset>
         </zip>
@@ -188,6 +191,9 @@
                   <include name="wizard/Edit XML file/*" />
                   <include name="*.build" />
                   <include name="WixEdit.csproj" />
+                  <exclude name="${project.installer}\*.msi"/>
+                  <exclude name="${project.installer}\*.wixobj"/>
+                  <exclude name="${project.installer}\*.wixpdb"/>
                   <exclude name="**/CVS/" />
               </fileset>
           </zip>
