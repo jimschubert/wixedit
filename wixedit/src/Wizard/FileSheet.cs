@@ -222,7 +222,12 @@ namespace WixEdit.Wizard
         void contextMenu_Popup(object sender, EventArgs e)
         {
             contextMenu.MenuItems.Clear();
-            
+
+            if (tree.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode node = tree.SelectedNode.Tag as XmlNode;
             if (node == null)
             {

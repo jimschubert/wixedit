@@ -169,6 +169,7 @@ namespace WixEdit.Import {
 
                 int imageIndex = ImageListFactory.GetImageIndex(registryElementName);
                 TreeNode newNode = new TreeNode(displayName, imageIndex, imageIndex);
+                newNode.Tag = child;
                 
                 treeNode.Nodes.Add(newNode);
             }

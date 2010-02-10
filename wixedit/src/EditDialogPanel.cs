@@ -615,8 +615,9 @@ namespace WixEdit {
                     return;
                 }
                 foreach (XmlNode child in node.ChildNodes) {
-                    XmlElement childEl = (XmlElement) child;
-                    if (node.HasAttribute("Type") &&
+                    XmlElement childEl = child as XmlElement;
+                    if (childEl != null &&
+                        node.HasAttribute("Type") &&
                         child.Name == node.Attributes["Type"].Value) { // Already have a node named as the control type
                         childEl.SetAttribute("Property", node.GetAttribute("Property"));
                         return;
