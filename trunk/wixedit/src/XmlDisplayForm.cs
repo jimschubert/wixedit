@@ -23,75 +23,51 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
-using AxSHDocVw;
 
 namespace WixEdit {
 	/// <summary>
 	/// A Html browser dialog for showing xml
 	/// </summary>
-	public class XmlDisplayForm : Form 	{
-        protected AxWebBrowser webBrowser;
+    public class XmlDisplayForm : Form
+    {
         protected string url;
+        private WebBrowser webBrowser;
 
-        protected static bool hasAxshdocvwLoadFailure = false;
-        
         public XmlDisplayForm() {
-            VisibleChanged += new EventHandler(VisibleChangedHandler);
+            InitializeComponent();
 
-            try {
-                InitializeComponent();
-            } catch (FileNotFoundException ex) {
-                if (ex.FileName.ToLower().IndexOf("axshdocvw") >= 0) {
-                    if (hasAxshdocvwLoadFailure == false) {
-                        hasAxshdocvwLoadFailure = true;
-    
-                        ShowAxshdocvwLoadFailureMessage();
-                    }
-                } else {
-                    throw;
-                }
-            }
+            Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
 		}
-
-        public bool HasAxshdocvwLoadFailure {
-            get {
-                return hasAxshdocvwLoadFailure;
-            }
-        }
-
-        protected void VisibleChangedHandler(object sender, EventArgs e) {
-            if (hasAxshdocvwLoadFailure && this.Visible) {
-                ShowAxshdocvwLoadFailureMessage();
-                this.Visible = false;
-            }
-        }
-
-        public void ShowAxshdocvwLoadFailureMessage() {
-            MessageBox.Show("Unable to load assembly \"AxSHDocVw.dll\"! Please make sure it is present next to WixEdit executable. It is not possible to view the source of any compile errors or warnings in the WixEdit source viewer.", "Failed to load: AxSHDocVw", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
 
         public string Url {
             get { return url; }
         }
 
         private void InitializeComponent() {
-            Icon = new Icon(WixFiles.GetResourceStream("dialog.source.ico"));
-            ClientSize = new System.Drawing.Size(800, 600);
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
+            this.SuspendLayout();
+            // 
+            // webBrowser
+            // 
+            this.webBrowser.AllowNavigation = false;
+            this.webBrowser.AllowWebBrowserDrop = false;
+            this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webBrowser.IsWebBrowserContextMenuEnabled = false;
+            this.webBrowser.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.ScriptErrorsSuppressed = true;
+            this.webBrowser.Size = new System.Drawing.Size(800, 600);
+            this.webBrowser.TabIndex = 2;
+            this.webBrowser.WebBrowserShortcutsEnabled = false;
+            // 
+            // XmlDisplayForm
+            // 
+            this.ClientSize = new System.Drawing.Size(800, 600);
+            this.Controls.Add(this.webBrowser);
+            this.Name = "XmlDisplayForm";
+            this.ResumeLayout(false);
 
-            webBrowser = new AxWebBrowser();
-
-            webBrowser.BeginInit();
-
-            webBrowser.TabIndex = 1;
-            //AxWebBrowser.Anchor = AnchorStyles.All;
-            webBrowser.Dock = DockStyle.Fill;
-            
-            Controls.Add(webBrowser);
-            webBrowser.EndInit();
-      
-            webBrowser.RegisterAsBrowser = true;
-            webBrowser.RegisterAsDropTarget = true;
-            webBrowser.Silent = false;
         }
             
         protected override void OnClosed(EventArgs e) {
@@ -104,12 +80,7 @@ namespace WixEdit {
         }
 
         public void ShowFile(string url) {
-            this.url = url;
-            object o = null;
-
-            if (hasAxshdocvwLoadFailure == false) {
-                webBrowser.Navigate(url, ref o, ref o, ref o, ref o);
-            }
+            webBrowser.Navigate(url);
         }
     }
 }

@@ -333,12 +333,6 @@ namespace WixEdit {
         }
 
         protected void LaunchFile(string filename, int anchorNumber, int numberOfAnchors, int lineNumber, string message) {
-            if (xmlDisplayForm.HasAxshdocvwLoadFailure) {
-                xmlDisplayForm.ShowAxshdocvwLoadFailureMessage();
-
-                return;
-            }
-
             XslCompiledTransform transform = new XslCompiledTransform();
             using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
                  XmlTextReader xr = new XmlTextReader(strm);
@@ -484,6 +478,13 @@ namespace WixEdit {
 
             wixFiles = theWixFiles;
             onCompletedOutput = onComplete;
+
+            invokeClearRTF = new DelegateClearRtf(ClearRtf);
+            invokeOutput = new DelegateOutput(Output);
+            invokeOutputLine = new DelegateOutputLine(OutputLine);
+            invokeOutputStart = new DelegateOutputStart(OutputStart);
+            invokeOutputDone = new DelegateOutputDone(OutputDone);
+            invokeProcessDone = new DelegateProcessDone(ProcessDone);
 
             isCancelled = false;
 

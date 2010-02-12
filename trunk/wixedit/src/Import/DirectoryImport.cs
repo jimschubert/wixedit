@@ -56,7 +56,8 @@ namespace WixEdit.Import {
         public void Import(TreeNode treeNode) {
             RecurseDirectories(folders, treeNode, directoryElement);
 
-            if (firstShowableNode != null) {
+            if (firstShowableNode != null && firstShowableNode.TreeView != null)
+            {
                 firstShowableNode.TreeView.SelectedNode = firstShowableNode;
             }
         }

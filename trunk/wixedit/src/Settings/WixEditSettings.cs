@@ -34,6 +34,7 @@ using System.Xml.Serialization;
 using System.Windows.Forms;
 
 using WixEdit.PropertyGridExtensions;
+using System.Collections.Generic;
 
 namespace WixEdit.Settings {
     public enum PathHandling {
@@ -358,17 +359,38 @@ namespace WixEdit.Settings {
         public BinDirectoryStructure WixBinariesDirectory {
             get {
                 if (data.BinDirectory == null && data.CandleLocation == null && data.DarkLocation == null && data.LightLocation == null && data.XsdsLocation == null) {
+                    List<DirectoryInfo> dirs = new List<DirectoryInfo>();
+
                     // With the installation of WixEdit the WiX toolset binaries are installed in "..\wix*", 
                     // relative to the WixEdit binary.
                     DirectoryInfo parent = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
                     if (parent != null) {
-                        foreach (DirectoryInfo dir in parent.GetDirectories("wix*")) {
-                            foreach (FileInfo file in dir.GetFiles("*.exe")) {
-                                if (file.Name.ToLower().Equals("candle.exe")) {
-                                    data.BinDirectory = dir.FullName;
-                                    break;
-                                }
+                        dirs.AddRange(parent.GetDirectories("wix*"));
+                        dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                    }
+
+                    parent = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+                    dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                    dirs.AddRange(parent.GetDirectories("wix*"));
+
+                    parent = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Programs));
+                    dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                    dirs.AddRange(parent.GetDirectories("wix*"));
+
+                    foreach (DirectoryInfo dir in dirs)
+                    {
+                        foreach (FileInfo file in dir.GetFiles("*.exe", SearchOption.AllDirectories))
+                        {
+                            if (file.Name.ToLower().Equals("candle.exe"))
+                            {
+                                data.BinDirectory = file.Directory.FullName;
+                                break;
                             }
+                        }
+
+                        if (data.BinDirectory != null)
+                        {
+                            break;
                         }
                     }
                 }

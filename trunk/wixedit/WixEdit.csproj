@@ -74,14 +74,6 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AxSHDocVw">
-      <Name>AxSHDocVw</Name>
-      <HintPath>lib\AxSHDocVw.dll</HintPath>
-    </Reference>
-    <Reference Include="SHDocVw">
-      <Name>SHDocVw</Name>
-      <HintPath>lib\SHDocVw.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

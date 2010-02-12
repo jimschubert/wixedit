@@ -80,7 +80,7 @@
           </Directory>
           <Directory Id="wix_3.0.5419.0" Name="wix-3.0.5419.0">
             <Component Id="wix_3.0.5419.0" DiskId="1" Guid="65A742CC-FFEB-4F98-A2AB-D07D54E55270">
-              <File Id="BlankFile.zip" Name="BlankFile.zip" Source="..\wix-3.0.5419.0\BlankFile.zip" />
+              <File Id="BlankFile.zip" Name="BlankFile.zip" Source="..\tools\wix-3.0.5419.0\BlankFile.zip" />
               <File Id="candle.exe" Name="candle.exe" Source="..\tools\wix-3.0.5419.0\candle.exe" />
               <File Id="candle.exe.config" Name="candle.exe.config" Source="..\tools\wix-3.0.5419.0\candle.exe.config" />
               <File Id="CPL.TXT" Name="CPL.TXT" Source="..\tools\wix-3.0.5419.0\CPL.TXT" />

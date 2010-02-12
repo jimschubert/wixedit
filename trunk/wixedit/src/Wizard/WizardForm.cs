@@ -42,6 +42,7 @@ namespace WixEdit.Wizard
             AddSheet(selectTemplates);
 
             endSheet = new FinishSheet(this);
+            endSheet.Dock = DockStyle.Fill;
             contentPanel.Controls.Add(endSheet);
             endSheet.Visible = false;
         }
@@ -69,6 +70,11 @@ namespace WixEdit.Wizard
             doc.Load(templateLocation);
             XmlElement template = (XmlElement)doc.SelectSingleNode("/Template");
 
+            AddTemplate(template);
+        }
+
+        public void AddTemplate(XmlElement template)
+        {
             IntroductionSheet intro = new IntroductionSheet(template, this);
 
             AddSheet(intro);

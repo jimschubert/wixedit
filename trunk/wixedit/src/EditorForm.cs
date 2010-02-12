@@ -134,7 +134,16 @@ namespace WixEdit {
 
             if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
                 xsdWarningIsDone = true;
-                MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+
+                if (String.IsNullOrEmpty(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) ||
+                    Directory.Exists(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) == false)
+                {
+                    MessageBox.Show("Windows Installer XML (WiX) Toolset installation is required to run WixEdit.\r\n\r\nThe WiX installation can be downloaded from http://wix.sourceforge.net/. Please download and install WiX and specify the install location in the WixEdit options.", "Missing WiX");
+                }
+                else
+                {
+                    MessageBox.Show("Please check your WiX installation!\r\n\r\nCannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+                }
             }
         }
 
@@ -143,7 +152,16 @@ namespace WixEdit {
 
             if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
                 xsdWarningIsDone = true;
-                MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+
+                if (String.IsNullOrEmpty(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) ||
+                    Directory.Exists(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) == false)
+                {
+                    MessageBox.Show("Windows Installer XML (WiX) Toolset installation is required to run WixEdit.\r\n\r\nThe WiX installation can be downloaded from http://wix.sourceforge.net/. Please download and install WiX and specify the install location in the WixEdit options.", "Missing WiX");
+                }
+                else
+                {
+                    MessageBox.Show("Please check your WiX installation!\r\n\r\nCannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+                }
 
                 return;
             }
@@ -396,7 +414,22 @@ namespace WixEdit {
             // the WixEdit assembly and select the "Browse Application State" in the help menu.
             // See http://sliver.com/dotnet/statebrowser/
             try {
-                stateBrowserAssm = Assembly.Load("sliver.windows.forms.statebrowser, Version=1.5.0.0, Culture=neutral, PublicKeyToken=34afe62596d00324, Custom=null");
+                string location = Assembly.GetExecutingAssembly().Location;
+                FileInfo wixEditExe = new FileInfo(location);
+                string tryPath = Path.Combine(wixEditExe.Directory.Parent.FullName, @"tools\StateBrowser\sliver.Windows.Forms.StateBrowser.dll");
+                if (!File.Exists(tryPath))
+                {
+                    tryPath = Path.Combine(wixEditExe.Directory.Parent.Parent.FullName, @"tools\StateBrowser\sliver.Windows.Forms.StateBrowser.dll");
+                }
+
+                if (!File.Exists(tryPath))
+                {
+                    stateBrowserAssm = Assembly.Load("sliver.windows.forms.statebrowser, Version=1.5.0.0, Culture=neutral, PublicKeyToken=34afe62596d00324, Custom=null");
+                }
+                else
+                {
+                    stateBrowserAssm = Assembly.LoadFile(tryPath);
+                }
             } catch (Exception) { }
 
             if (stateBrowserAssm != null) {
@@ -702,6 +735,8 @@ namespace WixEdit {
             if (recentFiles.Length == 0) {
                 fileRecent.MenuItems.Add(0, fileRecentEmpty);
             } else {
+                bool hasObsolete = false;
+
                 int i = 0;
                 foreach (string recentFile in recentFiles) {
                     string recentFileText = recentFile;
@@ -718,6 +753,7 @@ namespace WixEdit {
                         recentFileMenuItem.Bitmap = ico.ToBitmap();
                     } else {
                         recentFileMenuItem.Enabled = false;
+                        hasObsolete = true;
                     }
 
                     fileRecent.MenuItems.Add(i, recentFileMenuItem);
@@ -725,9 +761,15 @@ namespace WixEdit {
                     i++;
                 }
 
-                fileRecent.MenuItems.Add(i, new IconMenuItem("-"));
-                fileRecent.MenuItems.Add(i+1, fileRecentClean);
-                fileRecent.MenuItems.Add(i+2, fileRecentClear);
+                fileRecent.MenuItems.Add(i++, new IconMenuItem("-"));
+
+                // only show clean if there are obsolete files
+                if (hasObsolete)
+                {
+                    fileRecent.MenuItems.Add(i++, fileRecentClean);
+                }
+
+                fileRecent.MenuItems.Add(i, fileRecentClear);
             }
         }
 
@@ -844,9 +886,6 @@ namespace WixEdit {
             // Get ObjectToBrowse property
             PropertyInfo objectToBrowseProp = stateBrowserFormType.GetProperty("ObjectToBrowse");
             
-            // Get the Show method
-            MethodInfo showMethod = stateBrowserFormType.GetMethod("Show");
-            
             // Create instance of form
             object stateBrowserForm  = Activator.CreateInstance(stateBrowserFormType);
 
@@ -864,9 +903,10 @@ namespace WixEdit {
 
             // Set ObjectToBrowse property to this form
             objectToBrowseProp.SetValue(stateBrowserForm, this, new object[0]);
-            
+
             // Show the form
-            showMethod.Invoke(stateBrowserForm, null);
+            Form form = (Form)stateBrowserForm;
+            form.Show(this);
         }
 
         private void editFind_Click(object sender, System.EventArgs e) {
@@ -1194,7 +1234,16 @@ namespace WixEdit {
 
                 if (xsdWarningIsDone == false && WixFiles.CheckForXsd() == false) {
                     xsdWarningIsDone = true;
-                    MessageBox.Show("Cannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+
+                    if (String.IsNullOrEmpty(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) ||
+                    Directory.Exists(WixEditSettings.Instance.WixBinariesDirectory.BinDirectory) == false)
+                    {
+                        MessageBox.Show("Windows Installer XML (WiX) Toolset installation is required to run WixEdit.\r\n\r\nThe WiX installation can be downloaded from http://wix.sourceforge.net/. Please download and install WiX and specify the install location in the WixEdit options.", "Missing WiX");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please check your WiX installation!\r\n\r\nCannot find Wix.xsd! It should be located in the 'doc' subdirectory of your WiX installation. Please check your WiX installation and the XSDs location in the WixEdit options. This file is required to determine the correct xml schema for your version of WiX.", "Missing Wix.xsd");
+                    }
                 }
             }
         }

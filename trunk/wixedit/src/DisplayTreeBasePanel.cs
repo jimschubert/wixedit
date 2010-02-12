@@ -668,7 +668,7 @@ namespace WixEdit {
             panelContextMenu.MenuItems.Clear();
 
             //add import menu
-            IconMenuItem itemImport = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            IconMenuItem itemImport = new IconMenuItem("&Import XML", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
             itemImport.Click += new System.EventHandler(ImportElement_Click);
 
             panelContextMenu.MenuItems.Add(new IconMenuItem("-"));

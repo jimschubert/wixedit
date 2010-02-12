@@ -17,7 +17,10 @@ namespace WixEdit.Wizard
         Label titleLabel;
         Label descriptionLabel;
         Label lineLabel;
-        ListView listView;
+        CheckedListBox checkList;
+        GroupBox templateDescriptionGroupBox;
+        Panel templateDescriptionPanel;
+        Label templateDescriptionLabel;
 
         public SelectTemplatesSheet(WizardForm creator)
             : base(creator)
@@ -27,10 +30,10 @@ namespace WixEdit.Wizard
             titleLabel = new Label();
             titleLabel.Text = "Select featues to add";
             titleLabel.Dock = DockStyle.Top;
-            titleLabel.Height = 15;
+            titleLabel.Height = 20;
             titleLabel.Left = 0;
             titleLabel.Top = 0;
-            titleLabel.Padding = new Padding(5, 0, 5, 0);
+            titleLabel.Padding = new Padding(5, 5, 5, 0);
             titleLabel.Font = new Font("Verdana",
                         10,
                         FontStyle.Bold,
@@ -60,17 +63,40 @@ namespace WixEdit.Wizard
 
             this.Controls.Add(lineLabel);
 
-            listView = new ListView();
-            listView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            listView.Location = new Point(4, titleLabel.Height + descriptionLabel.Height + lineLabel.Height + 4);
-            listView.Width = this.Width - 8;
-            listView.Height = this.Height - listView.Top - 4;
-            listView.CheckBoxes = true;
-            listView.FullRowSelect = true;
-            listView.View = View.List;
-            listView.FullRowSelect = true;
+            checkList = new CheckedListBox();
+            checkList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            checkList.Location = new Point(4, lineLabel.Top + lineLabel.Height + 5);
+            checkList.Width = this.Width - 8 - 190;
+            checkList.Height = this.Height - checkList.Top - 5;
+            checkList.DisplayMember = "Value";
+            checkList.Sorted = true;
+            checkList.SelectedIndexChanged += new EventHandler(checkList_SelectedIndexChanged);
 
-            this.Controls.Add(listView);
+            this.Controls.Add(checkList);
+
+            templateDescriptionGroupBox = new GroupBox();
+            templateDescriptionGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            templateDescriptionGroupBox.Location = new Point(checkList.Width + 12, checkList.Top);
+            templateDescriptionGroupBox.Width = 190 - 8;
+            templateDescriptionGroupBox.Height = checkList.Height;
+            templateDescriptionGroupBox.Text = "Description";
+
+            this.Controls.Add(templateDescriptionGroupBox);
+
+            templateDescriptionPanel = new Panel();
+            templateDescriptionPanel.Dock = DockStyle.Fill;
+            templateDescriptionPanel.AutoScroll = true;
+            templateDescriptionGroupBox.Controls.Add(templateDescriptionPanel);
+
+            templateDescriptionLabel = new Label();
+            //templateDescriptionLabel.Width = templateDescriptionPanel.Width;
+            templateDescriptionLabel.Dock = DockStyle.Fill;
+            templateDescriptionLabel.Text = "";
+            templateDescriptionLabel.Visible = false;
+
+            templateDescriptionPanel.Controls.Add(templateDescriptionLabel);
+
+            this.Resize += new EventHandler(SelectTemplatesSheet_Resize);
 
             DirectoryInfo oldTemplateDir = null;
             DirectoryInfo templateDir = null;
@@ -97,17 +123,8 @@ namespace WixEdit.Wizard
 
                         doc.Load(file.FullName);
                         XmlElement template = (XmlElement)doc.SelectSingleNode("/Template");
-                        string tempTitle = template.GetAttribute("Title");
 
-                        if (!String.IsNullOrEmpty(tempTitle))
-                        {
-                            title = tempTitle;
-                        }
-
-                        ListViewItem item = new ListViewItem(title);
-                        item.Tag = file.FullName;
-
-                        listView.Items.Add(item);
+                        checkList.Items.Add(template.Attributes["Title"]);
                     }
                 }
             }
@@ -125,9 +142,10 @@ namespace WixEdit.Wizard
 
         public override bool OnNext()
         {
-            foreach (ListViewItem item in listView.CheckedItems)
+            foreach (XmlAttribute titleAtt in checkList.CheckedItems)
             {
-                Wizard.AddTemplate((String)item.Tag);
+                XmlElement template = titleAtt.OwnerElement;
+                Wizard.AddTemplate(template);
             }
 
             return base.OnNext();
@@ -135,7 +153,7 @@ namespace WixEdit.Wizard
 
         public override bool UndoNext()
         {
-            int numberOfTemplates = listView.CheckedItems.Count;
+            int numberOfTemplates = checkList.CheckedItems.Count;
 
             for (int i = 0; i < numberOfTemplates; i++)
             {
@@ -143,6 +161,36 @@ namespace WixEdit.Wizard
             }
 
             return base.UndoNext();
+        }
+
+        void SelectTemplatesSheet_Resize(object sender, EventArgs e)
+        {
+            if (checkList.Height != templateDescriptionGroupBox.Height)
+            {
+                templateDescriptionGroupBox.Height = checkList.Height;
+            }
+        }
+
+        void checkList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (checkList.SelectedIndex < 0)
+            {
+                templateDescriptionLabel.Text = "";
+                templateDescriptionLabel.Visible = false;
+            }
+            else
+            {
+                XmlAttribute titleAtt = checkList.SelectedItem as XmlAttribute;
+                XmlElement template = titleAtt.OwnerElement;
+                StringBuilder text = new StringBuilder(template.GetAttribute("Description"));
+                text.Replace(@"\r\n", "\r\n");
+                text.Replace(@"\r", "\r\n");
+                text.Replace(@"\n", "\r\n");
+                text.Replace(@"\t", "    ");
+                templateDescriptionLabel.Text = text.ToString();
+                templateDescriptionLabel.Visible = true;
+                templateDescriptionLabel.Height = templateDescriptionLabel.GetPreferredSize(new Size(templateDescriptionLabel.Width, 1000)).Height;
+            }
         }
     }
 }
