@@ -688,7 +688,7 @@ namespace WixEdit {
             foreach (string ext in xsdExtensionNames) {
                 XmlNodeList list = wxsDocument.SelectNodes(String.Format("//{0}:*", ext), wxsNsmgr);
                 if (list.Count > 0) {
-                    ret.AppendFormat(" -ext Wix{0}Extension ", ext);
+                    ret.AppendFormat(" -ext Wix{0}{1}Extension ", ext.Substring(0, 1).ToUpper(), ext.Substring(1));
                     selectedLowerCaseExtensions.Add(ext.ToLower());
                 }
             }
@@ -938,7 +938,8 @@ namespace WixEdit {
                 if (f is EditorForm)
                 {
                     EditorForm mainForm = f as EditorForm;
-                    if (mainForm.wixFiles.WxsFile.FullName == this.WxsFile.FullName)
+                    if (mainForm.wixFiles != null &&
+                        mainForm.wixFiles.WxsFile.FullName == this.WxsFile.FullName)
                     {
                         return mainForm;
                     }

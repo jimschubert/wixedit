@@ -102,6 +102,7 @@ namespace WixEdit.Wizard
             this.Controls.Add(this.backButton);
             this.Controls.Add(this.nextButton);
             this.Controls.Add(this.cancelButton);
+            this.MinimumSize = new System.Drawing.Size(480, 330);
             this.Name = "WizardForm";
             this.ShowInTaskbar = false;
             this.Text = "WizardForm";

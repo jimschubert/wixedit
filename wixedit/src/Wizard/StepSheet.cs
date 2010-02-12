@@ -81,10 +81,10 @@ namespace WixEdit.Wizard
             titleLabel = new Label();
             titleLabel.Text = stepElement.SelectSingleNode("Title").InnerText;
             titleLabel.Dock = DockStyle.Top;
-            titleLabel.Height = 15;
+            titleLabel.Height = 20;
             titleLabel.Left = 0;
             titleLabel.Top = 0;
-            titleLabel.Padding = new Padding(5, 0, 5, 0);
+            titleLabel.Padding = new Padding(5, 5, 5, 0);
             titleLabel.Font = new Font("Verdana",
                         10,
                         FontStyle.Bold,

@@ -556,7 +556,7 @@ namespace WixEdit {
             MenuItem menuItem1 = new IconMenuItem("&New Dialog", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             MenuItem menuItemCopy = new IconMenuItem("&Copy Dialog", new Bitmap(WixFiles.GetResourceStream("bmp.paste.bmp")));
             MenuItem menuItem2 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
-            MenuItem menuItem3 = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            MenuItem menuItem3 = new IconMenuItem("&Import XML", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
 
             menuItem1.Click += new EventHandler(OnNewWxsDialogsItem);
             menuItem3.Click += new EventHandler(OnImportWxsDialogsItem);

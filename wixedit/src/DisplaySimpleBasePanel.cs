@@ -104,7 +104,7 @@ namespace WixEdit {
             MenuItem menuItem1 = new IconMenuItem("Add &New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
             MenuItem menuItem3 = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
             MenuItem menuItem4 = new IconMenuItem("&Rename");
-            MenuItem menuItem5 = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            MenuItem menuItem5 = new IconMenuItem("&Import XML", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
 
             menuItem1.Click += new EventHandler(OnNewPropertyGridItem);
             menuItem3.Click += new EventHandler(OnDeletePropertyGridItem);

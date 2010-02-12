@@ -17,8 +17,6 @@ namespace WixEdit.Wizard
         public FinishSheet(WizardForm creator)
             : base(creator)
         {
-            Wizard.WixFiles.UndoManager.BeginNewCommandRange();
-
             string title = "Finished Wizard";
             string description = "The WixEdit wizard finished creating the source for the MSI file. WixEdit allows you to customize the MSI.\r\n\r\nClick \"Finish\" to finish the WixEdit wizard and start customizing the MSI.";
 
@@ -69,6 +67,8 @@ namespace WixEdit.Wizard
 
         public override void OnShow()
         {
+            Wizard.WixFiles.UndoManager.BeginNewCommandRange();
+
             XmlDocument wxsDoc = Wizard.WixFiles.WxsDocument;
             XmlNamespaceManager wxsNsmgr = Wizard.WixFiles.WxsNsmgr;
 
@@ -88,25 +88,44 @@ namespace WixEdit.Wizard
 
             if (orphanedComponents.Count > 0)
             {
+                XmlElement defaultFeature = null;
+
+                // Zoek naar precies 1 feature of maak er 1
                 if (featureNodes.Count == 1)
                 {
-                    // allemaal toevoegen aan feature...
-                    foreach (XmlElement orphanedComponent in orphanedComponents)
-                    {
-                        XmlElement newElement = wxsDoc.CreateElement("ComponentRef", WixFiles.WixNamespaceUri);
-                        newElement.SetAttribute("Id", orphanedComponent.GetAttribute("Id"));
-                        featureNodes[0].AppendChild(newElement);
-                    }
+                    defaultFeature = (XmlElement)featureNodes[0];
                 }
                 else if (featureNodes.Count == 0)
                 {
-                    // niet te doen, geen features.
-                    descriptionLabel.Text = "Please note:\r\nThere are no Feature elements to add the orphaned Components to. Please make sure all components are added to one or more feature.\r\n\r\n" 
-                        + descriptionLabel.Text;
+                    // Add default feature
+                    defaultFeature = Wizard.WixFiles.WxsDocument.CreateElement("Feature", WixFiles.WixNamespaceUri);
+                    defaultFeature.SetAttribute("Id", "DefaultFeature");
+                    defaultFeature.SetAttribute("Title", "Default Feature");
+                    defaultFeature.SetAttribute("Level", "1");
+
+                    XmlNodeList targetDir = Wizard.WixFiles.WxsDocument.SelectNodes("//wix:Directory[@Id='TARGETDIR']", Wizard.WixFiles.WxsNsmgr);
+                    if (targetDir.Count > 0)
+                    {
+                        defaultFeature.SetAttribute("ConfigurableDirectory", "TARGETDIR");
+                    }
+
+                    XmlNode parentNode = Wizard.WixFiles.WxsDocument.SelectSingleNode("/wix:Wix/*", Wizard.WixFiles.WxsNsmgr);
+                    parentNode.AppendChild(defaultFeature);
+                }
+
+                if (defaultFeature != null)
+                {
+                    // Precies 1 feature of 1 gemaakt
+                    foreach (XmlElement component in orphanedComponents)
+                    {
+                        XmlElement componentRef = Wizard.WixFiles.WxsDocument.CreateElement("ComponentRef", WixFiles.WixNamespaceUri);
+                        componentRef.SetAttribute("Id", component.GetAttribute("Id"));
+                        defaultFeature.AppendChild(componentRef);
+                    }
                 }
                 else
                 {
-                    // niet te doen, te veel features.
+                    // Te veel features gevonden
                     descriptionLabel.Text = "Please note:\r\nThere are more than one Feature elements to add the orphaned Components to. Please make sure all components are added to one or more feature.\r\n\r\n"
                         + descriptionLabel.Text;
                 }

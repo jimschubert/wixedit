@@ -22,7 +22,38 @@ namespace WixEdit.Wizard
         Button newFolderButton;
         Button removeButton;
         Button importDirectoryButton;
-        
+
+        IconMenuItem importFilesMenuItem;
+        IconMenuItem importFolderMenuItem;
+        IconMenuItem newFolderMenuItem;
+        IconMenuItem newSpecialFolderMenuItem;
+        IconMenuItem newComponentMenuItem;
+        IconMenuItem deleteMenuItem;
+
+        string[] specialFolders = new string[] { "AdminToolsFolder",
+                                                "AppDataFolder",
+                                                "CommonAppDataFolder",
+                                                "CommonFiles64Folder",
+                                                "CommonFilesFolder",
+                                                "DesktopFolder",
+                                                "FavoritesFolder",
+                                                "FontsFolder",
+                                                "LocalAppDataFolder",
+                                                "MyPicturesFolder",
+                                                "PersonalFolder",
+                                                "ProgramFiles64Folder",
+                                                "ProgramFilesFolder",
+                                                "ProgramMenuFolder",
+                                                "SendToFolder",
+                                                "StartMenuFolder",
+                                                "StartupFolder",
+                                                "System16Folder",
+                                                "System64Folder",
+                                                "SystemFolder",
+                                                "TempFolder",
+                                                "TemplateFolder",
+                                                "WindowsFolder",
+                                                "WindowsVolume"};
 
         public FileSheet(WizardForm creator)
             : base(creator)
@@ -32,10 +63,10 @@ namespace WixEdit.Wizard
             titleLabel = new Label();
             titleLabel.Text = "Add files and folders to install.";
             titleLabel.Dock = DockStyle.Top;
-            titleLabel.Height = 15;
+            titleLabel.Height = 20;
             titleLabel.Left = 0;
             titleLabel.Top = 0;
-            titleLabel.Padding = new Padding(5, 0, 5, 0);
+            titleLabel.Padding = new Padding(5, 5, 5, 0);
             titleLabel.Font = new Font("Verdana",
                         10,
                         FontStyle.Bold,
@@ -68,9 +99,9 @@ namespace WixEdit.Wizard
             tree = new TreeView();
             tree.HideSelection = false;
             tree.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tree.Location = new Point(4, titleLabel.Height + descriptionLabel.Height + lineLabel.Height + 4);
+            tree.Location = new Point(4, titleLabel.Height + descriptionLabel.Height + lineLabel.Height + 5);
             tree.Width = this.Width - 8 - 100 - 8;
-            tree.Height = this.Height - tree.Top - 4;
+            tree.Height = this.Height - tree.Top - 7;
             tree.ImageList = ImageListFactory.GetImageList();
             tree.MouseDown += new MouseEventHandler(tree_MouseDown);
 
@@ -108,7 +139,37 @@ namespace WixEdit.Wizard
 
             contextMenu = new ContextMenu();
             contextMenu.Popup += new EventHandler(contextMenu_Popup);
-            tree.ContextMenu = contextMenu;
+            // tree.ContextMenu = contextMenu;
+
+            importFilesMenuItem = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            importFilesMenuItem.Click += new System.EventHandler(importFilesMenuItem_Click);
+            contextMenu.MenuItems.Add(importFilesMenuItem);
+
+            newFolderMenuItem = new IconMenuItem("&New Folder", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            newFolderMenuItem.Click += new System.EventHandler(newFolderMenuItem_Click);
+            contextMenu.MenuItems.Add(newFolderMenuItem);
+
+            importFolderMenuItem = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            importFolderMenuItem.Click += new System.EventHandler(importFolderMenuItem_Click);
+            contextMenu.MenuItems.Add(importFolderMenuItem);
+
+            newSpecialFolderMenuItem = new IconMenuItem("New Special Folder", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            foreach (string specialFolder in specialFolders)
+            {
+                IconMenuItem subItem = new IconMenuItem(specialFolder);
+                subItem.Click += new EventHandler(specialFolderSubItem_Click);
+                newSpecialFolderMenuItem.MenuItems.Add(subItem);
+            }
+            contextMenu.MenuItems.Add(newSpecialFolderMenuItem);
+
+            newComponentMenuItem = new IconMenuItem("New Component", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            newComponentMenuItem.Click += new EventHandler(newComponentMenuItem_Click);
+            contextMenu.MenuItems.Add(newComponentMenuItem);
+
+            deleteMenuItem = new IconMenuItem("&Delete", new Bitmap(WixFiles.GetResourceStream("bmp.delete.bmp")));
+            deleteMenuItem.Click += new EventHandler(deleteMenuItem_Click);
+            contextMenu.MenuItems.Add(deleteMenuItem);
+
 
             XmlDocument wxsDoc = Wizard.WixFiles.WxsDocument;
             XmlNamespaceManager wxsNsmgr = Wizard.WixFiles.WxsNsmgr;
@@ -153,11 +214,18 @@ namespace WixEdit.Wizard
             {
                 MessageBox.Show("Please select an item in the tree first.", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            else if (tree.SelectedNode.Level == 0)
+            {
+                MessageBox.Show("Cannot remove the SourceDir with the id \"TARGETDIR\".", "Select folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             else
             {
-                XmlNode node = tree.SelectedNode.Tag as XmlNode;
-                node.ParentNode.RemoveChild(node);
-                tree.SelectedNode.Remove();
+                XmlElement selectedNode = tree.SelectedNode.Tag as XmlElement;
+                if (selectedNode != null)
+                {
+                    selectedNode.ParentNode.RemoveChild(selectedNode);
+                    tree.SelectedNode.Remove();
+                }
             }
         }
 
@@ -196,6 +264,7 @@ namespace WixEdit.Wizard
                 treeNode.Tag = newDirectory;
                 tree.SelectedNode.Nodes.Add(treeNode);
                 tree.SelectedNode.Expand();
+                treeNode.EnsureVisible();
             }
         }
 
@@ -221,42 +290,84 @@ namespace WixEdit.Wizard
 
         void contextMenu_Popup(object sender, EventArgs e)
         {
-            contextMenu.MenuItems.Clear();
+            foreach (MenuItem item in contextMenu.MenuItems)
+            {
+                item.Visible = false;
+            }
 
             if (tree.SelectedNode == null)
             {
                 return;
             }
 
-            XmlNode node = tree.SelectedNode.Tag as XmlNode;
-            if (node == null)
+            XmlNode selectedNode = tree.SelectedNode.Tag as XmlNode;
+            if (selectedNode == null)
             {
                 return;
             }
 
-            //add import menu
-            //IconMenuItem itemImport = new IconMenuItem("&Import", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-            //itemImport.Click += new System.EventHandler(ImportElement_Click);
-
-            //contextMenu.MenuItems.Add(new IconMenuItem("-"));
-            //contextMenu.MenuItems.Add(itemImport);
-
-            if (node.Name == "Component")
+            if (selectedNode.Name == "Directory")
             {
-                IconMenuItem importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-                importFilesMenu.Click += new System.EventHandler(ImportFiles_Click);
-                contextMenu.MenuItems.Add(0, importFilesMenu);
+                importFilesMenuItem.Visible = false;
+                importFolderMenuItem.Visible = true;
+                newFolderMenuItem.Visible = true;
+                newComponentMenuItem.Visible = true;
             }
-            else if (node.Name == "Directory")
+            else if (selectedNode.Name == "Component")
             {
-                IconMenuItem newFolderMenu = new IconMenuItem("&New Folder", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
-                newFolderMenu.Click += new System.EventHandler(NewFolder_Click);
-                contextMenu.MenuItems.Add(0, newFolderMenu);
-
-                IconMenuItem importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
-                importFolderMenu.Click += new System.EventHandler(ImportFolder_Click);
-                contextMenu.MenuItems.Add(1, importFolderMenu);
+                importFilesMenuItem.Visible = true;
+                importFolderMenuItem.Visible = false;
+                newFolderMenuItem.Visible = false;
+                newComponentMenuItem.Visible = false;
             }
+            else if (selectedNode.Name == "File")
+            {
+                importFilesMenuItem.Visible = false;
+                importFolderMenuItem.Visible = false;
+                newFolderMenuItem.Visible = false;
+                newComponentMenuItem.Visible = false;
+            }
+
+            if (tree.SelectedNode.Level == 0)
+            {
+                deleteMenuItem.Visible = false;
+                newSpecialFolderMenuItem.Visible = true;
+            }
+            else
+            {
+                deleteMenuItem.Visible = true;
+                newSpecialFolderMenuItem.Visible = false;
+            }
+
+            //contextMenu.MenuItems.Clear();
+
+            //if (tree.SelectedNode == null)
+            //{
+            //    return;
+            //}
+
+            //XmlNode node = tree.SelectedNode.Tag as XmlNode;
+            //if (node == null)
+            //{
+            //    return;
+            //}
+
+            //if (node.Name == "Component")
+            //{
+            //    IconMenuItem importFilesMenu = new IconMenuItem("&Import Files", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            //    importFilesMenu.Click += new System.EventHandler(importFilesMenuItem_Click);
+            //    contextMenu.MenuItems.Add(0, importFilesMenu);
+            //}
+            //else if (node.Name == "Directory")
+            //{
+            //    IconMenuItem newFolderMenu = new IconMenuItem("&New Folder", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            //    newFolderMenu.Click += new System.EventHandler(newFolderMenuItem_Click);
+            //    contextMenu.MenuItems.Add(0, newFolderMenu);
+
+            //    IconMenuItem importFolderMenu = new IconMenuItem("&Import Folder", new Bitmap(WixFiles.GetResourceStream("bmp.import.bmp")));
+            //    importFolderMenu.Click += new System.EventHandler(importFolderMenuItem_Click);
+            //    contextMenu.MenuItems.Add(1, importFolderMenu);
+            //}
         }
         private void InitTreeView(XmlNodeList dirNodes)
         {
@@ -515,12 +626,6 @@ namespace WixEdit.Wizard
             }
         }
 
-
-        private void ImportFiles_Click(object sender, System.EventArgs e)
-        {
-            ImportFiles();
-        }
-
         private void ImportFiles()
         {
             TreeNode aNode = tree.SelectedNode;
@@ -539,15 +644,93 @@ namespace WixEdit.Wizard
             }
         }
 
-        private void ImportFolder_Click(object sender, System.EventArgs e)
+        private void importFilesMenuItem_Click(object sender, System.EventArgs e)
+        {
+            ImportFiles();
+        }
+
+        private void importFolderMenuItem_Click(object sender, System.EventArgs e)
         {
             ImportFolder();
         }
 
-
-        private void NewFolder_Click(object sender, System.EventArgs e)
+        private void newFolderMenuItem_Click(object sender, System.EventArgs e)
         {
             NewFolder();
+        }
+
+        private void deleteMenuItem_Click(object sender, EventArgs e)
+        {
+            XmlElement selectedNode = tree.SelectedNode.Tag as XmlElement;
+            if (selectedNode == null ||
+                tree.SelectedNode.Level == 0)
+            {
+                return;
+            }
+
+            selectedNode.ParentNode.RemoveChild(selectedNode);
+            tree.SelectedNode.Remove();
+        }
+
+        private void specialFolderSubItem_Click(object sender, EventArgs e)
+        {
+            XmlElement selectedNode = tree.SelectedNode.Tag as XmlElement;
+            if (selectedNode == null)
+            {
+                return;
+            }
+
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null)
+            {
+                XmlElement newProp = Wizard.WixFiles.WxsDocument.CreateElement("Directory", WixFiles.WixNamespaceUri);
+
+                newProp.SetAttribute("Id", menuItem.Text);
+                newProp.SetAttribute("Name", menuItem.Text);
+
+                selectedNode.AppendChild(newProp);
+                TreeNode newNode = new TreeNode();
+                newNode.Text = menuItem.Text;
+                newNode.ImageIndex = ImageListFactory.GetImageIndex("Directory");
+                newNode.SelectedImageIndex = newNode.ImageIndex;
+                newNode.Tag = newProp;
+                newNode.EnsureVisible();
+
+                tree.SelectedNode.Nodes.Add(newNode);
+                tree.SelectedNode.Expand();
+            }
+        }
+
+        private void newComponentMenuItem_Click(object sender, EventArgs e)
+        {
+            XmlElement selectedNode = tree.SelectedNode.Tag as XmlElement;
+            if (selectedNode == null)
+            {
+                return;
+            }
+
+            EnterStringForm frm = new EnterStringForm();
+            frm.Text = "Enter component id";
+            if (DialogResult.OK == frm.ShowDialog())
+            {
+                XmlElement newProp = Wizard.WixFiles.WxsDocument.CreateElement("Component", WixFiles.WixNamespaceUri);
+
+                newProp.SetAttribute("Id", frm.SelectedString);
+                newProp.SetAttribute("DiskId", "1");
+                newProp.SetAttribute("KeyPath", "yes");
+                newProp.SetAttribute("Guid", Guid.NewGuid().ToString("D"));
+
+                selectedNode.AppendChild(newProp);
+                TreeNode newNode = new TreeNode();
+                newNode.Text = frm.SelectedString;
+                newNode.ImageIndex = ImageListFactory.GetImageIndex("Component");
+                newNode.SelectedImageIndex = newNode.ImageIndex;
+                newNode.Tag = newProp;
+                newNode.EnsureVisible();
+
+                tree.SelectedNode.Nodes.Add(newNode);
+                tree.SelectedNode.Expand();
+            }
         }
 
         private void ImportFolder()
