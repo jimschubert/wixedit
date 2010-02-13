@@ -36,9 +36,7 @@ namespace WixEdit {
         private string currentValueName;
 
         public DisplaySimpleBasePanel(WixFiles wixFiles, string xpath, string elementName, string keyName, string valueName) : base(wixFiles, xpath, elementName, keyName) {
-            if (valueName == null) {
-                throw new ArgumentException("Require valueName in construction", "valueName");
-            }
+            // when valueName is null, the inner text is used.
 
             Reload += new ReloadHandler(ReloadData);
 
@@ -117,6 +115,7 @@ namespace WixEdit {
                 CurrentGridContextMenu.MenuItems.Add(menuItem3);
                 CurrentGridContextMenu.MenuItems.Add(menuItem4);
             }
+
             CurrentGridContextMenu.MenuItems.Add(menuItem5);
         }
 
@@ -136,7 +135,8 @@ namespace WixEdit {
                 newAttr.Value = frm.SelectedString;
                 newProp.Attributes.Append(newAttr);
 
-                if (currentValueName != null) {
+                if (currentValueName != null)
+                {
                     newAttr = WixFiles.WxsDocument.CreateAttribute(currentValueName);
                     newProp.Attributes.Append(newAttr);
                 }

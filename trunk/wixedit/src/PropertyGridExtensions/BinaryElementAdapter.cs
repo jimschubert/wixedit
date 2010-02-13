@@ -50,6 +50,11 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void RemoveProperty(XmlNode xmlElement) {
+            if (xmlElement == null)
+            {
+                return;
+            }
+
             XmlNode theElement = xmlElement;
             if (xmlElement is XmlAttribute) {
                 XmlAttribute xmlAttribute = xmlElement as XmlAttribute;

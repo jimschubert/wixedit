@@ -615,7 +615,7 @@ namespace WixEdit.Wizard
                 XmlElement dirElement = (XmlElement)dirNode;
 
                 TreeNode treeNode = new TreeNode();
-                
+                treeNode.Tag = dirElement;
                 treeNode.Text = dirElement.GetAttribute("Name");
                 treeNode.ImageIndex = ImageListFactory.GetImageIndex("Directory");
                 
