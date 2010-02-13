@@ -685,7 +685,8 @@ namespace WixEdit {
                 att.Value = top.ToString();
                 node.Attributes.Append(att);
             }
-            else { // A sub-node
+            else 
+            { // A sub-node
                 int width = 50;
                 int height = 17;
                 int left = 0;
@@ -706,8 +707,21 @@ namespace WixEdit {
                             break;
                             case "Height":
                                 att.Value = height.ToString();
+
                                 // Give the parent more room to display this item
-                                parentNode.ParentNode.Attributes["Height"].Value = (top + height).ToString();
+                                if (parentNode.ParentNode != null &&
+                                    parentNode.ParentNode.Attributes["Height"] != null)
+                                {
+                                    try
+                                    {
+                                        int currentParentHeight = Int32.Parse(parentNode.ParentNode.Attributes["Height"].Value);
+                                        if (currentParentHeight < top + height)
+                                        {
+                                            parentNode.ParentNode.Attributes["Height"].Value = (top + height).ToString();
+                                        }
+                                    }
+                                    catch { }
+                                }
                             break;
                             case "X":
                                 att.Value = left.ToString();
@@ -715,10 +729,8 @@ namespace WixEdit {
                             case "Y":
                                 att.Value = top.ToString();
                             break;
-                            default:
-                                att.Value = parentNode.ChildNodes.Count.ToString();
-                            break;
                         }
+
                         node.Attributes.Append(att);
                     }
                 }
@@ -1232,7 +1244,6 @@ namespace WixEdit {
                 treeNodeName = xmlNodeToAdd.Attributes["Text"].Value;
             }
 
-            TreeNode child = new TreeNode(treeNodeName);
             XmlAttribute attr = xmlNodeToAdd.ParentNode.Attributes["Type"];
             if (attr != null
                 && treeNodeName == attr.Value)
@@ -1244,6 +1255,7 @@ namespace WixEdit {
             }
             else
             {
+                TreeNode child = new TreeNode(treeNodeName);
                 child.ImageIndex = GetImageIndex(xmlNodeToAdd.Name);
                 child.SelectedImageIndex = child.ImageIndex;
                 child.Tag = xmlNodeToAdd;

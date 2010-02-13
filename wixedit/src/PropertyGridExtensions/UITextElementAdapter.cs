@@ -48,6 +48,11 @@ namespace WixEdit.PropertyGridExtensions {
         }
 
         public override void RemoveProperty(XmlNode xmlElement) {
+            if (xmlElement == null)
+            {
+                return;
+            }
+
             uiTextNodes.Remove(xmlElement);
             xmlElement.ParentNode.RemoveChild(xmlElement);
         }

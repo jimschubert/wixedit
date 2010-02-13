@@ -76,12 +76,17 @@ namespace WixEdit {
                     style = style | FontStyle.Underline;
                 }
 
-                Font font = new Font(
+                Font font = new Font("Tahoma", (float)(scale * 8.00F), FontStyle.Regular, GraphicsUnit.Point, ((System.Byte)(0)));
+                try
+                {
+                    font = new Font(
                         fontElement.Attributes["FaceName"].Value,
-                        (float)(scale*XmlConvert.ToDouble(fontElement.Attributes["Size"].Value)),
+                        (float)(scale * XmlConvert.ToDouble(fontElement.Attributes["Size"].Value)),
                         style,
                         GraphicsUnit.Point
                     );
+                }
+                catch { }
 
                 definedFonts.Add(fontElement.Attributes["Id"].Value, font);
             }
@@ -264,6 +269,11 @@ namespace WixEdit {
             int posEnd = 0;
             while (posStart > -1) {
                 posEnd = value.IndexOf("]", posStart);
+                if (posEnd == -1)
+                {
+                    // Nothing to resolve anymore... (Someone should use an end bracket)
+                    break;
+                }
 
                 string propName = value.Substring(posStart+1, posEnd-posStart-1);
                 

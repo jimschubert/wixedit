@@ -333,36 +333,48 @@ namespace WixEdit {
         }
 
         protected void LaunchFile(string filename, int anchorNumber, int numberOfAnchors, int lineNumber, string message) {
-            XslCompiledTransform transform = new XslCompiledTransform();
-            using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl")) {
-                 XmlTextReader xr = new XmlTextReader(strm);
-                transform.Load(xr, null, null);
-            }
+            try
+            {
+                XslCompiledTransform transform = new XslCompiledTransform();
+                using (Stream strm = WixFiles.GetResourceStream("viewWixXml.xsl"))
+                {
+                    XmlTextReader xr = new XmlTextReader(strm);
+                    transform.Load(xr, null, null);
+                }
 
-            string outputFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(filename)) + ".html";
-            if (
-                ( File.Exists(outputFile) &&
-                ( File.GetLastWriteTimeUtc(outputFile).CompareTo(File.GetLastWriteTimeUtc(filename)) > 0 ) &&
-                ( File.GetLastWriteTimeUtc(outputFile).CompareTo(File.GetLastWriteTimeUtc(Assembly.GetExecutingAssembly().Location)) > 0 ) ) == false
-               ) {
-                File.Delete(outputFile);
-                transform.Transform(filename, outputFile);
-            }
+                string outputFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(filename)) + ".html";
+                if (
+                    (File.Exists(outputFile) &&
+                    (File.GetLastWriteTimeUtc(outputFile).CompareTo(File.GetLastWriteTimeUtc(filename)) > 0) &&
+                    (File.GetLastWriteTimeUtc(outputFile).CompareTo(File.GetLastWriteTimeUtc(Assembly.GetExecutingAssembly().Location)) > 0)) == false
+                   )
+                {
+                    File.Delete(outputFile);
+                    transform.Transform(filename, outputFile);
+                }
 
-            if (xmlDisplayForm.Visible == false) {
-                xmlDisplayForm = new XmlDisplayForm();
-            }
+                if (xmlDisplayForm.Visible == false)
+                {
+                    xmlDisplayForm = new XmlDisplayForm();
+                }
 
-            StringBuilder anchorBuilder = new StringBuilder();
-            for (int i = 0; i < numberOfAnchors; i++) {
-                anchorBuilder.AppendFormat("{0},", anchorNumber+i);
-            }
-            anchorBuilder.Remove(anchorBuilder.Length-1, 1);
+                StringBuilder anchorBuilder = new StringBuilder();
+                for (int i = 0; i < numberOfAnchors; i++)
+                {
+                    anchorBuilder.AppendFormat("{0},", anchorNumber + i);
+                }
+                anchorBuilder.Remove(anchorBuilder.Length - 1, 1);
 
-            xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
-            xmlDisplayForm.ShowFile(String.Format("{0}?{1}#a{1}", outputFile, anchorBuilder.ToString()));
-            xmlDisplayForm.Show();
-            xmlDisplayForm.Activate();
+                xmlDisplayForm.Text = String.Format("{0}({1}) {2}", Path.GetFileName(filename), lineNumber, message);
+                xmlDisplayForm.ShowFile(String.Format("{0}?{1}#a{1}", outputFile, anchorBuilder.ToString()));
+                xmlDisplayForm.Show();
+                xmlDisplayForm.Activate();
+            }
+            catch (XmlException ex)
+            {
+                // Invalid XML
+                MessageBox.Show("Failed to show XML, is it a valid XML file?\r\n\r\nMessage:\r\n" + ex.Message, "Failed to load XML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public bool IsBusy {

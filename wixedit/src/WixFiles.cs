@@ -528,8 +528,6 @@ namespace WixEdit {
                             continue;
                         }
         
-                        xsdExtensionNames.Add(extension);
-        
                         XmlDocument extensionXsdDocument = new XmlDocument();
                         extensionXsdDocument.Load(extensionFileInfo.FullName);
                         
@@ -546,6 +544,8 @@ namespace WixEdit {
         
                         xsdExtensionTargetNamespaces.Add(extension, targetNamespace);
                         xsdExtensionTargetNamespacesReverseMap.Add(targetNamespace, extension);
+
+                        xsdExtensionNames.Add(extension);
                     }
                 }
             }

@@ -166,6 +166,11 @@ namespace WixEdit {
         }
        
         public override void ShowNode(XmlNode node) {
+            if (node == null)
+            {
+                return;
+            }
+
             TreeNode treeNode = FindTreeNode(GetShowableNode(node), currTreeView.Nodes);
             if (treeNode == null) {
                 InitTreeView();
@@ -223,15 +228,8 @@ namespace WixEdit {
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) CurrentGrid.SelectedObject;
             if (attAdapter.XmlNodeDefinition == null) {
-                string noDefName = "";
-                XmlNode el = attAdapter.XmlNodeElement;
-                if (el != null) {
-                    noDefName = el.Name;
-                }
-
-                // How can this happen? Just trow an exception so it can be reported to the WixEdit website.
-                // Maybe this exception shouldn't be thrown, and just be ignored?
-                throw new Exception(String.Format("XmlAttributeAdapter.XmlNodeDefinition is null of \"{0}\" with name \"{1}\" in {2}", attAdapter.GetType(), noDefName, this.GetType()));
+                // Don't know, but can not show the context menu.
+                return;
             }
             
             // Need to change "Delete" to "Clear" for required items.
@@ -334,14 +332,16 @@ namespace WixEdit {
 
             SelectStringForm frm = new SelectStringForm();
             frm.PossibleStrings = attributes.ToArray(typeof(String)) as String[];
-            if (DialogResult.OK != frm.ShowDialog()) {
+            if (DialogResult.OK != frm.ShowDialog()
+                || frm.SelectedStrings.Length == 0)
+            {
                 return;
             }
 
             // Show dialog to choose from available items.
             XmlAttribute att = null;
-            for (int i = 0; i < frm.SelectedStrings.Length; i++) {
-                string newAttributeName = frm.SelectedStrings[i];
+            foreach (string newAttributeName in frm.SelectedStrings)
+            {
                 if (string.Equals(newAttributeName,"InnerText")) {
                     attAdapter.ShowInnerTextIfEmpty = true;
                 } else {
@@ -617,6 +617,8 @@ namespace WixEdit {
         }
 
         protected void PopupTreeViewContextMenu(System.Object sender, System.EventArgs e) {
+            currTreeViewContextMenu.MenuItems.Clear();
+
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -627,8 +629,6 @@ namespace WixEdit {
             item2.Click += new System.EventHandler(DeleteElement_Click);
             IconMenuItem item3 = new IconMenuItem("&Info", new Bitmap(WixFiles.GetResourceStream("bmp.info.bmp")));
             item3.Click += new System.EventHandler(InfoAboutCurrentElement_Click);
-
-            currTreeViewContextMenu.MenuItems.Clear();
 
             ArrayList newElementStrings = WixFiles.GetXsdSubElements(node.Name, SkipElements);
 
@@ -818,8 +818,8 @@ namespace WixEdit {
             MenuItem menuItem = sender as MenuItem;
             if (menuItem != null) {
                 TreeNode newNode = CreateNewSubElement(menuItem.Text);
-                ShowNode(newNode.Tag as XmlElement);
-                ShowProperties(newNode.Tag as XmlElement);
+                ShowNode(newNode.Tag as XmlNode);
+                ShowProperties(newNode.Tag as XmlNode);
             }
         }
 

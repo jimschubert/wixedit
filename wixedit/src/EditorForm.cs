@@ -955,7 +955,14 @@ namespace WixEdit {
             psiExternal.FileName = WixEditSettings.Instance.ExternalXmlEditor;
             psiExternal.Arguments = String.Format("\"{0}\"", wixFiles.WxsFile.FullName);
 
-            Process.Start(psiExternal);
+            try
+            {
+                Process.Start(psiExternal);
+            }
+            catch
+            {
+                MessageBox.Show("Failed to start external editor.", "Failed to compile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public void ShowNode(XmlNode node) {

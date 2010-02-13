@@ -107,8 +107,8 @@ namespace WixEdit {
 
             XmlAttributeAdapter attAdapter = (XmlAttributeAdapter) elementPropertyGrid.SelectedObject;
             if (attAdapter.XmlNodeDefinition == null) {
-                // How can this happen? Just trow an exception so it can be reported to the WixEdit website.
-                throw new Exception(String.Format("XmlAttributeAdapter.XmlNodeDefinition is null of \"{0}\" in {1}", attAdapter.GetType(), this.GetType()));
+                // Don't know, but can not show the context menu.
+                return;
             }
             
             // Need to change "Delete" to "Clear" for required items.
