@@ -220,6 +220,10 @@
     <EmbeddedResource Include="res\viewWixXml.xsl" />
     <EmbeddedResource Include="res\elements\registrykey.bmp" />
     <EmbeddedResource Include="res\elements\registryvalue.bmp" />
+    <EmbeddedResource Include="src\About\AboutForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="src\Wizard\BaseSheet.resx">
       <SubType>Designer</SubType>
       <DependentUpon>BaseSheet.cs</DependentUpon>
@@ -244,6 +248,27 @@
     <EmbeddedResource Include="res\elements\certificateref.bmp" />
     <EmbeddedResource Include="res\elements\complusapplication.bmp" />
     <EmbeddedResource Include="res\bmp\order.bmp" />
+    <EmbeddedResource Include="res\elements\billboard.bmp" />
+    <EmbeddedResource Include="res\elements\bitmap.bmp" />
+    <EmbeddedResource Include="res\elements\checkbox.bmp" />
+    <EmbeddedResource Include="res\elements\combobox.bmp" />
+    <EmbeddedResource Include="res\elements\directorycombo.bmp" />
+    <EmbeddedResource Include="res\elements\directorylist.bmp" />
+    <EmbeddedResource Include="res\elements\edit.bmp" />
+    <EmbeddedResource Include="res\elements\groupbox.bmp" />
+    <EmbeddedResource Include="res\elements\line.bmp" />
+    <EmbeddedResource Include="res\elements\listbox.bmp" />
+    <EmbeddedResource Include="res\elements\listview.bmp" />
+    <EmbeddedResource Include="res\elements\maskededit.bmp" />
+    <EmbeddedResource Include="res\elements\pathedit.bmp" />
+    <EmbeddedResource Include="res\elements\progressbar.bmp" />
+    <EmbeddedResource Include="res\elements\pushbutton.bmp" />
+    <EmbeddedResource Include="res\elements\radiobutton.bmp" />
+    <EmbeddedResource Include="res\elements\radiobuttongroup.bmp" />
+    <EmbeddedResource Include="res\elements\scrollabletext.bmp" />
+    <EmbeddedResource Include="res\elements\selectiontree.bmp" />
+    <EmbeddedResource Include="res\elements\volumecostList.bmp" />
+    <EmbeddedResource Include="res\elements\volumeselectcombo.bmp" />
     <Content Include="src\App.ico" />
     <Compile Include="src\About\AboutForm.cs">
       <SubType>Form</SubType>

@@ -60,6 +60,29 @@ namespace WixEdit {
                 }
             }
 
+            types.AddRange(new string[] {   "Billboard",
+                                            "Bitmap",
+                                            "CheckBox",
+                                            "ComboBox",
+                                            "DirectoryCombo",
+                                            "DirectoryList",
+                                            "Edit",
+                                            "GroupBox",
+                                            "Icon",
+                                            "Line",
+                                            "ListBox",
+                                            "ListView",
+                                            "MaskedEdit",
+                                            "PathEdit",
+                                            "ProgressBar",
+                                            "PushButton",
+                                            "RadioButtonGroup",
+                                            "ScrollableText",
+                                            "SelectionTree",
+                                            "Text",
+                                            "VolumeCostList",
+                                            "VolumeSelectCombo"});
+
             return types;
         }
 

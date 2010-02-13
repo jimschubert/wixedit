@@ -213,7 +213,7 @@ namespace WixEdit {
             dialogTreeView.MouseDown += new MouseEventHandler(TreeViewMouseDown);
             dialogTreeView.KeyDown += new KeyEventHandler(TreeViewKeyDown);
 
-            dialogTreeView.ImageList = GetDialogTreeViewImageList();
+            dialogTreeView.ImageList = ImageListFactory.GetImageList();
 
             newControlElementMenu = new IconMenuItem("New Control", new Bitmap(WixFiles.GetResourceStream("elements.control.bmp")));
 
@@ -481,59 +481,25 @@ namespace WixEdit {
         }
         #endregion
 
-        private int GetImageIndex(string name)
+        private int GetImageIndex(XmlNode node)
         {
-            switch (name.ToLower())
+            XmlElement element = (XmlElement)node;
+            int result = ImageListFactory.GetImageIndex(element.Name);
+            if (element.HasAttribute("Type"))
             {
-                case "dialog":
-                    return 1;
-                case "control":
-                    return 2;
-                case "text":
-                    return 3;
-                case "condition":
-                    return 4;
-                case "subscribe":
-                    return 5;
-                case "publish":
-                    return 6;
-                default:
-                    return 2;
+                int tmpResult = ImageListFactory.GetImageIndex(element.GetAttribute("Type"));
+                if (tmpResult != ImageListFactory.GetUnsupportedImageIndex())
+                {
+                    result = tmpResult;
+                }
             }
+
+            return result;
         }
 
-        private ImageList GetDialogTreeViewImageList() {
-            ImageList images = new ImageList(); 
-
-            Bitmap bmp = new Bitmap(WixFiles.GetResourceStream("elements.empty.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.dialog.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.control.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.text.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.condition.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            bmp = new Bitmap(WixFiles.GetResourceStream("elements.publish.bmp"));
-            bmp.MakeTransparent();
-            images.Images.Add(bmp);
-
-            return images;
+        private int GetImageIndex(string name)
+        {
+            return ImageListFactory.GetImageIndex(name);
         }
 
         private void TreeViewKeyDown(object sender, System.Windows.Forms.KeyEventArgs e) 
@@ -694,7 +660,7 @@ namespace WixEdit {
                 XmlAttribute typeAtt = node.Attributes["Type"];
                 if (typeAtt != null && typeAtt.Value.Length > 0) {
                     switch (typeAtt.Value.ToLower()) {
-                        case "PushButton":
+                        case "pushbutton":
                             width = 56;
                             height = 17;
                             break;
@@ -889,6 +855,17 @@ namespace WixEdit {
                     MessageBox.Show(String.Format("Skipped import of dialogs with the following ID's because dialogs with those ID's already exist:\r\n\r\n{0}", String.Join(", ", (String[]) duplicateDialogs.ToArray(typeof(String)))), "Skipped dialogs", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+        }
+
+        protected XmlNode GetDialogNode(XmlNode node)
+        {
+            XmlNode result = node;
+            while (result.Name != "Dialog")
+            {
+                result = result.ParentNode;
+            }
+
+            return result;
         }
 
         protected XmlNode GetDialogNode(string dialogId) {
@@ -1177,6 +1154,8 @@ namespace WixEdit {
                 ArrayList newElementStrings = WixFiles.GetXsdSubElements(controlType);
                 if (newElementStrings.Count > 0)
                 {
+                    newElementStrings.Sort();
+
                     newAttr = WixFiles.WxsDocument.CreateAttribute("Property");
                     newAttr.Value = frm.SelectedString + "_Prop";
                     newControl.Attributes.Append(newAttr);
@@ -1195,14 +1174,14 @@ namespace WixEdit {
 
                 TreeNode control = new TreeNode(frm.SelectedString);
                 control.Tag = newControl;
-                control.ImageIndex = 2;
-                control.SelectedImageIndex = 2;
+                control.ImageIndex = GetImageIndex(controlType);
+                control.SelectedImageIndex = control.ImageIndex;
 
                 dialogTreeView.Nodes[0].Nodes.Add(control);
                 dialogTreeView.SelectedNode = control;
 
                 ShowWixProperties(newControl);
-                ShowWixDialog(item);
+                ShowWixDialog(GetDialogNode(item));
             }
         }
 
@@ -1212,8 +1191,8 @@ namespace WixEdit {
             if (dialog != null) {
                 TreeNode rootNode = new TreeNode("Dialog");
                 rootNode.Tag = dialog;
-                rootNode.ImageIndex = 1;
-                rootNode.SelectedImageIndex = 1;
+                rootNode.ImageIndex = GetImageIndex(dialog);
+                rootNode.SelectedImageIndex = rootNode.ImageIndex;
     
                 dialogTreeView.Nodes.Add(rootNode);
     
@@ -1234,8 +1213,8 @@ namespace WixEdit {
 
             TreeNode control = new TreeNode(treeNodeName);
             control.Tag = xmlNodeToAdd;
-            control.ImageIndex = 2;
-            control.SelectedImageIndex = 2;
+            control.ImageIndex = GetImageIndex(xmlNodeToAdd);
+            control.SelectedImageIndex = control.ImageIndex;
             parent.Nodes.Add(control);
 
             foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes) {
@@ -1248,41 +1227,28 @@ namespace WixEdit {
             if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Id"] != null) {
                 treeNodeName = xmlNodeToAdd.Attributes["Id"].Value;
             }
-
-            TreeNode child = new TreeNode(treeNodeName);
-            switch (treeNodeName) {
-                case "Text":
-                    child.ImageIndex = 3;
-                    child.SelectedImageIndex = 3;
-                    break;
-                case "Condition":
-                    child.ImageIndex = 4;
-                    child.SelectedImageIndex = 4;
-                    break;
-                case "Subscribe":
-                    child.ImageIndex = 5;
-                    child.SelectedImageIndex = 5;
-                    break;
-                case "Publish":
-                    child.ImageIndex = 6;
-                    child.SelectedImageIndex = 6;
-                    break;
-                default:
-                    {
-                        XmlAttribute attr = xmlNodeToAdd.ParentNode.Attributes["Type"];
-                        if ((attr != null) && (treeNodeName == attr.Value)) {
-                            foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes)
-                                AddControlSubTreeItems(parent, xmlChildNode);
-                            return;
-                        }
-                        child.ImageIndex = 2;
-                        child.SelectedImageIndex = 2;
-                        break;
-                    }
+            else if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Text"] != null)
+            {
+                treeNodeName = xmlNodeToAdd.Attributes["Text"].Value;
             }
 
-            child.Tag = xmlNodeToAdd;
-            parent.Nodes.Add(child);
+            TreeNode child = new TreeNode(treeNodeName);
+            XmlAttribute attr = xmlNodeToAdd.ParentNode.Attributes["Type"];
+            if (attr != null
+                && treeNodeName == attr.Value)
+            {
+                foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes)
+                {
+                    AddControlSubTreeItems(parent, xmlChildNode);
+                }
+            }
+            else
+            {
+                child.ImageIndex = GetImageIndex(xmlNodeToAdd.Name);
+                child.SelectedImageIndex = child.ImageIndex;
+                child.Tag = xmlNodeToAdd;
+                parent.Nodes.Add(child);
+            }
         }
 
         private void ShowWixProperties(XmlNode xmlNode) {
@@ -1338,6 +1304,7 @@ namespace WixEdit {
                     newControlSubElementsMenu.MenuItems.Clear();
                     dialogTreeViewContextMenu.MenuItems.Add(newControlSubElementsMenu);
                     ArrayList newControlSubElementStrings = WixFiles.GetXsdSubElements(node.Name);
+                    newControlSubElementStrings.Sort();
 
                     string typeAttributeValue = null;
                     XmlAttribute typeAttribute = node.Attributes["Type"];
@@ -1370,7 +1337,15 @@ namespace WixEdit {
                                 subMenuItem = new IconMenuItem("Subscribe", new Bitmap(WixFiles.GetResourceStream("elements.subscribe.bmp")));
                                 break;
                             default:
-                                subMenuItem = new IconMenuItem(newControlSubElementString);
+                                string resourceName = "elements." + newControlSubElementString.ToLower()+ ".bmp";
+                                if (WixFiles.HasResource(resourceName))
+                                {
+                                    subMenuItem = new IconMenuItem(newControlSubElementString, new Bitmap(WixFiles.GetResourceStream(resourceName)));
+                                }
+                                else
+                                {
+                                    subMenuItem = new IconMenuItem(newControlSubElementString);
+                                }
                                 break;
                         }
 
@@ -1383,7 +1358,9 @@ namespace WixEdit {
                         ArrayList newElementStrings = WixFiles.GetXsdSubElements(typeAttributeValue);
                         if (newControlSubElementStrings.Count > 0 &&
                             newElementStrings.Count > 0) {
-                                newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
+                            newElementStrings.Sort();
+
+                            newControlSubElementsMenu.MenuItems.Add(new IconMenuItem("-"));
                         }
 
                         bool isExtention = false;
@@ -1488,6 +1465,8 @@ namespace WixEdit {
 
                         ArrayList newElementStrings = WixFiles.GetXsdSubElements(item.Text);
                         if (newElementStrings.Count > 0) {
+                            newElementStrings.Sort();
+
                             newAttr = WixFiles.WxsDocument.CreateAttribute("Property");
                             newAttr.Value = frm.SelectedString + "_Prop";
                             newControl.Attributes.Append(newAttr);
@@ -1529,22 +1508,24 @@ namespace WixEdit {
 
                 TreeNode control = new TreeNode(frm.SelectedString);
                 control.Tag = newControl;
-                control.ImageIndex = 2;
-                control.SelectedImageIndex = 2;
+                control.ImageIndex = GetImageIndex(newControl);
+                control.SelectedImageIndex = control.ImageIndex;
 
                 dialogTreeView.SelectedNode.Nodes.Add(control);
                 dialogTreeView.SelectedNode = control;
 
                 ShowWixProperties(newControl);
-                ShowWixDialog(node);
+                ShowWixDialog(GetDialogNode(node));
             }
         }
 
-        private void CreateNewControlSubElement(string typeName, int imageIndex) {
+        private void CreateNewControlSubElement(string typeName) {
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
             }
+
+            int imageIndex = GetImageIndex(typeName);
 
             if (node.Name == "Control") {
                 WixFiles.UndoManager.BeginNewCommandRange();
@@ -1569,25 +1550,25 @@ namespace WixEdit {
             MenuItem item = sender as MenuItem;
             if (item != null)
             {
-                CreateNewControlSubElement(item.Text, GetImageIndex(item.Text));
+                CreateNewControlSubElement(item.Text);
             }
         }
 
 
         private void NewTextElement_Click(object sender, EventArgs e) {
-            CreateNewControlSubElement("Text", 3);
+            CreateNewControlSubElement("Text");
         }
 
         private void NewConditionElement_Click(object sender, EventArgs e) {
-            CreateNewControlSubElement("Condition", 4);
+            CreateNewControlSubElement("Condition");
         }
 
         private void NewSubscribeElement_Click(object sender, EventArgs e) {
-            CreateNewControlSubElement("Subscribe", 5);
+            CreateNewControlSubElement("Subscribe");
         }
 
         private void NewPublishElement_Click(object sender, EventArgs e) {
-            CreateNewControlSubElement("Publish", 6);
+            CreateNewControlSubElement("Publish");
         }
 
         private void DeleteElement_Click(object sender, EventArgs e) {
