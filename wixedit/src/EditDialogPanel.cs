@@ -1301,12 +1301,17 @@ namespace WixEdit {
         }
 
         protected void PopupDialogTreeViewContextMenu(Object sender, EventArgs e) {
+            dialogTreeViewContextMenu.MenuItems.Clear();
+
+            if (dialogTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
             }
-
-            dialogTreeViewContextMenu.MenuItems.Clear();
 
             switch (node.Name) {
                 case "Dialog":
@@ -1454,6 +1459,11 @@ namespace WixEdit {
         }
 
         private void NewControlElement_Click(object sender, EventArgs e) {
+            if (dialogTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1532,6 +1542,11 @@ namespace WixEdit {
         }
 
         private void CreateNewControlSubElement(string typeName) {
+            if (dialogTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1584,6 +1599,11 @@ namespace WixEdit {
         }
 
         private void DeleteElement_Click(object sender, EventArgs e) {
+            if (dialogTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode node = dialogTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return;
@@ -1609,6 +1629,11 @@ namespace WixEdit {
         }
 
         private void InfoAboutCurrentElement_Click(object sender, EventArgs e) {
+            if (dialogTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode xmlNode = (XmlNode) dialogTreeView.SelectedNode.Tag;
 
             XmlDocumentationManager docManager = new XmlDocumentationManager(WixFiles);

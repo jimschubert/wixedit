@@ -41,8 +41,6 @@
               </File>
               <!-- Include pdb so error reporting shows line numbers. -->
               <File Id="pdb" Name="WixEdit.pdb" Source="..\build\WixEdit.pdb" />
-              <File Id="AxSHDocVw.dll" Name="AxSHDocVw.dll" Source="..\build\AxSHDocVw.dll" />
-              <File Id="SHDocVw.dll" Name="SHDocVw.dll" Source="..\build\SHDocVw.dll" />
             </Component>
           </Directory>
           <Directory Id="Samples" Name="sample">

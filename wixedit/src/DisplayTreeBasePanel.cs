@@ -211,6 +211,7 @@ namespace WixEdit {
             if (currTreeView.SelectedNode == null) {
                 return;
             }
+
             XmlNode node = (XmlNode) currTreeView.SelectedNode.Tag;
             string displayName = GetDisplayName(node);
             if (displayName != null && displayName.Length > 0 &&
@@ -618,6 +619,10 @@ namespace WixEdit {
 
         protected void PopupTreeViewContextMenu(System.Object sender, System.EventArgs e) {
             currTreeViewContextMenu.MenuItems.Clear();
+            if (currTreeView.SelectedNode == null)
+            {
+                return;
+            }
 
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
@@ -684,6 +689,11 @@ namespace WixEdit {
         }
 
         protected TreeNode CreateNewSubElement(string typeName) {
+            if (currTreeView.SelectedNode == null)
+            {
+                return null;
+            }
+
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
             if (node == null) {
                 return null;
@@ -861,6 +871,11 @@ namespace WixEdit {
         }
 
         private void InfoAboutCurrentElement_Click(object sender, System.EventArgs e) {
+            if (currTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNode xmlNode = (XmlNode) currTreeView.SelectedNode.Tag;
             if (xmlNode != null)
             {
