@@ -54,6 +54,11 @@ namespace WixEdit {
         }
 
         void mnuAddComponents_Click(object sender, EventArgs e) {
+            if (currTreeView.SelectedNode == null)
+            {
+                return;
+            }
+
             XmlNodeList components = WixFiles.WxsDocument.GetElementsByTagName("Component");
             XmlNode node = currTreeView.SelectedNode.Tag as XmlNode;
 
