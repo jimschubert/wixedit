@@ -25,7 +25,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 
-namespace WixEdit.PropertyGridExtensions {
+using WixEdit.Xml;
+
+namespace WixEdit.PropertyGridExtensions
+{
     /// <summary>
     /// Summary description for ErrorElementAdapter.
     /// </summary>

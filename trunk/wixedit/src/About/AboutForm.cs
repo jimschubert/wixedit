@@ -26,6 +26,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
 
+using WixEdit.Xml;
+
 namespace WixEdit.About {
 	/// <summary>
 	/// Summary description for AboutForm.

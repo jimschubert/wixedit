@@ -24,13 +24,19 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
-using WixEdit.Settings;
 
-namespace WixEdit.Import {
+using WixEdit.Settings;
+using WixEdit.Xml;
+using WixEdit.Helpers;
+using WixEdit.Images;
+
+namespace WixEdit.Import
+{
     /// <summary>
     /// Summary description for DirectoryImport.
     /// </summary>
-    public class DirectoryImport {
+    public class DirectoryImport
+    {
         WixFiles wixFiles;
         string[] folders;
         XmlNode directoryElement;
@@ -39,21 +45,26 @@ namespace WixEdit.Import {
         string ShortName;
         string LongName;
 
-        public DirectoryImport(WixFiles wixFiles, string[] folders, XmlNode directoryElement) {
+        public DirectoryImport(WixFiles wixFiles, string[] folders, XmlNode directoryElement)
+        {
             this.wixFiles = wixFiles;
             this.folders = folders;
             this.directoryElement = directoryElement;
 
-            if (WixEditSettings.Instance.IsUsingWix2()) {
+            if (WixEditSettings.Instance.IsUsingWix2())
+            {
                 this.ShortName = "Name";
                 this.LongName = "LongName";
-            } else {
+            }
+            else
+            {
                 this.ShortName = "ShortName";
                 this.LongName = "Name";
             }
         }
 
-        public void Import(TreeNode treeNode) {
+        public void Import(TreeNode treeNode)
+        {
             RecurseDirectories(folders, treeNode, directoryElement);
 
             if (firstShowableNode != null && firstShowableNode.TreeView != null)
@@ -62,13 +73,16 @@ namespace WixEdit.Import {
             }
         }
 
-        private bool NeedToIgnore(string fileOrDir) {
+        private bool NeedToIgnore(string fileOrDir)
+        {
             bool ignoreThis = false;
-            foreach (string test in WixEdit.Settings.WixEditSettings.Instance.IgnoreFilesAndDirectories) {
+            foreach (string test in WixEdit.Settings.WixEditSettings.Instance.IgnoreFilesAndDirectories)
+            {
                 string escapedTest = Regex.Escape(test);
                 escapedTest = escapedTest.Replace("\\*", ".*");
                 escapedTest = String.Format("^{0}$", escapedTest);
-                if (Regex.IsMatch(fileOrDir, escapedTest, RegexOptions.IgnoreCase)) {
+                if (Regex.IsMatch(fileOrDir, escapedTest, RegexOptions.IgnoreCase))
+                {
                     ignoreThis = true;
                     break;
                 }
@@ -77,11 +91,14 @@ namespace WixEdit.Import {
             return ignoreThis;
         }
 
-        private void RecurseDirectories(string[] subFolders, TreeNode treeNode, XmlNode parentDirectoryElement) {
-            foreach (string folder in subFolders) {
-                DirectoryInfo dirInfo  = new DirectoryInfo(folder);
+        private void RecurseDirectories(string[] subFolders, TreeNode treeNode, XmlNode parentDirectoryElement)
+        {
+            foreach (string folder in subFolders)
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(folder);
 
-                if (NeedToIgnore(dirInfo.Name)) {
+                if (NeedToIgnore(dirInfo.Name))
+                {
                     continue;
                 }
 
@@ -90,34 +107,41 @@ namespace WixEdit.Import {
                 newElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(dirInfo.Name, newElement, wixFiles));
 
                 newElement.SetAttribute(LongName, FileImport.GenerateValidLongName(dirInfo.Name));
-                if (WixEditSettings.Instance.IsUsingWix2()) {
+                if (WixEditSettings.Instance.IsUsingWix2())
+                {
                     newElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortDirectoryName(dirInfo, wixFiles, parentDirectoryElement)));
                 }
-            
+
                 TreeNode newNode = new TreeNode(newElement.GetAttribute(LongName));
                 newNode.Tag = newElement;
 
-                if (firstShowableNode == null) {
+                if (firstShowableNode == null)
+                {
                     firstShowableNode = newNode;
                 }
-            
+
                 int imageIndex = ImageListFactory.GetImageIndex("Directory");
-                if (imageIndex >= 0) {
+                if (imageIndex >= 0)
+                {
                     newNode.ImageIndex = imageIndex;
                     newNode.SelectedImageIndex = imageIndex;
                 }
 
                 XmlNodeList sameNodes = parentDirectoryElement.SelectNodes("wix:Directory", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
+                if (sameNodes.Count > 0)
+                {
                     parentDirectoryElement.InsertAfter(newElement, sameNodes[sameNodes.Count - 1]);
-                } else {
+                }
+                else
+                {
                     parentDirectoryElement.AppendChild(newElement);
                 }
 
                 treeNode.Nodes.Add(newNode);
-                
+
                 string[] subFiles = Directory.GetFiles(dirInfo.FullName);
-                if (subFiles.Length > 0) {
+                if (subFiles.Length > 0)
+                {
                     AddFiles(subFiles, newNode, newElement, dirInfo);
                 }
 
@@ -126,11 +150,14 @@ namespace WixEdit.Import {
             }
         }
 
-        private void AddFiles(string[] files, TreeNode treeNode, XmlNode parentDirectoryElement, DirectoryInfo dirInfo) {
-            foreach (string file in files) {
+        private void AddFiles(string[] files, TreeNode treeNode, XmlNode parentDirectoryElement, DirectoryInfo dirInfo)
+        {
+            foreach (string file in files)
+            {
                 FileInfo fileInfo = new FileInfo(file);
 
-                if (NeedToIgnore(fileInfo.Name)) {
+                if (NeedToIgnore(fileInfo.Name))
+                {
                     continue;
                 }
 
@@ -153,29 +180,34 @@ namespace WixEdit.Import {
                 }
 
                 treeNode.Nodes.Add(newComponentNode);
-                
+
                 XmlElement newFileElement = parentDirectoryElement.OwnerDocument.CreateElement("File", WixFiles.WixNamespaceUri);
 
                 newFileElement.SetAttribute("Id", FileImport.GenerateValidIdentifier(fileInfo.Name, newFileElement, wixFiles));
                 newFileElement.SetAttribute(LongName, FileImport.GenerateValidLongName(fileInfo.Name));
-                if (WixEditSettings.Instance.IsUsingWix2()) {
+                if (WixEditSettings.Instance.IsUsingWix2())
+                {
                     newFileElement.SetAttribute(ShortName, FileImport.GenerateValidShortName(PathHelper.GetShortFileName(fileInfo, wixFiles, newComponentElement)));
                 }
                 newFileElement.SetAttribute("Source", PathHelper.GetRelativePath(fileInfo.FullName, wixFiles));
 
                 TreeNode newFileNode = new TreeNode(newFileElement.GetAttribute(LongName));
                 newFileNode.Tag = newFileElement;
-            
+
                 imageIndex = ImageListFactory.GetImageIndex("File");
-                if (imageIndex >= 0) {
+                if (imageIndex >= 0)
+                {
                     newFileNode.ImageIndex = imageIndex;
                     newFileNode.SelectedImageIndex = imageIndex;
                 }
 
                 XmlNodeList sameNodes = newComponentElement.SelectNodes("wix:File", wixFiles.WxsNsmgr);
-                if (sameNodes.Count > 0) {
+                if (sameNodes.Count > 0)
+                {
                     newComponentElement.InsertAfter(newFileElement, sameNodes[sameNodes.Count - 1]);
-                } else {
+                }
+                else
+                {
                     newComponentElement.AppendChild(newFileElement);
                 }
 

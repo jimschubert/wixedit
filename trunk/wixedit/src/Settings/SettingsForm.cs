@@ -30,6 +30,7 @@ using System.Resources;
 using System.Reflection;
 
 using WixEdit.PropertyGridExtensions;
+using WixEdit.Xml;
 
 namespace WixEdit.Settings {
 	/// <summary>

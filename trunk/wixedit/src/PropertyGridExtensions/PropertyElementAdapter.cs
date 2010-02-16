@@ -25,6 +25,8 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for PropertyElementAdapter.

@@ -22,6 +22,8 @@
 using System;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for PropertyElementPropertyDescriptor.

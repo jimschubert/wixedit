@@ -31,12 +31,17 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 using WixEdit.About;
 using WixEdit.Controls;
 using WixEdit.Settings;
-using System.Text;
+using WixEdit.Xml;
+using WixEdit.Panels;
+using WixEdit.Images;
+using WixEdit.Helpers;
+using WixEdit.Forms;
 
 namespace WixEdit {
     /// <summary>

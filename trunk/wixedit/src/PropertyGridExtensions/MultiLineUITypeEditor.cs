@@ -23,6 +23,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing.Design;
 
+using WixEdit.Forms;
+
 namespace WixEdit.PropertyGridExtensions {
 
     /// <summary>A type editor for multi line text</summary>

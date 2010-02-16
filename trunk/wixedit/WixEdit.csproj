@@ -284,9 +284,6 @@
     <Compile Include="src\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\BasePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="src\Controls\CustomTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -300,6 +297,9 @@
     </Compile>
     <Compile Include="src\Controls\FolderSelectDialog.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Controls\IconMenuItem.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Controls\NumericTextBox.cs">
       <SubType>Component</SubType>
@@ -321,108 +321,42 @@
     <Compile Include="src\Controls\TabButtonControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\CopyDataMessenger.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\DesignerForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="src\DialogGenerator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\DisplayBasePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\DisplaySimpleBasePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\DisplayTreeBasePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditActionsPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditBinariesPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditCustomActionsPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditCustomTableDataPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditCustomTableDefinitionPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditCustomTablePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditDialogPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditErrorPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditExecuteSequencePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditFeaturesPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditFilesPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditGlobalDataPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditIconsPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditInstallDataPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="src\EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\EditProgressTextPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditPropertiesPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditResourcesPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditUIPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditUISequencePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\EditUITextPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\ElementLocator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\EnterIntegerForm.cs">
+    <Compile Include="src\Forms\DesignerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\EnterStringForm.cs">
+    <Compile Include="src\Forms\EnterIntegerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\ExceptionForm.cs">
+    <Compile Include="src\Forms\EnterStringForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\FileIconFactory.cs">
-      <SubType>Code</SubType>
+    <Compile Include="src\Forms\ExceptionForm.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\IconMenuItem.cs">
-      <SubType>Component</SubType>
+    <Compile Include="src\Forms\OrderItemsForm.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\ImageListFactory.cs">
-      <SubType>Code</SubType>
+    <Compile Include="src\Forms\OrderItemsForm.Designer.cs">
+      <DependentUpon>OrderItemsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="src\Forms\ProductPropertiesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Forms\ProjectSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Forms\SelectStringForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Helpers\CopyDataMessenger.cs" />
+    <Compile Include="src\Helpers\NewInstanceStarter.cs" />
+    <Compile Include="src\Helpers\PathHelper.cs" />
+    <Compile Include="src\Helpers\VoidVoidDelegate.cs" />
+    <Compile Include="src\Images\FileIconFactory.cs" />
+    <Compile Include="src\Images\ImageListFactory.cs" />
     <Compile Include="src\Import\DirectoryImport.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -435,32 +369,87 @@
     <Compile Include="src\Import\RegistryImport.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\IncludeFileChangedException.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\IncludeManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\NewInstanceStarter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\OrderItemsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="src\OrderItemsForm.Designer.cs">
-      <DependentUpon>OrderItemsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="src\OutputPanel.cs">
+    <Compile Include="src\Panels\BasePanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\PathHelper.cs">
-      <SubType>Code</SubType>
+    <Compile Include="src\Panels\DialogGenerator.cs" />
+    <Compile Include="src\Panels\DisplayBasePanel.cs">
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\ProductPropertiesForm.cs">
-      <SubType>Form</SubType>
+    <Compile Include="src\Panels\DisplaySimpleBasePanel.cs">
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\ProjectSettingsForm.cs">
-      <SubType>Form</SubType>
+    <Compile Include="src\Panels\DisplayTreeBasePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditActionsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditBinariesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditCustomActionsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditCustomTableDataPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditCustomTableDefinitionPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditCustomTablePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditDialogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditErrorPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditExecuteSequencePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditFeaturesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditFilesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditGlobalDataPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditIconsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditInstallDataPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditProgressTextPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditPropertiesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditResourcesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditUIPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditUISequencePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\EditUITextPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\OutputPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\ResultsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Panels\SearchPanel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\PropertyGridExtensions\BinaryElementAdapter.cs">
       <SubType>Code</SubType>
@@ -551,15 +540,6 @@
     <Compile Include="src\PropertyGridExtensions\XmlAttributePropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\ResultsPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\SearchPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\SelectStringForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="src\Server\ErrorReporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -581,16 +561,7 @@
     <Compile Include="src\Settings\WixEditSettings.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\UndoManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\VoidVoidDelegate.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\WixEditException.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\WixFiles.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Wizard\BaseSheet.cs">
@@ -620,15 +591,16 @@
     <Compile Include="src\Wizard\WizardForm.Designer.cs">
       <DependentUpon>WizardForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="src\XmlDisplayForm.cs">
+    <Compile Include="src\Xml\ElementLocator.cs" />
+    <Compile Include="src\Xml\IncludeFileChangedException.cs" />
+    <Compile Include="src\Xml\IncludeManager.cs" />
+    <Compile Include="src\Xml\UndoManager.cs" />
+    <Compile Include="src\Xml\WixFiles.cs" />
+    <Compile Include="src\Xml\XmlDisplayForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\XmlDocumentationManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\XPathHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="src\Xml\XmlDocumentationManager.cs" />
+    <Compile Include="src\Xml\XPathHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

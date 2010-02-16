@@ -18,6 +18,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
 
+using WixEdit.Xml;
+
 namespace WixEdit.Controls
 {
     /// <summary> class FolderSelect 

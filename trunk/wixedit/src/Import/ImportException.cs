@@ -23,9 +23,11 @@ using System;
 
 using WixEdit;
 
-namespace WixEdit.Import {
-    public class ImportException : WixEditException {
-        public ImportException(string message) : base(message) {}
-        public ImportException(string message, Exception ex) : base(message, ex) {}
+namespace WixEdit.Import
+{
+    public class ImportException : WixEditException
+    {
+        public ImportException(string message) : base(message) { }
+        public ImportException(string message, Exception ex) : base(message, ex) { }
     }
 }
