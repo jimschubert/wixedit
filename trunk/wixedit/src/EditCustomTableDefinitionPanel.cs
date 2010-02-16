@@ -28,38 +28,53 @@ using System.Windows.Forms;
 
 namespace WixEdit {
     /// <summary>
-    /// Panel to edit UISequence data.
+    /// Panel to edit CustomTable definition data.
     /// </summary>
-    public class EditUISequencePanel : DisplayTreeBasePanel {
-        public EditUISequencePanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:InstallUISequence|/wix:Wix//wix:AdminUISequence", "Id") {
+    public class EditCustomTableDefinitionPanel : DisplayTreeBasePanel {
+        public EditCustomTableDefinitionPanel(WixFiles wixFiles) : base(wixFiles, "/wix:Wix//wix:CustomTable", "Id") {
             LoadData();
         }
 
-        protected override void AssignParentNode() {
-            CurrentParent = ElementLocator.GetUIElement(WixFiles);
+        private StringCollection skipElements;
+        protected override StringCollection SkipElements
+        {
+            get
+            {
+                if (skipElements == null)
+                {
+                    skipElements = new StringCollection();
+                    skipElements.Add("Row");
+                }
+
+                return skipElements;
+            }
         }
 
         protected override void PopupPanelContextMenu(System.Object sender, System.EventArgs e) {
             //clear menu and add import menu
             base.PopupPanelContextMenu(sender,e);
+     
             //add custom menu, index has to be used!!!
-            IconMenuItem subMenuItem = new IconMenuItem("New", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
+            IconMenuItem subMenuItem = new IconMenuItem("New CustomTable", new Bitmap(WixFiles.GetResourceStream("bmp.new.bmp")));
 
-            IconMenuItem subSubMenuItem1 = new IconMenuItem("InstallUISequence");
-            IconMenuItem subSubMenuItem2 = new IconMenuItem("AdminUISequence");
-
-            subSubMenuItem1.Click += new EventHandler(NewCustomElement_Click);
-            subSubMenuItem2.Click += new EventHandler(NewCustomElement_Click);
-
-            subMenuItem.MenuItems.Add(subSubMenuItem1);
-            subMenuItem.MenuItems.Add(subSubMenuItem2);
+            subMenuItem.Click += new EventHandler(NewCustomElement_Click);
 
             PanelContextMenu.MenuItems.Add(0,subMenuItem);
         }
         
         protected override void NewCustomElement_Click(object sender, System.EventArgs e) {
             MenuItem item = (MenuItem) sender;
-            CreateNewCustomElement(item.Text);
+            CreateNewCustomElement("CustomTable");
+        }
+
+        public override bool IsOwnerOfNode(XmlNode node)
+        {
+            if (node.Name == "Row")
+            {
+                return false;
+            }
+
+            return base.IsOwnerOfNode(node);
         }
     }
 }

@@ -58,6 +58,7 @@ namespace WixEdit {
         protected EditInstallDataPanel editInstallDataPanel;
         protected EditGlobalDataPanel editGlobalDataPanel;
         protected EditActionsPanel editActionsPanel;
+        protected EditCustomTablePanel editCustomTablePanel;
 
         protected MainMenu mainMenu;
         protected IconMenuItem fileMenu;
@@ -106,7 +107,7 @@ namespace WixEdit {
 
         protected int oldTabIndex = -1;
 
-        const int panelCount = 6;
+        const int panelCount = 7;
         BasePanel[] panels = new BasePanel[panelCount];
 
         internal WixFiles wixFiles;
@@ -866,7 +867,7 @@ namespace WixEdit {
 
             // This could slow things down, but make sure every panel is up-to-date.
             ReloadAll();
-
+            
             ShowNode(node, false);
         }
 
@@ -1499,6 +1500,15 @@ namespace WixEdit {
 
             panels[5] = editActionsPanel;
 
+
+            // Add CustomTable tab
+            editCustomTablePanel = new EditCustomTablePanel(wixFiles);
+            editCustomTablePanel.Dock = DockStyle.Fill;
+
+            tabButtonControl.AddTab("Tables", editCustomTablePanel, new Bitmap(WixFiles.GetResourceStream("tabbuttons.customtables.png")));
+
+            panels[6] = editCustomTablePanel;
+
             // Update menu
             fileClose.Enabled = true;
             UpdateTitlebar();
@@ -1573,6 +1583,10 @@ namespace WixEdit {
             if (editActionsPanel != null) {
                 editActionsPanel.Visible = false;
                 editActionsPanel = null;
+            }
+            if (editCustomTablePanel != null) {
+                editCustomTablePanel.Visible = false;
+                editCustomTablePanel = null;
             }
 
             if (wixFiles != null) {
@@ -1759,6 +1773,10 @@ namespace WixEdit {
                     reporter.Report(ex);
                 }
             }
+
+            // Make sure all events are processed here,
+            // otherwise the order of events cannot be guaranteed...
+            Application.DoEvents();
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {

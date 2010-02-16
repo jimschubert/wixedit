@@ -18,7 +18,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -29,61 +28,64 @@ using WixEdit.Settings;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
-    /// Summary description for BinaryElementAdapter.
+    /// Summary description for CustomTableRowElementAdapter.
     /// </summary>
-    public class BinaryElementAdapter : PropertyAdapterBase {
-        protected ArrayList binaryNodes = new ArrayList();
+    public class CustomTableRowElementAdapter : PropertyAdapterBase {
+        protected XmlElement rowElement;
 
-        public BinaryElementAdapter(XmlNodeList binaryNodes, WixFiles wixFiles) : base(wixFiles) {
-            foreach (object o in binaryNodes) {
-                this.binaryNodes.Add(o);
-            }
+        public CustomTableRowElementAdapter(XmlElement row, WixFiles wixFiles) : base(wixFiles) {
+            rowElement = row;
         }
 
-        public ArrayList BinaryNodes {
-            get {
-                return binaryNodes;
-            }
-            set {
-                binaryNodes = value;
-            }
+        public XmlElement XmlElement
+        {
+            get { return rowElement; }
         }
+
+        public void RemoveElement()
+        {
+            wixFiles.UndoManager.BeginNewCommandRange();
+            rowElement.ParentNode.RemoveChild(rowElement);
+        }
+
 
         public override void RemoveProperty(XmlNode xmlElement) {
-            if (xmlElement == null)
-            {
-                return;
-            }
-
-            XmlNode theElement = xmlElement;
-            if (xmlElement is XmlAttribute) {
-                XmlAttribute xmlAttribute = xmlElement as XmlAttribute;
-                theElement = xmlAttribute.OwnerElement;
-            }
-
-            binaryNodes.Remove(theElement);
-            theElement.ParentNode.RemoveChild(theElement);
+            throw new NotSupportedException("RemoveProperty is not supported on CustomTableRowElementAdapter");
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes) {
             ArrayList props = new ArrayList();
 
-            foreach(XmlNode binaryNode in binaryNodes) {
+            foreach (XmlNode columnNode in rowElement.ParentNode.SelectNodes("wix:Column", WixFiles.WxsNsmgr))
+            {
                 ArrayList attrs = new ArrayList();
 
                 // Add default attributes Category, TypeConverter and Description
                 attrs.Add(new CategoryAttribute("WXS Attribute"));
 
-                // Show file name editor
-                attrs.Add(new EditorAttribute(typeof(FilteredFileNameEditor),typeof(System.Drawing.Design.UITypeEditor)));
-
                 // Make Attribute array
                 Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
 
+                XmlAttribute typeAttrib = columnNode.Attributes["Type"];
+                if (typeAttrib != null)
+                {
+                    if (typeAttrib.Value == "string")
+                    {
+                        attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
+                    }
+                    else if (typeAttrib.Value == "int" || typeAttrib.Value == "integer")
+                    {
+                        attrs.Add(new TypeConverterAttribute(typeof(IntegerConverter)));
+                    }
+                    else if (typeAttrib.Value == "binary")
+                    {
+                        attrs.Add(new TypeConverterAttribute(typeof(StringConverter)));
+                    }
+                }
 
                 // Create and add PropertyDescriptor
-                BinaryElementPropertyDescriptor pd = new BinaryElementPropertyDescriptor (binaryNode, WixFiles,
-                    binaryNode.Attributes["Id"].Value, attrArray);
+                CustomTableRowElementPropertyDescriptor pd = new CustomTableRowElementPropertyDescriptor(rowElement, WixFiles,
+                    columnNode.Attributes["Id"].Value, attrArray);
                 
                 props.Add(pd);
             }

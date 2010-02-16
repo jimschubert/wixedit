@@ -220,10 +220,6 @@
     <EmbeddedResource Include="res\viewWixXml.xsl" />
     <EmbeddedResource Include="res\elements\registrykey.bmp" />
     <EmbeddedResource Include="res\elements\registryvalue.bmp" />
-    <EmbeddedResource Include="src\About\AboutForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="src\Wizard\BaseSheet.resx">
       <SubType>Designer</SubType>
       <DependentUpon>BaseSheet.cs</DependentUpon>
@@ -269,6 +265,18 @@
     <EmbeddedResource Include="res\elements\selectiontree.bmp" />
     <EmbeddedResource Include="res\elements\volumecostList.bmp" />
     <EmbeddedResource Include="res\elements\volumeselectcombo.bmp" />
+    <EmbeddedResource Include="res\tabbuttons\customtables.png" />
+    <EmbeddedResource Include="res\elements\customtable.bmp" />
+    <EmbeddedResource Include="res\elements\column.bmp" />
+    <EmbeddedResource Include="res\elements\upgrade.bmp" />
+    <EmbeddedResource Include="res\elements\upgradeversion.bmp" />
+    <EmbeddedResource Include="res\elements\compliancecheck.bmp" />
+    <EmbeddedResource Include="res\elements\componentgroup.bmp" />
+    <EmbeddedResource Include="res\elements\customactionref.bmp" />
+    <EmbeddedResource Include="res\elements\copyfile.bmp" />
+    <EmbeddedResource Include="res\elements\extension.bmp" />
+    <EmbeddedResource Include="res\elements\removeregistrykey.bmp" />
+    <EmbeddedResource Include="res\elements\removeregistryvalue.bmp" />
     <Content Include="src\App.ico" />
     <Compile Include="src\About\AboutForm.cs">
       <SubType>Form</SubType>
@@ -285,8 +293,21 @@
     <Compile Include="src\Controls\ErrorProviderFixed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\Controls\FileSelectCell.cs" />
+    <Compile Include="src\Controls\FileSelectColumn.cs" />
+    <Compile Include="src\Controls\FileSelectEditingControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="src\Controls\FolderSelectDialog.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Controls\NumericTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\Controls\NumericTextBoxCell.cs" />
+    <Compile Include="src\Controls\NumericTextBoxColumn.cs" />
+    <Compile Include="src\Controls\NumericTextBoxEditingControl.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Controls\OutputTextbox.cs">
       <SubType>Component</SubType>
@@ -325,6 +346,15 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\EditCustomActionsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\EditCustomTableDataPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\EditCustomTableDefinitionPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\EditCustomTablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\EditDialogPanel.cs">
@@ -450,6 +480,8 @@
     <Compile Include="src\PropertyGridExtensions\CustomPropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\PropertyGridExtensions\CustomTableRowElementAdapter.cs" />
+    <Compile Include="src\PropertyGridExtensions\CustomTableRowElementPropertyDescriptor.cs" />
     <Compile Include="src\PropertyGridExtensions\CustomXmlPropertyDescriptorBase.cs">
       <SubType>Code</SubType>
     </Compile>
