@@ -414,8 +414,6 @@ namespace WixEdit {
                     ShowWixProperties(null);
                     ShowWixDialog(null);  
 
-                    Application.DoEvents();
-
                     ShowWixDialogTree(dialog);
                     ShowWixProperties(dialog);
                     ShowWixDialog(dialog);

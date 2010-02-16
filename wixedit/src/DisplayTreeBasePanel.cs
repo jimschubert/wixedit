@@ -590,6 +590,18 @@ namespace WixEdit {
                             displayName = element.Name;
                         }
                         break;
+                    case "CustomTable":
+                    case "Column":
+                        XmlAttribute columnIdAtt = element.Attributes["Id"];
+                        if (columnIdAtt != null)
+                        {
+                            displayName = columnIdAtt.Value;
+                        }
+                        else
+                        {
+                            displayName = element.Name;
+                        }
+                        break;
                     default:
                         displayName = element.Name;
                         break;
