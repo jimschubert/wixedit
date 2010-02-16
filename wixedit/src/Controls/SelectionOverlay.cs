@@ -25,6 +25,8 @@ using System.Windows.Forms;
 using System.Xml;
 
 using WixEdit.Settings;
+using WixEdit.Xml;
+using WixEdit.Panels;
 
 namespace WixEdit.Controls {
     public delegate void SelectionOverlayItemHandler(XmlNode item);

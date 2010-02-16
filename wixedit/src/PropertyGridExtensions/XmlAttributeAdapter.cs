@@ -26,6 +26,7 @@ using System.Drawing.Design;
 using System.Xml;
 using System.Windows.Forms;
 
+using WixEdit.Xml;
 using WixEdit.Settings;
 
 namespace WixEdit.PropertyGridExtensions {

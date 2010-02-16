@@ -24,6 +24,8 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     public abstract class CustomXmlPropertyDescriptorBase : CustomPropertyDescriptorBase {
         protected XmlNode xmlElement;

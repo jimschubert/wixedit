@@ -20,7 +20,11 @@ using System.Collections;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
+
 using WixEdit.PropertyGridExtensions;
+using WixEdit.Xml;
+using WixEdit.Controls;
+using WixEdit.Forms;
 
 namespace WixEdit {
     /// <summary>

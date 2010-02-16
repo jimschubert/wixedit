@@ -25,6 +25,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// Summary description for UITextElementAdapter.

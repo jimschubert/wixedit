@@ -21,6 +21,8 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 
+using WixEdit.Xml;
+
 namespace WixEdit.Controls
 {
     //  The base object for the custom column type.  Programmers manipulate

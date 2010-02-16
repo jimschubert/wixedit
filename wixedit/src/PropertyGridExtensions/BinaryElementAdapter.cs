@@ -26,6 +26,7 @@ using System.IO;
 using System.Xml;
 
 using WixEdit.Settings;
+using WixEdit.Xml;
 
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>

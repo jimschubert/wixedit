@@ -24,6 +24,8 @@ using System.Collections;
 using System.ComponentModel;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     /// <summary>
     /// This class adapts attributes of a xml node to properties, suitable for the <c>PropertyGrid</c>.

@@ -23,6 +23,8 @@ using System;
 using System.Windows.Forms;
 using System.Xml;
 
+using WixEdit.Xml;
+
 namespace WixEdit.PropertyGridExtensions {
     public class SearchElementObject {
         private XmlNode _searchNode;

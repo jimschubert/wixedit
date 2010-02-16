@@ -16,6 +16,8 @@
 using System;
 using System.Windows.Forms;
 
+using WixEdit.Xml;
+
 namespace WixEdit.Controls
 {
     class FileSelectCell : DataGridViewTextBoxCell

@@ -22,10 +22,12 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
 using System.Windows.Forms;
 
-namespace WixEdit.PropertyGridExtensions {
+using WixEdit.Xml;
+
+namespace WixEdit.PropertyGridExtensions
+{
     /// <summary>
     /// Summary description for XmlAttributeBinaryDescriptor.
     /// </summary>

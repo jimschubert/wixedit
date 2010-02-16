@@ -22,7 +22,10 @@
 using System;
 using System.Xml;
 
-namespace WixEdit.PropertyGridExtensions {
+using WixEdit.Xml;
+
+namespace WixEdit.PropertyGridExtensions
+{
     /// <summary>
     /// Summary description for ErrorElementPropertyDescriptor.
     /// </summary>
