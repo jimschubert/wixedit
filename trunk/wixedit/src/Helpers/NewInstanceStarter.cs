@@ -37,6 +37,7 @@ namespace WixEdit.Helpers
         public void Start()
         {
             Thread t = new Thread(new ThreadStart(InnerStart));
+            t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
 

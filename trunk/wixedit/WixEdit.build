@@ -217,8 +217,8 @@
               <property name="installer.version" value="0.0.0" />
           </if>
   
-          <exec program="${project.wix}/candle.exe" commandline="-nologo &quot;${project.installer}\WixEdit.wxs&quot; -dVERSION=${installer.version}" workingdir="${project.install}" />
-          <exec program="${project.wix}/light.exe" commandline="-nologo -out wixedit${project.version.string}.msi WixEdit.wixobj" workingdir="${project.install}" />
+          <exec program="${project.wix}/candle.exe" commandline="-nologo -ext WixNetfxExtension &quot;${project.installer}\WixEdit.wxs&quot; -dVERSION=${installer.version}" workingdir="${project.install}" />
+          <exec program="${project.wix}/light.exe" commandline="-nologo -ext WixNetfxExtension -out wixedit${project.version.string}.msi WixEdit.wixobj" workingdir="${project.install}" />
   
           <copy todir="${project.release}" file="${project.install}\wixedit${project.version.string}.msi" />
         </if>
