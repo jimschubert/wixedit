@@ -1364,6 +1364,11 @@ namespace WixEdit.Panels
 
         private void AddControlTreeItems(TreeNode parent, XmlNode xmlNodeToAdd)
         {
+            if (!(xmlNodeToAdd is XmlElement))
+            {
+                return;
+            }
+
             string treeNodeName = xmlNodeToAdd.Name;
             if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Id"] != null)
             {
@@ -1384,6 +1389,11 @@ namespace WixEdit.Panels
 
         private void AddControlSubTreeItems(TreeNode parent, XmlNode xmlNodeToAdd)
         {
+            if (!(xmlNodeToAdd is XmlElement))
+            {
+                return;
+            }
+
             string treeNodeName = xmlNodeToAdd.Name;
             if (xmlNodeToAdd.Attributes != null && xmlNodeToAdd.Attributes["Id"] != null)
             {
