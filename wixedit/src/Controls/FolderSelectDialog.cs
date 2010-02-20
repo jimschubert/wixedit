@@ -131,6 +131,7 @@ namespace WixEdit.Controls
                 // if we have not scanned this folder before
                 if (parent.Nodes.Count == 0)
                 {
+                    
                     directory = new DirectoryInfo(parent.FullPath);
                     foreach (DirectoryInfo dir in directory.GetDirectories())
                     {
@@ -164,15 +165,21 @@ namespace WixEdit.Controls
                         // get the folder information for the specified path.
                         directory = new DirectoryInfo(node.FullPath);
 
-                        // check this folder for any possible sub-folders
-                        foreach (DirectoryInfo dir in directory.GetDirectories())
+                        try 
                         {
-                            // make a new TreeNode and add it to the treeView.
-                            TreeNode newNode = new TreeNode(dir.Name);
-                            newNode.ImageIndex = 1;
-                            newNode.SelectedImageIndex = 2;
-                            newNode.Tag = dir;
-                            node.Nodes.Add(newNode);
+                            // check this folder for any possible sub-folders
+                            foreach (DirectoryInfo dir in directory.GetDirectories())
+                            {
+                                // make a new TreeNode and add it to the treeView.
+                                TreeNode newNode = new TreeNode(dir.Name);
+                                newNode.ImageIndex = 1;
+                                newNode.SelectedImageIndex = 2;
+                                newNode.Tag = dir;
+                                node.Nodes.Add(newNode);
+                            }
+                        }
+                        catch
+                        {
                         }
                     }
                 }
