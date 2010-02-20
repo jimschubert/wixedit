@@ -649,7 +649,7 @@ namespace WixEdit {
                     newName = newName + ".wxs";
                 }
                 wixFiles.SaveAs(newName);
-                WixEditSettings.Instance.AddRecentlyUsedFile(new FileInfo(dlg.FileName));
+                WixEditSettings.Instance.AddRecentlyUsedFile(wixFiles.WxsFile);
                 WixEditSettings.Instance.SaveChanges();
 
                 UpdateTitlebar();

@@ -28,6 +28,7 @@ using System.Windows.Forms;
 
 using WixEdit.Xml;
 using WixEdit.Controls;
+using WixEdit.PropertyGridExtensions;
 
 
 namespace WixEdit.Panels
@@ -41,6 +42,8 @@ namespace WixEdit.Panels
             : base(wixFiles, "/wix:Wix//wix:CustomTable", "Id")
         {
             LoadData();
+
+            CurrentGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(CurrentGrid_PropertyValueChanged);
         }
 
         private StringCollection skipElements;
@@ -85,6 +88,46 @@ namespace WixEdit.Panels
             }
 
             return base.IsOwnerOfNode(node);
+        }
+
+        void CurrentGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            GridItem item = e.ChangedItem;
+            if (item.Label == "Id" && !String.IsNullOrEmpty((string)e.OldValue))
+            {
+                XmlAttributePropertyDescriptor pd = (XmlAttributePropertyDescriptor)item.PropertyDescriptor;
+                XmlNodeList equalNamedColumns = pd.Attribute.OwnerElement.ParentNode.SelectNodes(String.Format("wix:Column[@Id='{0}']", item.Value), WixFiles.WxsNsmgr);
+                if (equalNamedColumns.Count >= 2)
+                {
+                    MessageBox.Show(String.Format("There is already a column with the name \"{0}\"!", item.Value), "Duplicate column name", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    
+                    // Rollback
+                    WixFiles.UndoManager.Undo();
+
+                    // Refresh the tree
+                    if (CurrentTreeView.SelectedNode != null)
+                    {
+                        XmlNode node = (XmlNode)currTreeView.SelectedNode.Tag;
+                        string displayName = GetDisplayName(node);
+                        if (displayName != null && displayName.Length > 0 &&
+                            currTreeView.SelectedNode.Text != displayName)
+                        {
+                            currTreeView.SelectedNode.Text = displayName;
+                        }
+                    }
+
+                    // and the grid
+                    CurrentGrid.Refresh();
+                }
+                else
+                {
+                    // Rename all row elements
+                    foreach (XmlElement dataElement in pd.Attribute.OwnerElement.ParentNode.SelectNodes(String.Format("wix:Row/wix:Data[@Column='{0}']", e.OldValue), WixFiles.WxsNsmgr))
+                    {
+                        dataElement.SetAttribute("Column", (string)item.Value);
+                    }
+                }
+            }
         }
     }
 }

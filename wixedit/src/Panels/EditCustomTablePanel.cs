@@ -50,6 +50,7 @@ namespace WixEdit.Panels
         {
             tabControl = new CustomTabControl();
             tabControl.Dock = DockStyle.Fill;
+            tabControl.SelectedIndexChanged += new EventHandler(tabControl_SelectedIndexChanged);
 
             Controls.Add(tabControl);
 
@@ -65,6 +66,15 @@ namespace WixEdit.Panels
             editDataTabPage.Controls.Add(editDataPanel);
             tabControl.TabPages.Add(editDataTabPage);
         }
+
+        void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab == editDataTabPage)
+            {
+                editDataPanel.ReloadData();
+            }
+        }
+
         #endregion
 
         public override MenuItem Menu

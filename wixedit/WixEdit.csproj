@@ -277,6 +277,8 @@
     <EmbeddedResource Include="res\elements\extension.bmp" />
     <EmbeddedResource Include="res\elements\removeregistrykey.bmp" />
     <EmbeddedResource Include="res\elements\removeregistryvalue.bmp" />
+    <EmbeddedResource Include="res\elements\property.bmp" />
+    <EmbeddedResource Include="res\elements\propertyref.bmp" />
     <Content Include="src\App.ico" />
     <Compile Include="src\About\AboutForm.cs">
       <SubType>Form</SubType>
