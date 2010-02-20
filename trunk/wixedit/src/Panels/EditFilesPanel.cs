@@ -242,7 +242,7 @@ namespace WixEdit.Panels
             FolderSelectDialog ofd = new FolderSelectDialog();
             ofd.Description = "Select folder to import";
             ofd.ShowNewFolderButton = false;
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(ofd.SelectedPath))
             {
                 ImportFoldersInDirectory(aNode, aNodeElement, new string[] { ofd.SelectedPath });
             }
