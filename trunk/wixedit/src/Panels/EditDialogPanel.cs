@@ -526,10 +526,16 @@ namespace WixEdit.Panels
 
             return null;
         }
+
         #endregion
 
         private int GetImageIndex(XmlNode node)
         {
+            if (node.NodeType != XmlNodeType.Element)
+            {
+                return ImageListFactory.GetUnsupportedImageIndex();
+            }
+
             XmlElement element = (XmlElement)node;
             int result = ImageListFactory.GetImageIndex(element.Name);
             if (element.HasAttribute("Type"))
