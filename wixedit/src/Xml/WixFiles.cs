@@ -30,6 +30,7 @@ using System.Windows.Forms;
 
 using WixEdit.Settings;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace WixEdit.Xml
 {
@@ -932,20 +933,54 @@ namespace WixEdit.Xml
             return (UndoManager.HasChanges() || projectSettings.HasChanges() || IsNew);
         }
 
+
         public void SaveAs(string newFile)
         {
-            // Save as, is like creating a new file...
+            FileInfo oldWxsFile = wxsFile;
+
             wxsFile = new FileInfo(newFile);
-            isTempNewFile = true;
 
-            if (wxsWatcher != null)
+            if (IsNew)
             {
-                wxsWatcher.EnableRaisingEvents = false;
-                wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
-                wxsWatcher = null;
-            }
+                try
+                {
+                    Save();
+                }
+                catch
+                {
+                    wxsFile = oldWxsFile;
 
-            Save();
+                    throw;
+                }
+            }
+            else
+            {
+                // Save as, is like creating a new file...
+                isTempNewFile = true;
+
+                if (wxsWatcher != null)
+                {
+                    wxsWatcher.EnableRaisingEvents = false;
+                    wxsWatcher.Changed -= wxsWatcher_ChangedHandler;
+                    wxsWatcher = null;
+                }
+
+                try
+                {
+                    Save();
+                }
+                catch
+                {
+                    isTempNewFile = false;
+                    wxsFile = oldWxsFile;
+
+                    wxsWatcher = new FileSystemWatcher(wxsFile.Directory.FullName, wxsFile.Name);
+                    wxsWatcher.Changed += wxsWatcher_ChangedHandler;
+                    wxsWatcher.EnableRaisingEvents = true;
+
+                    throw;
+                }
+            }
 
             // After saving make sure this is not a "new" file anymore
             isTempNewFile = false;
@@ -1068,6 +1103,14 @@ namespace WixEdit.Xml
         }
 
         private void wxsWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            Form mainForm = FindForm();
+
+            // Make it happen on the correct thread.
+            mainForm.Invoke(new ThreadStart(delegate() { OnWxsChanged(); }));
+        }
+
+        private void OnWxsChanged()
         {
             wxsWatcher.EnableRaisingEvents = false;
 

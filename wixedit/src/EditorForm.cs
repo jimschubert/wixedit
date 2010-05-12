@@ -648,13 +648,21 @@ namespace WixEdit {
                 if (ext == null || ext.Length == 0) {
                     newName = newName + ".wxs";
                 }
-                wixFiles.SaveAs(newName);
-                WixEditSettings.Instance.AddRecentlyUsedFile(wixFiles.WxsFile);
-                WixEditSettings.Instance.SaveChanges();
 
-                UpdateTitlebar();
+                try
+                {
+                    wixFiles.SaveAs(newName);
+                    WixEditSettings.Instance.AddRecentlyUsedFile(wixFiles.WxsFile);
+                    WixEditSettings.Instance.SaveChanges();
 
-                return true;
+                    UpdateTitlebar();
+
+                    return true;
+                }
+                catch (System.UnauthorizedAccessException ex)
+                {
+                    MessageBox.Show("Failed to save " + newName + ":\r\n\r\n" + ex.Message, "Failed to save", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             return false;
