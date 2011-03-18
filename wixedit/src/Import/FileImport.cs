@@ -108,24 +108,34 @@ namespace WixEdit.Import
         /// <returns>A valid Id.</returns>
         public static string GenerateValidIdentifier(string filename, XmlElement newElement, WixFiles wixFiles)
         {
-            string newId = filename;
-            newId = Regex.Replace(newId, "[^A-Za-z0-9_.]", "_");
+            string newId = filename.ToUpper();
+            newId = Regex.Replace(newId, "[^A-Z0-9_.]", "_");
 
-            if (Regex.Match(newId, "^[A-Za-z_]").Length == 0)
+            if (Regex.Match(newId, "^[A-Z_]").Length == 0)
             {
                 newId = "_" + newId;
             }
 
             XmlDocument owner = newElement.OwnerDocument;
-            if (owner.SelectSingleNode(String.Format("//wix:{0}[@Id='{1}']", newElement.Name, newId), wixFiles.WxsNsmgr) == null)
+
+            // Make sure you search case insensitive.
+            string searchTerm1 = string.Format(
+                "//wix:{0}[translate(@Id, 'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='{1}']",
+                newElement.Name,
+                newId);
+            if (owner.SelectSingleNode(searchTerm1, wixFiles.WxsNsmgr) == null)
             {
                 return newId;
             }
 
-            string exp = String.Format("//wix:{0}[@Id='{1}_{{0}}']", newElement.Name, newId);
-            int index = 1;
+            // Make sure you search case insensitive.
+            string searchTerm2 = string.Format(
+                "//wix:{0}[translate(@Id, 'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='{1}_{{0}}']",
+                newElement.Name,
+                newId);
 
-            while (owner.SelectSingleNode(String.Format(exp, index), wixFiles.WxsNsmgr) != null)
+            int index = 1;
+            while (owner.SelectSingleNode(String.Format(searchTerm2, index), wixFiles.WxsNsmgr) != null)
             {
                 index++;
             }

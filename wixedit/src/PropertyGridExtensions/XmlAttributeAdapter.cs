@@ -34,6 +34,7 @@ namespace WixEdit.PropertyGridExtensions {
     /// This class adapts attributes of a xml node to properties, suitable for the <c>PropertyGrid</c>.
     /// </summary>
     public class XmlAttributeAdapter : PropertyAdapterBase {
+        protected bool editSubNodes;
         protected XmlNode xmlNode;
         protected XmlNode xmlNodeDefinition;
         protected XmlNode xmlNodeElement;
@@ -50,8 +51,12 @@ namespace WixEdit.PropertyGridExtensions {
             }
         }
 
-        public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : base(wixFiles) {
+        public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles) : this(xmlNode, wixFiles, false) {
+        }
+
+        public XmlAttributeAdapter(XmlNode xmlNode, WixFiles wixFiles, bool editSubNodes) : base(wixFiles) {
             this.xmlNode = xmlNode;
+            this.editSubNodes = editSubNodes;
 
             xmlNodeElement = WixFiles.GetXsdElementNode(xmlNode.Name);
 
@@ -294,6 +299,30 @@ namespace WixEdit.PropertyGridExtensions {
                 InnerTextPropertyDescriptor pd = new InnerTextPropertyDescriptor(wixFiles, xmlNode, attrArray);
                 
                 props.Add(pd);
+            }
+
+            if (editSubNodes)
+            {
+                XmlNodeList subNodes = xmlNode.SelectNodes("*", WixFiles.WxsNsmgr);
+                if (subNodes.Count >= 1)
+                {
+                    ArrayList attrs = new ArrayList();
+
+                    if (subNodes.Count == 1)
+                    {
+                        attrs.Add(new EditorAttribute(typeof(SearchElementTypeEditor), typeof(UITypeEditor)));
+                        attrs.Add(new DescriptionAttribute("Sub Elements of the element."));
+                    }
+
+                    // Make Attribute array
+                    Attribute[] attrArray = (Attribute[])attrs.ToArray(typeof(Attribute));
+
+                    // Create and add PropertyDescriptor
+                    PropertySearchElementPropertyDescriptor pd = new PropertySearchElementPropertyDescriptor(wixFiles, xmlNode,
+                        "SubElements", attrArray);
+
+                    props.Add(pd);
+                }
             }
 
             PropertyDescriptor[] propArray = props.ToArray(typeof(PropertyDescriptor)) as PropertyDescriptor[];

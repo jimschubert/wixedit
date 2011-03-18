@@ -528,6 +528,13 @@ namespace WixEdit {
 
         private void NewWizard()
         {
+            if (WixEdit.Settings.WixEditSettings.Instance.IsUsingWix2())
+            {
+                MessageBox.Show("Creating new wxs files with the wizard is not supported for WiX 2.\r\n\r\nPlease use WiX 3 or higher instead.", "Older version of WiX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return;
+            }
+
             if (HandlePendingChanges() == false)
             {
                 return;
@@ -634,14 +641,16 @@ namespace WixEdit {
         private bool SaveAs() {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.OverwritePrompt = true;
-            
+            dlg.AddExtension = true;
+            dlg.DefaultExt = ".wxs";
+                        
             if (wixFiles.IsNew) {
                 dlg.FileName = "untitled.wxs";
             } else {
                 dlg.FileName = wixFiles.WxsFile.FullName;
             }
 
-            dlg.Filter = "WiX Files (*.xml;*.wxs;*.wxi)|*.XML;*.WXS;*.WXI|All files (*.*)|*.*" ;
+            dlg.Filter = "WiX Files (*.wxs;*.wxi;*.xml)|*.wxs;*.wxi;*.xml|All files (*.*)|*.*";
             if (dlg.ShowDialog(this) == DialogResult.OK) {
                 string newName = dlg.FileName;
                 string ext = Path.GetExtension(newName);
@@ -1575,6 +1584,7 @@ namespace WixEdit {
 
             if (editUIPanel != null) {
                 editUIPanel.Visible = false;
+                editUIPanel.CloseCurrentDialog();
                 editUIPanel = null;
             }
             if (editPropertiesPanel != null) {

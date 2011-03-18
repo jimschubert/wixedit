@@ -41,7 +41,8 @@ namespace WixEdit.Import
         XmlNode componentElement;
         int lineNumber;
 
-        string registryElementName;
+        string registryKeyElementName;
+        string registryValueElementName;
 
         public RegistryImport(WixFiles wixFiles, FileInfo regFileInfo, XmlNode componentElement)
         {
@@ -51,11 +52,13 @@ namespace WixEdit.Import
 
             if (WixEdit.Settings.WixEditSettings.Instance.IsUsingWix2())
             {
-                registryElementName = "Registry";
+                registryKeyElementName = "Registry";
+                registryValueElementName = "Registry";
             }
             else
             {
-                registryElementName = "RegistryKey";
+                registryKeyElementName = "RegistryKey";
+                registryValueElementName = "RegistryValue";
             }
         }
 
@@ -91,7 +94,7 @@ namespace WixEdit.Import
 
                     if (currentKeyUsed == false && currentKey != null && currentRoot != null)
                     {
-                        XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryElementName, WixFiles.WixNamespaceUri);
+                        XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryKeyElementName, WixFiles.WixNamespaceUri);
                         registryKey.SetAttribute("Root", currentRoot);
                         registryKey.SetAttribute("Key", currentKey);
 
@@ -149,7 +152,7 @@ namespace WixEdit.Import
                     string currentName = GetNameString(nameString);
                     string currentType = GetTypeString(valueString);
 
-                    XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryElementName, WixFiles.WixNamespaceUri);
+                    XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryValueElementName, WixFiles.WixNamespaceUri);
                     if (currentName != null && currentName != "")
                     {
                         registryKey.SetAttribute("Name", currentName);
@@ -172,7 +175,7 @@ namespace WixEdit.Import
 
             if (currentKeyUsed == false)
             {
-                XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryElementName, WixFiles.WixNamespaceUri);
+                XmlElement registryKey = componentElement.OwnerDocument.CreateElement(registryKeyElementName, WixFiles.WixNamespaceUri);
                 registryKey.SetAttribute("Root", currentRoot);
                 registryKey.SetAttribute("Key", currentKey);
 
@@ -183,7 +186,7 @@ namespace WixEdit.Import
             {
                 componentElement.AppendChild(child);
 
-                string displayName = registryElementName;
+                string displayName = child.Name;
                 string root = child.Attributes["Root"].Value;
                 string key = child.Attributes["Key"].Value;
                 XmlAttribute name = child.Attributes["Name"];
@@ -193,12 +196,12 @@ namespace WixEdit.Import
                     {
                         key = key + "\\";
                     }
-                    key = key + name.Value;
+                    key = key + "@" + name.Value;
                 }
 
                 displayName = root + "\\" + key;
 
-                int imageIndex = ImageListFactory.GetImageIndex(registryElementName);
+                int imageIndex = ImageListFactory.GetImageIndex(child.Name);
                 TreeNode newNode = new TreeNode(displayName, imageIndex, imageIndex);
                 newNode.Tag = child;
 

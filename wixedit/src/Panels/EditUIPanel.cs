@@ -185,5 +185,10 @@ namespace WixEdit.Panels
             editProgressTextPanel.ReloadData();
             editErrorPanel.ReloadData();
         }
+
+        public void CloseCurrentDialog()
+        {
+            editDialogPanel.CloseCurrentDialog();
+        }
     }
 }

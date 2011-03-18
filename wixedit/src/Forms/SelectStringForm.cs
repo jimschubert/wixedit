@@ -35,39 +35,50 @@ namespace WixEdit.Forms
 
         public SelectStringForm()
         {
-            InitializeComponent();
+            InitializeComponent("New Attribute Name");
         }
 
-        private void InitializeComponent()
+        public SelectStringForm(string title)
         {
-            Text = "New Attribute Name";
+            InitializeComponent(title);
+        }
+
+        private void InitializeComponent(string title)
+        {
+            Text = title;
             ShowInTaskbar = false;
 
             ButtonOk = new Button();
+            ButtonCancel = new Button();
+            StringList = new ListBox();
+            
+            ClientSize = new Size(ButtonCancel.Width + 2 + ButtonOk.Width, 262);
+            MinimumSize = new Size(ButtonCancel.Width + 2 + ButtonOk.Width, 262);
+
             ButtonOk.Text = "Ok";
-            ButtonOk.Dock = DockStyle.Left;
+            ButtonOk.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            ButtonOk.Location = new Point(0, 262 - ButtonOk.Height);
             ButtonOk.FlatStyle = FlatStyle.System;
             ButtonOk.Click += new EventHandler(OnOk);
             ButtonOk.Enabled = false;
             Controls.Add(ButtonOk);
 
-            ButtonCancel = new Button();
             ButtonCancel.Text = "Cancel";
-            ButtonCancel.Dock = DockStyle.Right;
+            ButtonCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            ButtonCancel.Location = new Point(2 + ButtonOk.Width, 262 - ButtonOk.Height);
             ButtonCancel.FlatStyle = FlatStyle.System;
             Controls.Add(ButtonCancel);
 
-            StringList = new ListBox();
-            StringList.Dock = DockStyle.Top;
+            StringList.Dock = DockStyle.Fill;
             StringList.SelectionMode = SelectionMode.MultiSimple;
             StringList.DoubleClick += new EventHandler(OnDoubleClickList);
             StringList.SelectedValueChanged += new EventHandler(OnSelectionChanged);
             Controls.Add(StringList);
 
-            StringList.Size = new Size(ButtonCancel.Width + 2 + ButtonOk.Width, 237);
+            StringList.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            StringList.Size = new Size(ButtonCancel.Width + 2 + ButtonOk.Width, 238);
 
-            ClientSize = new Size(ButtonCancel.Width + 2 + ButtonOk.Width, 250);
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
             AcceptButton = ButtonOk;
             CancelButton = ButtonCancel;

@@ -41,7 +41,7 @@ namespace WixEdit.About {
         LinkLabel urlLabel;
 
         string versionFormatString = "WiX Edit v{0}";
-        string copyright = "Copyright (c) 2009 J.Keuper. All rights reserved";
+        string copyright = "Copyright © 2011 J.Keuper. All rights reserved";
         string url = "http://wixedit.sourceforge.net/";
 
 
