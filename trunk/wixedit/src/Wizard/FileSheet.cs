@@ -47,6 +47,7 @@ namespace WixEdit.Wizard
         Button newFolderButton;
         Button removeButton;
         Button importDirectoryButton;
+        Button importFilesButton;
 
         IconMenuItem importFilesMenuItem;
         IconMenuItem importFolderMenuItem;
@@ -161,6 +162,16 @@ namespace WixEdit.Wizard
             importDirectoryButton.Click += new EventHandler(importDirectoryButton_Click);
 
             this.Controls.Add(importDirectoryButton);
+
+            importFilesButton = new Button();
+            importFilesButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            importFilesButton.Location = new Point(tree.Location.X + tree.Width + 8, importDirectoryButton.Bottom + 8);
+            importFilesButton.Width = 100;
+            importFilesButton.Height = 23;
+            importFilesButton.Text = "Import files";
+            importFilesButton.Click += new EventHandler(importFilesButton_Click);
+
+            this.Controls.Add(importFilesButton);
 
             contextMenu = new ContextMenu();
             contextMenu.Popup += new EventHandler(contextMenu_Popup);

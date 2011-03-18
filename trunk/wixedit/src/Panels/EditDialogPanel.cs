@@ -1410,22 +1410,20 @@ namespace WixEdit.Panels
                 treeNodeName = xmlNodeToAdd.Attributes["Text"].Value;
             }
 
+            TreeNode child = new TreeNode(treeNodeName);
+            child.ImageIndex = GetImageIndex(xmlNodeToAdd.Name);
+            child.SelectedImageIndex = child.ImageIndex;
+            child.Tag = xmlNodeToAdd;
+            parent.Nodes.Add(child);
+
             XmlAttribute attr = xmlNodeToAdd.ParentNode.Attributes["Type"];
             if (attr != null
                 && treeNodeName == attr.Value)
             {
                 foreach (XmlNode xmlChildNode in xmlNodeToAdd.ChildNodes)
                 {
-                    AddControlSubTreeItems(parent, xmlChildNode);
+                    AddControlSubTreeItems(child, xmlChildNode);
                 }
-            }
-            else
-            {
-                TreeNode child = new TreeNode(treeNodeName);
-                child.ImageIndex = GetImageIndex(xmlNodeToAdd.Name);
-                child.SelectedImageIndex = child.ImageIndex;
-                child.Tag = xmlNodeToAdd;
-                parent.Nodes.Add(child);
             }
         }
 
@@ -1962,6 +1960,16 @@ namespace WixEdit.Panels
             }
 
             base.Dispose(disposing);
+        }
+
+        public void CloseCurrentDialog()
+        {
+            if (currentDialog != null)
+            {
+                currentDialog.Close();
+                currentDialog.Dispose();
+                currentDialog = null;
+            }
         }
     }
 }

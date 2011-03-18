@@ -83,7 +83,7 @@ namespace WixEdit.Panels
                 }
             }
 
-            SelectStringForm frm = new SelectStringForm();
+            SelectStringForm frm = new SelectStringForm("Select components");
             frm.PossibleStrings = componentIds.ToArray(typeof(String)) as String[];
             if (DialogResult.OK != frm.ShowDialog())
             {

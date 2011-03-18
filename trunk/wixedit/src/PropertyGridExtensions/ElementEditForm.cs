@@ -90,7 +90,7 @@ namespace WixEdit {
 
             Activated += new EventHandler(IsActivated);
 
-            elementPropertyGrid.SelectedObject = new XmlAttributeAdapter(elementNode, wixFiles);
+            elementPropertyGrid.SelectedObject = new XmlAttributeAdapter(elementNode, wixFiles, true);
         }
 
         private void IsActivated(object sender, EventArgs e) {

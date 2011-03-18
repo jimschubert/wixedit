@@ -1128,7 +1128,31 @@ namespace WixEdit.Xml
 
             if (result == DialogResult.Yes)
             {
-                LoadWxsFile();
+                try
+                {
+                    LoadWxsFile();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show(String.Format("Access is denied. ({0}))", wxsFile.Name), "Acces denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                catch (XmlException ex)
+                {
+                    MessageBox.Show(String.Format("Failed to open file. ({0}) The xml is not valid:\r\n\r\n{1}", wxsFile.Name, ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                catch (WixEditException ex)
+                {
+                    MessageBox.Show(String.Format("Cannot open file:\r\n\r\n{0}", ex.Message), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                catch
+                {
+                    MessageBox.Show(String.Format("Failed to open file. ({0}))", wxsFile.Name), "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+
                 UndoManager.Clear();
                 UndoManager.DocumentIsSaved();
 

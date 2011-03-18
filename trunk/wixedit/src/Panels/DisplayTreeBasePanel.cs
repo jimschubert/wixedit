@@ -650,7 +650,7 @@ namespace WixEdit.Panels
                             displayName = valueRoot + "\\" + valueKey;
                             if (element.Attributes["Name"] != null)
                             {
-                                displayName = valueRoot + "\\" + valueKey + "\\" + element.Attributes["Name"].Value;
+                                displayName = valueRoot + "\\" + valueKey + "\\@" + element.Attributes["Name"].Value;
                             }
                         }
                         break;
@@ -933,7 +933,15 @@ namespace WixEdit.Panels
             {
                 if (currTreeView.Nodes.Count > 0)
                 {
-                    currTreeView.Nodes[0].Expand();
+                    foreach (TreeNode node in currTreeView.Nodes)
+                    {
+                        node.Expand();
+
+                        foreach (TreeNode subNode in node.Nodes)
+                        {
+                            subNode.Expand();
+                        }
+                    }
                 }
             }
 

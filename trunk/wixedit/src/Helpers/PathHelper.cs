@@ -55,6 +55,12 @@ namespace WixEdit.Helpers
                 wxsDirectory = wxsDirectory + sepCharString;
             }
 
+            if (path.Substring(0, 1).ToUpper() != wxsDirectory.Substring(0, 1).ToUpper())
+            {
+                // Different drives, use absolute
+                return path;
+            }
+            
             Uri wxsDirectoryUri = new Uri(wxsDirectory);
 
             string relativeValue = wxsDirectoryUri.MakeRelativeUri(newPathUri).ToString();

@@ -369,9 +369,22 @@ namespace WixEdit.Settings {
                         dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
                     }
 
-                    parent = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
-                    dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
-                    dirs.AddRange(parent.GetDirectories("wix*"));
+                    if (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") != null)
+                    {
+                        parent = new DirectoryInfo(Environment.GetEnvironmentVariable("PROGRAMFILES(X86)"));
+                        dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                        dirs.AddRange(parent.GetDirectories("wix*"));
+
+                        parent = new DirectoryInfo(Environment.GetEnvironmentVariable("PROGRAMFILES"));
+                        dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                        dirs.AddRange(parent.GetDirectories("wix*"));
+                    }
+                    else
+                    {
+                        parent = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+                        dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
+                        dirs.AddRange(parent.GetDirectories("wix*"));
+                    }
 
                     parent = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Programs));
                     dirs.AddRange(parent.GetDirectories("Windows Installer XML*"));
